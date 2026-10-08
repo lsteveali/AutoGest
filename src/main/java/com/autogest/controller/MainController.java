@@ -11,7 +11,7 @@ import java.util.ResourceBundle;
  * Root controller of the application shell.
  *
  * <p>Holds the central container where the {@code ViewNavigator} loads the
- * screens. Sidebar and Topbar components are attached in later layers.</p>
+ * screens, and starts the navigation on the home screen.</p>
  *
  * <p>Principles: High Cohesion, Controller.</p>
  */
@@ -20,13 +20,16 @@ public class MainController implements Initializable {
     @FXML
     private StackPane contentArea;
 
+    private ViewNavigator navigator;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        // Navigation wiring is attached by ViewNavigator (Sprint 1, L3).
+        navigator = new ViewNavigator(contentArea);
+        navigator.navigateTo(View.HOME);
     }
 
-    /** Returns the central container used for screen navigation. */
-    public StackPane getContentArea() {
-        return contentArea;
+    /** Returns the screen navigator used by the central area. */
+    public ViewNavigator getNavigator() {
+        return navigator;
     }
 }

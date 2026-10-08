@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<StackPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+           styleClass="empty-state">
+
+    <VBox alignment="CENTER" spacing="12">
+        <Label styleClass="page-title" text="Editar cliente" />
+        <Label styleClass="page-subtitle" text="En construcción" />
+    </VBox>
+
+</StackPane>
