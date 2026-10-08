@@ -1,23 +1,25 @@
 package com.autogest;
 
 import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
 /**
  * Entry point of the AutoGest desktop application.
  *
- * <p>Creates the main window (minimum 1280x720) and the root layout. The
- * application shell and the navigation are loaded in later layers.</p>
+ * <p>Loads the application shell ({@code /fxml/main.fxml}) in a window with
+ * minimum size 1280x720. The shell contains the Sidebar, the Topbar and the
+ * central area where the {@code ViewNavigator} changes screens.</p>
  *
  * <p>Principles: High Cohesion.</p>
  */
 public class AutoGestApplication extends Application {
 
     @Override
-    public void start(Stage stage) {
-        BorderPane root = new BorderPane();
+    public void start(Stage stage) throws Exception {
+        Parent root = FXMLLoader.load(getClass().getResource("/fxml/main.fxml"));
 
         Scene scene = new Scene(root, 1280, 720);
         stage.setTitle("AutoGest");
