@@ -84,7 +84,8 @@ feature/<nombre>   una rama por módulo o tarea grande
 
 ## Convenciones de código
 
-- Código, nombres y comentarios en **inglés**; textos de pantalla y commits en **español**.
+- La **codificación** (clases, métodos, paquetes, columnas, archivos FXML/CSS) va en **inglés**.
+- Los **comentarios, el Javadoc y los commits** van en **español**; los textos de pantalla también en español.
 - Dinero con `BigDecimal` (escala 2, `RoundingMode.HALF_UP`); fechas con `LocalDate`/`LocalDateTime`.
 - `javafx.*` solo en `controller`; `java.sql.*` solo en `dao` y `config`.
 - Javadoc obligatorio en clases y métodos públicos, con la línea `Principles: ...`.

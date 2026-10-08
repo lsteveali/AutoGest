@@ -1,4 +1,5 @@
 /**
- * Repositories: organized data access that completes relations between entities.
+ * Repositorios: acceso a datos organizado que completa las relaciones entre
+ * entidades.
  */
 package com.autogest.repository;

@@ -1,17 +1,18 @@
 package com.autogest.controller;
 
 /**
- * Implemented by controllers that receive a parameter when the view is
- * opened with one (for example the id of the entity to show or edit).
+ * La implementan los controladores que reciben un parámetro cuando la
+ * pantalla se abre con uno (por ejemplo el id de la entidad que se muestra
+ * o se edita).
  *
  * <p>Principles: Indirection, Low Coupling.</p>
  */
 public interface ParameterizedController {
 
     /**
-     * Receives the navigation parameter (usually an entity id).
+     * Recibe el parámetro de navegación (normalmente un id de entidad).
      *
-     * @param parameter id of the entity loaded by this screen
+     * @param parameter id de la entidad cargada por esta pantalla
      */
     void receiveParameter(int parameter);
 }

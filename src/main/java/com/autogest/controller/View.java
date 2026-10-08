@@ -1,8 +1,9 @@
 package com.autogest.controller;
 
 /**
- * Application views: each constant knows its FXML path, the screen title
- * shown to the user (Spanish) and the Sidebar section it activates.
+ * Pantallas de la aplicación: cada constante conoce su ruta FXML, el título
+ * que se muestra al usuario (en español) y la sección de la barra lateral
+ * que activa.
  *
  * <p>Principles: High Cohesion, Indirection.</p>
  */
@@ -37,17 +38,17 @@ public enum View {
         this.sidebarSection = sidebarSection;
     }
 
-    /** FXML resource path of the view. */
+    /** Ruta del recurso FXML de la pantalla. */
     public String getFxmlPath() {
         return fxmlPath;
     }
 
-    /** Screen title shown to the user (Spanish). */
+    /** Título de la pantalla mostrado al usuario (español). */
     public String getTitle() {
         return title;
     }
 
-    /** Sidebar section activated when this view is shown. */
+    /** Sección de la barra lateral que se activa al mostrar esta pantalla. */
     public View getSidebarSection() {
         return valueOf(sidebarSection);
     }

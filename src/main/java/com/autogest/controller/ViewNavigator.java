@@ -10,9 +10,9 @@ import java.util.Deque;
 import java.util.function.Consumer;
 
 /**
- * Loads application screens in the central container and keeps the
- * navigation history. It is the only class that changes screens, so no
- * controller knows another screen directly.
+ * Carga las pantallas de la aplicación en el área central y mantiene el
+ * historial de navegación. Es la única clase que cambia de pantalla, por lo
+ * que ningún controlador conoce directamente a otra pantalla.
  *
  * <p>Principles: Indirection, Pure Fabrication.</p>
  */
@@ -23,27 +23,27 @@ public class ViewNavigator {
     private Consumer<View> onViewChange;
 
     /**
-     * Creates a navigator bound to the given central container.
+     * Crea un navegador vinculado al contenedor central indicado.
      *
-     * @param container StackPane where the screens are loaded
+     * @param container StackPane donde se cargan las pantallas
      */
     public ViewNavigator(StackPane container) {
         this.container = container;
     }
 
-    /** Navigates to a view without parameters. */
+    /** Navega a una pantalla sin parámetros. */
     public void navigateTo(View view) {
         history.push(view);
         load(view, null);
     }
 
-    /** Navigates to a view passing an id parameter (detail/edit screens). */
+    /** Navega a una pantalla pasando un id como parámetro (detalle/edición). */
     public void navigateWithParameter(View view, int parameter) {
         history.push(view);
         load(view, parameter);
     }
 
-    /** Returns to the previously visited view. */
+    /** Regresa a la pantalla visitada anteriormente. */
     public void goBack() {
         if (history.isEmpty()) {
             return;
@@ -57,10 +57,10 @@ public class ViewNavigator {
     }
 
     /**
-     * Registers a callback invoked after each navigation, used to highlight
-     * the active item in the Sidebar.
+     * Registra un callback que se ejecuta tras cada navegación, usado para
+     * resaltar el ítem activo de la Sidebar.
      *
-     * @param onViewChange consumer that receives the displayed view
+     * @param onViewChange consumidor que recibe la pantalla mostrada
      */
     public void setOnViewChange(Consumer<View> onViewChange) {
         this.onViewChange = onViewChange;

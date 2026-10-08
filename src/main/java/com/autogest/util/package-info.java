@@ -1,4 +1,4 @@
 /**
- * Shared utilities: Formatter, PasswordHasher and Session.
+ * Utilidades compartidas: Formatter, PasswordHasher y Session.
  */
 package com.autogest.util;

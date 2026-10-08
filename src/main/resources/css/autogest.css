@@ -1,11 +1,11 @@
 /* ==========================================================================
-   AutoGest - Design system (Sprint 1, L4)
-   Values measured from the mockups and fixed by the Leader.
-   No FXML or Java class uses hard-coded colors: everything comes from here.
+   AutoGest - Sistema de diseño (Sprint 1, L4)
+   Valores medidos de los mockups y fijados por el Líder.
+   Ningún FXML ni clase Java usa colores fijos: todo viene de aquí.
    ========================================================================== */
 
 .root {
-    /* Color tokens */
+    /* Colores */
     -ag-navy: #101E39;
     -ag-primary: #2F6DB5;
     -ag-primary-hover: #275d9c;
@@ -20,7 +20,7 @@
     -ag-danger: #D64545;
     -ag-neutral: #8A94A6;
 
-    /* Typography */
+    /* Tipografía */
     -fx-font-family: "Roboto", "Segoe UI", sans-serif;
     -fx-font-size: 14px;
     -fx-text-fill: -ag-text;
@@ -84,7 +84,7 @@
 }
 
 /* --------------------------------------------------------------------------
-   Page header
+   Cabecera de página
    -------------------------------------------------------------------------- */
 .page-title {
     -fx-font-size: 28px;
@@ -97,7 +97,7 @@
 }
 
 /* --------------------------------------------------------------------------
-   Cards
+   Tarjetas
    -------------------------------------------------------------------------- */
 .card {
     -fx-background-color: -ag-card;
@@ -114,7 +114,7 @@
 }
 
 /* --------------------------------------------------------------------------
-   Buttons
+   Botones
    -------------------------------------------------------------------------- */
 .button {
     -fx-background-radius: 8;
@@ -157,7 +157,7 @@
 }
 
 /* --------------------------------------------------------------------------
-   Inputs
+   Campos de entrada
    -------------------------------------------------------------------------- */
 .input {
     -fx-background-color: -ag-card;
@@ -184,7 +184,7 @@
 }
 
 /* --------------------------------------------------------------------------
-   Status badges
+   Insignias de estado
    -------------------------------------------------------------------------- */
 .badge {
     -fx-background-radius: 999;
@@ -219,7 +219,7 @@
 }
 
 /* --------------------------------------------------------------------------
-   Table
+   Tabla
    -------------------------------------------------------------------------- */
 .table-autogest {
     -fx-background-color: transparent;
@@ -262,7 +262,30 @@
 }
 
 /* --------------------------------------------------------------------------
-   Reusable components
+   Íconos (D-15: SVGPath propios, íconos lineales, sin dependencia)
+   -------------------------------------------------------------------------- */
+.icon {
+    -fx-fill: transparent;
+    -fx-stroke: -ag-text-muted;
+    -fx-stroke-width: 1.8;
+    -fx-stroke-line-cap: round;
+    -fx-stroke-line-join: round;
+}
+
+.sidebar-item .icon {
+    -fx-stroke: #C7D2E3;
+}
+
+.sidebar-item:hover .icon {
+    -fx-stroke: #FFFFFF;
+}
+
+.sidebar-item-active .icon {
+    -fx-stroke: #FFFFFF;
+}
+
+/* --------------------------------------------------------------------------
+   Componentes reutilizables
    -------------------------------------------------------------------------- */
 .kpi-card {
     -fx-background-color: -ag-card;
@@ -304,7 +327,7 @@
 }
 
 /* --------------------------------------------------------------------------
-   Empty state
+   Estado vacío
    -------------------------------------------------------------------------- */
 .empty-state {
     -fx-background-color: -ag-card;

@@ -22,7 +22,7 @@
 
     <dependencies>
 
-        <!-- JavaFX Controls -->
+        <!-- JavaFX controles -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
@@ -36,7 +36,7 @@
             <version>${javafx.version}</version>
         </dependency>
 
-        <!-- PostgreSQL Driver (Supabase) -->
+        <!-- Driver PostgreSQL (Supabase) -->
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
@@ -44,7 +44,7 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!-- JUnit 5 (Testing) -->
+        <!-- JUnit 5 (pruebas) -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
@@ -57,7 +57,7 @@
     <build>
         <plugins>
 
-            <!-- Maven Compiler -->
+            <!-- Compilador Maven -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -67,14 +67,14 @@
                 </configuration>
             </plugin>
 
-            <!-- Maven Surefire (JUnit 5 runner) -->
+            <!-- Surefire de Maven (ejecutor de JUnit 5) -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.2.5</version>
             </plugin>
 
-            <!-- JavaFX Maven Plugin -->
+            <!-- Plugin JavaFX de Maven -->
             <plugin>
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-maven-plugin</artifactId>

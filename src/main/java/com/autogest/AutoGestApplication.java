@@ -7,11 +7,11 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 /**
- * Entry point of the AutoGest desktop application.
+ * Punto de entrada de la aplicación de escritorio AutoGest.
  *
- * <p>Loads the application shell ({@code /fxml/main.fxml}) in a window with
- * minimum size 1280x720. The shell contains the Sidebar, the Topbar and the
- * central area where the {@code ViewNavigator} changes screens.</p>
+ * <p>Carga el shell de la aplicación ({@code /fxml/main.fxml}) en una ventana
+ * con tamaño mínimo 1280x720. El shell contiene la Sidebar, la Topbar y el
+ * área central donde el {@code ViewNavigator} cambia de pantalla.</p>
  *
  * <p>Principles: High Cohesion.</p>
  */

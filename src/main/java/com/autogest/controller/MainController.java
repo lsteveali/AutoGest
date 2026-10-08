@@ -8,10 +8,10 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 /**
- * Root controller of the application shell.
+ * Controlador raíz del shell de la aplicación.
  *
- * <p>Holds the central container where the {@code ViewNavigator} loads the
- * screens, and starts the navigation on the home screen.</p>
+ * <p>Contiene el área central donde el {@code ViewNavigator} carga las
+ * pantallas y arranca la navegación en la pantalla de inicio.</p>
  *
  * <p>Principles: High Cohesion, Controller.</p>
  */
@@ -28,7 +28,7 @@ public class MainController implements Initializable {
         navigator.navigateTo(View.HOME);
     }
 
-    /** Returns the screen navigator used by the central area. */
+    /** Devuelve el navegador de pantallas usado por el área central. */
     public ViewNavigator getNavigator() {
         return navigator;
     }

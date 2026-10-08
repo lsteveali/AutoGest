@@ -1,4 +1,5 @@
 /**
- * Application configuration, dependency wiring (AppContext) and database connection.
+ * Configuración de la aplicación, ensamblaje de dependencias (AppContext)
+ * y conexión a la base de datos.
  */
 package com.autogest.config;
