@@ -22,6 +22,7 @@ public class AutoGestApplication extends Application {
         Parent root = FXMLLoader.load(getClass().getResource("/fxml/main.fxml"));
 
         Scene scene = new Scene(root, 1280, 720);
+        scene.getStylesheets().add(getClass().getResource("/css/autogest.css").toExternalForm());
         stage.setTitle("AutoGest");
         stage.setScene(scene);
         stage.show();
