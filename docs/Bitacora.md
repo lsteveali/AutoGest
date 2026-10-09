@@ -136,8 +136,8 @@ ajeno, que aún no existe en el repositorio:
 - `dao/CrudOperations`, `exception/*`, `config/DatabaseConnection` (Dev 2).
 
 Sin ellos no compilan `UserDao`, `UserRepository`, `AuthenticationService`,
-`UserService`, `Session` ni `Permissions`. **[PENDIENTE] decidir cómo
-desbloquear** (ver §5).
+`UserService`, `Session` ni `Permissions`. **Decisión (09/10):** esperar a
+Dev 1 y Dev 2; no se tocan archivos de otros roles (ver §4 y §5).
 
 ---
 
@@ -150,6 +150,7 @@ desbloquear** (ver §5).
 | 08/10/2026 | La pantalla `demo-components.fxml` **no** es una vista de la barra lateral. | Es solo para desarrollo; se abre cargando el FXML aparte. |
 | 08/10/2026 | `PagedTable` ordena sobre el **conjunto completo**, no solo la página visible. | Evita el error de que la paginación y el orden se contradigan. |
 | 08/10/2026 | El archivo `AGENTS.md` adjunto (GYMBROT / HTML) **se ignora**. | Pertenece a otro proyecto y no aplica a AutoGest. |
+| 09/10/2026 | **Esperar a Dev 1 y Dev 2** antes de continuar el Sprint 2. | El modelo (`User`, `Role`, `UserStatus`) es de Dev 1 y la infraestructura (`CrudOperations`, excepciones, `DatabaseConnection`) es de Dev 2. No se tocan archivos de otros roles sin pedido de cambio. |
 
 ---
 
@@ -162,11 +163,18 @@ desbloquear** (ver §5).
 - [ ] Eliminar la rama `feature/base-presentacion` (local y remota) tras el merge.
 - [ ] `git stash drop` (el `stash@{0}` de iconos ya está incorporado).
 
-**⚠ Bloqueo del Sprint 2 (a resolver):** el módulo Usuarios depende del Sprint 1 ajeno, que aún no está en el repositorio:
-- `model/User`, `model/Role`, `model/UserStatus` (Dev 1).
-- `dao/CrudOperations`, `exception/*`, `config/DatabaseConnection` (Dev 2).
+**⚠ Sprint 2 detenido — a la espera de Dev 1 y Dev 2 (decisión 09/10/2026):**
 
-Opciones: **(a)** esperar que Dev 1 y Dev 2 entreguen su Sprint 1; **(b)** el Líder asume temporalmente esas piezas (la guía lo permite expresamente para el Dev 2) y las reemplaza cuando lleguen.
+| Necesito de | Pieza (contrato) | Estado |
+|---|---|---|
+| Dev 1 | `model/User`, `model/Role`, `model/UserStatus` | ⬜ pendiente |
+| Dev 2 | `dao/CrudOperations<T>` (firma 7.1) | ⬜ pendiente |
+| Dev 2 | `exception/*` (`ValidationException`, `NotFoundException`, `DataAccessException`) | ⬜ pendiente |
+| Dev 2 | `config/DatabaseConnection` (firma 7.1) | ⬜ pendiente |
+
+Cuando lleguen, el Líder continúa con `UserDao`, `UserRepository`,
+`AuthenticationService`, `UserService`, `Session`, `Permissions` y sus pruebas,
+más `docs/database/seed-usuarios.sql`.
 
 **En curso (Líder, Sprint 2 — rama `feature/login-usuarios`):**
 - [x] `PasswordHasher` (PBKDF2) + 6 pruebas.
