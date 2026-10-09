@@ -1,0 +1,89 @@
+package com.autogest.controller;
+
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.layout.StackPane;
+
+import java.io.IOException;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.function.Consumer;
+
+/**
+ * Carga las pantallas de la aplicación en el área central y mantiene el
+ * historial de navegación. Es la única clase que cambia de pantalla, por lo
+ * que ningún controlador conoce directamente a otra pantalla.
+ *
+ * <p>Principles: Indirection, Pure Fabrication.</p>
+ */
+public class ViewNavigator {
+
+    private final StackPane container;
+    private final Deque<View> history = new ArrayDeque<>();
+    private Consumer<View> onViewChange;
+
+    /**
+     * Crea un navegador vinculado al contenedor central indicado.
+     *
+     * @param container StackPane donde se cargan las pantallas
+     */
+    public ViewNavigator(StackPane container) {
+        this.container = container;
+    }
+
+    /** Navega a una pantalla sin parámetros. */
+    public void navigateTo(View view) {
+        history.push(view);
+        load(view, null);
+    }
+
+    /** Navega a una pantalla pasando un id como parámetro (detalle/edición). */
+    public void navigateWithParameter(View view, int parameter) {
+        history.push(view);
+        load(view, parameter);
+    }
+
+    /** Regresa a la pantalla visitada anteriormente. */
+    public void goBack() {
+        if (history.isEmpty()) {
+            return;
+        }
+        history.pop();
+        View previous = history.isEmpty() ? View.HOME : history.peek();
+        if (history.isEmpty()) {
+            history.push(previous);
+        }
+        load(previous, null);
+    }
+
+    /**
+     * Registra un callback que se ejecuta tras cada navegación, usado para
+     * resaltar el ítem activo de la Sidebar.
+     *
+     * @param onViewChange consumidor que recibe la pantalla mostrada
+     */
+    public void setOnViewChange(Consumer<View> onViewChange) {
+        this.onViewChange = onViewChange;
+    }
+
+    private void load(View view, Integer parameter) {
+        var url = getClass().getResource(view.getFxmlPath());
+        if (url == null) {
+            throw new IllegalStateException("No se encontró el archivo FXML de " + view.getTitle());
+        }
+        try {
+            FXMLLoader loader = new FXMLLoader(url);
+            Parent root = loader.load();
+            if (parameter != null && loader.getController() instanceof ParameterizedController pc) {
+                pc.receiveParameter(parameter);
+            }
+            container.getChildren().clear();
+            container.getChildren().add(root);
+            if (onViewChange != null) {
+                onViewChange.accept(view);
+            }
+        } catch (IOException e) {
+            throw new IllegalStateException("No se pudo cargar la pantalla " + view.getTitle(), e);
+        }
+    }
+}
