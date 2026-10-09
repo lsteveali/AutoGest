@@ -40,7 +40,7 @@
 
 | Id | Entregable | Estado | Notas |
 |---|---|---|---|
-| S2-PR1 | Backend (`PasswordHasher`, `UserDao`, `UserRepository`, `AuthenticationService`, `UserService`, `Session`, `Permissions`) | ⬜ No iniciado | Rama prevista: `feature/login-usuarios`. |
+| S2-PR1 | Backend (`PasswordHasher`, `UserDao`, `UserRepository`, `AuthenticationService`, `UserService`, `Session`, `Permissions`) | 🟡 En progreso | Rama `feature/login-usuarios`. Hecho: `PasswordHasher` (+6 pruebas). **Bloqueado** por el modelo `User`/`Role`/`UserStatus` y la infraestructura `CrudOperations`/excepciones/`DatabaseConnection` (ver §5). |
 | S2-PR2 | Interfaz (Login, shell con sesión, Usuarios y roles) | ⬜ No iniciado | Depende de PR1. |
 
 ### Sprints 3–9 (hoja de ruta)
@@ -110,8 +110,34 @@ estaba en el PATH (se usó el de IntelliJ) y Java 25 estaba instalado.
 
 8. **Pull Request.** `feature/base-presentacion` → `develop`. No se pudo crear
    por API (no hay `gh` ni token en el entorno); se prellenó y abrió la página de
-   comparación de GitHub para crearlo manualmente. **[PENDIENTE] hacer clic en
-   «Create pull request» y que Sebastián lo revise.**
+   comparación de GitHub para crearlo manualmente. **Resuelto:** el PR #1 se
+   creó y se fusionó (ver Sesión 2).
+
+### 08/10/2026 — Sesión 2 (Líder): PR #1 fusionado e inicio del Sprint 2
+
+**Confirmación y sincronización Git:**
+- El PR **#1** (`feature/base-presentacion` → `develop`) quedó **fusionado** en
+  `develop` como `2946d88 Merge pull request #1`.
+- Se detectó que el commit de la bitácora (`dc1e876`) se subió **después** del
+  merge, por lo que **no quedó incluido en `develop`**. Se recuperó el archivo en
+  la rama nueva para no perderlo.
+- `develop` local sincronizado con `origin/develop` (fast-forward a `2946d88`).
+- Se creó la rama **`feature/login-usuarios`** desde `develop`.
+
+**Hecho en esta sesión:**
+1. `util/PasswordHasher` (PBKDF2-HMAC-SHA256, 600.000 iteraciones, sal de 16
+   bytes, formato `iteraciones:sal:hash`, comparación en tiempo constante) y
+   `PasswordHasherTest` (6 pruebas).
+2. Se actualizó esta bitácora y se incorporó a la rama `feature/login-usuarios`.
+
+**Bloqueo identificado:** el Sprint 2 (módulo Usuarios) necesita del Sprint 1
+ajeno, que aún no existe en el repositorio:
+- `model/User`, `model/Role`, `model/UserStatus` (Dev 1).
+- `dao/CrudOperations`, `exception/*`, `config/DatabaseConnection` (Dev 2).
+
+Sin ellos no compilan `UserDao`, `UserRepository`, `AuthenticationService`,
+`UserService`, `Session` ni `Permissions`. **[PENDIENTE] decidir cómo
+desbloquear** (ver §5).
 
 ---
 
@@ -130,14 +156,22 @@ estaba en el PATH (se usó el de IntelliJ) y Java 25 estaba instalado.
 ## 5. Pendientes y próximo
 
 **Pendientes del Sprint 1:**
+- [x] ~~Crear/mergear el Pull Request a `develop`~~ — PR #1 fusionado (`2946d88`).
+- [x] ~~Sincronizar `develop` y crear la rama del Sprint 2~~ — hecho (`feature/login-usuarios`).
 - [ ] Fuentes Roboto Regular/Medium/Bold en `resources/css/fonts/` + `Font.loadFont`.
-- [ ] Crear/mergear el Pull Request a `develop` y que lo revise Sebastián.
-- [ ] Tras el merge, eliminar la rama `feature/base-presentacion` (local y remota).
+- [ ] Eliminar la rama `feature/base-presentacion` (local y remota) tras el merge.
 - [ ] `git stash drop` (el `stash@{0}` de iconos ya está incorporado).
 
-**Próximo (Líder, Sprint 2 — rama `feature/login-usuarios`):**
-- [ ] Backend: `PasswordHasher` (PBKDF2), `UserDao`, `UserRepository`,
-      `AuthenticationService`, `UserService`, `Session`, `Permissions` y pruebas.
+**⚠ Bloqueo del Sprint 2 (a resolver):** el módulo Usuarios depende del Sprint 1 ajeno, que aún no está en el repositorio:
+- `model/User`, `model/Role`, `model/UserStatus` (Dev 1).
+- `dao/CrudOperations`, `exception/*`, `config/DatabaseConnection` (Dev 2).
+
+Opciones: **(a)** esperar que Dev 1 y Dev 2 entreguen su Sprint 1; **(b)** el Líder asume temporalmente esas piezas (la guía lo permite expresamente para el Dev 2) y las reemplaza cuando lleguen.
+
+**En curso (Líder, Sprint 2 — rama `feature/login-usuarios`):**
+- [x] `PasswordHasher` (PBKDF2) + 6 pruebas.
+- [ ] `UserDao`, `UserRepository`, `AuthenticationService`, `UserService`,
+      `Session`, `Permissions` y pruebas **(bloqueado por lo anterior)**.
 - [ ] `docs/database/seed-usuarios.sql` (hashes generados con `PasswordHasher`).
 - [ ] Interfaz: Login, shell con sesión (Topbar con usuario y «Cerrar sesión»,
       Sidebar con permisos) y Usuarios y roles.
