@@ -1,32 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.StackPane?>
-<?import javafx.scene.layout.VBox?>
+
+<?import com.autogest.controller.components.AssistantButton?>
+<?import com.autogest.controller.components.Sidebar?>
+<?import com.autogest.controller.components.Topbar?>
 
 <BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.autogest.controller.MainController"
             styleClass="app-shell">
 
-    <!-- Izquierda: marcador de navegación, reemplazado por el componente Sidebar (Sprint 1, L5). -->
+    <!-- Izquierda: navegación oficial (reutilizable por todas las pantallas). -->
     <left>
-        <VBox styleClass="sidebar-placeholder" prefWidth="240" alignment="TOP_CENTER">
-            <Label styleClass="app-title" text="AutoGest" />
-            <Label text="Sidebar" />
-        </VBox>
+        <Sidebar fx:id="sidebar" />
     </left>
 
-    <!-- Arriba: marcador de cabecera, reemplazado por el componente Topbar (Sprint 1, L5). -->
+    <!-- Arriba: cabecera con campana y usuario actual. -->
     <top>
-        <VBox styleClass="topbar-placeholder" prefHeight="64" alignment="CENTER_LEFT">
-            <Label text="Topbar" />
-        </VBox>
+        <Topbar fx:id="topbar" />
     </top>
 
-    <!-- Centro: aquí el ViewNavigator carga las pantallas. -->
+    <!-- Centro: área donde el ViewNavigator carga las pantallas y botón flotante del Asistente. -->
     <center>
-        <StackPane fx:id="contentArea" styleClass="content-area" />
+        <StackPane>
+            <StackPane fx:id="contentArea" styleClass="content-area" />
+            <AssistantButton fx:id="assistantButton" StackPane.alignment="BOTTOM_RIGHT" />
+        </StackPane>
     </center>
 
 </BorderPane>
