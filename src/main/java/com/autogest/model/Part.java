@@ -130,9 +130,9 @@ public class Part {
 
     /** Deriva el estado: 0 = agotado, menor o igual al mínimo = stock bajo, otro caso = disponible. */
     private void updateStatus() {
-        if (isOutOfStock()) {
+        if (currentStock == 0) {
             status = StockStatus.OUT_OF_STOCK;
-        } else if (isBelowMinimum()) {
+        } else if (currentStock <= minimumStock) {
             status = StockStatus.LOW_STOCK;
         } else {
             status = StockStatus.AVAILABLE;
