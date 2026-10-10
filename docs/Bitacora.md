@@ -4,7 +4,7 @@
 > termina una tarea se agrega/actualiza su estado y, cuando aporta, una entrada
 > en la sección «Bitácora cronológica».
 >
-> Última actualización: **08/10/2026** — Líder (Leonarth Steve Ali Camargo).
+> Última actualización: **10/10/2026** — Líder (Leonarth Steve Ali Camargo).
 
 ---
 
@@ -15,8 +15,8 @@
 | Proyecto | AutoGest — Sistema de gestión integral para talleres automotrices |
 | Materia | Programación de Computadores III (SS462) |
 | Repositorio | https://github.com/lsteveali/AutoGest.git |
-| Rama de trabajo actual | `feature/base-presentacion` |
-| Sprint en curso | **Sprint 1 — Base del proyecto** (Líder) |
+| Rama de trabajo actual | `feature/login-usuarios` |
+| Sprint en curso | **Sprint 2 — Login, sesión, permisos y Usuarios y roles** (Líder) |
 | Equipo | Líder: Leonarth Steve Ali Camargo · Dev 1: Sebastián Murgas Tejeda · Dev 2: **[pendiente]** |
 | Documento guía | `AutoGest_Guia_Lider.md` (v1.0) |
 
@@ -36,11 +36,19 @@
 | L6 | Utilidades y conexión de dependencias | ✅ Hecho | `util/Formatter` (+ pruebas) y esqueleto de `config/AppContext`. |
 | L7 | Documentación | ✅ Hecho | `docs/architecture.md`, `docs/analysis-presentation-base.md`, `docs/architecture-class-diagram.md`. |
 
+### Aportes de Dev 1 y Dev 2 (Sprint 1) — integrados 10/10/2026
+
+| Entregable | Dueño | Estado |
+|---|---|---|
+| Paquete `model` completo (32 clases/enums + 14 pruebas) | Dev 1 | ✅ Integrado en `develop` (PR en revisión) |
+| `dao/CrudOperations<T>`, `config/DatabaseConnection`, `exception/*` | Dev 2 | ✅ Integrado en `develop` (PR en revisión) |
+| `docs/database/schema.sql`, `seed.sql` y `README.md` | Dev 2 | ✅ Integrado en `develop` (PR en revisión) |
+
 ### Sprint 2 — Login, sesión, permisos y Usuarios y roles (Líder)
 
 | Id | Entregable | Estado | Notas |
 |---|---|---|---|
-| S2-PR1 | Backend (`PasswordHasher`, `UserDao`, `UserRepository`, `AuthenticationService`, `UserService`, `Session`, `Permissions`) | 🟡 En progreso | Rama `feature/login-usuarios`. Hecho: `PasswordHasher` (+6 pruebas). **Bloqueado** por el modelo `User`/`Role`/`UserStatus` y la infraestructura `CrudOperations`/excepciones/`DatabaseConnection` (ver §5). |
+| S2-PR1 | Backend (`PasswordHasher`, `UserDao`, `UserRepository`, `AuthenticationService`, `UserService`, `Session`, `Permissions`) | 🟡 En progreso | Rama `feature/login-usuarios`. Hecho: `PasswordHasher` (+6 pruebas). **Destrabado (10/10):** modelo (Dev 1) e infraestructura (Dev 2) integrados en `develop` y enviados a revisión por PR (ver §3, Sesión 3). |
 | S2-PR2 | Interfaz (Login, shell con sesión, Usuarios y roles) | ⬜ No iniciado | Depende de PR1. |
 
 ### Sprints 3–9 (hoja de ruta)
@@ -139,6 +147,42 @@ Sin ellos no compilan `UserDao`, `UserRepository`, `AuthenticationService`,
 `UserService`, `Session` ni `Permissions`. **Decisión (09/10):** esperar a
 Dev 1 y Dev 2; no se tocan archivos de otros roles (ver §4 y §5).
 
+### 10/10/2026 — Sesión 3 (Líder): destrabar dependencias del Sprint 2
+
+**Objetivo.** Integrar en `develop` el trabajo pendiente de Dev 1
+(`feature/base-modelo`) y Dev 2 (`feature/base-datos`) para desbloquear el Sprint 2.
+
+**Análisis previo.** Las dos ramas tocan archivos totalmente disjuntos (intersección
+vacía): `base-datos` = `CrudOperations`, `DatabaseConnection`, `schema.sql`, `seed.sql`,
+docs y `pom.xml`; `base-modelo` = solo `model/*` + pruebas. `base-modelo` está 3 commits
+atrás de `develop` y **no compila por sí sola** (importa `PasswordHasher` y
+`ValidationException`, que viven en `develop`); por eso su verificación correcta es
+sobre `develop`.
+
+**Hecho y verificado:**
+1. `feature/base-datos` verificada de forma aislada: `mvn clean test` → **17 pruebas**.
+2. Integración de ambas ramas en una rama temporal `review/integracion` (sin tocar
+   `develop`): **sin conflictos**.
+3. `mvn clean test` sobre la integración → **BUILD SUCCESS, 108 pruebas, 0 fallos**.
+4. Chequeos de capas (sección 13): sin `javafx` en model/service/repository/dao; sin
+   `java.sql` fuera de dao/config; los `double` son solo geometría (`IconSet`,
+   `PagedTable`) y `durationHours` (permitido por la guía).
+5. `develop` local se actualizó con la integración y se re-verificó (108 pruebas). Luego
+   se dejó `develop` local **igual a `origin/develop`** para respetar el flujo de PR.
+
+**Entorno.** Maven no está en el PATH: se usó el de IntelliJ
+(`...\IntelliJ IDEA 2026.2.3\plugins\maven-plugin\lib\maven3\bin\mvn.cmd`) con
+`JAVA_HOME=C:\Users\Leo\.jdks\liberica-full-21.0.12.1` (Java 21).
+
+**Git / PR:**
+- Se subió `feature/base-datos` a `origin` (no tenía upstream).
+- PRs pendientes de crear y fusionar en GitHub:
+  - `feature/base-datos → develop`
+  - `feature/base-modelo → develop`
+
+**Pendiente:** crear y fusionar los dos PRs; tras el merge, actualizar `develop` local
+(`git pull`) y continuar con el backend del Sprint 2.
+
 ---
 
 ## 4. Decisiones y acuerdos
@@ -151,6 +195,7 @@ Dev 1 y Dev 2; no se tocan archivos de otros roles (ver §4 y §5).
 | 08/10/2026 | `PagedTable` ordena sobre el **conjunto completo**, no solo la página visible. | Evita el error de que la paginación y el orden se contradigan. |
 | 08/10/2026 | El archivo `AGENTS.md` adjunto (GYMBROT / HTML) **se ignora**. | Pertenece a otro proyecto y no aplica a AutoGest. |
 | 09/10/2026 | **Esperar a Dev 1 y Dev 2** antes de continuar el Sprint 2. | El modelo (`User`, `Role`, `UserStatus`) es de Dev 1 y la infraestructura (`CrudOperations`, excepciones, `DatabaseConnection`) es de Dev 2. No se tocan archivos de otros roles sin pedido de cambio. |
+| 10/10/2026 | Integrar modelo (Dev 1) e infraestructura (Dev 2) en `develop` **vía PR** antes de continuar el Sprint 2. | Desbloquea `UserDao`/`UserRepository`/`AuthenticationService`/`UserService` sin tocar archivos de otros roles. Ambos PRs verificados con `mvn clean test` (**108 pruebas**). |
 
 ---
 
@@ -163,23 +208,25 @@ Dev 1 y Dev 2; no se tocan archivos de otros roles (ver §4 y §5).
 - [ ] Eliminar la rama `feature/base-presentacion` (local y remota) tras el merge.
 - [ ] `git stash drop` (el `stash@{0}` de iconos ya está incorporado).
 
-**⚠ Sprint 2 detenido — a la espera de Dev 1 y Dev 2 (decisión 09/10/2026):**
+**✅ Dependencia resuelta — Sprint 2 destrabado (10/10/2026):**
 
 | Necesito de | Pieza (contrato) | Estado |
 |---|---|---|
-| Dev 1 | `model/User`, `model/Role`, `model/UserStatus` | ⬜ pendiente |
-| Dev 2 | `dao/CrudOperations<T>` (firma 7.1) | ⬜ pendiente |
-| Dev 2 | `exception/*` (`ValidationException`, `NotFoundException`, `DataAccessException`) | ⬜ pendiente |
-| Dev 2 | `config/DatabaseConnection` (firma 7.1) | ⬜ pendiente |
+| Dev 1 | `model/User`, `model/Role`, `model/UserStatus` | ✅ integrado en `develop` (PR en revisión) |
+| Dev 2 | `dao/CrudOperations<T>` (firma 7.1) | ✅ integrado en `develop` (PR en revisión) |
+| Dev 2 | `exception/*` (`ValidationException`, `NotFoundException`, `DataAccessException`) | ✅ en `develop` |
+| Dev 2 | `config/DatabaseConnection` (firma 7.1) | ✅ integrado en `develop` (PR en revisión) |
 
-Cuando lleguen, el Líder continúa con `UserDao`, `UserRepository`,
-`AuthenticationService`, `UserService`, `Session`, `Permissions` y sus pruebas,
-más `docs/database/seed-usuarios.sql`.
+Verificación: `develop` + ambas ramas → `mvn clean test` **108 pruebas, 0 fallos**
+(ver §3, Sesión 3).
+
+**Pendiente inmediato:** crear y fusionar los PRs `feature/base-datos → develop` y
+`feature/base-modelo → develop`; luego `git checkout develop && git pull`.
 
 **En curso (Líder, Sprint 2 — rama `feature/login-usuarios`):**
 - [x] `PasswordHasher` (PBKDF2) + 6 pruebas.
 - [ ] `UserDao`, `UserRepository`, `AuthenticationService`, `UserService`,
-      `Session`, `Permissions` y pruebas **(bloqueado por lo anterior)**.
+      `Session`, `Permissions` y pruebas **(listo para empezar)**.
 - [ ] `docs/database/seed-usuarios.sql` (hashes generados con `PasswordHasher`).
 - [ ] Interfaz: Login, shell con sesión (Topbar con usuario y «Cerrar sesión»,
       Sidebar con permisos) y Usuarios y roles.
