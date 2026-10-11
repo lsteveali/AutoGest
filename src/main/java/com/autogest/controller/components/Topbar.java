@@ -1,8 +1,11 @@
 package com.autogest.controller.components;
 
 import javafx.geometry.Pos;
+import javafx.scene.Cursor;
 import javafx.scene.control.Button;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
@@ -10,8 +13,9 @@ import javafx.scene.layout.VBox;
 
 /**
  * Cabecera superior del shell: campana de notificaciones y el usuario actual
- * con sus iniciales, nombre y rol. En el Sprint 1 muestra un usuario
- * provisional; en el Sprint 2 el shell le pasa el usuario de {@code Session}.
+ * con sus iniciales, nombre y rol. El shell le pasa el usuario de
+ * {@code Session} y la acción «Cerrar sesión», que se muestra en el menú del
+ * avatar.
  *
  * <p>Principles: Pure Fabrication, High Cohesion.</p>
  */
@@ -20,6 +24,8 @@ public class Topbar extends HBox {
     private final Label avatarLabel = new Label();
     private final Label nameLabel = new Label();
     private final Label roleLabel = new Label();
+
+    private Runnable onLogout;
 
     /** Crea la cabecera con el usuario provisional «Invitado». */
     public Topbar() {
@@ -38,8 +44,34 @@ public class Topbar extends HBox {
         roleLabel.getStyleClass().add("topbar-user-role");
         VBox userInfo = new VBox(0, nameLabel, roleLabel);
 
-        getChildren().addAll(spacer, notificationButton, avatarLabel, userInfo);
+        HBox userMenu = new HBox(10, avatarLabel, userInfo);
+        userMenu.setAlignment(Pos.CENTER_LEFT);
+        userMenu.getStyleClass().add("topbar-user");
+        userMenu.setCursor(Cursor.HAND);
+
+        MenuItem logoutItem = new MenuItem("Cerrar sesión");
+        logoutItem.setGraphic(IconSet.icon(IconSet.LOGOUT));
+        logoutItem.setOnAction(event -> {
+            if (onLogout != null) {
+                onLogout.run();
+            }
+        });
+        ContextMenu userContextMenu = new ContextMenu(logoutItem);
+        userMenu.setOnMouseClicked(event ->
+                userContextMenu.show(userMenu, event.getScreenX(), event.getScreenY()));
+
+        getChildren().addAll(spacer, notificationButton, userMenu);
         setUser("Invitado", "Sin sesión");
+    }
+
+    /**
+     * Registra la acción que se ejecuta al elegir «Cerrar sesión» en el menú
+     * del avatar.
+     *
+     * @param onLogout acción de cierre de sesión
+     */
+    public void setOnLogout(Runnable onLogout) {
+        this.onLogout = onLogout;
     }
 
     /**

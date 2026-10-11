@@ -4,7 +4,7 @@
 > termina una tarea se agrega/actualiza su estado y, cuando aporta, una entrada
 > en la sección «Bitácora cronológica».
 >
-> Última actualización: **10/10/2026** — Líder (Leonarth Steve Ali Camargo).
+> Última actualización: **11/10/2026** — Líder (Leonarth Steve Ali Camargo).
 
 ---
 
@@ -51,8 +51,8 @@
 
 | Id | Entregable | Estado | Notas |
 |---|---|---|---|
-| S2-PR1 | Backend (`PasswordHasher`, `UserDao`, `UserRepository`, `AuthenticationService`, `UserService`, `Session`, `Permissions`) | 🟡 En progreso | Rama `feature/login-usuarios`, ya sincronizada con `develop`. Hecho: `PasswordHasher` (+6 pruebas). **Destrabado (10/10):** `model/`, `exception/`, `DatabaseConnection` y `CrudOperations` ya están en `develop` (ver §3, Sesión 4). |
-| S2-PR2 | Interfaz (Login, shell con sesión, Usuarios y roles) | ⬜ No iniciado | Depende de PR1. |
+| S2-PR1 | Backend (`PasswordHasher`, `UserDao`, `UserRepository`, `AuthenticationService`, `UserService`, `Session`, `Permissions`) | ✅ Hecho | 9 commits (`433dc91..38594b5`) y `PermissionsTest`; `mvn clean test` → 134 pruebas. **PR #3 fusionado en `develop`** (`95d2ded`). |
+| S2-PR2 | Interfaz (Login, shell con sesión, Usuarios y roles) | ✅ Hecho | 6 commits; `mvn clean test` → 141 pruebas. PR2 pendiente de abrir (`feature/login-usuarios → develop`). |
 
 ### Sprints 3–9 (hoja de ruta)
 
@@ -216,6 +216,42 @@ rama directamente a `develop` (precedente: `f8dcfce`).
 
 **Pendiente:** comenzar el backend del Sprint 2 (rama `feature/login-usuarios`).
 
+### 11/10/2026 — Sesión 5 (Líder): backend del Sprint 2 y PR1 fusionado
+
+**Hecho y verificado:**
+1. Backend del Sprint 2 sobre `feature/login-usuarios` en 9 commits atómicos
+   (`433dc91..38594b5`): `Session`, `UserDao`, `UserRepository`, `AuthenticationService`,
+   `UserService`, `Permissions`, cableado del bloque *Users* en `AppContext`,
+   pruebas de los Services con repositorio falso y `docs/database/seed-usuarios.sql`.
+2. `mvn clean test` → **134 pruebas, 0 fallos, BUILD SUCCESS**. Chequeos de capas
+   (sección 13) sin hallazgos.
+3. PR **#3** (`feature/login-usuarios → develop`) fusionado en GitHub → `develop`
+   en `95d2ded`.
+
+**Decisiones ante ambigüedad de la guía (ver §4):** `Session` estático, el 2.º
+argumento de `login` es la contraseña en texto plano, `countAdministrators()`
+cuenta administradores activos y el nombre de usuario se deriva del correo.
+
+### 11/10/2026 — Sesión 6 (Líder): interfaz del Sprint 2
+
+**Hecho y verificado** (6 commits atómicos):
+1. **Login** (`fxml/login.fxml` + `LoginController` + `AutoGestApplication`): panel
+   de marca y eslogan, correo, contraseña y «Recordarme» (D-01), Enter inicia
+   sesión, mensajes bajo el formulario y botón deshabilitado mientras valida.
+2. **Shell con sesión** (`MainController`, `Sidebar`, `Topbar`): la Topbar muestra
+   el usuario de `Session` con «Cerrar sesión» en el menú del avatar y la Sidebar
+   se filtra con la matriz de `Permissions` (D-11).
+3. **Usuarios y roles** (`fxml/user/users-roles.fxml` + `UsersRolesController` +
+   `UserLabels`): KPI (con «Sesiones activas» en «-», D-14), filtros, tabla,
+   diálogo de alta/edición y tarjeta de roles.
+4. `PermissionsTest` cubre la matriz de acceso (D-11) sin JavaFX.
+5. `mvn clean test` → **141 pruebas, 0 fallos, BUILD SUCCESS**. Chequeos de capas
+   (sección 13): sin `javafx` ni `java.sql` reales fuera de sus capas; los `double`
+   son geometría de interfaz.
+
+**Pendiente:** subir la rama y abrir el PR2 (`feature/login-usuarios → develop`) en
+GitHub (no hay `gh`/token en el entorno).
+
 ---
 
 ## 4. Decisiones y acuerdos
@@ -261,11 +297,17 @@ Verificación: `develop` → `mvn clean test` **108 pruebas, 0 fallos**
 **En curso (Líder, Sprint 2 — rama `feature/login-usuarios`):**
 - [x] `PasswordHasher` (PBKDF2) + 6 pruebas.
 - [x] ~~Sincronizar la rama con `develop`~~ — hecho (Sesión 4).
-- [ ] `UserDao`, `UserRepository`, `AuthenticationService`, `UserService`,
-      `Session`, `Permissions` y pruebas **(listo para empezar)**.
-- [ ] `docs/database/seed-usuarios.sql` (hashes generados con `PasswordHasher`).
-- [ ] Interfaz: Login, shell con sesión (Topbar con usuario y «Cerrar sesión»,
-      Sidebar con permisos) y Usuarios y roles.
+- [x] `UserDao`, `UserRepository`, `AuthenticationService`, `UserService`,
+      `Session`, `Permissions` y pruebas — backend completo (Sesión 5).
+- [x] `docs/database/seed-usuarios.sql` (hashes generados con `PasswordHasher`).
+- [x] Interfaz: Login, shell con sesión (Topbar con usuario y «Cerrar sesión»,
+      Sidebar con permisos) y Usuarios y roles (Sesión 6).
+
+**Cierre del Sprint 2 (Fase 3):**
+- [ ] Subir `feature/login-usuarios` y abrir el **PR2** (`→ develop`) en GitHub.
+- [ ] Higiene Git: borrar ramas fusionadas (`base-presentacion`, `base-modelo`,
+      `base-datos`) y `git stash drop`.
+- [ ] Fuentes Roboto `.ttf` + `Font.loadFont` (D-18).
 
 ---
 

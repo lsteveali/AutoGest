@@ -49,6 +49,7 @@ public final class IconSet {
     public static final String TRASH = "M3 6 L21 6 M10 6 L10 4 A2 2 0 0 1 12 2 M14 6 L14 4 A2 2 0 0 0 12 2 M19 6 L18 20 A2 2 0 0 1 16 22 L8 22 A2 2 0 0 1 6 20 L5 6";
     public static final String LOGOUT = "M9 21 L5 21 A2 2 0 0 1 3 19 L3 5 A2 2 0 0 1 5 3 L9 3 M16 17 L20 12 L16 7 M20 12 L10 12";
     public static final String X = "M6 6 L18 18 M18 6 L6 18";
+    public static final String MORE = "M4 12 A1 1 0 1 1 6 12 A1 1 0 1 1 4 12 M11 12 A1 1 0 1 1 13 12 A1 1 0 1 1 11 12 M18 12 A1 1 0 1 1 20 12 A1 1 0 1 1 18 12";
     public static final String ARROW_LEFT = "M12 19 L5 12 L12 5 M19 12 L5 12";
     public static final String CHECK = "M20 6 L9 17 L4 12";
     public static final String CALENDAR = "M3 5 A1 1 0 0 1 4 4 L20 4 A1 1 0 0 1 21 5 L21 19 A1 1 0 0 1 20 20 L4 20 A1 1 0 0 1 3 19 Z M3 9 L21 9 M8 2 L8 6 M16 2 L16 6";
