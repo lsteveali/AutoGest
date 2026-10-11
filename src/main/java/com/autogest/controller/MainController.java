@@ -1,8 +1,15 @@
 package com.autogest.controller;
 
+import com.autogest.config.AppContext;
 import com.autogest.controller.components.AssistantButton;
+import com.autogest.controller.components.ConfirmDialog;
+import com.autogest.controller.components.ErrorDialog;
 import com.autogest.controller.components.Sidebar;
 import com.autogest.controller.components.Topbar;
+import com.autogest.controller.user.UserLabels;
+import com.autogest.model.Role;
+import com.autogest.model.User;
+import com.autogest.util.Session;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
@@ -16,10 +23,12 @@ import java.util.ResourceBundle;
  *
  * <p>Conecta la barra lateral, la cabecera y el {@link ViewNavigator} sobre el
  * área central: la Sidebar navega, el navegador resalta el ítem activo y el
- * botón flotante abre el Asistente. No contiene reglas de negocio; solo
- * coordina componentes de interfaz.</p>
+ * botón flotante abre el Asistente. Además refleja la sesión actual: muestra en
+ * la Topbar al usuario y su rol, ofrece «Cerrar sesión» y filtra la Sidebar por
+ * la matriz de acceso de {@link Permissions} (D-11). No contiene reglas de
+ * negocio; solo coordina componentes de interfaz.</p>
  *
- * <p>Principles: Controller, High Cohesion, Indirection.</p>
+ * <p>Principles: Controller, Indirection, Low Coupling, High Cohesion.</p>
  */
 public class MainController implements Initializable {
 
@@ -36,21 +45,75 @@ public class MainController implements Initializable {
     private AssistantButton assistantButton;
 
     private ViewNavigator navigator;
+    private Runnable onLogout;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         navigator = new ViewNavigator(contentArea);
         navigator.setOnViewChange(sidebar::setActiveItem);
-        sidebar.setOnNavigate(navigator::navigateTo);
 
-        assistantButton.setOnAction(event -> navigator.navigateTo(View.ASSISTANT));
+        User currentUser = Session.getCurrentUser();
+        Role role = currentUser == null ? null : currentUser.getRole();
+        sidebar.setRole(role);
+        sidebar.setOnNavigate(this::open);
+        if (currentUser != null) {
+            topbar.setUser(currentUser.getFullName(), UserLabels.roleText(currentUser.getRole()));
+        } else {
+            topbar.setUser("Invitado", "Sin sesión");
+        }
+        topbar.setOnLogout(this::logout);
+
+        assistantButton.setOnAction(event -> open(View.ASSISTANT));
         StackPane.setMargin(assistantButton, new Insets(0, 24, 24, 0));
 
         navigator.navigateTo(View.HOME);
     }
 
+    /**
+     * Registra la acción que se ejecuta tras cerrar la sesión (la aplicación la
+     * usa para volver a la pantalla de inicio de sesión).
+     *
+     * @param onLogout acción a ejecutar tras cerrar la sesión
+     */
+    public void setOnLogout(Runnable onLogout) {
+        this.onLogout = onLogout;
+    }
+
     /** Devuelve el navegador de pantallas usado por el área central. */
     public ViewNavigator getNavigator() {
         return navigator;
+    }
+
+    /**
+     * Abre una pantalla comprobando antes los permisos del rol. En este sprint
+     * «Configuración» redirige a Usuarios y roles.
+     */
+    private void open(View view) {
+        if (view == null) {
+            return;
+        }
+        View target = view == View.SETTINGS ? View.USERS_ROLES : view;
+        if (Permissions.canAccess(currentRole(), target)) {
+            navigator.navigateTo(target);
+        } else {
+            ErrorDialog.show("Acceso restringido", "No tienes permiso para abrir esta sección.");
+        }
+    }
+
+    /** Cierra la sesión actual y avisa a la aplicación para volver al login. */
+    private void logout() {
+        if (!ConfirmDialog.confirm("Cerrar sesión", "¿Deseas cerrar la sesión actual?")) {
+            return;
+        }
+        AppContext.getInstance().getAuthenticationService().logout();
+        if (onLogout != null) {
+            onLogout.run();
+        }
+    }
+
+    /** Rol del usuario en sesión, o {@code null} si no hay sesión abierta. */
+    private Role currentRole() {
+        User user = Session.getCurrentUser();
+        return user == null ? null : user.getRole();
     }
 }
