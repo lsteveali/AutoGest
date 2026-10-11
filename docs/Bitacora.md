@@ -36,19 +36,22 @@
 | L6 | Utilidades y conexión de dependencias | ✅ Hecho | `util/Formatter` (+ pruebas) y esqueleto de `config/AppContext`. |
 | L7 | Documentación | ✅ Hecho | `docs/architecture.md`, `docs/analysis-presentation-base.md`, `docs/architecture-class-diagram.md`. |
 
-### Aportes de Dev 1 y Dev 2 (Sprint 1) — integrados 10/10/2026
+### Aportes de Dev 1 y Dev 2 (Sprint 1) — integrados en `develop`
+
+> **Nota:** no hay Dev 2 vinculado. Según la guía (§10), el Líder asume
+> temporalmente sus tareas del Sprint 1, que viven en `feature/base-datos`.
 
 | Entregable | Dueño | Estado |
 |---|---|---|
-| Paquete `model` completo (32 clases/enums + 14 pruebas) | Dev 1 | ✅ Integrado en `develop` (PR en revisión) |
-| `dao/CrudOperations<T>`, `config/DatabaseConnection`, `exception/*` | Dev 2 | ✅ Integrado en `develop` (PR en revisión) |
-| `docs/database/schema.sql`, `seed.sql` y `README.md` | Dev 2 | ✅ Integrado en `develop` (PR en revisión) |
+| Paquete `model` completo (40 clases/enums + 14 pruebas) | Dev 1 | ✅ Integrado en `develop` (PR #2 fusionado, `169d9f8`) |
+| `dao/CrudOperations<T>`, `config/DatabaseConnection`, `exception/*` | Dev 2 | ✅ Integrado en `develop` (merge `66daf92`) |
+| `docs/database/schema.sql`, `seed.sql` y `README.md` | Dev 2 | ✅ Integrado en `develop` (merge `66daf92`) |
 
 ### Sprint 2 — Login, sesión, permisos y Usuarios y roles (Líder)
 
 | Id | Entregable | Estado | Notas |
 |---|---|---|---|
-| S2-PR1 | Backend (`PasswordHasher`, `UserDao`, `UserRepository`, `AuthenticationService`, `UserService`, `Session`, `Permissions`) | 🟡 En progreso | Rama `feature/login-usuarios`. Hecho: `PasswordHasher` (+6 pruebas). **Destrabado (10/10):** modelo (Dev 1) e infraestructura (Dev 2) integrados en `develop` y enviados a revisión por PR (ver §3, Sesión 3). |
+| S2-PR1 | Backend (`PasswordHasher`, `UserDao`, `UserRepository`, `AuthenticationService`, `UserService`, `Session`, `Permissions`) | 🟡 En progreso | Rama `feature/login-usuarios`, ya sincronizada con `develop`. Hecho: `PasswordHasher` (+6 pruebas). **Destrabado (10/10):** `model/`, `exception/`, `DatabaseConnection` y `CrudOperations` ya están en `develop` (ver §3, Sesión 4). |
 | S2-PR2 | Interfaz (Login, shell con sesión, Usuarios y roles) | ⬜ No iniciado | Depende de PR1. |
 
 ### Sprints 3–9 (hoja de ruta)
@@ -183,6 +186,36 @@ sobre `develop`.
 **Pendiente:** crear y fusionar los dos PRs; tras el merge, actualizar `develop` local
 (`git pull`) y continuar con el backend del Sprint 2.
 
+### 10/10/2026 — Sesión 4 (Líder): integración definitiva y sincronización
+
+**Objetivo.** Cerrar la integración pendiente de `feature/base-datos` y sincronizar
+la rama del Sprint 2, que aún no tenía `model/`, `exception/` ni la infraestructura.
+
+**Hallazgos.** El PR #2 (`feature/base-modelo`) ya estaba fusionado (`169d9f8`), pero
+`feature/base-datos` **no**: `develop` seguía sin `DatabaseConnection`,
+`CrudOperations`, `docs/database/*` ni el ajuste del `pom.xml` (excluir los tests
+`@Tag("integration")`). `develop` local estaba 8 commits atrás.
+
+**Hecho y verificado:**
+1. `develop` local sincronizado con `origin/develop` (fast-forward a `169d9f8`).
+2. `mvn clean test` sobre `develop` → **108 pruebas, BUILD SUCCESS** (base verde).
+3. Merge `feature/base-datos → develop` (verificado sin conflictos con `merge-tree`)
+   y `mvn clean test` → **108 pruebas, BUILD SUCCESS**.
+4. `develop` subido: `169d9f8..66daf92`.
+5. `feature/login-usuarios` sincronizada con `develop` (`ffdb0c1`); el conflicto de la
+   bitácora se resolvió tomando la versión vigente. `mvn clean test` → **108 pruebas**.
+   Rama subida: `e9f3bc0..ffdb0c1`.
+
+**Desviación del flujo de PR (justificada):** `feature/base-datos` es alcance del
+Dev 2, **que no está vinculado**; no hay revisor externo ni `gh`/token en el entorno.
+Siguiendo la guía (§10: el Líder asume las tareas del Dev 2), el Líder fusionó la
+rama directamente a `develop` (precedente: `f8dcfce`).
+
+**Entorno.** Maven de IntelliJ (`...\maven-plugin\lib\maven3\bin\mvn.cmd`) con
+`JAVA_HOME=C:\Users\Leo\.jdks\liberica-full-21.0.12.1`.
+
+**Pendiente:** comenzar el backend del Sprint 2 (rama `feature/login-usuarios`).
+
 ---
 
 ## 4. Decisiones y acuerdos
@@ -196,6 +229,7 @@ sobre `develop`.
 | 08/10/2026 | El archivo `AGENTS.md` adjunto (GYMBROT / HTML) **se ignora**. | Pertenece a otro proyecto y no aplica a AutoGest. |
 | 09/10/2026 | **Esperar a Dev 1 y Dev 2** antes de continuar el Sprint 2. | El modelo (`User`, `Role`, `UserStatus`) es de Dev 1 y la infraestructura (`CrudOperations`, excepciones, `DatabaseConnection`) es de Dev 2. No se tocan archivos de otros roles sin pedido de cambio. |
 | 10/10/2026 | Integrar modelo (Dev 1) e infraestructura (Dev 2) en `develop` **vía PR** antes de continuar el Sprint 2. | Desbloquea `UserDao`/`UserRepository`/`AuthenticationService`/`UserService` sin tocar archivos de otros roles. Ambos PRs verificados con `mvn clean test` (**108 pruebas**). |
+| 10/10/2026 | **`feature/base-datos` (alcance Dev 2) fusionada directo a `develop` por el Líder.** | No hay Dev 2 vinculado, ni revisor, ni tooling (`gh`/token). La guía (§10) asigna esas tareas al Líder. Merge verificado sin conflictos y con 108 pruebas verdes. |
 
 ---
 
@@ -212,19 +246,21 @@ sobre `develop`.
 
 | Necesito de | Pieza (contrato) | Estado |
 |---|---|---|
-| Dev 1 | `model/User`, `model/Role`, `model/UserStatus` | ✅ integrado en `develop` (PR en revisión) |
-| Dev 2 | `dao/CrudOperations<T>` (firma 7.1) | ✅ integrado en `develop` (PR en revisión) |
+| Dev 1 | `model/User`, `model/Role`, `model/UserStatus` | ✅ en `develop` (PR #2 fusionado) |
+| Dev 2 | `dao/CrudOperations<T>` (firma 7.1) | ✅ en `develop` (merge `66daf92`) |
 | Dev 2 | `exception/*` (`ValidationException`, `NotFoundException`, `DataAccessException`) | ✅ en `develop` |
-| Dev 2 | `config/DatabaseConnection` (firma 7.1) | ✅ integrado en `develop` (PR en revisión) |
+| Dev 2 | `config/DatabaseConnection` (firma 7.1) | ✅ en `develop` (merge `66daf92`) |
 
-Verificación: `develop` + ambas ramas → `mvn clean test` **108 pruebas, 0 fallos**
-(ver §3, Sesión 3).
+Verificación: `develop` → `mvn clean test` **108 pruebas, 0 fallos**
+(ver §3, Sesión 4).
 
-**Pendiente inmediato:** crear y fusionar los PRs `feature/base-datos → develop` y
-`feature/base-modelo → develop`; luego `git checkout develop && git pull`.
+**Pendiente inmediato:** ~~crear y fusionar los PRs~~ — resuelto (ver §3, Sesión 4):
+`base-modelo` por PR #2 y `base-datos` fusionada por el Líder. `develop` y
+`feature/login-usuarios` sincronizados y verdes.
 
 **En curso (Líder, Sprint 2 — rama `feature/login-usuarios`):**
 - [x] `PasswordHasher` (PBKDF2) + 6 pruebas.
+- [x] ~~Sincronizar la rama con `develop`~~ — hecho (Sesión 4).
 - [ ] `UserDao`, `UserRepository`, `AuthenticationService`, `UserService`,
       `Session`, `Permissions` y pruebas **(listo para empezar)**.
 - [ ] `docs/database/seed-usuarios.sql` (hashes generados con `PasswordHasher`).
