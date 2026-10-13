@@ -1,8 +1,11 @@
 package com.autogest.config;
 
+import com.autogest.dao.CustomerDao;
 import com.autogest.dao.UserDao;
+import com.autogest.repository.CustomerRepository;
 import com.autogest.repository.UserRepository;
 import com.autogest.service.AuthenticationService;
+import com.autogest.service.CustomerService;
 import com.autogest.service.UserService;
 
 /**
@@ -30,6 +33,11 @@ public final class AppContext {
     private final AuthenticationService authenticationService;
     private final UserService userService;
 
+    // ===== Customers (Dev 1) =====
+    private final CustomerDao customerDao;
+    private final CustomerRepository customerRepository;
+    private final CustomerService customerService;
+
     private AppContext() {
         // ===== Users (Leader) =====
         this.databaseConnection = new DatabaseConnection();
@@ -39,7 +47,9 @@ public final class AppContext {
         this.userService = new UserService(userRepository);
 
         // ===== Customers (Dev 1) =====
-        // Sprint 2: CustomerDao -> CustomerRepository -> CustomerService
+        this.customerDao = new CustomerDao(databaseConnection);
+        this.customerRepository = new CustomerRepository(customerDao);
+        this.customerService = new CustomerService(customerRepository);
 
         // ===== Vehicles (Dev 2) =====
         // Sprint 2: VehicleDao -> VehicleRepository -> VehicleService
@@ -84,5 +94,16 @@ public final class AppContext {
      */
     public UserService getUserService() {
         return userService;
+    }
+
+    // ===== Customers (Dev 1) =====
+
+    /**
+     * Devuelve el servicio de clientes (registro, consulta y baja lógica).
+     *
+     * @return servicio de clientes compartido
+     */
+    public CustomerService getCustomerService() {
+        return customerService;
     }
 }
