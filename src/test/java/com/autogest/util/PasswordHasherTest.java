@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 class PasswordHasherTest {
 
-    private static final String PASSWORD = "ClaveDemo2026";
+    private static final String PASSWORD = "admin";
 
     @Test
     void hashUsesIterationsSaltAndHashFormat() {
@@ -32,7 +32,7 @@ class PasswordHasherTest {
     @Test
     void verifyRejectsWrongPassword() {
         String hash = PasswordHasher.hash(PASSWORD);
-        assertFalse(PasswordHasher.verify("OtraClave2026", hash));
+        assertFalse(PasswordHasher.verify("admin2", hash));
     }
 
     @Test

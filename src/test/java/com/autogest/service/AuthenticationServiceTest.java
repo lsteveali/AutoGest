@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class AuthenticationServiceTest {
 
     private static final String EMAIL = "jose.garcia@autogest.com";
-    private static final String PASSWORD = "ClaveDemo2026";
+    private static final String PASSWORD = "admin";
 
     private FakeUserRepository repository;
     private AuthenticationService service;
