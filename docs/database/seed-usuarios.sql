@@ -14,17 +14,20 @@ INSERT INTO users (id, first_name, last_name, email, username, password_hash,
                    role, status, specialty, last_access)
 OVERRIDING SYSTEM VALUE VALUES
     (1, 'José',   'García',    'jose.garcia@autogest.com',      'jose.garcia',
-     '600000:8++FCWYM6t7KJoYVxO6UYA==:Ux26sZfNRDbklxefYxgb7ZbZJfTI0refVVmjGRxHIgY=',
+     '600000:2W7uJDPjGhR4h7aV3YgqQA==:Tpru4ml+1rTpRx5n6GGjYvV7xJHG2d6T7OWOcWmqq5Y=',
      'ADMINISTRATOR', 'ACTIVE',   NULL,     TIMESTAMP '2026-10-09 08:15:00'),
     (2, 'Carlos', 'Martínez',  'carlos.martinez@autogest.com',   'carlos.martinez',
-     '600000:eOd5Fn38dFdHnIQ7b+ykwA==:NTs7rva41YWf3pv3lwI1BwG02l2fca+q4VPqwPUvMR8=',
+     '600000:2W7uJDPjGhR4h7aV3YgqQA==:Tpru4ml+1rTpRx5n6GGjYvV7xJHG2d6T7OWOcWmqq5Y=',
      'MECHANIC',      'ACTIVE',   'Frenos', TIMESTAMP '2026-10-09 09:40:00'),
     (3, 'Laura',  'Rodríguez', 'laura.rodriguez@autogest.com',   'laura.rodriguez',
-     '600000:GmHyTuw52zRYZ0nYpVPpCg==:6wX+JuwnfFxVTIYdZTgHx5Extu9L3tplA5xWA5FjWWo=',
+     '600000:2W7uJDPjGhR4h7aV3YgqQA==:Tpru4ml+1rTpRx5n6GGjYvV7xJHG2d6T7OWOcWmqq5Y=',
      'RECEPTIONIST',  'ACTIVE',   NULL,     TIMESTAMP '2026-10-09 07:55:00'),
     (4, 'Andrés', 'Gómez',     'andres.gomez@autogest.com',      'andres.gomez',
-     '600000:mtZKCb93Vi0O5KUnFRLX7Q==:EGuaBypYb9gyceagagtByxobybnQoOnkrMu7x1r68t0=',
-     'MECHANIC',      'INACTIVE', 'Motor',  TIMESTAMP '2026-08-21 16:20:00');
+     '600000:2W7uJDPjGhR4h7aV3YgqQA==:Tpru4ml+1rTpRx5n6GGjYvV7xJHG2d6T7OWOcWmqq5Y=',
+     'MECHANIC',      'INACTIVE', 'Motor',  TIMESTAMP '2026-08-21 16:20:00'),
+    (5, 'Leo',     'Admin',     'leo@autogest.com',               'leo',
+     '600000:+2Dc295nv27e2ePorn1csA==:n0jjpAbbtS+ticlAeAsLoZZmggAoYKGo6PRy3/Zq1kM=',
+     'ADMINISTRATOR', 'ACTIVE',   NULL,     TIMESTAMP '2026-10-09 10:00:00');
 
 -- Reajuste de la secuencia de identidad ---------------------------------------
 SELECT setval(pg_get_serial_sequence('users', 'id'), COALESCE((SELECT MAX(id) FROM users), 1));
