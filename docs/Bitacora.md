@@ -4,7 +4,7 @@
 > termina una tarea se agrega/actualiza su estado y, cuando aporta, una entrada
 > en la sección «Bitácora cronológica».
 >
-> Última actualización: **11/10/2026** — Líder (Leonarth Steve Ali Camargo).
+> Última actualización: **14/10/2026** — Líder (Leonarth Steve Ali Camargo).
 
 ---
 
@@ -16,9 +16,9 @@
 | Materia | Programación de Computadores III (SS462) |
 | Repositorio | https://github.com/lsteveali/AutoGest.git |
 | Rama de trabajo actual | `feature/login-usuarios` |
-| Sprint en curso | **Sprint 2 — Login, sesión, permisos y Usuarios y roles** (Líder) |
-| Equipo | Líder: Leonarth Steve Ali Camargo · Dev 1: Sebastián Murgas Tejeda · Dev 2: **[pendiente]** |
-| Documento guía | `AutoGest_Guia_Lider.md` (v1.0) |
+| Sprint en curso | **Sprint 2 — Usuarios, Clientes y Vehículos** (Líder: Login/Usuarios y Vehículos · Dev 1: Clientes) |
+| Equipo | Líder: Leonarth Steve Ali Camargo · Dev 1: Sebastián Murgas Tejeda · Dev 2: **sin integrante vinculado** — el Líder asume todas sus responsabilidades (decisión 14/10/2026) |
+| Documento guía | `AutoGest_Guia_Lider` (V2.0) |
 
 ---
 
@@ -31,15 +31,16 @@
 | L1 | `pom.xml` y estructura de paquetes | ✅ Hecho | Java 21, JavaFX 21.0.12, driver PostgreSQL, JUnit 5, Surefire, plugin JavaFX. Paquetes con `package-info`. |
 | L2 | Aplicación y shell | ✅ Hecho | `AutoGestApplication` (1280x720), `main.fxml` con Sidebar/Topbar/área central. |
 | L3 | Navegación | ✅ Hecho | `View`, `ViewNavigator`, `ParameterizedController` y pantallas marcadoras «En construcción». |
-| L4 | Sistema de diseño | ✅ Hecho (parcial) | `autogest.css` + iconos lineales `IconSet` (D-15). **Pendiente:** fuentes Roboto `.ttf` (D-18). |
+| L4 | Sistema de diseño | ✅ Hecho | `autogest.css` + iconos lineales `IconSet` (D-15) + fuentes Roboto Regular/Medium/Bold con `Font.loadFont` (D-18, Sesión 7). |
 | L5 | Componentes reutilizables | ✅ Hecho | `StatusBadge`, `KpiCard`, `PageHeader`, `FilterBar`, `PagedTable`, `ConfirmDialog`, `ErrorDialog`, `Sidebar`, `Topbar`, `AssistantButton` + pantalla demo. |
 | L6 | Utilidades y conexión de dependencias | ✅ Hecho | `util/Formatter` (+ pruebas) y esqueleto de `config/AppContext`. |
 | L7 | Documentación | ✅ Hecho | `docs/architecture.md`, `docs/analysis-presentation-base.md`, `docs/architecture-class-diagram.md`. |
 
 ### Aportes de Dev 1 y Dev 2 (Sprint 1) — integrados en `develop`
 
-> **Nota:** no hay Dev 2 vinculado. Según la guía (§10), el Líder asume
-> temporalmente sus tareas del Sprint 1, que viven en `feature/base-datos`.
+> **Nota:** no hay Dev 2 vinculado. Según la guía (§10) el Líder asumió sus
+> tareas del Sprint 1 (`feature/base-datos`); desde el 14/10/2026 asume además
+> **todas** sus responsabilidades de los sprints siguientes (ver §4).
 
 | Entregable | Dueño | Estado |
 |---|---|---|
@@ -53,6 +54,10 @@
 |---|---|---|---|
 | S2-PR1 | Backend (`PasswordHasher`, `UserDao`, `UserRepository`, `AuthenticationService`, `UserService`, `Session`, `Permissions`) | ✅ Hecho | 9 commits (`433dc91..38594b5`) y `PermissionsTest`; `mvn clean test` → 134 pruebas. **PR #3 fusionado en `develop`** (`95d2ded`). |
 | S2-PR2 | Interfaz (Login, shell con sesión, Usuarios y roles) | ✅ Hecho | 6 commits; `mvn clean test` → 141 pruebas. PR2 pendiente de abrir (`feature/login-usuarios → develop`). |
+| S2-C1 | Clientes — backend (`CustomerDao`, `CustomerRepository`, `CustomerService`) | ✅ Hecho (Dev 1) | Verificado en el código de V3.0: firmas iguales al contrato 7.5, `CustomerServiceTest` (37 pruebas) con repositorio falso. Falta confirmar el estado de su PR. |
+| S2-C2 | Clientes — interfaz (lista, nuevo, editar, detalle) y bloque *Customers* de `AppContext` | ⬜ No iniciado (Dev 1) | Las 4 pantallas siguen «En construcción». |
+| S2-V | Vehículos — backend e interfaz (lista, nuevo, editar, detalle) | ⬜ No iniciado (**Líder**, antes Dev 2) | Depende de Clientes (propietario). Contrato 7.5 de la guía. |
+| S2-D | Documentos del Sprint 2 (`analysis-users.md`, `users-class-diagram.md` y equivalentes de Clientes y Vehículos) | ⬜ Pendiente | Lista de entrega de la guía (§13). |
 
 ### Sprints 3–9 (hoja de ruta)
 
@@ -65,6 +70,11 @@
 | 7 | Reportes | ⬜ No iniciado |
 | 8 | Configuración | ⬜ No iniciado |
 | 9 | Asistente AutoGest (Líder) | ⬜ No iniciado |
+
+> **Reasignación (14/10/2026):** las columnas de Dev 2 de la hoja de ruta
+> (Vehículos, Inventario y Repuestos, detalle de la orden e integración de stock,
+> Facturación, Plantillas y eventos, Copias de seguridad, apoyo en Reportes y
+> Asistente) pasan al Líder. Si se vincula un tercer integrante, se reparte de nuevo.
 
 ---
 
@@ -252,6 +262,33 @@ cuenta administradores activos y el nombre de usuario se deriva del correo.
 **Pendiente:** subir la rama y abrir el PR2 (`feature/login-usuarios → develop`) en
 GitHub (no hay `gh`/token en el entorno).
 
+### 14/10/2026 — Sesión 7 (Líder): revisión de V3.0 y reasignación de Dev 2
+
+**Método.** Se compararon los zips V2.0 y V3.0 archivo por archivo (sin `.git`
+disponible, por lo que el estado de ramas y PRs **no** se pudo verificar). Maven
+no estaba disponible en el entorno de revisión: `mvn clean test` queda por correr
+en la máquina del Líder.
+
+**Hallazgos verificados en el código:**
+1. **Roboto (D-18) resuelto.** `Roboto-Regular/Medium/Bold.ttf` + `README.md`
+   (origen y licencia Apache 2.0) en `resources/css/fonts/`; `AutoGestApplication`
+   los carga con `Font.loadFont` antes de la primera escena y, si falta un
+   recurso, el CSS cae a «Segoe UI».
+2. **Backend de Clientes (alcance Dev 1).** `CustomerDao` (consultas con
+   `PreparedStatement`), `CustomerRepository` y `CustomerService`, más
+   `CustomerServiceTest` y `FakeCustomerRepository` (37 pruebas nuevas; 179 `@Test`
+   en total). Las firmas públicas coinciden con el contrato 7.5. Chequeos de capas
+   (§13): sin `javafx` en model/service/repository/dao, sin `java.sql` fuera de
+   dao/config, sin `double`.
+3. **Sin cambios en** `AppContext` (el bloque *Customers* sigue vacío), pantallas
+   de Clientes y Vehículos (siguen «En construcción») ni documentación.
+
+**Decisión.** Las responsabilidades del Dev 2 pasan al Líder (ver §4). Vehículos
+del Sprint 2 y, más adelante, Inventario y Repuestos quedan a su cargo.
+
+**Pendiente:** confirmar el estado del PR2 (`feature/login-usuarios`) y del PR del
+backend de Clientes; correr `mvn clean test`; ver §5.
+
 ---
 
 ## 4. Decisiones y acuerdos
@@ -266,6 +303,8 @@ GitHub (no hay `gh`/token en el entorno).
 | 09/10/2026 | **Esperar a Dev 1 y Dev 2** antes de continuar el Sprint 2. | El modelo (`User`, `Role`, `UserStatus`) es de Dev 1 y la infraestructura (`CrudOperations`, excepciones, `DatabaseConnection`) es de Dev 2. No se tocan archivos de otros roles sin pedido de cambio. |
 | 10/10/2026 | Integrar modelo (Dev 1) e infraestructura (Dev 2) en `develop` **vía PR** antes de continuar el Sprint 2. | Desbloquea `UserDao`/`UserRepository`/`AuthenticationService`/`UserService` sin tocar archivos de otros roles. Ambos PRs verificados con `mvn clean test` (**108 pruebas**). |
 | 10/10/2026 | **`feature/base-datos` (alcance Dev 2) fusionada directo a `develop` por el Líder.** | No hay Dev 2 vinculado, ni revisor, ni tooling (`gh`/token). La guía (§10) asigna esas tareas al Líder. Merge verificado sin conflictos y con 108 pruebas verdes. |
+| 14/10/2026 | **Las responsabilidades del Dev 2 pasan al Líder** (Vehículos, Inventario y Repuestos, y el resto de su columna en la hoja de ruta). | No hay tercer integrante vinculado. Los PRs del Líder los sigue revisando Sebastián; si entra un nuevo integrante se reparte de nuevo. |
+| 14/10/2026 | **Idioma de comentarios y Javadoc: por resolver.** Hoy el código y el README usan español; la guía V2.0 pide inglés. | Hay que elegir una sola convención y alinear README, guía y código antes de que crezca la diferencia (Clientes ya está en español). |
 
 ---
 
@@ -274,7 +313,7 @@ GitHub (no hay `gh`/token en el entorno).
 **Pendientes del Sprint 1:**
 - [x] ~~Crear/mergear el Pull Request a `develop`~~ — PR #1 fusionado (`2946d88`).
 - [x] ~~Sincronizar `develop` y crear la rama del Sprint 2~~ — hecho (`feature/login-usuarios`).
-- [ ] Fuentes Roboto Regular/Medium/Bold en `resources/css/fonts/` + `Font.loadFont`.
+- [x] ~~Fuentes Roboto Regular/Medium/Bold en `resources/css/fonts/` + `Font.loadFont`~~ — hecho (Sesión 7).
 - [ ] Eliminar la rama `feature/base-presentacion` (local y remota) tras el merge.
 - [ ] `git stash drop` (el `stash@{0}` de iconos ya está incorporado).
 
@@ -307,7 +346,18 @@ Verificación: `develop` → `mvn clean test` **108 pruebas, 0 fallos**
 - [ ] Subir `feature/login-usuarios` y abrir el **PR2** (`→ develop`) en GitHub.
 - [ ] Higiene Git: borrar ramas fusionadas (`base-presentacion`, `base-modelo`,
       `base-datos`) y `git stash drop`.
-- [ ] Fuentes Roboto `.ttf` + `Font.loadFont` (D-18).
+- [x] ~~Fuentes Roboto `.ttf` + `Font.loadFont` (D-18)~~ — hecho (Sesión 7).
+
+**Pendientes nuevos (14/10/2026):**
+- [ ] Confirmar y registrar aquí el estado del PR2 (`feature/login-usuarios`) y del PR del backend de Clientes; que Sebastián revise el PR2 antes del merge.
+- [ ] Correr `mvn clean test` sobre V3.0 y anotar el número de pruebas.
+- [ ] Prueba manual: `mvn javafx:run` con login real contra Supabase (usuarios de `seed-usuarios.sql`).
+- [ ] Sebastián: interfaz de Clientes y bloque *Customers* en `AppContext`.
+- [ ] Líder: Vehículos (backend + interfaz), tras Clientes.
+- [ ] Documentos del Sprint 2: análisis y diagrama de clases de Usuarios, Clientes y Vehículos.
+- [ ] Decidir el idioma de comentarios y Javadoc y alinear README, guía y código.
+- [ ] Definir las fechas de entrega de cada sprint (la guía las deja `[PENDIENTE]`).
+- [ ] Cerrado el Sprint 2: decidir si se integra `develop` en `main` y se etiqueta `v1.0`.
 
 ---
 
