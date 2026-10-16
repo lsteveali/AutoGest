@@ -2,11 +2,14 @@ package com.autogest.config;
 
 import com.autogest.dao.CustomerDao;
 import com.autogest.dao.UserDao;
+import com.autogest.dao.VehicleDao;
 import com.autogest.repository.CustomerRepository;
 import com.autogest.repository.UserRepository;
+import com.autogest.repository.VehicleRepository;
 import com.autogest.service.AuthenticationService;
 import com.autogest.service.CustomerService;
 import com.autogest.service.UserService;
+import com.autogest.service.VehicleService;
 
 /**
  * Punto único de conexión de dependencias de AutoGest. Es el único lugar donde
@@ -38,6 +41,11 @@ public final class AppContext {
     private final CustomerRepository customerRepository;
     private final CustomerService customerService;
 
+    // ===== Vehicles (Dev 2) =====
+    private final VehicleDao vehicleDao;
+    private final VehicleRepository vehicleRepository;
+    private final VehicleService vehicleService;
+
     private AppContext() {
         // ===== Users (Leader) =====
         this.databaseConnection = new DatabaseConnection();
@@ -52,7 +60,9 @@ public final class AppContext {
         this.customerService = new CustomerService(customerRepository);
 
         // ===== Vehicles (Dev 2) =====
-        // Sprint 2: VehicleDao -> VehicleRepository -> VehicleService
+        this.vehicleDao = new VehicleDao(databaseConnection);
+        this.vehicleRepository = new VehicleRepository(vehicleDao);
+        this.vehicleService = new VehicleService(vehicleRepository, customerRepository);
 
         // ===== Orders (Dev 1 / Dev 2) =====
         // Sprint 4: ServiceOrderDao -> ServiceOrderRepository -> ServiceOrderService
@@ -105,5 +115,16 @@ public final class AppContext {
      */
     public CustomerService getCustomerService() {
         return customerService;
+    }
+
+    // ===== Vehicles (Dev 2) =====
+
+    /**
+     * Devuelve el servicio de vehículos (registro, consulta y baja lógica).
+     *
+     * @return servicio de vehículos compartido
+     */
+    public VehicleService getVehicleService() {
+        return vehicleService;
     }
 }
