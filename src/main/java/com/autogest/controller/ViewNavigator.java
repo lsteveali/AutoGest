@@ -74,7 +74,11 @@ public class ViewNavigator {
         try {
             FXMLLoader loader = new FXMLLoader(url);
             Parent root = loader.load();
-            if (parameter != null && loader.getController() instanceof ParameterizedController pc) {
+            Object controller = loader.getController();
+            if (controller instanceof NavigatorAware aware) {
+                aware.setNavigator(this);
+            }
+            if (parameter != null && controller instanceof ParameterizedController pc) {
                 pc.receiveParameter(parameter);
             }
             container.getChildren().clear();

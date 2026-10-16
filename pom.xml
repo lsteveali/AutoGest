@@ -17,7 +17,7 @@
 
         <javafx.version>21.0.12</javafx.version>
         <junit.version>5.12.2</junit.version>
-        <postgresql.version>42.7.4</postgresql.version>
+        <postgresql.version>42.7.14</postgresql.version>
     </properties>
 
     <dependencies>
@@ -91,5 +91,25 @@
 
         </plugins>
     </build>
+
+    <!-- Perfil para ejecutar las pruebas de integración que necesitan la base de
+         datos real (por defecto quedan excluidas del build). Uso:
+         mvn test -Pintegration -->
+    <profiles>
+        <profile>
+            <id>integration</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <excludedGroups combine.self="override"/>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>
