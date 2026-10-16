@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * <p>Requiere un {@code application.local.properties} con credenciales válidas.
  * Está etiquetada como {@code integration}, por lo que queda excluida de
  * {@code mvn clean test} para que el build no dependa de la base de datos.
- * Para ejecutarla: {@code mvn test -DexcludedGroups= -Dgroups=integration}.</p>
+ * Para ejecutarla usa el perfil {@code integration}: {@code mvn test -Pintegration}.</p>
  *
  * <p>Principles: (prueba de integración).</p>
  */

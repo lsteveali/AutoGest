@@ -47,8 +47,10 @@ public class FilterBar extends HBox {
      * @param label    etiqueta visible del filtro (en español)
      * @param options  opciones disponibles (la primera suele ser «Todos»)
      * @param onSelect recibe la opción elegida (puede ser {@code null})
+     * @return el {@link ComboBox} creado, para fijar un valor por defecto o
+     *         consultar la selección actual sin recorrer el árbol de nodos
      */
-    public void addCombo(String label, List<String> options, Consumer<String> onSelect) {
+    public ComboBox<String> addCombo(String label, List<String> options, Consumer<String> onSelect) {
         Label filterLabel = new Label(label);
         filterLabel.getStyleClass().add("field-label");
 
@@ -58,5 +60,6 @@ public class FilterBar extends HBox {
         combo.valueProperty().addListener((observable, oldValue, newValue) -> onSelect.accept(newValue));
 
         getChildren().addAll(filterLabel, combo);
+        return combo;
     }
 }
