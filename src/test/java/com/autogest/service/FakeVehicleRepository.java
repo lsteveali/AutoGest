@@ -64,7 +64,13 @@ class FakeVehicleRepository extends VehicleRepository {
 
     @Override
     public List<Vehicle> search(String text, VehicleStatus status, VehicleType type) {
+        return search(text, null, status, type);
+    }
+
+    @Override
+    public List<Vehicle> search(String text, String make, VehicleStatus status, VehicleType type) {
         String needle = text == null ? "" : text.trim().toLowerCase();
+        String makeNeedle = make == null ? "" : make.trim().toLowerCase();
         List<Vehicle> result = new ArrayList<>();
         for (Vehicle v : vehicles.values()) {
             boolean matchesText = needle.isEmpty()
@@ -73,9 +79,10 @@ class FakeVehicleRepository extends VehicleRepository {
                     || contains(v.getLicensePlate(), needle)
                     || contains(v.getVin(), needle)
                     || containsOwner(v, needle);
+            boolean matchesMake = makeNeedle.isEmpty() || contains(v.getMake(), makeNeedle);
             boolean matchesStatus = status == null || v.getStatus() == status;
             boolean matchesType = type == null || v.getVehicleType() == type;
-            if (matchesText && matchesStatus && matchesType) {
+            if (matchesText && matchesMake && matchesStatus && matchesType) {
                 result.add(v);
             }
         }
@@ -124,6 +131,23 @@ class FakeVehicleRepository extends VehicleRepository {
         return (int) vehicles.values().stream()
                 .filter(v -> v.getNextMaintenanceDate() != null && !v.getNextMaintenanceDate().isAfter(date))
                 .count();
+    }
+
+    @Override
+    public int countByCustomer(int customerId) {
+        return (int) vehicles.values().stream()
+                .filter(v -> v.getOwner() != null && v.getOwner().getId() == customerId)
+                .count();
+    }
+
+    @Override
+    public List<String> findMakes() {
+        return vehicles.values().stream()
+                .map(Vehicle::getMake)
+                .filter(make -> make != null && !make.isBlank())
+                .distinct()
+                .sorted()
+                .toList();
     }
 
     /** Comprueba si el texto está en el nombre del propietario. */

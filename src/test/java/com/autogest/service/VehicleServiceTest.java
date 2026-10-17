@@ -500,11 +500,11 @@ class VehicleServiceTest {
         second.setOwner(createOwner("Luis", "Gómez"));
         service.registerVehicle(second);
 
-        assertEquals(1, service.searchVehicles("corolla", null, null).size());
-        assertEquals(1, service.searchVehicles("xyz789", null, null).size());
-        assertEquals(1, service.searchVehicles("1HGCM82633", null, null).size());
-        assertEquals(1, service.searchVehicles("Torres", null, null).size());
-        assertTrue(service.searchVehicles("inexistente", null, null).isEmpty());
+        assertEquals(1, service.searchVehiclesByType("corolla", null, null).size());
+        assertEquals(1, service.searchVehiclesByType("xyz789", null, null).size());
+        assertEquals(1, service.searchVehiclesByType("1HGCM82633", null, null).size());
+        assertEquals(1, service.searchVehiclesByType("Torres", null, null).size());
+        assertTrue(service.searchVehiclesByType("inexistente", null, null).isEmpty());
     }
 
     private Vehicle register(String make, String model, String plate) {
@@ -521,10 +521,10 @@ class VehicleServiceTest {
         register("Mazda", "CX5", "XYZ789");
         service.changeStatus(first.getId(), VehicleStatus.IN_SERVICE);
 
-        List<Vehicle> all = service.searchVehicles(null, null, null);
-        List<Vehicle> active = service.searchVehicles(null, VehicleStatus.ACTIVE, null);
-        List<Vehicle> inService = service.searchVehicles(null, VehicleStatus.IN_SERVICE, null);
-        List<Vehicle> cars = service.searchVehicles(null, null, VehicleType.CAR);
+        List<Vehicle> all = service.searchVehiclesByType(null, null, null);
+        List<Vehicle> active = service.searchVehiclesByType(null, VehicleStatus.ACTIVE, null);
+        List<Vehicle> inService = service.searchVehiclesByType(null, VehicleStatus.IN_SERVICE, null);
+        List<Vehicle> cars = service.searchVehiclesByType(null, null, VehicleType.CAR);
 
         assertEquals(2, all.size());
         assertEquals(1, active.size());
@@ -538,7 +538,7 @@ class VehicleServiceTest {
     void searchResolvesTheOwner() {
         register("Toyota", "Corolla", "ABC123");
 
-        List<Vehicle> result = service.searchVehicles("Toyota", null, null);
+        List<Vehicle> result = service.searchVehiclesByType("Toyota", null, null);
 
         assertEquals("Ana Torres", result.get(0).getOwner().getFullName());
     }
@@ -554,7 +554,7 @@ class VehicleServiceTest {
 
         assertEquals(3, service.countVehicles());
         assertEquals(2, service.countActiveVehicles());
-        assertEquals(1, service.countInServiceVehicles());
+        assertEquals(1, service.countInService());
     }
 
     @Test
@@ -593,5 +593,127 @@ class VehicleServiceTest {
 
         assertEquals(1, owners.size());
         assertEquals("Ana Torres", owners.get(0).getFullName());
+    }
+
+    // ---------- contrato 7.5 ----------
+
+    @Test
+    void searchByMakeFiltersByBrand() {
+        register("Toyota", "Corolla", "ABC123");
+        register("Mazda", "CX5", "XYZ789");
+        register("Toyota", "Hilux", "TOY002");
+
+        assertEquals(2, service.searchVehicles(null, "Toyota", null).size());
+        assertEquals(2, service.searchVehicles(null, "toyota", null).size());
+        assertEquals(1, service.searchVehicles(null, "Mazda", null).size());
+        assertTrue(service.searchVehicles(null, "Chevrolet", null).isEmpty());
+    }
+
+    @Test
+    void searchByMakeCombinesWithStatus() {
+        Vehicle first = register("Toyota", "Corolla", "ABC123");
+        register("Mazda", "CX5", "XYZ789");
+        service.changeStatus(first.getId(), VehicleStatus.IN_SERVICE);
+
+        assertEquals(1, service.searchVehicles(null, "Toyota", VehicleStatus.IN_SERVICE).size());
+        assertTrue(service.searchVehicles(null, "Toyota", VehicleStatus.ACTIVE).isEmpty());
+        assertEquals(1, service.searchVehicles(null, null, VehicleStatus.ACTIVE).size());
+    }
+
+    @Test
+    void searchWithTypeFiltersByClass() {
+        register("Toyota", "Corolla", "ABC123");
+        Vehicle bike = validVehicle();
+        bike.setMake("Yamaha");
+        bike.setModel("FZ");
+        bike.setLicensePlate("MOTO1");
+        bike.setVehicleType(VehicleType.MOTORCYCLE);
+        service.registerVehicle(bike);
+
+        assertEquals(1, service.searchVehicles(null, null, null, VehicleType.MOTORCYCLE).size());
+        assertEquals(1, service.searchVehicles(null, "Toyota", null, VehicleType.CAR).size());
+        assertTrue(service.searchVehicles(null, "Toyota", null, VehicleType.MOTORCYCLE).isEmpty());
+    }
+
+    @Test
+    void findByCustomerReturnsOnlyThatOwnersVehicles() {
+        register("Toyota", "Corolla", "ABC123");
+        Vehicle other = validVehicle();
+        other.setOwner(createOwner("Luis", "Gómez"));
+        other.setLicensePlate("OTR001");
+        service.registerVehicle(other);
+
+        List<Vehicle> result = service.findByCustomer(owner.getId());
+
+        assertEquals(1, result.size());
+        assertEquals("ABC123", result.get(0).getLicensePlate());
+    }
+
+    @Test
+    void countByCustomerCountsThatOwnersVehicles() {
+        register("Toyota", "Corolla", "ABC123");
+        register("Mazda", "CX5", "XYZ789");
+        Vehicle other = validVehicle();
+        other.setOwner(createOwner("Luis", "Gómez"));
+        other.setLicensePlate("OTR001");
+        service.registerVehicle(other);
+
+        assertEquals(2, service.countByCustomer(owner.getId()));
+        assertEquals(1, service.countByCustomer(other.getOwner().getId()));
+        assertEquals(0, service.countByCustomer(999));
+    }
+
+    @Test
+    void findMakesReturnsDistinctBrandsOrdered() {
+        register("Toyota", "Corolla", "ABC123");
+        register("Mazda", "CX5", "XYZ789");
+        register("Toyota", "Hilux", "TOY002");
+
+        assertEquals(List.of("Mazda", "Toyota"), service.findMakes());
+    }
+
+    @Test
+    void findMakesIsEmptyWithoutVehicles() {
+        assertTrue(service.findMakes().isEmpty());
+    }
+
+    @Test
+    void updateMileageChangesTheValue() {
+        Vehicle saved = registered();
+
+        service.updateMileage(saved.getId(), 60000);
+
+        assertEquals(60000, service.getDetail(saved.getId()).getMileage());
+    }
+
+    @Test
+    void updateMileageRejectsADecrease() {
+        Vehicle saved = registered();
+
+        ValidationException error = assertThrows(ValidationException.class,
+                () -> service.updateMileage(saved.getId(), 40000));
+
+        assertEquals("El kilometraje no puede ser menor al actual", error.getMessage());
+    }
+
+    @Test
+    void updateMileageThrowsNotFoundForMissingVehicle() {
+        assertThrows(NotFoundException.class, () -> service.updateMileage(999, 100));
+    }
+
+    @Test
+    void deleteVehicleMarksItInactiveAndKeepsTheData() {
+        Vehicle saved = registered();
+
+        service.deleteVehicle(saved.getId());
+
+        Vehicle deleted = service.getDetail(saved.getId());
+        assertEquals(VehicleStatus.INACTIVE, deleted.getStatus());
+        assertEquals("ABC123", deleted.getLicensePlate());
+    }
+
+    @Test
+    void deleteVehicleThrowsNotFoundForMissingVehicle() {
+        assertThrows(NotFoundException.class, () -> service.deleteVehicle(999));
     }
 }
