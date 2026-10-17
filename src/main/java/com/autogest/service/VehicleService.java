@@ -97,12 +97,90 @@ public class VehicleService {
      * @param type   clase de vehículo a filtrar; {@code null} trae todas
      * @return lista de vehículos que cumplen los filtros, con el propietario resuelto
      */
-    public List<Vehicle> searchVehicles(String text, VehicleStatus status, VehicleType type) {
-        List<Vehicle> vehicles = repository.search(text, status, type);
-        for (Vehicle vehicle : vehicles) {
-            resolveOwner(vehicle);
-        }
-        return vehicles;
+    public List<Vehicle> searchVehiclesByType(String text, VehicleStatus status, VehicleType type) {
+        return resolveAll(repository.search(text, status, type));
+    }
+
+    /**
+     * Busca vehículos por texto, marca y estado (contrato 7.5). Es la consulta que
+     * usa la pantalla de lista con el filtro de marcas.
+     *
+     * @param text   texto a buscar en marca, modelo, placa, VIN o propietario (o {@code null})
+     * @param make   marca a filtrar; {@code null} trae todas
+     * @param status estado a filtrar; {@code null} trae todos
+     * @return lista de vehículos que cumplen los filtros, con el propietario resuelto
+     */
+    public List<Vehicle> searchVehicles(String text, String make, VehicleStatus status) {
+        return searchVehicles(text, make, status, null);
+    }
+
+    /**
+     * Busca vehículos por texto, marca, estado y clase, ordenados por marca y
+     * modelo. Es la consulta completa que usa la lista con todos sus filtros.
+     *
+     * @param text   texto a buscar en marca, modelo, placa, VIN o propietario (o {@code null})
+     * @param make   marca a filtrar; {@code null} trae todas
+     * @param status estado a filtrar; {@code null} trae todos
+     * @param type   clase de vehículo a filtrar; {@code null} trae todas
+     * @return lista de vehículos que cumplen los filtros, con el propietario resuelto
+     */
+    public List<Vehicle> searchVehicles(String text, String make, VehicleStatus status, VehicleType type) {
+        return resolveAll(repository.search(text, make, status, type));
+    }
+
+    /**
+     * Devuelve los vehículos de un propietario.
+     *
+     * @param customerId identificador del cliente propietario
+     * @return lista de vehículos del propietario, con el propietario resuelto
+     */
+    public List<Vehicle> findByCustomer(int customerId) {
+        return resolveAll(repository.findByCustomer(customerId));
+    }
+
+    /**
+     * Cuenta los vehículos de un propietario.
+     *
+     * @param customerId identificador del cliente propietario
+     * @return número de vehículos del propietario
+     */
+    public int countByCustomer(int customerId) {
+        return repository.countByCustomer(customerId);
+    }
+
+    /**
+     * Devuelve las marcas registradas para el filtro de la lista.
+     *
+     * @return lista de marcas distintas en orden alfabético
+     */
+    public List<String> findMakes() {
+        return repository.findMakes();
+    }
+
+    /**
+     * Actualiza el kilometraje de un vehículo. No permite que disminuya (la regla
+     * vive en {@code Vehicle.updateMileage}).
+     *
+     * @param id      identificador del vehículo
+     * @param mileage nuevo kilometraje
+     * @throws NotFoundException   si el vehículo no existe
+     * @throws ValidationException si el kilometraje es menor al actual
+     */
+    public void updateMileage(int id, int mileage) {
+        Vehicle vehicle = requireVehicle(id);
+        vehicle.updateMileage(mileage);
+        repository.update(vehicle);
+    }
+
+    /**
+     * Da de baja al vehículo (baja lógica, D-02): conserva la fila y la marca
+     * {@code INACTIVE}. Si ya estaba inactivo no hace nada.
+     *
+     * @param id identificador del vehículo
+     * @throws NotFoundException si el vehículo no existe
+     */
+    public void deleteVehicle(int id) {
+        deactivateVehicle(id);
     }
 
     /**
@@ -174,8 +252,19 @@ public class VehicleService {
      *
      * @return número de vehículos IN_SERVICE
      */
-    public int countInServiceVehicles() {
+    public int countInService() {
         return repository.countByStatus(VehicleStatus.IN_SERVICE);
+    }
+
+    /**
+     * Cuenta los vehículos que están en el taller (con orden en curso).
+     *
+     * @return número de vehículos IN_SERVICE
+     * @deprecated use {@link #countInService()} (nombre del contrato 7.5)
+     */
+    @Deprecated(forRemoval = false)
+    public int countInServiceVehicles() {
+        return countInService();
     }
 
     /**
@@ -223,6 +312,14 @@ public class VehicleService {
         if (full != null) {
             vehicle.setOwner(full);
         }
+    }
+
+    /** Resuelve el propietario de cada vehículo de la lista y la devuelve. */
+    private List<Vehicle> resolveAll(List<Vehicle> vehicles) {
+        for (Vehicle vehicle : vehicles) {
+            resolveOwner(vehicle);
+        }
+        return vehicles;
     }
 
     /**

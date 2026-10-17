@@ -80,6 +80,19 @@ public class VehicleRepository {
     }
 
     /**
+     * Busca vehículos por texto, marca, estado y clase, ordenados por marca y modelo.
+     *
+     * @param text   texto a buscar en marca, modelo, placa, VIN o propietario (o {@code null})
+     * @param make   marca a filtrar (o {@code null} para todas)
+     * @param status estado a filtrar (o {@code null} para todos)
+     * @param type   clase de vehículo a filtrar (o {@code null} para todas)
+     * @return lista de vehículos que cumplen los filtros
+     */
+    public List<Vehicle> search(String text, String make, VehicleStatus status, VehicleType type) {
+        return dao.search(text, make, status, type);
+    }
+
+    /**
      * Busca vehículos por texto, estado y clase, ordenados por marca y modelo.
      *
      * @param text   texto a buscar en marca, modelo, placa, VIN o propietario (o {@code null})
@@ -159,5 +172,24 @@ public class VehicleRepository {
      */
     public int countMaintenanceDue(LocalDate date) {
         return dao.countMaintenanceDue(date);
+    }
+
+    /**
+     * Cuenta los vehículos de un propietario.
+     *
+     * @param customerId identificador del cliente propietario
+     * @return número de vehículos del propietario
+     */
+    public int countByCustomer(int customerId) {
+        return dao.countByCustomer(customerId);
+    }
+
+    /**
+     * Devuelve las marcas registradas, sin repetir y en orden alfabético.
+     *
+     * @return lista de marcas distintas (vacía si no hay vehículos)
+     */
+    public List<String> findMakes() {
+        return dao.findMakes();
     }
 }

@@ -132,17 +132,15 @@ public class VehicleDao implements CrudOperations<Vehicle> {
     }
 
     /**
-     * Busca vehículos por texto y estado, ordenados por marca y modelo. El texto
-     * se busca (sin distinguir mayúsculas, con {@code ILIKE}) en la marca, el
-     * modelo, la placa, el VIN y el nombre del propietario. Un texto nulo o en
-     * blanco no filtra, un estado nulo trae todos y una clase nula trae todas.
+     * Busca vehículos por texto, marca, estado y clase, ordenados por marca y modelo.
      *
      * @param text   texto a buscar (o {@code null} para no filtrar)
+     * @param make   marca a filtrar (o {@code null} para todas)
      * @param status estado a filtrar (o {@code null} para todos)
      * @param type   clase de vehículo a filtrar (o {@code null} para todas)
      * @return la lista de vehículos que cumplen los filtros
      */
-    public List<Vehicle> search(String text, VehicleStatus status, VehicleType type) {
+    public List<Vehicle> search(String text, String make, VehicleStatus status, VehicleType type) {
         StringBuilder sql = new StringBuilder("SELECT ").append(COLUMNS).append(" FROM vehicles");
         List<String> conditions = new ArrayList<>();
         List<Object> params = new ArrayList<>();
@@ -155,6 +153,10 @@ public class VehicleDao implements CrudOperations<Vehicle> {
             for (int i = 0; i < 7; i++) {
                 params.add(like);
             }
+        }
+        if (make != null && !make.isBlank()) {
+            conditions.add("make ILIKE ?");
+            params.add("%" + escapeLike(make.trim()) + "%");
         }
         if (status != null) {
             conditions.add("status = ?");
@@ -169,6 +171,13 @@ public class VehicleDao implements CrudOperations<Vehicle> {
         }
         sql.append(" ORDER BY make, model");
         return query(sql.toString(), params);
+    }
+
+    /**
+     * Busca vehículos por texto y estado, ordenados por marca y modelo.
+     */
+    public List<Vehicle> search(String text, VehicleStatus status, VehicleType type) {
+        return search(text, null, status, type);
     }
 
     /**
@@ -244,6 +253,36 @@ public class VehicleDao implements CrudOperations<Vehicle> {
     public int countMaintenanceDue(LocalDate date) {
         return count("SELECT COUNT(*) FROM vehicles WHERE next_maintenance_date IS NOT NULL "
                 + "AND next_maintenance_date <= ?", List.of(Date.valueOf(date)));
+    }
+
+    /**
+     * Cuenta los vehículos de un propietario.
+     *
+     * @param customerId identificador del cliente propietario
+     * @return número de vehículos del propietario
+     */
+    public int countByCustomer(int customerId) {
+        return count("SELECT COUNT(*) FROM vehicles WHERE customer_id = ?", List.of(customerId));
+    }
+
+    /**
+     * Devuelve las marcas registradas, sin repetir y en orden alfabético.
+     *
+     * @return lista de marcas distintas (vacía si no hay vehículos)
+     */
+    public List<String> findMakes() {
+        String sql = "SELECT DISTINCT make FROM vehicles WHERE make IS NOT NULL AND TRIM(make) <> '' ORDER BY make";
+        try (Connection conn = connection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            List<String> makes = new ArrayList<>();
+            while (rs.next()) {
+                makes.add(rs.getString("make"));
+            }
+            return makes;
+        } catch (SQLException e) {
+            throw new DataAccessException("No se pudo consultar las marcas de vehículos.", e);
+        }
     }
 
     /** Asigna los diecinueve campos del vehículo a los diecinueve primeros parámetros. */
