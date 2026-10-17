@@ -388,9 +388,15 @@ de `origin/develop` y todavía con los cambios de la Sesión 8 sin commitear.
    la Sesión 8) y hubo que terminar el proceso. Queda **pendiente diagnosticar**;
    no bloquea la subida porque está fuera de `mvn clean test`.
 
-**Git:** rama lista para subir. PR3 (`feature/vehiculos → develop`) pendiente de
-abrir en GitHub (no hay `gh` ni token en el entorno; se prellena la página de
-comparación, como en sesiones anteriores).
+**Git:** rama subida a `origin/feature/vehiculos` (11 commits sobre `develop`).
+PR3 (`feature/vehiculos → develop`) pendiente de abrir en GitHub (no hay `gh` ni
+token en el entorno; se prellena la página de comparación, como en sesiones
+anteriores). **Higiene Git hecha:** borradas las ramas fusionadas locales
+(`base-datos`, `login-usuarios`, `base-presentacion`, `fuentes-roboto`) y
+remotas (`base-datos`, `base-modelo`, `base-presentacion`, `login-usuarios`,
+`clientes`), y `git stash drop` de los dos stashes obsoletos (el de iconos ya
+estaba incorporado; el otro era un WIP viejo de `login-usuarios`). Quedan solo
+`develop`, `main` y `feature/vehiculos`.
 
 ---
 
@@ -422,8 +428,8 @@ comparación, como en sesiones anteriores).
 - [x] ~~Crear/mergear el Pull Request a `develop`~~ — PR #1 fusionado (`2946d88`).
 - [x] ~~Sincronizar `develop` y crear la rama del Sprint 2~~ — hecho (`feature/login-usuarios`).
 - [x] ~~Fuentes Roboto Regular/Medium/Bold en `resources/css/fonts/` + `Font.loadFont`~~ — hecho (Sesión 7).
-- [ ] Eliminar la rama `feature/base-presentacion` (local y remota) tras el merge.
-- [ ] `git stash drop` (el `stash@{0}` de iconos ya está incorporado).
+- [ ] Eliminar la rama `feature/base-presentacion` (local y remota) tras el merge. — **✅ hecho (17/10/2026).**
+- [ ] `git stash drop` (el `stash@{0}` de iconos ya está incorporado). — **✅ hecho (17/10/2026).**
 
 **✅ Dependencia resuelta — Sprint 2 destrabado (10/10/2026):**
 
@@ -471,8 +477,9 @@ Verificación: `develop` → `mvn clean test` **108 pruebas, 0 fallos**
 - [ ] Abrir el **PR3** de `feature/vehiculos` (`→ develop`) y que Sebastián lo
       revise. La rama ya está integrada con Clientes y verde (17/10/2026); solo
       falta crear el PR en GitHub (no hay `gh`/token).
-- [ ] Higiene Git: borrar ramas fusionadas (`base-presentacion`, `base-modelo`,
-      `base-datos`, `feature/clientes`) y `git stash drop`.
+- [x] ~~Higiene Git: borrar ramas fusionadas (`base-presentacion`, `base-modelo`,
+      `base-datos`, `feature/clientes`) y `git stash drop`~~ — hecho (Sesión 9):
+      solo quedan `develop`, `main` y `feature/vehiculos`.
 - [x] ~~Fuentes Roboto `.ttf` + `Font.loadFont` (D-18)~~ — hecho (Sesión 7).
 
 **Pendientes nuevos (14/10/2026):**
