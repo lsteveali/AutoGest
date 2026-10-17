@@ -39,17 +39,17 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 /**
- * Controller of the customer form (New customer mockup), shared by the
- * {@code CUSTOMER_NEW} and {@code CUSTOMER_EDIT} views. When the screen receives
- * a customer id ({@link ParameterizedController}) it loads that customer and
- * edits it; otherwise it registers a new one.
+ * Controlador del formulario de clientes (maqueta de Nuevo cliente), compartido por las
+ * vistas {@code CUSTOMER_NEW} y {@code CUSTOMER_EDIT}. Cuando la pantalla recibe
+ * un identificador de cliente ({@link ParameterizedController}), carga ese cliente y
+ * permite editarlo; de lo contrario, registra uno nuevo.
  *
- * <p>It only reads the fields, calls {@link CustomerService} and shows the result:
- * validation lives in the Service and its Spanish message is displayed below the
- * form. The only thing the screen enforces is the maximum length of each field,
- * equal to the length of the matching database column.</p>
+ * <p>Solo lee los campos, llama a {@link CustomerService} y muestra el resultado:
+ * la validación se realiza en el servicio y su mensaje en español se muestra debajo del
+ * formulario. Lo único que controla la pantalla es la longitud máxima de cada campo,
+ * que coincide con la longitud de la columna correspondiente en la base de datos.</p>
  *
- * <p>Principles: GRASP Controller, Low Coupling, High Cohesion, SRP.</p>
+ * <p>Principios: controlador GRASP, bajo acoplamiento, alta cohesión y SRP.</p>
  */
 public class CustomerFormController implements Initializable, NavigatorAware, ParameterizedController {
 
@@ -57,13 +57,13 @@ public class CustomerFormController implements Initializable, NavigatorAware, Pa
             "Registra la información del cliente para comenzar a gestionar sus vehículos y servicios.";
     private static final String EDIT_SUBTITLE = "Actualiza la información del cliente.";
 
-    /** Root container of the screen; the controller builds the header and the form card on it. */
+    /** Contenedor raíz de la pantalla; el controlador construye en él el encabezado y la tarjeta del formulario. */
     @FXML
     private VBox root;
 
     private ViewNavigator navigator;
 
-    /** Id of the customer being edited, or 0 when the form registers a new one. */
+    /** Identificador del cliente que se está editando, o 0 cuando el formulario registra uno nuevo. */
     private int customerId;
 
     private ComboBox<DocumentType> documentType;
@@ -87,8 +87,8 @@ public class CustomerFormController implements Initializable, NavigatorAware, Pa
     /**
      * {@inheritDoc}
      *
-     * <p>Builds the screen in "new customer" mode. If the navigator later delivers
-     * an id, {@link #receiveParameter(int)} switches it to edit mode.</p>
+     * <p>Construye la pantalla en modo «nuevo cliente». Si el navegador proporciona
+     * posteriormente un identificador, {@link #receiveParameter(int)} cambia la pantalla al modo de edición.</p>
      */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -99,8 +99,8 @@ public class CustomerFormController implements Initializable, NavigatorAware, Pa
     /**
      * {@inheritDoc}
      *
-     * <p>Switches the screen to edit mode: loads the customer and fills the form.
-     * If the customer no longer exists, it warns the user and goes back to the list.</p>
+     * <p>Cambia la pantalla al modo de edición: carga el cliente y completa el formulario.
+     * Si el cliente ya no existe, avisa al usuario y vuelve a la lista.</p>
      */
     @Override
     public void receiveParameter(int parameter) {
@@ -119,10 +119,10 @@ public class CustomerFormController implements Initializable, NavigatorAware, Pa
     }
 
     /**
-     * Builds the page header with its breadcrumb.
+     * Construye el encabezado de la página con su ruta de navegación.
      *
-     * @param editing {@code true} for the "Editar cliente" header, {@code false} for "Nuevo cliente"
-     * @return the header component
+     * @param editing {@code true} para el encabezado «Editar cliente» y {@code false} para «Nuevo cliente»
+     * @return el componente del encabezado
      */
     private PageHeader buildHeader(boolean editing) {
         String title = editing ? "Editar cliente" : "Nuevo cliente";
@@ -132,8 +132,8 @@ public class CustomerFormController implements Initializable, NavigatorAware, Pa
     }
 
     /**
-     * Creates every input control of the form with its prompt text, style class and
-     * maximum length. The maximum lengths match the columns of the {@code customers} table.
+     * Crea todos los controles de entrada del formulario con su texto de ayuda, clase de estilo y
+     * longitud máxima. Las longitudes máximas coinciden con las columnas de la tabla {@code customers}.
      */
     private void createFields() {
         documentType = new ComboBox<>();
@@ -181,10 +181,10 @@ public class CustomerFormController implements Initializable, NavigatorAware, Pa
     }
 
     /**
-     * Lays out the form card: the three sections of the mockup, the error label
-     * and the row with the promotions checkbox and the Cancel / Save buttons.
+     * Organiza la tarjeta del formulario: las tres secciones de la maqueta, la etiqueta de error
+     * y la fila con la casilla de promociones y los botones Cancelar / Guardar.
      *
-     * @return the card that contains the whole form
+     * @return la tarjeta que contiene todo el formulario
      */
     private Node buildFormCard() {
         GridPane personal = grid();
@@ -222,10 +222,10 @@ public class CustomerFormController implements Initializable, NavigatorAware, Pa
     }
 
     /**
-     * Fills the form with the data of an existing customer. Optional columns can be
-     * {@code null} in the database, so they go through {@link #orEmpty(String)}.
+     * Completa el formulario con los datos de un cliente existente. Las columnas opcionales pueden ser
+     * {@code null} en la base de datos, por lo que se procesan mediante {@link #orEmpty(String)}.
      *
-     * @param customer customer whose data is shown
+     * @param customer cliente cuyos datos se muestran
      */
     private void fill(Customer customer) {
         documentType.setValue(customer.getDocumentType());
@@ -241,21 +241,21 @@ public class CustomerFormController implements Initializable, NavigatorAware, Pa
     }
 
     /**
-     * Returns the text unchanged, or an empty string when it is {@code null}. Used
-     * before showing optional database values in the form fields.
+     * Devuelve el texto sin cambios o una cadena vacía cuando es {@code null}. Se usa
+     * antes de mostrar en los campos del formulario los valores opcionales de la base de datos.
      *
-     * @param value text that may be {@code null}
-     * @return the same text, or {@code ""} if it was {@code null}
+     * @param value texto que puede ser {@code null}
+     * @return el mismo texto o {@code ""} si era {@code null}
      */
     private static String orEmpty(String value) {
         return value == null ? "" : value;
     }
 
     /**
-     * Builds a {@link Customer} with what is typed in the form. It does not validate:
-     * that is the job of {@link CustomerService}.
+     * Construye un {@link Customer} con los datos escritos en el formulario. No realiza validaciones:
+     * esa es responsabilidad de {@link CustomerService}.
      *
-     * @return customer with the form values (id is 0 when registering a new one)
+     * @return cliente con los valores del formulario (el id es 0 al registrar uno nuevo)
      */
     private Customer readForm() {
         Customer customer = new Customer();
@@ -274,9 +274,9 @@ public class CustomerFormController implements Initializable, NavigatorAware, Pa
     }
 
     /**
-     * Saves the customer. On success it goes back to the list (new customer) or to
-     * the detail screen (edited customer). A {@link ValidationException} is shown
-     * below the form; any other error is shown in a dialog.
+     * Guarda el cliente. Si la operación tiene éxito, vuelve a la lista (cliente nuevo) o a
+     * la pantalla de detalles (cliente editado). Una {@link ValidationException} se muestra
+     * debajo del formulario; cualquier otro error se muestra en un cuadro de diálogo.
      */
     private void save() {
         hideError();
@@ -297,8 +297,8 @@ public class CustomerFormController implements Initializable, NavigatorAware, Pa
     }
 
     /**
-     * Leaves the form without saving: back to the list (new customer) or to the
-     * detail screen (edited customer).
+     * Sale del formulario sin guardar: vuelve a la lista (cliente nuevo) o a la
+     * pantalla de detalles (cliente editado).
      */
     private void cancel() {
         if (customerId == 0) {
@@ -309,9 +309,9 @@ public class CustomerFormController implements Initializable, NavigatorAware, Pa
     }
 
     /**
-     * Shows a validation message below the form.
+     * Muestra un mensaje de validación debajo del formulario.
      *
-     * @param message message in Spanish, as thrown by the Service
+     * @param message mensaje en español generado por el servicio
      */
     private void showError(String message) {
         errorLabel.setText(message);
@@ -319,7 +319,7 @@ public class CustomerFormController implements Initializable, NavigatorAware, Pa
         errorLabel.setManaged(true);
     }
 
-    /** Hides the message below the form (called before each save attempt). */
+    /** Oculta el mensaje debajo del formulario (se llama antes de cada intento de guardado). */
     private void hideError() {
         errorLabel.setText("");
         errorLabel.setVisible(false);
@@ -327,11 +327,11 @@ public class CustomerFormController implements Initializable, NavigatorAware, Pa
     }
 
     /**
-     * Creates a text field with the shared input style and a maximum length.
+     * Crea un campo de texto con el estilo de entrada compartido y una longitud máxima.
      *
-     * @param prompt    placeholder text (Spanish)
-     * @param maxLength maximum number of characters, equal to the database column length
-     * @return the configured text field
+     * @param prompt    texto de marcador de posición (en español)
+     * @param maxLength número máximo de caracteres, igual a la longitud de la columna de la base de datos
+     * @return el campo de texto configurado
      */
     private TextField textField(String prompt, int maxLength) {
         TextField field = new TextField();
@@ -342,10 +342,10 @@ public class CustomerFormController implements Initializable, NavigatorAware, Pa
     }
 
     /**
-     * Prevents typing more characters than the database column accepts.
+     * Impide escribir más caracteres de los que acepta la columna de la base de datos.
      *
-     * @param control   text control to limit
-     * @param maxLength maximum number of characters
+     * @param control   control de texto que se limitará
+     * @param maxLength número máximo de caracteres
      */
     private static void limitLength(TextInputControl control, int maxLength) {
         control.setTextFormatter(new TextFormatter<String>(
@@ -353,9 +353,9 @@ public class CustomerFormController implements Initializable, NavigatorAware, Pa
     }
 
     /**
-     * Creates a two-column grid (50% each) for one section of the form.
+     * Crea una cuadrícula de dos columnas (50 % cada una) para una sección del formulario.
      *
-     * @return an empty grid with the form-grid style
+     * @return una cuadrícula vacía con el estilo de cuadrícula del formulario
      */
     private static GridPane grid() {
         GridPane grid = new GridPane();
@@ -369,12 +369,12 @@ public class CustomerFormController implements Initializable, NavigatorAware, Pa
     }
 
     /**
-     * Wraps an input with its label, adding the red asterisk when it is required.
+     * Agrupa una entrada con su etiqueta y agrega un asterisco rojo cuando es obligatoria.
      *
-     * @param labelText label shown above the input (Spanish)
-     * @param required  {@code true} to show the required-field asterisk
-     * @param input     input control to wrap
-     * @return the label and input stacked in a box
+     * @param labelText etiqueta que se muestra encima de la entrada (en español)
+     * @param required  {@code true} para mostrar el asterisco de campo obligatorio
+     * @param input     control de entrada que se agrupará
+     * @return la etiqueta y la entrada apiladas en un contenedor
      */
     private static VBox field(String labelText, boolean required, Region input) {
         Label label = new Label(labelText);
@@ -393,11 +393,11 @@ public class CustomerFormController implements Initializable, NavigatorAware, Pa
     }
 
     /**
-     * Wraps a block of fields under a section title.
+     * Agrupa un conjunto de campos debajo del título de una sección.
      *
-     * @param title section title (Spanish)
-     * @param body  content of the section
-     * @return the title and the content stacked in a box
+     * @param title título de la sección (en español)
+     * @param body  contenido de la sección
+     * @return el título y el contenido apilados en un contenedor
      */
     private static VBox section(String title, Node body) {
         Label heading = new Label(title);
@@ -408,9 +408,9 @@ public class CustomerFormController implements Initializable, NavigatorAware, Pa
     }
 
     /**
-     * Gets the customer service when it is used, not when the screen is built.
+     * Obtiene el servicio de clientes cuando se utiliza, no cuando se construye la pantalla.
      *
-     * @return the shared customer service
+     * @return el servicio de clientes compartido
      */
     private CustomerService service() {
         return AppContext.getInstance().getCustomerService();

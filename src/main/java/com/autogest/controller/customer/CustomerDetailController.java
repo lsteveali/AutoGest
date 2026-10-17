@@ -33,25 +33,25 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * Controller of the customer detail screen (Detalle cliente mockup): header with
- * avatar, status and contact data, indicators, customer information, vehicles and
- * the recent-activity cards. It only translates screen events into calls to
- * {@link CustomerService}; it holds no business rules and does not know the
- * repository or the DAO.
+ * Controlador de la pantalla de detalles del cliente (maqueta «Detalle cliente»): encabezado con
+ * avatar, estado y datos de contacto, indicadores, información del cliente, vehículos y
+ * tarjetas de actividad reciente. Solo traduce los eventos de la pantalla en llamadas a
+ * {@link CustomerService}; no contiene reglas de negocio ni conoce el repositorio
+ * ni el DAO.
  *
- * <p>The screen receives the customer id through {@link ParameterizedController}
- * and builds its content from the customer loaded by the Service. Until the orders,
- * invoices and notifications modules exist, their indicators show «-» and their
- * cards show an empty state (decision D-12). The vehicles card and indicator behave
- * the same way until {@code VehicleService} is available in {@code AppContext}.</p>
+ * <p>La pantalla recibe el id del cliente mediante {@link ParameterizedController}
+ * y construye su contenido a partir del cliente cargado por el servicio. Hasta que existan
+ * los módulos de órdenes, facturas y notificaciones, sus indicadores muestran «-» y sus
+ * tarjetas muestran un estado vacío (decisión D-12). La tarjeta y el indicador de vehículos
+ * funcionan de la misma manera hasta que {@code VehicleService} esté disponible en {@code AppContext}.</p>
  *
- * <p>Principles: GRASP Controller, Low Coupling, High Cohesion, SRP.</p>
+ * <p>Principios: controlador GRASP, bajo acoplamiento, alta cohesión y SRP.</p>
  */
 public class CustomerDetailController implements NavigatorAware, ParameterizedController {
 
     private static final String CONTACT_SEPARATOR = "  |  ";
 
-    /** Root container of the screen; the content is rebuilt on it every time the customer is shown. */
+    /** Contenedor raíz de la pantalla; el contenido se reconstruye en él cada vez que se muestra el cliente. */
     @FXML
     private VBox root;
 
@@ -66,8 +66,8 @@ public class CustomerDetailController implements NavigatorAware, ParameterizedCo
     /**
      * {@inheritDoc}
      *
-     * <p>Loads the customer and builds the screen. If the customer no longer exists,
-     * it warns the user and goes back to the list.</p>
+     * <p>Carga el cliente y construye la pantalla. Si el cliente ya no existe,
+     * avisa al usuario y vuelve a la lista.</p>
      */
     @Override
     public void receiveParameter(int parameter) {
@@ -83,21 +83,21 @@ public class CustomerDetailController implements NavigatorAware, ParameterizedCo
     }
 
     /**
-     * Builds the whole screen for a customer. Also used to refresh it after the
-     * customer is deactivated.
+     * Construye toda la pantalla de un cliente. También se utiliza para actualizarla
+     * después de desactivar al cliente.
      *
-     * @param customer customer to show
+     * @param customer cliente que se mostrará
      */
     private void render(Customer customer) {
         root.getChildren().setAll(buildHeader(customer), buildKpiRow(), buildColumns(customer));
     }
 
     /**
-     * Builds the breadcrumb and the header: avatar, name, status badge, member-since
-     * text, contact line and the action buttons.
+     * Construye la ruta de navegación y el encabezado: avatar, nombre, insignia de estado,
+     * texto que indica desde cuándo es cliente, línea de contacto y botones de acción.
      *
-     * @param customer customer to show
-     * @return the header block
+     * @param customer cliente que se mostrará
+     * @return el bloque del encabezado
      */
     private Node buildHeader(Customer customer) {
         Label breadcrumb = new Label(String.join("  /  ", "Clientes", customer.getFullName()));
@@ -128,10 +128,10 @@ public class CustomerDetailController implements NavigatorAware, ParameterizedCo
     }
 
     /**
-     * Builds the header actions: edit, new vehicle and the «...» menu.
+     * Construye las acciones del encabezado: editar, crear vehículo y el menú «...».
      *
-     * @param customer customer the actions apply to
-     * @return the row of actions
+     * @param customer cliente al que se aplican las acciones
+     * @return la fila de acciones
      */
     private HBox buildActions(Customer customer) {
         Button edit = new Button("Editar cliente");
@@ -164,10 +164,11 @@ public class CustomerDetailController implements NavigatorAware, ParameterizedCo
     }
 
     /**
-     * Builds the row of four indicators. Every value is «-» for now: vehicles wait
-     * for {@code VehicleService}; orders, services and billing wait for their modules (D-12).
+     * Construye la fila de cuatro indicadores. Por ahora, todos los valores son «-»:
+     * los vehículos dependen de {@code VehicleService}; las órdenes, los servicios y la
+     * facturación dependen de sus respectivos módulos (D-12).
      *
-     * @return the row of indicator cards
+     * @return la fila de tarjetas de indicadores
      */
     private HBox buildKpiRow() {
         HBox row = new HBox();
@@ -186,11 +187,11 @@ public class CustomerDetailController implements NavigatorAware, ParameterizedCo
     }
 
     /**
-     * Lays out the two columns of the mockup: customer information and invoices on
-     * the left; vehicles, activity and notifications on the right.
+     * Organiza las dos columnas de la maqueta: información del cliente y facturas a
+     * la izquierda; vehículos, actividad y notificaciones a la derecha.
      *
-     * @param customer customer to show
-     * @return the two-column block
+     * @param customer cliente que se mostrará
+     * @return el bloque de dos columnas
      */
     private Node buildColumns(Customer customer) {
         VBox left = new VBox(16,
@@ -220,10 +221,10 @@ public class CustomerDetailController implements NavigatorAware, ParameterizedCo
     }
 
     /**
-     * Builds the «Información del cliente» card with its data pairs.
+     * Construye la tarjeta «Información del cliente» con sus pares de datos.
      *
-     * @param customer customer to show
-     * @return the information card
+     * @param customer cliente que se mostrará
+     * @return la tarjeta de información
      */
     private Node buildInfoCard(Customer customer) {
         GridPane grid = new GridPane();
@@ -254,12 +255,12 @@ public class CustomerDetailController implements NavigatorAware, ParameterizedCo
     }
 
     /**
-     * Builds the «Vehículos del cliente» card. {@code VehicleService} is not in
-     * {@code AppContext} yet, so the card shows its empty state; when the vehicles
-     * module is merged, the table with {@code findByCustomer} replaces the message.
+     * Construye la tarjeta «Vehículos del cliente». {@code VehicleService} aún no está en
+     * {@code AppContext}, por lo que la tarjeta muestra su estado vacío; cuando se integre
+     * el módulo de vehículos, la tabla con {@code findByCustomer} reemplazará el mensaje.
      *
-     * @param customer customer whose vehicles will be listed
-     * @return the vehicles card
+     * @param customer cliente cuyos vehículos se mostrarán
+     * @return la tarjeta de vehículos
      */
     private Node buildVehiclesCard(Customer customer) {
         Button add = new Button("+ Agregar vehículo");
@@ -277,27 +278,27 @@ public class CustomerDetailController implements NavigatorAware, ParameterizedCo
     }
 
     /**
-     * Goes to the edit form of the customer.
+     * Abre el formulario de edición del cliente.
      *
-     * @param customer customer to edit
+     * @param customer cliente que se editará
      */
     private void editCustomer(Customer customer) {
         navigator.navigateWithParameter(View.CUSTOMER_EDIT, customer.getId());
     }
 
     /**
-     * Goes to the new-vehicle screen with this customer preselected as owner.
+     * Abre la pantalla para crear un vehículo con este cliente preseleccionado como propietario.
      *
-     * @param customer owner of the new vehicle
+     * @param customer propietario del nuevo vehículo
      */
     private void newVehicle(Customer customer) {
         navigator.navigateWithParameter(View.VEHICLE_NEW, customer.getId());
     }
 
     /**
-     * Deactivates the customer after confirmation and refreshes the screen.
+     * Desactiva al cliente después de obtener la confirmación y actualiza la pantalla.
      *
-     * @param customer customer to deactivate
+     * @param customer cliente que se desactivará
      */
     private void deactivate(Customer customer) {
         if (!ConfirmDialog.confirm("Desactivar cliente", "¿Deseas desactivar a " + customer.getFullName()
@@ -313,11 +314,11 @@ public class CustomerDetailController implements NavigatorAware, ParameterizedCo
     }
 
     /**
-     * Joins document, phone and email in the single contact line of the header,
-     * skipping the ones that are missing.
+     * Une el documento, el teléfono y el correo electrónico en una sola línea de contacto
+     * en el encabezado, omitiendo los datos que no estén disponibles.
      *
-     * @param customer customer to show
-     * @return the contact line, for example {@code CC 1.234.567.890  |  300 123 4567  |  a@b.com}
+     * @param customer cliente que se mostrará
+     * @return la línea de contacto, por ejemplo {@code CC 1.234.567.890  |  300 123 4567  |  a@b.com}
      */
     private static String contactLine(Customer customer) {
         return Stream.of(CustomerLabels.documentText(customer),
@@ -328,11 +329,11 @@ public class CustomerDetailController implements NavigatorAware, ParameterizedCo
     }
 
     /**
-     * Builds a label and its value stacked, for the information card.
+     * Construye una etiqueta y su valor apilados en la tarjeta de información.
      *
-     * @param labelText name of the data (Spanish)
-     * @param value     value to show; a dash is shown when it is empty
-     * @return the label and value in a box
+     * @param labelText nombre del dato (en español)
+     * @param value     valor que se mostrará; se muestra un guion si está vacío
+     * @return la etiqueta y el valor dentro de un contenedor
      */
     private static VBox infoPair(String labelText, String value) {
         Label label = new Label(labelText);
@@ -343,11 +344,11 @@ public class CustomerDetailController implements NavigatorAware, ParameterizedCo
     }
 
     /**
-     * Builds a card with a title and an empty-state message.
+     * Construye una tarjeta con un título y un mensaje de estado vacío.
      *
-     * @param title        card title (Spanish)
-     * @param emptyMessage message shown while the data does not exist yet
-     * @return the card
+     * @param title        título de la tarjeta (en español)
+     * @param emptyMessage mensaje que se muestra mientras los datos aún no existen
+     * @return la tarjeta
      */
     private static Node miniCard(String title, String emptyMessage) {
         VBox card = new VBox(sectionTitle(title), emptyText(emptyMessage));
@@ -356,10 +357,10 @@ public class CustomerDetailController implements NavigatorAware, ParameterizedCo
     }
 
     /**
-     * Builds the title label of a card.
+     * Construye la etiqueta del título de una tarjeta.
      *
-     * @param text title (Spanish)
-     * @return the title label
+     * @param text título (en español)
+     * @return la etiqueta del título
      */
     private static Label sectionTitle(String text) {
         Label title = new Label(text);
@@ -368,10 +369,10 @@ public class CustomerDetailController implements NavigatorAware, ParameterizedCo
     }
 
     /**
-     * Builds the muted text used by empty states.
+     * Construye el texto atenuado que se utiliza en los estados vacíos.
      *
-     * @param text message (Spanish)
-     * @return the message label
+     * @param text mensaje (en español)
+     * @return la etiqueta del mensaje
      */
     private static Label emptyText(String text) {
         Label label = new Label(text);
@@ -380,9 +381,9 @@ public class CustomerDetailController implements NavigatorAware, ParameterizedCo
     }
 
     /**
-     * Gets the customer service when it is used, not when the screen is built.
+     * Obtiene el servicio de clientes cuando se necesita, no cuando se construye la pantalla.
      *
-     * @return the shared customer service
+     * @return el servicio de clientes compartido
      */
     private CustomerService service() {
         return AppContext.getInstance().getCustomerService();
