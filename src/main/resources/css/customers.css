@@ -12,6 +12,16 @@
     -fx-spacing: 20;
 }
 
+/* Color de texto explícito: .page-title no define -fx-text-fill y, sin él, el tema
+   por defecto lo calcula según el fondo. Así el título y la casilla se ven siempre. */
+.customer-page .page-title {
+    -fx-text-fill: -ag-text;
+}
+
+.customer-page .check-box {
+    -fx-text-fill: -ag-text;
+}
+
 .customer-kpi-row {
     -fx-spacing: 16;
 }
@@ -20,7 +30,6 @@
    detalle) van dentro de un ScrollPane transparente que deja ver el fondo */
 .customer-scroll {
     -fx-background-color: transparent;
-    -fx-background: transparent;
     -fx-padding: 0;
 }
 
@@ -86,6 +95,7 @@
 .customer-section-title {
     -fx-font-size: 16px;
     -fx-font-weight: 700;
+    -fx-text-fill: -ag-text;
 }
 
 .customer-form-grid {
