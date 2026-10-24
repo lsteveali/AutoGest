@@ -68,6 +68,7 @@ public class VehiclesController implements Initializable, NavigatorAware {
     private String makeFilter;
     private VehicleStatus statusFilter;
     private VehicleType typeFilter;
+    private boolean suppressReload;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -223,6 +224,9 @@ public class VehiclesController implements Initializable, NavigatorAware {
 
     /** Recarga la tabla, los indicadores y las marcas del filtro. */
     private void reload() {
+        if (suppressReload) {
+            return;
+        }
         VehicleService vehicleService = service();
         try {
             table.setData(vehicleService.searchVehicles(searchText, makeFilter, statusFilter, typeFilter));
@@ -242,10 +246,20 @@ public class VehiclesController implements Initializable, NavigatorAware {
         if (makeCombo == null) {
             return;
         }
-        List<String> options = options(FILTER_ALL, safeMakes(vehicleService));
-        String selected = makeCombo.getValue();
-        makeCombo.getItems().setAll(options);
-        makeCombo.setValue(selected != null && options.contains(selected) ? selected : FILTER_ALL);
+        suppressReload = true;
+        try {
+            List<String> options = options(FILTER_ALL, safeMakes(vehicleService));
+            String selected = makeCombo.getValue();
+            makeCombo.getItems().setAll(options);
+            String target = selected != null && options.contains(selected) ? selected : FILTER_ALL;
+            if (options.contains(target)) {
+                makeCombo.setValue(target);
+            } else if (!options.isEmpty()) {
+                makeCombo.setValue(FILTER_ALL);
+            }
+        } finally {
+            suppressReload = false;
+        }
     }
 
     private List<String> safeMakes(VehicleService vehicleService) {
