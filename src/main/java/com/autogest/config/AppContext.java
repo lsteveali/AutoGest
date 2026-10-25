@@ -1,13 +1,19 @@
 package com.autogest.config;
 
 import com.autogest.dao.CustomerDao;
+import com.autogest.dao.PartDao;
+import com.autogest.dao.ServiceOfferingDao;
 import com.autogest.dao.UserDao;
 import com.autogest.dao.VehicleDao;
 import com.autogest.repository.CustomerRepository;
+import com.autogest.repository.PartRepository;
+import com.autogest.repository.ServiceOfferingRepository;
 import com.autogest.repository.UserRepository;
 import com.autogest.repository.VehicleRepository;
 import com.autogest.service.AuthenticationService;
 import com.autogest.service.CustomerService;
+import com.autogest.service.PartService;
+import com.autogest.service.ServiceOfferingService;
 import com.autogest.service.UserService;
 import com.autogest.service.VehicleService;
 
@@ -46,6 +52,16 @@ public final class AppContext {
     private final VehicleRepository vehicleRepository;
     private final VehicleService vehicleService;
 
+    // ===== Catalogo de servicios (Lider) =====
+    private final ServiceOfferingDao serviceOfferingDao;
+    private final ServiceOfferingRepository serviceOfferingRepository;
+    private final ServiceOfferingService serviceOfferingService;
+
+    // ===== Inventario / Repuestos (Lider) =====
+    private final PartDao partDao;
+    private final PartRepository partRepository;
+    private final PartService partService;
+
     private AppContext() {
         // ===== Users (Leader) =====
         this.databaseConnection = new DatabaseConnection();
@@ -63,6 +79,16 @@ public final class AppContext {
         this.vehicleDao = new VehicleDao(databaseConnection);
         this.vehicleRepository = new VehicleRepository(vehicleDao);
         this.vehicleService = new VehicleService(vehicleRepository, customerRepository);
+
+        // ===== Catalogo de servicios (Lider) =====
+        this.serviceOfferingDao = new ServiceOfferingDao(databaseConnection);
+        this.serviceOfferingRepository = new ServiceOfferingRepository(serviceOfferingDao);
+        this.serviceOfferingService = new ServiceOfferingService(serviceOfferingRepository);
+
+        // ===== Inventario / Repuestos (Lider) =====
+        this.partDao = new PartDao(databaseConnection);
+        this.partRepository = new PartRepository(partDao);
+        this.partService = new PartService(partRepository);
 
         // ===== Orders (Dev 1 / Dev 2) =====
         // Sprint 4: ServiceOrderDao -> ServiceOrderRepository -> ServiceOrderService
@@ -126,5 +152,19 @@ public final class AppContext {
      */
     public VehicleService getVehicleService() {
         return vehicleService;
+    }
+
+    /**
+     * Devuelve el servicio del catálogo de servicios.
+     */
+    public ServiceOfferingService getServiceOfferingService() {
+        return serviceOfferingService;
+    }
+
+    /**
+     * Devuelve el servicio de repuestos/inventario.
+     */
+    public PartService getPartService() {
+        return partService;
     }
 }
