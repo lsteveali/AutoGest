@@ -4,7 +4,7 @@
 > termina una tarea se agrega/actualiza su estado y, cuando aporta, una entrada
 > en la sección «Bitácora cronológica».
 >
-> Última actualización: **17/10/2026** — Líder (Leonarth Steve Ali Camargo).
+> Última actualización: **24/10/2026** — Líder (Leonarth Steve Ali Camargo).
 
 ---
 
@@ -15,8 +15,8 @@
 | Proyecto | AutoGest — Sistema de gestión integral para talleres automotrices |
 | Materia | Programación de Computadores III (SS462) |
 | Repositorio | https://github.com/lsteveali/AutoGest.git |
-| Rama de trabajo actual | `feature/vehiculos` (Sprint 2 — Vehículos; integrada con el módulo de Clientes de Dev 1, PR #8; la anterior `feature/login-usuarios` quedó fusionada en PR #7) |
-| Sprint en curso | **Sprint 2 — Usuarios, Clientes y Vehículos** (Líder: Login/Usuarios y Vehículos · Dev 1: Clientes) |
+| Rama de trabajo actual | `feature/servicios-inventario` (Sprint 3 — Servicios, Inventario y Repuestos) |
+| Sprint en curso | **Sprint 3 — Servicios, Inventario y Repuestos** (Líder: Dashboard v1 + Servicios + Inventario base · Dev 1: Repuestos + Movimientos de inventario) |
 | Equipo | Líder: Leonarth Steve Ali Camargo · Dev 1: Sebastián Murgas Tejeda · Dev 2: **sin integrante vinculado** — el Líder asume todas sus responsabilidades (decisión 14/10/2026) |
 | Documento guía | `AutoGest_Guia_Lider` (V2.0) |
 
@@ -355,50 +355,16 @@ dejar la prueba verde con `mvn test -Pintegration`.**
 
 **Git:** los cambios de la sesión quedaron commiteados en la Sesión 9 (ver abajo).
 
-### 17/10/2026 — Sesión 9 (Líder): integración del módulo de Clientes (PR #8) y subida de Vehículos
+### 24/10/2026 — Sesión 10 (Líder): inicio del Sprint 3
 
-**Estado revisado al entrar.** `origin/develop` había avanzado de `3015e20` a
-`d30472c` con el **PR #8** de `feature/clientes` (Dev 1): interfaz completa del
-módulo (`CustomerListController`, `CustomerFormController`,
-`CustomerDetailController`, `CustomerLabels`, `customers.css`, los 4 FXML de
-`fxml/customer/`, `CustomerLabelsTest` y `docs/analysis-customers.md` +
-`docs/customers-class-diagram.md`). `feature/vehiculos` estaba 10 commits atrás
-de `origin/develop` y todavía con los cambios de la Sesión 8 sin commitear.
+**Hecho:**
+1. `develop` actualizado con el merge del **PR #9** (`feature/vehiculos` → `develop`).
+2. Creada la rama `feature/servicios-inventario` desde `develop` actualizado.
+3. Plan del Sprint 3 preparado (`docs/../plan/PLAN-sprint3-servicios-inventario-repuestos.md`) con distribución: Líder (Dashboard v1 + Servicios + base Inventario/Partes + AppContext) y Dev 1 (Repuestos UI + Movimientos de inventario).
 
-**Hecho y verificado:**
+**Pendiente:** comenzar con Dashboard v1 y el backend de `ServiceOffering`/`Part` según el plan.
 
-1. **Commits atómicos de la Sesión 8** (4 commits):
-   `e61a6bd` (backend al contrato 7.5), `e23ca5f` (pruebas del contrato),
-   `6a698f8` (las 4 pantallas: controladores + FXML) y `c426931` (prueba de humo
-   de FXML).
-2. **`develop` actualizado** (fast-forward local a `d30472c`) y **merge de
-   `origin/develop` en `feature/vehiculos`** (`7ae4c9b`) con **0 conflictos**
-   (verificado antes con `merge-tree`: los archivos de Clientes y Vehículos son
-   disjuntos; la navegación ya tenía `View.VEHICLE_*` y la Sidebar sin cambios).
-3. **`mvn clean test` → 245 pruebas, 0 fallos, BUILD SUCCESS.** El módulo de
-   Clientes aporta `CustomerServiceTest` (37) y `CustomerLabelsTest` (15), y
-   `VehicleServiceTest` queda en 52. El repositorio tiene 248 `@Test`: los 3
-   restantes son de las clases `@Tag("integration")` (excluidas del perfil por
-   defecto), así que el conteo cuadra.
-4. **Chequeos de capas (§13)** sin hallazgos: el único `javafx` fuera de
-   `controller/` es `AutoGestApplication` (punto de arranque); sin `java.sql`
-   fuera de `dao`/`config`.
-5. **Prueba de humo: bloqueo reproducido.** `mvn test -Pintegration
-   -Dtest=VehicleScreensSmokeTest` no terminó dentro de 5 minutos (igual que en
-   la Sesión 8) y hubo que terminar el proceso. Queda **pendiente diagnosticar**;
-   no bloquea la subida porque está fuera de `mvn clean test`.
-
-**Git:** rama subida a `origin/feature/vehiculos` (11 commits sobre `develop`).
-PR3 (`feature/vehiculos → develop`) pendiente de abrir en GitHub (no hay `gh` ni
-token en el entorno; se prellena la página de comparación, como en sesiones
-anteriores). **Higiene Git hecha:** borradas las ramas fusionadas locales
-(`base-datos`, `login-usuarios`, `base-presentacion`, `fuentes-roboto`) y
-remotas (`base-datos`, `base-modelo`, `base-presentacion`, `login-usuarios`,
-`clientes`), y `git stash drop` de los dos stashes obsoletos (el de iconos ya
-estaba incorporado; el otro era un WIP viejo de `login-usuarios`). Quedan solo
-`develop`, `main` y `feature/vehiculos`.
-
----
+--- 
 
 ## 4. Decisiones y acuerdos
 
@@ -418,7 +384,7 @@ estaba incorporado; el otro era un WIP viejo de `login-usuarios`). Quedan solo
 | 16/10/2026 | **`deleteVehicle(int)` es la baja lógica** (D-02) y delega en `deactivateVehicle(int)`; `countInServiceVehicles()` queda deprecado a favor de `countInService()`. | El contrato 7.5 exige esos nombres; no se duplica la lógica ni se borran filas. |
 | 16/10/2026 | Las pantallas de vehículos llevan **FXML mínimo (un `VBox` con `fx:id="root"`) y el contenido se construye en el controlador**. | Mismo patrón que `users-roles.fxml` y `UsersRolesController`; reutiliza `PageHeader`, `KpiCard`, `FilterBar`, `PagedTable` y `StatusBadge`. |
 | 16/10/2026 | La prueba de carga de FXML va etiquetada **`@Tag("integration")`**. | Necesita toolkit JavaFX y base de datos; no puede romper el `mvn clean test` por defecto (p. ej. con `ErrorDialog` modal). |
-| 17/10/2026 | **La subida de `feature/vehiculos` (PR3) no se bloquea por la prueba de humo de FXML.** | El bloqueo de la prueba se reprodujo (17/10/2026) y está fuera de `mvn clean test`; diagnosticarla no debe frenar la integración del módulo ya verificado con 245 pruebas verdes. |
+| 24/10/2026 | **Sprint 3 iniciado** en `feature/servicios-inventario`. | PR #9 (Vehículos) fusionado en `develop`. Distribución: Líder (Dashboard v1 + Servicios + base Inventario) · Dev 1 (Repuestos + Movimientos). |
 
 ---
 
