@@ -48,7 +48,7 @@
 }
 
 .sidebar-item {
-    -fx-text-fill: #C7D2E3;
+    -fx-text-fill: #FFFFFF;
     -fx-font-size: 14px;
     -fx-font-weight: 500;
     -fx-padding: 12 14;
@@ -273,7 +273,7 @@
 }
 
 .sidebar-item .icon {
-    -fx-stroke: #C7D2E3;
+    -fx-stroke: #FFFFFF;
 }
 
 .sidebar-item:hover .icon {
