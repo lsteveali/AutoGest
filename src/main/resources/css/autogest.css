@@ -556,3 +556,71 @@
     -fx-font-size: 13px;
     -fx-text-fill: -ag-text-muted;
 }
+
+/* --------------------------------------------------------------------------
+   Dashboard (Sprint 3, Líder)
+   -------------------------------------------------------------------------- */
+.dashboard-scroll {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+.dashboard-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+.dashboard-row {
+    -fx-spacing: 16;
+    -fx-alignment: center-left;
+}
+
+.side-card {
+    -fx-pref-width: 340;
+    -fx-min-width: 340;
+}
+
+.stage {
+    -fx-alignment: center;
+    -fx-spacing: 4;
+}
+
+.stage-icon {
+    -fx-background-color: rgba(47, 109, 181, 0.10);
+    -fx-background-radius: 12;
+    -fx-min-width: 44;
+    -fx-min-height: 44;
+    -fx-padding: 10;
+    -fx-alignment: center;
+}
+
+.stage-icon .icon {
+    -fx-stroke: -ag-primary;
+}
+
+.stage-title {
+    -fx-font-size: 13px;
+    -fx-text-fill: -ag-text-muted;
+}
+
+.stage-count {
+    -fx-font-size: 22px;
+    -fx-font-weight: 700;
+}
+
+.stat-row {
+    -fx-alignment: center-left;
+    -fx-spacing: 8;
+}
+
+.stat-value {
+    -fx-font-size: 16px;
+    -fx-font-weight: 700;
+}
+
+.card-note {
+    -fx-font-size: 13px;
+    -fx-text-fill: -ag-text-muted;
+    -fx-text-alignment: center;
+}
