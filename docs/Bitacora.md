@@ -58,7 +58,7 @@
 | S2-C2 | Clientes — interfaz (lista, nuevo, editar, detalle) y bloque *Customers* de `AppContext` | ✅ Hecho (Dev 1) | `CustomerListController`, `CustomerFormController`, `CustomerDetailController`, `CustomerLabels`, `customers.css`, los 4 FXML, `CustomerLabelsTest` (15 pruebas) y los docs de análisis/diagrama. **Fusionado en `develop` vía PR #8** (`d30472c`, 17/10/2026). |
 | S2-V1 | Vehículos — backend alineado al contrato 7.5 (`VehicleDao`, `VehicleRepository`, `VehicleService`) | ✅ Hecho (Líder) | 5 commits previos + ajustes de la Sesión 8 (marcas, conteo por propietario, `updateMileage`, `deleteVehicle`, búsqueda por marca). |
 | S2-V2 | Vehículos — interfaz (lista, nuevo, editar, detalle) | ✅ Hecho (Líder) | 4 controladores + 4 FXML reemplazan los marcadores; `VehicleLabels` y `package-info`. Verificado con `mvn clean test` (17/10/2026). Carga de FXML: prueba de humo aún pendiente de diagnóstico. |
-| S2-D | Documentos del Sprint 2 (`analysis-users.md`, `users-class-diagram.md` y equivalentes de Clientes y Vehículos) | 🟡 Parcial | Clientes ✅ (`docs/analysis-customers.md`, `docs/customers-class-diagram.md`, Dev 1, PR #8). Faltan los de Usuarios y Vehículos. |
+| S2-D | Documentos del Sprint 2 (`analysis-users.md`, `users-class-diagram.md` y equivalentes de Clientes y Vehículos) | ✅ Hecho | Clientes (`docs/analysis-customers.md`, `docs/customers-class-diagram.md`, Dev 1, PR #8). Usuarios y Vehículos (`docs/analysis-users.md`, `docs/users-class-diagram.md`, `docs/analysis-vehicles.md`, `docs/vehicles-class-diagram.md`, commit `4f9b5d5`, PR #9). |
 
 ### Sprints 3–9 (hoja de ruta)
 
@@ -355,18 +355,55 @@ dejar la prueba verde con `mvn test -Pintegration`.**
 
 **Git:** los cambios de la sesión quedaron commiteados en la Sesión 9 (ver abajo).
 
+### 17/10/2026 — Sesión 9 (Líder): integración del módulo de Clientes (PR #8) y subida de Vehículos
+
+**Estado revisado al entrar.** `origin/develop` había avanzado de `3015e20` a
+`d30472c` con el **PR #8** de `feature/clientes` (Dev 1): interfaz completa del
+módulo (`CustomerListController`, `CustomerFormController`,
+`CustomerDetailController`, `CustomerLabels`, `customers.css`, los 4 FXML de
+`fxml/customer/`, `CustomerLabelsTest` y `docs/analysis-customers.md` +
+`docs/customers-class-diagram.md`). `feature/vehiculos` estaba 10 commits atrás
+de `origin/develop` y todavía con los cambios de la Sesión 8 sin commitear.
+
+**Hecho y verificado:**
+
+1. **Commits atómicos de la Sesión 8** (4 commits):
+   `e61a6bd` (backend al contrato 7.5), `e23ca5f` (pruebas del contrato),
+   `6a698f8` (las 4 pantallas: controladores + FXML) y `c426931` (prueba de humo
+   de FXML).
+2. **`develop` actualizado** (fast-forward local a `d30472c`) y **merge de
+   `origin/develop` en `feature/vehiculos`** (`7ae4c9b`) con **0 conflictos**
+   (verificado antes con `merge-tree`: los archivos de Clientes y Vehículos son
+   disjuntos; la navegación ya tenía `View.VEHICLE_*` y la Sidebar sin cambios).
+3. **`mvn clean test` → 245 pruebas, 0 fallos, BUILD SUCCESS.** El módulo de
+   Clientes aporta `CustomerServiceTest` (37) y `CustomerLabelsTest` (15), y
+   `VehicleServiceTest` queda en 52. El repositorio tiene 248 `@Test`: los 3
+   restantes son de las clases `@Tag("integration")` (excluidas del perfil por
+   defecto), así que el conteo cuadra.
+4. **Chequeos de capas (§13)** sin hallazgos: el único `javafx` fuera de
+   `controller/` es `AutoGestApplication` (punto de arranque); sin `java.sql`
+   fuera de `dao`/`config`.
+5. **Prueba de humo: bloqueo reproducido.** `mvn test -Pintegration
+   -Dtest=VehicleScreensSmokeTest` no terminó dentro de 5 minutos (igual que en
+   la Sesión 8) y hubo que terminar el proceso. Queda **pendiente diagnosticar**;
+   no bloquea la subida porque está fuera de `mvn clean test`.
+
+**Git:** rama subida a `origin/feature/vehiculos` (11 commits sobre `develop`).
+PR3 (`feature/vehiculos → develop`) pendiente de abrir en GitHub (no hay `gh` ni
+token en el entorno; se prellena la página de comparación, como en sesiones
+anteriores). **Higiene Git hecha:** borradas las ramas fusionadas locales
+(`base-datos`, `login-usuarios`, `base-presentacion`, `fuentes-roboto`) y
+remotas (`base-datos`, `base-modelo`, `base-presentacion`, `login-usuarios`,
+`clientes`), y `git stash drop` de los dos stashes obsoletos (el de iconos ya
+estaba incorporado; el otro era un WIP viejo de `login-usuarios`). Quedan solo
+`develop`, `main` y `feature/vehiculos`.
+
+> **Nota (26/10/2026):** esta entrada se borró por error en `3028f40` y se
+> restauró desde `8dec36b`. El PR3 se abrió y fusionó después como **PR #9**.
+
 ### 24/10/2026 — Sesión 10 (Líder): inicio del Sprint 3
 
-**Hecho:**
-1. `develop` actualizado con el merge del **PR #9** (`feature/vehiculos` → `develop`).
-2. Creada la rama `feature/servicios-inventario` desde `develop` actualizado.
-3. Plan del Sprint 3 preparado (`docs/../plan/PLAN-sprint3-servicios-inventario-repuestos.md`) con distribución: Líder (Dashboard v1 + Servicios + base Inventario/Partes + AppContext) y Dev 1 (Repuestos UI + Movimientos de inventario).
-
-**Pendiente:** comenzar con Dashboard v1 y el backend de `ServiceOffering`/`Part` según el plan.
-
-### 24/10/2026 — Sesión 10 (Líder): inicio del Sprint 3
-
-**Contexto:** PR #9 (`feature/vehiculos` → `develop`) fusionado. Se crea `feature/servicios-inventario` desde `develop` actualizado.
+**Contexto:** PR #9 (`feature/vehiculos` → `develop`) fusionado. Se crea `feature/servicios-inventario` desde `develop` actualizado y se prepara el plan del Sprint 3 (`plan/PLAN-sprint3-servicios-inventario-repuestos.md`).
 
 **Hecho:**
 1. **Base transversal (Líder):** `ServiceOfferingDao`, `ServiceOfferingRepository`, `ServiceOfferingService`, `PartDao`, `PartRepository`, `PartService` creados siguiendo el flujo `DAO → Repository → Service`.
@@ -441,6 +478,7 @@ dejar la prueba verde con `mvn test -Pintegration`.**
 | 16/10/2026 | **`deleteVehicle(int)` es la baja lógica** (D-02) y delega en `deactivateVehicle(int)`; `countInServiceVehicles()` queda deprecado a favor de `countInService()`. | El contrato 7.5 exige esos nombres; no se duplica la lógica ni se borran filas. |
 | 16/10/2026 | Las pantallas de vehículos llevan **FXML mínimo (un `VBox` con `fx:id="root"`) y el contenido se construye en el controlador**. | Mismo patrón que `users-roles.fxml` y `UsersRolesController`; reutiliza `PageHeader`, `KpiCard`, `FilterBar`, `PagedTable` y `StatusBadge`. |
 | 16/10/2026 | La prueba de carga de FXML va etiquetada **`@Tag("integration")`**. | Necesita toolkit JavaFX y base de datos; no puede romper el `mvn clean test` por defecto (p. ej. con `ErrorDialog` modal). |
+| 17/10/2026 | **La subida de `feature/vehiculos` (PR3) no se bloquea por la prueba de humo de FXML.** | El bloqueo de la prueba se reprodujo (17/10/2026) y está fuera de `mvn clean test`; diagnosticarla no debe frenar la integración del módulo ya verificado con 245 pruebas verdes. |
 | 24/10/2026 | **Sprint 3 iniciado** en `feature/servicios-inventario`. | PR #9 (Vehículos) fusionado en `develop`. Distribución: Líder (Dashboard v1 + Servicios + base Inventario) · Dev 1 (Repuestos + Movimientos). |
 | 26/10/2026 | **Textos e íconos de la barra lateral en blanco** (`#FFFFFF` en lugar de `#C7D2E3`). | Pedido del Líder: el gris no contrastaba con el fondo navy. El ítem activo sigue destacando por el fondo `primary` y el peso 700. |
 
@@ -452,8 +490,8 @@ dejar la prueba verde con `mvn test -Pintegration`.**
 - [x] ~~Crear/mergear el Pull Request a `develop`~~ — PR #1 fusionado (`2946d88`).
 - [x] ~~Sincronizar `develop` y crear la rama del Sprint 2~~ — hecho (`feature/login-usuarios`).
 - [x] ~~Fuentes Roboto Regular/Medium/Bold en `resources/css/fonts/` + `Font.loadFont`~~ — hecho (Sesión 7).
-- [ ] Eliminar la rama `feature/base-presentacion` (local y remota) tras el merge. — **✅ hecho (17/10/2026).**
-- [ ] `git stash drop` (el `stash@{0}` de iconos ya está incorporado). — **✅ hecho (17/10/2026).**
+- [x] ~~Eliminar la rama `feature/base-presentacion` (local y remota) tras el merge~~ — hecho (17/10/2026).
+- [x] ~~`git stash drop` (el `stash@{0}` de iconos ya está incorporado)~~ — hecho (17/10/2026).
 
 **✅ Dependencia resuelta — Sprint 2 destrabado (10/10/2026):**
 
@@ -498,9 +536,7 @@ Verificación: `develop` → `mvn clean test` **108 pruebas, 0 fallos**
 
 **Cierre del Sprint 2 (Fase 3):**
 - [x] ~~Subir `feature/login-usuarios` y abrir el **PR2** (`→ develop`)~~ — resuelto: el merge `3015e20` es *Merge pull request #7 from lsteveali/feature/login-usuarios* y de ahí nace `feature/vehiculos`.
-- [ ] Abrir el **PR3** de `feature/vehiculos` (`→ develop`) y que Sebastián lo
-      revise. La rama ya está integrada con Clientes y verde (17/10/2026); solo
-      falta crear el PR en GitHub (no hay `gh`/token).
+- [x] ~~Abrir el **PR3** de `feature/vehiculos` (`→ develop`)~~ — resuelto: fusionado como **PR #9** (`480e33c`).
 - [x] ~~Higiene Git: borrar ramas fusionadas (`base-presentacion`, `base-modelo`,
       `base-datos`, `feature/clientes`) y `git stash drop`~~ — hecho (Sesión 9):
       solo quedan `develop`, `main` y `feature/vehiculos`.
@@ -520,7 +556,7 @@ Verificación: `develop` → `mvn clean test` **108 pruebas, 0 fallos**
 - [ ] Prueba manual: `mvn javafx:run` con login real contra Supabase (usuarios de `seed-usuarios.sql`).
 - [x] ~~Sebastián: interfaz de Clientes y bloque *Customers* en `AppContext`~~ — hecho (PR #8, 17/10/2026).
 - [x] ~~Líder: Vehículos (backend + interfaz), tras Clientes~~ — backend ✅ e interfaz ✅ (Sesión 9); solo queda la prueba de humo de FXML.
-- [ ] Documentos del Sprint 2: análisis y diagrama de clases de Usuarios, Clientes y Vehículos.
+- [x] ~~Documentos del Sprint 2: análisis y diagrama de clases de Usuarios, Clientes y Vehículos~~ — hecho (PR #8 y commit `4f9b5d5`, PR #9).
 - [ ] Decidir el idioma de comentarios y Javadoc y alinear README, guía y código.
 - [ ] Definir las fechas de entrega de cada sprint (la guía las deja `[PENDIENTE]`).
 - [ ] Cerrado el Sprint 2: decidir si se integra `develop` en `main` y se etiqueta `v1.0`.
