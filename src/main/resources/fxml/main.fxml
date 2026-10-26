@@ -2,6 +2,7 @@
 
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
 
 <?import com.autogest.controller.components.AssistantButton?>
 <?import com.autogest.controller.components.Sidebar?>
@@ -16,17 +17,17 @@
         <Sidebar fx:id="sidebar" />
     </left>
 
-    <!-- Arriba: cabecera con campana y usuario actual. -->
-    <top>
-        <Topbar fx:id="topbar" />
-    </top>
-
-    <!-- Centro: área donde el ViewNavigator carga las pantallas y botón flotante del Asistente. -->
+    <!-- Centro: cabecera con campana y usuario actual (solo sobre el contenido,
+         como en los mockups: la Sidebar ocupa todo el alto), el área donde el
+         ViewNavigator carga las pantallas y el botón flotante del Asistente. -->
     <center>
-        <StackPane>
-            <StackPane fx:id="contentArea" styleClass="content-area" />
-            <AssistantButton fx:id="assistantButton" StackPane.alignment="BOTTOM_RIGHT" />
-        </StackPane>
+        <VBox>
+            <Topbar fx:id="topbar" />
+            <StackPane VBox.vgrow="ALWAYS">
+                <StackPane fx:id="contentArea" styleClass="content-area" />
+                <AssistantButton fx:id="assistantButton" StackPane.alignment="BOTTOM_RIGHT" />
+            </StackPane>
+        </VBox>
     </center>
 
 </BorderPane>
