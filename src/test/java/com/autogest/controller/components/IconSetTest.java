@@ -45,7 +45,7 @@ class IconSetTest {
                 IconSet.BOX, IconSet.CREDIT_CARD, IconSet.BELL, IconSet.BAR_CHART, IconSet.SETTINGS,
                 IconSet.SPARKLES, IconSet.SEARCH, IconSet.PLUS, IconSet.CHEVRON_DOWN, IconSet.CHEVRON_RIGHT,
                 IconSet.EDIT, IconSet.TRASH, IconSet.LOGOUT, IconSet.X, IconSet.ARROW_LEFT, IconSet.CHECK,
-                IconSet.CALENDAR
+                IconSet.CALENDAR, IconSet.MAIL, IconSet.LOCK
         };
         for (String icon : icons) {
             assertDoesNotThrow(() -> IconSet.parsePathData(icon), "no parseable: " + icon);

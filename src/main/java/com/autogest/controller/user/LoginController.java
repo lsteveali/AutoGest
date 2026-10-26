@@ -1,6 +1,7 @@
 package com.autogest.controller.user;
 
 import com.autogest.config.AppContext;
+import com.autogest.controller.components.IconSet;
 import com.autogest.exception.AutoGestException;
 import com.autogest.model.User;
 import javafx.fxml.FXML;
@@ -10,6 +11,7 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -45,10 +47,19 @@ public class LoginController implements Initializable {
     @FXML
     private Button loginButton;
 
+    @FXML
+    private HBox emailBox;
+
+    @FXML
+    private HBox passwordBox;
+
     private Runnable onLoginSuccess;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        // Íconos dentro de los campos, como en el mockup Login V2.
+        emailBox.getChildren().add(0, IconSet.icon(IconSet.MAIL));
+        passwordBox.getChildren().add(0, IconSet.icon(IconSet.LOCK));
         hideError();
         loginButton.setOnAction(event -> handleLogin());
         passwordField.setOnAction(event -> handleLogin());
