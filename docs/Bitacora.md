@@ -4,7 +4,7 @@
 > termina una tarea se agrega/actualiza su estado y, cuando aporta, una entrada
 > en la sección «Bitácora cronológica».
 >
-> Última actualización: **24/10/2026** — Líder (Leonarth Steve Ali Camargo).
+> Última actualización: **25/10/2026** — Líder (Leonarth Steve Ali Camargo).
 
 ---
 
@@ -64,7 +64,7 @@
 
 | Sprint | Contenido | Estado |
 |---|---|---|
-| 3 | Servicios, Inventario y Repuestos (Líder: Dashboard v1) | ⬜ No iniciado |
+| 3 | Servicios, Inventario y Repuestos (Líder: Dashboard v1) | 🟡 En curso |
 | 4 | Órdenes de servicio (Líder: estados e historial) | ⬜ No iniciado |
 | 5 | Facturación | ⬜ No iniciado |
 | 6 | Notificaciones | ⬜ No iniciado |
@@ -381,6 +381,17 @@ dejar la prueba verde con `mvn test -Pintegration`.**
 
 **Rama:** `feature/servicios-inventario` · **Distribución:** Líder (Dashboard v1 + Servicios + base Inventario) · Dev 1 (Repuestos + Movimientos).
 
+### 25/10/2026 — Sesión 11 (Líder): UI del catálogo de Servicios
+
+**Hecho:**
+1. **Pantalla de lista** (`ServicesController` + `fxml/catalog/services.fxml`): `PageHeader` con «+ Nuevo servicio», 3 KPI (registrados, activos, inactivos), filtros de texto/categoría/estado y `PagedTable` con código+nombre, categoría, duración, precio, insignia de estado y menú de acciones (Ver detalle / Editar / Dar de baja con `ConfirmDialog`). La fila abre el detalle y el desplegable de categorías se refresca con `findCategories()` conservando la selección (`suppressReload`).
+2. **Formulario compartido** (`ServiceFormController` base + `ServiceNewController` / `ServiceEditController`): patrón de `VehicleFormController` (getRoot/isEditing/title; la edición recibe el id por `receiveParameter`). Campos: código*, nombre*, categoría (editable), duración, precio*, estado y descripción; guardado vía `registerService`/`updateService` y vuelta con `navigator.goBack()`.
+3. **Detalle** (`ServiceDetailController`): cabecera con nombre/categoría, acciones (Volver / Editar / Dar de baja), tarjeta con código, categoría, precio, duración, insignia de estado y descripción, más tabla «Repuestos habituales» con los `parts` del servicio.
+4. **`ServiceLabels`**: `statusText`/`statusType`/`statusOptions`/`statusFromText`, `price` (delega en `Formatter.money`) y `duration`. `package-info` del paquete `controller/catalog`.
+5. **Verificación:** `mvn clean test` → **245 pruebas, 0 fallos, BUILD SUCCESS**. Chequeos de capas (§13): sin `javafx` fuera de `controller/`. Detector de diseño de la guía de interfaz sin hallazgos.
+
+**Siguiente:** Dashboard v1 (Líder); UI de Repuestos y Movimientos (Dev 1) ya desbloqueada.
+
 ---
 
 ## 4. Decisiones y acuerdos
@@ -464,6 +475,13 @@ Verificación: `develop` → `mvn clean test` **108 pruebas, 0 fallos**
       `base-datos`, `feature/clientes`) y `git stash drop`~~ — hecho (Sesión 9):
       solo quedan `develop`, `main` y `feature/vehiculos`.
 - [x] ~~Fuentes Roboto `.ttf` + `Font.loadFont` (D-18)~~ — hecho (Sesión 7).
+
+**En curso (Líder, Sprint 3 — rama `feature/servicios-inventario`):**
+- [x] Base transversal: `ServiceOfferingDao/Repository/Service` y `PartDao/Repository/Service` + cableado en `AppContext` (Sesión 10).
+- [x] `View` con `SERVICE_NEW/EDIT/DETAIL` y `PART_NEW/EDIT/DETAIL` (Sesión 10).
+- [x] UI del catálogo de Servicios: lista, alta/edición, detalle y `ServiceLabels` (Sesión 11, 25/10/2026).
+- [ ] Dashboard v1 (Líder).
+- [ ] UI de Repuestos + Movimientos de inventario (Dev 1).
 
 **Pendientes nuevos (14/10/2026):**
 - [x] ~~Confirmar el estado del PR del backend de Clientes~~ — resuelto: PR **#5** (backend) y **#8** (interfaz completa) fusionados en `develop`; siguen pendientes de revisión de Sebastián los PRs del Líder.
