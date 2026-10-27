@@ -5,10 +5,13 @@ import com.autogest.controller.View;
 import com.autogest.model.Role;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Path;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -44,6 +47,9 @@ public class Sidebar extends VBox {
             new NavItem(View.SETTINGS, "Configuración", IconSet.SETTINGS),
             new NavItem(View.ASSISTANT, "Asistente AutoGest", IconSet.SPARKLES));
 
+    /** Tuerca del logo en versión clara, para que contraste con el fondo navy. */
+    private static final String LOGO = "/images/logo-gear-light-64.png";
+
     private final Map<View, HBox> itemsByView = new LinkedHashMap<>();
     private Consumer<View> onNavigate;
     private View activeView;
@@ -52,8 +58,19 @@ public class Sidebar extends VBox {
     public Sidebar() {
         getStyleClass().add("sidebar");
 
-        Label brand = new Label("AutoGest");
-        brand.getStyleClass().add("app-title");
+        Label title = new Label("AutoGest");
+        title.getStyleClass().add("app-title");
+        HBox brand = new HBox(10, title);
+        brand.setAlignment(Pos.CENTER_LEFT);
+        brand.getStyleClass().add("sidebar-brand");
+        URL logo = Sidebar.class.getResource(LOGO);
+        if (logo != null) {
+            ImageView logoView = new ImageView(new Image(logo.toExternalForm()));
+            logoView.setFitHeight(32);
+            logoView.setPreserveRatio(true);
+            logoView.setSmooth(true);
+            brand.getChildren().add(0, logoView);
+        }
         getChildren().add(brand);
 
         for (NavItem item : NAV_ITEMS) {

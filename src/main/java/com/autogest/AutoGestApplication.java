@@ -6,11 +6,13 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 
 /**
  * Punto de entrada de la aplicación de escritorio AutoGest.
@@ -45,12 +47,20 @@ public class AutoGestApplication extends Application {
             "/css/fonts/Roboto-Bold.ttf"
     };
 
+    /** Tuerca del logo en varios tamaños para la ventana y la barra de tareas. */
+    private static final String[] APP_ICONS = {
+            "/images/logo-gear-32.png",
+            "/images/logo-gear-64.png",
+            "/images/logo-gear-256.png"
+    };
+
     private Stage stage;
 
     @Override
     public void start(Stage stage) {
         this.stage = stage;
         stage.setTitle("AutoGest");
+        loadAppIcons();
         loadFonts();
         showLogin();
         stage.show();
@@ -69,6 +79,16 @@ public class AutoGestApplication extends Application {
                 }
             } catch (IOException e) {
                 // Fuente de reserva: el CSS usa "Segoe UI" si Roboto no carga.
+            }
+        }
+    }
+
+    /** Pone el logo como ícono de la ventana; si falta un recurso, se omite. */
+    private void loadAppIcons() {
+        for (String resource : APP_ICONS) {
+            URL url = getClass().getResource(resource);
+            if (url != null) {
+                stage.getIcons().add(new Image(url.toExternalForm()));
             }
         }
     }

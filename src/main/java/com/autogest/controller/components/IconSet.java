@@ -52,7 +52,9 @@ public final class IconSet {
     public static final String MORE = "M4 12 A1 1 0 1 1 6 12 A1 1 0 1 1 4 12 M11 12 A1 1 0 1 1 13 12 A1 1 0 1 1 11 12 M18 12 A1 1 0 1 1 20 12 A1 1 0 1 1 18 12";
     public static final String ARROW_LEFT = "M12 19 L5 12 L12 5 M19 12 L5 12";
     public static final String CHECK = "M20 6 L9 17 L4 12";
-    public static final String CALENDAR = "M3 5 A1 1 0 0 1 4 4 L20 4 A1 1 0 0 1 21 5 L21 19 A1 1 0 0 1 20 20 L4 20 A1 1 0 0 1 3 19 Z M3 9 L21 9 M8 2 L8 6 M16 2 L16 6";
+    public static final String MAIL = "M4 4 L20 4 A2 2 0 0 1 22 6 L22 18 A2 2 0 0 1 20 20 L4 20 A2 2 0 0 1 2 18 L2 6 A2 2 0 0 1 4 4 Z M22 6 L12 13 L2 6";
+    public static final String LOCK = "M5 11 L19 11 A2 2 0 0 1 21 13 L21 20 A2 2 0 0 1 19 22 L5 22 A2 2 0 0 1 3 20 L3 13 A2 2 0 0 1 5 11 Z M7 11 L7 7 A5 5 0 0 1 17 7 L17 11";
+    public static final String CALENDAR ="M3 5 A1 1 0 0 1 4 4 L20 4 A1 1 0 0 1 21 5 L21 19 A1 1 0 0 1 20 20 L4 20 A1 1 0 0 1 3 19 Z M3 9 L21 9 M8 2 L8 6 M16 2 L16 6";
 
     /**
      * Crea un ícono lineal de 24x24 dibujado con trazo.

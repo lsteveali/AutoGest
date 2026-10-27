@@ -6,39 +6,58 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<!-- Pantalla de inicio de sesión (mockup Login). Panel izquierdo con la marca y
-     el eslogan; a la derecha, la tarjeta con correo, contraseña y recordarme. -->
+<!-- Pantalla de inicio de sesión (mockup Login V2). A la izquierda, el logo, el
+     eslogan y la ilustración del carro; a la derecha, la tarjeta con correo,
+     contraseña y recordarme. Los íconos de los campos los agrega el controlador. -->
 <HBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.autogest.controller.user.LoginController"
       styleClass="login-root">
 
-    <VBox styleClass="login-brand" HBox.hgrow="ALWAYS">
-        <Label text="AutoGest" styleClass="login-brand-title" />
-        <Label text="Gestión inteligente para tu taller." styleClass="login-brand-slogan" wrapText="true" />
-        <Region VBox.vgrow="ALWAYS" />
-        <Label styleClass="login-brand-footnote" wrapText="true"
-               text="Sistema de gestión integral para talleres automotrices." />
+    <VBox styleClass="login-brand" alignment="CENTER" HBox.hgrow="ALWAYS">
+        <HBox styleClass="login-brand-logo" alignment="CENTER">
+            <ImageView fitHeight="72" preserveRatio="true" smooth="true">
+                <image>
+                    <Image url="@../images/logo-gear-256.png" />
+                </image>
+            </ImageView>
+            <Label text="AutoGest" styleClass="login-brand-title" />
+        </HBox>
+        <Label text="“Gestión inteligente para tu taller.”" styleClass="login-brand-slogan" wrapText="true" />
+        <ImageView fitWidth="400" preserveRatio="true" smooth="true">
+            <image>
+                <Image url="@../images/login-car.png" />
+            </image>
+        </ImageView>
     </VBox>
 
     <StackPane styleClass="login-form-side" HBox.hgrow="ALWAYS">
-        <VBox styleClass="login-card" maxWidth="400" maxHeight="-Infinity">
-            <Label text="Iniciar sesión" styleClass="login-title" />
-            <Label text="Ingresa con tu correo y contraseña para continuar."
-                   styleClass="page-subtitle" wrapText="true" />
-
-            <VBox spacing="6">
-                <Label text="Correo electrónico" styleClass="field-label" />
-                <TextField fx:id="emailField" promptText="correo@autogest.com" styleClass="input" />
+        <VBox styleClass="login-card" maxWidth="440" maxHeight="-Infinity">
+            <VBox styleClass="login-card-header" alignment="CENTER">
+                <Label text="Bienvenido a AutoGest" styleClass="login-title" />
+                <Label text="Ingresa a tu cuenta para continuar." styleClass="login-subtitle" />
             </VBox>
 
-            <VBox spacing="6">
-                <Label text="Contraseña" styleClass="field-label" />
-                <PasswordField fx:id="passwordField" promptText="Tu contraseña" styleClass="input" />
+            <VBox spacing="8">
+                <Label text="Correo electrónico" styleClass="login-field-label" />
+                <HBox fx:id="emailBox" styleClass="input-group" alignment="CENTER_LEFT">
+                    <TextField fx:id="emailField" promptText="usuario@ejemplo.com"
+                               styleClass="input-bare" HBox.hgrow="ALWAYS" />
+                </HBox>
+            </VBox>
+
+            <VBox spacing="8">
+                <Label text="Contraseña" styleClass="login-field-label" />
+                <HBox fx:id="passwordBox" styleClass="input-group" alignment="CENTER_LEFT">
+                    <PasswordField fx:id="passwordField" promptText="Tu contraseña"
+                                   styleClass="input-bare" HBox.hgrow="ALWAYS" />
+                </HBox>
             </VBox>
 
             <HBox alignment="CENTER_LEFT" spacing="12">
@@ -50,7 +69,7 @@
             <Label fx:id="errorLabel" styleClass="login-error" wrapText="true" managed="false" visible="false" />
 
             <Button fx:id="loginButton" text="Iniciar sesión" maxWidth="Infinity"
-                    styleClass="btn-primary" defaultButton="true" />
+                    styleClass="btn-primary, login-button" defaultButton="true" />
         </VBox>
     </StackPane>
 
