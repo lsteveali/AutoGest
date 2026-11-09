@@ -470,6 +470,21 @@ estaba incorporado; el otro era un WIP viejo de `login-usuarios`). Quedan solo
 7. **Verificación:** `mvn clean test` → **312 pruebas, 0 fallos, BUILD SUCCESS**. Capturas de la barra lateral, la Topbar y el login con una prueba temporal de JavaFX (eliminada, sin base de datos).
 
 **No incluido:** «¿No tienes una cuenta? Crear cuenta» del mockup (las cuentas las crea el administrador en Usuarios y roles), el punto rojo de la campana (sin datos hasta el Sprint 6) y el azul más brillante del botón del mockup (cambiaría todos los botones). La carpeta `V1/` (~80 MB) queda fuera de Git.
+
+### 09/11/2026 — Sesión 15 (Líder): pulido de estados de interacción
+
+**Contexto.** Revisión de las pantallas existentes con la guía «make-interfaces-feel-better» (estados de hover, presionado y foco, áreas de clic, radios anidados, ajuste de texto y movimiento), adaptada a JavaFX. Solo se tocó `autogest.css` y `ViewNavigator`; `customers.css` (Dev 1) queda igual.
+
+**Hecho:**
+1. **Botones** (`.button`, `.btn-primary/secondary/danger`): altura mínima de 40px, estado presionado (escala 0.97 y fondo más oscuro) y **anillo de foco con teclado** (`:focus-visible`). Los `.btn-*` reemplazaban el fondo de modena y con él su anillo, así que al navegar con Tab no se veía qué botón tenía el foco.
+2. **Campos** (`.input`, `.input-group` del login): borde más oscuro al pasar el mouse y halo suave al enfocar; en el login, el ícono del campo enfocado se pone azul.
+3. **Tablas** (`.table-autogest`): hover en las filas con datos (abren el detalle al hacer clic) y radio de la cabecera 11 en vez de 12, para que no asome sobre el borde de 1px.
+4. **Controles pequeños**: botones de paginación de 30 a 36px de alto mínimo; botón de la campana con 40×40px; estados presionados en la barra lateral, la campana y el botón del Asistente (sombra algo más suave).
+5. **Texto**: `-fx-wrap-text` en `.page-subtitle`, `.kpi-detail` y `.card-note`, para que los textos largos bajen de línea en vez de cortarse con «...».
+6. **Entrada de pantallas** (`ViewNavigator.playEnter`): al cambiar de pantalla, el contenido aparece con un fundido de 180 ms y sube 6px.
+7. **Verificación:** `mvn clean test` → **312 pruebas, 0 fallos**.
+
+**No aplicable en JavaFX:** transiciones de CSS (`transition`), `text-wrap: balance/pretty` y `tabular-nums`. Roboto ya trae los dígitos con el mismo ancho.
 ---
 
 ## 4. Decisiones y acuerdos
@@ -564,6 +579,7 @@ Verificación: `develop` → `mvn clean test` **108 pruebas, 0 fallos**
 - [x] Dashboard v1 (Sesión 12, 26/10/2026): KPIs, estado del parque, alertas de inventario, mantenimientos y placeholder de notificaciones.
 - [x] Pruebas del backend del Sprint 3: `ServiceOfferingServiceTest` (29) y `PartServiceTest` (38) con repositorios falsos — **312 pruebas, 0 fallos** (Sesión 13, 26/10/2026). La semilla del catálogo ya existía en `docs/database/seed.sql`.
 - [x] Logo, barra lateral, Topbar y login según los mockups (Sesión 14, 26/10/2026).
+- [x] Pulido de estados de interacción: hover, presionado, foco, áreas de clic y entrada de pantallas (Sesión 15, 09/11/2026).
 - [ ] UI de Repuestos + Movimientos de inventario (Dev 1).
 
 **Pendientes nuevos (14/10/2026):**

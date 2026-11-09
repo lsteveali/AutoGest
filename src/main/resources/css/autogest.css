@@ -80,6 +80,15 @@
     -fx-background-color: -ag-primary-hover;
 }
 
+/* Respuesta al clic: el ítem se oscurece un poco al presionarlo. */
+.sidebar-item:pressed {
+    -fx-background-color: rgba(255, 255, 255, 0.10);
+}
+
+.sidebar-item-active:pressed {
+    -fx-background-color: derive(-ag-primary, -18%);
+}
+
 /* Como en los mockups: sin franja blanca ni borde, sobre el mismo fondo del
    contenido y alineada con su margen. */
 .topbar {
@@ -103,6 +112,7 @@
 .page-subtitle {
     -fx-font-size: 14px;
     -fx-text-fill: -ag-text-muted;
+    -fx-wrap-text: true;
 }
 
 /* --------------------------------------------------------------------------
@@ -130,6 +140,23 @@
     -fx-padding: 10 20;
     -fx-cursor: hand;
     -fx-font-size: 14px;
+    -fx-min-height: 40;
+}
+
+/* Presionar: el botón se encoge un poco (escala 0.97). La escala no cambia el
+   tamaño de diseño, así que nada alrededor se mueve. */
+.button:pressed,
+.menu-button:pressed {
+    -fx-scale-x: 0.97;
+    -fx-scale-y: 0.97;
+}
+
+/* Anillo de foco solo con teclado (:focus-visible, JavaFX 19+). Los .btn-*
+   reemplazan el fondo de modena y con él su anillo, así que sin esto el foco
+   del Tab era invisible. Se dibuja con un efecto para no mover el contenido. */
+.button:focus-visible,
+.menu-button:focus-visible {
+    -fx-effect: dropshadow(three-pass-box, rgba(47, 109, 181, 0.55), 4, 0.9, 0, 0);
 }
 
 .btn-primary {
@@ -140,6 +167,10 @@
 
 .btn-primary:hover {
     -fx-background-color: -ag-primary-hover;
+}
+
+.btn-primary:pressed {
+    -fx-background-color: derive(-ag-primary, -24%);
 }
 
 .btn-secondary {
@@ -153,6 +184,11 @@
 
 .btn-secondary:hover {
     -fx-background-color: #F7FAFC;
+    -fx-border-color: #C9D3DE;
+}
+
+.btn-secondary:pressed {
+    -fx-background-color: #EEF3F8;
 }
 
 .btn-danger {
@@ -163,6 +199,10 @@
 
 .btn-danger:hover {
     -fx-background-color: #b83a3a;
+}
+
+.btn-danger:pressed {
+    -fx-background-color: #9e3030;
 }
 
 /* --------------------------------------------------------------------------
@@ -177,8 +217,15 @@
     -fx-font-size: 14px;
 }
 
+.input:hover {
+    -fx-border-color: #C9D3DE;
+}
+
+/* Foco: borde primario + halo suave, sin cambiar el grosor del borde (no
+   desplaza el texto). */
 .input:focused {
     -fx-border-color: -ag-primary;
+    -fx-effect: dropshadow(three-pass-box, rgba(47, 109, 181, 0.18), 6, 0.5, 0, 0);
 }
 
 .label-required {
@@ -237,9 +284,11 @@
     -fx-background-radius: 12;
 }
 
+/* Radio concéntrico: la cabecera va dentro del borde de 1px de la tabla, así
+   que su radio es 12 - 1 = 11 y no asoma una esquina clara sobre el borde. */
 .table-autogest .column-header-background {
     -fx-background-color: #F7FAFC;
-    -fx-background-radius: 12 12 0 0;
+    -fx-background-radius: 11 11 0 0;
 }
 
 .table-autogest .column-header,
@@ -258,6 +307,12 @@
 .table-autogest .table-row-cell {
     -fx-background-color: transparent;
     -fx-border-color: transparent transparent #EAF0F6 transparent;
+}
+
+/* Las filas abren el detalle al hacer clic: el hover lo anuncia. */
+.table-autogest .table-row-cell:filled:hover {
+    -fx-background-color: #F5F8FB;
+    -fx-cursor: hand;
 }
 
 .table-autogest .table-row-cell:selected {
@@ -319,6 +374,7 @@
 .kpi-detail {
     -fx-font-size: 12px;
     -fx-text-fill: -ag-text-muted;
+    -fx-wrap-text: true;
 }
 
 .filter-bar {
@@ -397,10 +453,14 @@
     -fx-padding: 6 14;
     -fx-font-size: 13px;
     -fx-cursor: hand;
+    /* Área de clic mínima de 36px (antes ~30px). */
+    -fx-min-height: 36;
+    -fx-min-width: 36;
 }
 
 .page-btn:hover {
     -fx-background-color: #F7FAFC;
+    -fx-border-color: #C9D3DE;
 }
 
 .page-btn:disabled {
@@ -415,10 +475,16 @@
     -fx-background-radius: 999;
     -fx-padding: 8;
     -fx-cursor: hand;
+    -fx-min-width: 40;
+    -fx-min-height: 40;
 }
 
 .icon-button:hover {
     -fx-background-color: #EEF3F8;
+}
+
+.icon-button:pressed {
+    -fx-background-color: #E2E9F1;
 }
 
 .topbar .icon-button .icon {
@@ -459,11 +525,17 @@
     -fx-background-radius: 999;
     -fx-padding: 12 20;
     -fx-cursor: hand;
-    -fx-effect: dropshadow(gaussian, rgba(16, 30, 57, 0.30), 14, 0, 0, 4);
+    -fx-effect: dropshadow(gaussian, rgba(16, 30, 57, 0.22), 16, 0, 0, 5);
 }
 
 .assistant-button:hover {
     -fx-background-color: -ag-primary;
+}
+
+/* El hover cambia el fondo; el presionado lo baja (sombra más corta). */
+.assistant-button:pressed {
+    -fx-background-color: -ag-primary-hover;
+    -fx-effect: dropshadow(gaussian, rgba(16, 30, 57, 0.18), 8, 0, 0, 2);
 }
 
 .assistant-button .icon {
@@ -550,8 +622,17 @@
     -fx-min-height: 46;
 }
 
+.input-group:hover {
+    -fx-border-color: #C9D3DE;
+}
+
 .input-group:focus-within {
     -fx-border-color: -ag-primary;
+    -fx-effect: dropshadow(three-pass-box, rgba(47, 109, 181, 0.18), 6, 0.5, 0, 0);
+}
+
+.input-group:focus-within .icon {
+    -fx-stroke: -ag-primary;
 }
 
 .input-group .icon {
@@ -578,7 +659,6 @@
     -fx-min-height: 48;
     -fx-background-radius: 10;
 }
-
 .login-error {
     -fx-text-fill: -ag-danger;
     -fx-font-size: 13px;
@@ -699,4 +779,5 @@
     -fx-font-size: 13px;
     -fx-text-fill: -ag-text-muted;
     -fx-text-alignment: center;
+    -fx-wrap-text: true;
 }

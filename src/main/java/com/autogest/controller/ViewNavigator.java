@@ -1,8 +1,14 @@
 package com.autogest.controller;
 
+import javafx.animation.FadeTransition;
+import javafx.animation.Interpolator;
+import javafx.animation.ParallelTransition;
+import javafx.animation.TranslateTransition;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.layout.StackPane;
+import javafx.util.Duration;
 
 import java.io.IOException;
 import java.util.ArrayDeque;
@@ -17,6 +23,9 @@ import java.util.function.Consumer;
  * <p>Principles: Indirection, Pure Fabrication.</p>
  */
 public class ViewNavigator {
+
+    private static final Duration ENTER_DURATION = Duration.millis(180);
+    private static final double ENTER_OFFSET = 6;
 
     private final StackPane container;
     private final Deque<View> history = new ArrayDeque<>();
@@ -83,11 +92,32 @@ public class ViewNavigator {
             }
             container.getChildren().clear();
             container.getChildren().add(root);
+            playEnter(root);
             if (onViewChange != null) {
                 onViewChange.accept(view);
             }
         } catch (IOException e) {
             throw new IllegalStateException("No se pudo cargar la pantalla " + view.getTitle(), e);
         }
+    }
+
+    /**
+     * Entrada sutil de la pantalla nueva: aparece desde opacidad 0 y sube 6px
+     * en 180 ms. Evita el salto brusco al cambiar de módulo sin hacer esperar
+     * al usuario (la pantalla ya está cargada y se puede usar desde el inicio).
+     */
+    private void playEnter(Node root) {
+        root.setOpacity(0);
+        root.setTranslateY(ENTER_OFFSET);
+
+        FadeTransition fade = new FadeTransition(ENTER_DURATION, root);
+        fade.setToValue(1);
+
+        TranslateTransition slide = new TranslateTransition(ENTER_DURATION, root);
+        slide.setToY(0);
+
+        ParallelTransition enter = new ParallelTransition(fade, slide);
+        enter.setInterpolator(Interpolator.EASE_OUT);
+        enter.play();
     }
 }
