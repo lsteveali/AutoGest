@@ -2,6 +2,7 @@ package com.autogest.controller.user;
 
 import com.autogest.config.AppContext;
 import com.autogest.controller.components.IconSet;
+import com.autogest.controller.components.CarTurntable;
 import com.autogest.exception.AutoGestException;
 import com.autogest.model.User;
 import javafx.fxml.FXML;
@@ -12,6 +13,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -53,6 +55,9 @@ public class LoginController implements Initializable {
     @FXML
     private HBox passwordBox;
 
+    @FXML
+    private StackPane carStage;
+
     private Runnable onLoginSuccess;
 
     @Override
@@ -60,6 +65,8 @@ public class LoginController implements Initializable {
         // Íconos dentro de los campos, como en el mockup Login V2.
         emailBox.getChildren().add(0, IconSet.icon(IconSet.MAIL));
         passwordBox.getChildren().add(0, IconSet.icon(IconSet.LOCK));
+        // Carro 3D sobre una plataforma que gira de izquierda a derecha.
+        carStage.getChildren().add(new CarTurntable(460, 400));
         hideError();
         loginButton.setOnAction(event -> handleLogin());
         passwordField.setOnAction(event -> handleLogin());
