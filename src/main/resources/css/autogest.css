@@ -727,6 +727,62 @@
     -fx-background-color: transparent;
 }
 
+/* --------------------------------------------------------------------------
+   Desplazamiento de formularios y detalles (Vehículos, Servicios)
+   El shell no desplaza: cada pantalla alta trae su ScrollPane transparente.
+   -------------------------------------------------------------------------- */
+.page-scroll {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+.page-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+/* Barra delgada y discreta, sin flechas, sobre el fondo de la app. */
+.page-scroll .scroll-bar:vertical,
+.dashboard-scroll .scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-pref-width: 10;
+}
+
+.page-scroll .scroll-bar .increment-button,
+.page-scroll .scroll-bar .decrement-button,
+.dashboard-scroll .scroll-bar .increment-button,
+.dashboard-scroll .scroll-bar .decrement-button {
+    -fx-padding: 0;
+    -fx-pref-height: 0;
+}
+
+.page-scroll .scroll-bar .increment-arrow,
+.page-scroll .scroll-bar .decrement-arrow,
+.dashboard-scroll .scroll-bar .increment-arrow,
+.dashboard-scroll .scroll-bar .decrement-arrow {
+    -fx-shape: "";
+    -fx-padding: 0;
+}
+
+.page-scroll .scroll-bar .track,
+.dashboard-scroll .scroll-bar .track {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.page-scroll .scroll-bar .thumb,
+.dashboard-scroll .scroll-bar .thumb {
+    -fx-background-color: #C9D3DE;
+    -fx-background-radius: 999;
+    -fx-background-insets: 1 2;
+}
+
+.page-scroll .scroll-bar .thumb:hover,
+.dashboard-scroll .scroll-bar .thumb:hover {
+    -fx-background-color: -ag-neutral;
+}
+
 .dashboard-row {
     -fx-spacing: 16;
     -fx-alignment: center-left;

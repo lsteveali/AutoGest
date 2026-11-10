@@ -1,9 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.layout.VBox?>
 
 <!-- Pantalla «Editar vehículo». El controlador carga el vehículo por id y arma
-     el mismo formulario que «Nuevo vehículo». -->
-<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.autogest.controller.vehicle.VehicleEditController"
-      fx:id="root" spacing="20" />
+     el mismo formulario que «Nuevo vehículo».
+     El ScrollPane existe porque el shell no tiene barra de desplazamiento y
+     el contenido puede ser más alto que la ventana (sin él, «Guardar» quedaba
+     fuera de la vista). -->
+<ScrollPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.autogest.controller.vehicle.VehicleEditController"
+            styleClass="page-scroll"
+            fitToWidth="true"
+            hbarPolicy="NEVER"
+            vbarPolicy="AS_NEEDED">
+    <VBox fx:id="root" spacing="20" />
+</ScrollPane>

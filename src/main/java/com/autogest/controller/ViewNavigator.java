@@ -7,6 +7,8 @@ import javafx.animation.TranslateTransition;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
 
@@ -26,6 +28,11 @@ public class ViewNavigator {
 
     private static final Duration ENTER_DURATION = Duration.millis(180);
     private static final double ENTER_OFFSET = 6;
+    /**
+     * Relleno del contenido desplazable: 12px a la derecha para la barra y
+     * 88px abajo (botón del Asistente ~48px + su margen de 24px + 16px de aire).
+     */
+    private static final String SCROLL_CONTENT_PADDING = "-fx-padding: 0 12 88 0;";
 
     private final StackPane container;
     private final Deque<View> history = new ArrayDeque<>();
@@ -90,6 +97,7 @@ public class ViewNavigator {
             if (parameter != null && controller instanceof ParameterizedController pc) {
                 pc.receiveParameter(parameter);
             }
+            reserveAssistantSpace(root);
             container.getChildren().clear();
             container.getChildren().add(root);
             playEnter(root);
@@ -98,6 +106,21 @@ public class ViewNavigator {
             }
         } catch (IOException e) {
             throw new IllegalStateException("No se pudo cargar la pantalla " + view.getTitle(), e);
+        }
+    }
+
+    /**
+     * El botón flotante del Asistente (main.fxml) queda sobre la esquina
+     * inferior derecha del contenido y tapaba las acciones del final de los
+     * formularios («Guardar»). En las pantallas con desplazamiento se agrega
+     * espacio al final del contenido para poder subirlo por encima del botón.
+     * Se aplica aquí para cubrir todos los módulos (también los de otros roles)
+     * sin tocar cada FXML. El estilo en línea gana a las hojas de estilo.
+     */
+    private void reserveAssistantSpace(Parent root) {
+        if (root instanceof ScrollPane scroll && scroll.getContent() instanceof Region content) {
+            String style = content.getStyle() == null ? "" : content.getStyle();
+            content.setStyle(style + SCROLL_CONTENT_PADDING);
         }
     }
 
