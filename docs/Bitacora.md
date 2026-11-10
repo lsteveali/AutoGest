@@ -482,6 +482,7 @@ estaba incorporado; el otro era un WIP viejo de `login-usuarios`). Quedan solo
 4. **Controles pequeños**: botones de paginación de 30 a 36px de alto mínimo; botón de la campana con 40×40px; estados presionados en la barra lateral, la campana y el botón del Asistente (sombra algo más suave).
 5. **Texto**: `-fx-wrap-text` en `.page-subtitle`, `.kpi-detail` y `.card-note`, para que los textos largos bajen de línea en vez de cortarse con «...».
 6. **Entrada de pantallas** (`ViewNavigator.playEnter`): al cambiar de pantalla, el contenido aparece con un fundido de 180 ms y sube 6px.
+6b. **Desplazamiento en formularios y detalles:** «Nuevo vehículo» no mostraba «Guardar» porque las pantallas de Vehículos y Servicios (nuevo, editar, detalle) eran un `VBox` sin `ScrollPane` y el shell no desplaza. Ahora van en un `ScrollPane` transparente (`.page-scroll`), con la misma barra delgada que el Dashboard. El botón flotante del Asistente tapaba «Guardar»: `ViewNavigator.reserveAssistantSpace` agrega 88px al final de toda pantalla con `ScrollPane` (también Clientes y el Dashboard), para poder subir el final del contenido por encima del botón.
 7. **Verificación:** `mvn clean test` → **312 pruebas, 0 fallos**.
 
 **No aplicable en JavaFX:** transiciones de CSS (`transition`), `text-wrap: balance/pretty` y `tabular-nums`. Roboto ya trae los dígitos con el mismo ancho.
