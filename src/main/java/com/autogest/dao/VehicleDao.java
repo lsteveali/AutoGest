@@ -6,6 +6,7 @@ import com.autogest.model.Customer;
 import com.autogest.model.FuelType;
 import com.autogest.model.Transmission;
 import com.autogest.model.Vehicle;
+import com.autogest.model.VehicleCounts;
 import com.autogest.model.VehicleStatus;
 import com.autogest.model.VehicleType;
 
@@ -30,8 +31,8 @@ import java.util.List;
  * y usa los nombres de columna en inglés definidos en {@code schema.sql}. El
  * tipo de combustible, la clase, la transmisión y el estado se guardan y leen
  * como texto con el {@code name()} del enum. El propietario se guarda como
- * {@code customer_id} y al leer se devuelve un {@link Customer} con solo su id;
- * {@code VehicleService} completa el resto de sus datos. La eliminación es
+ * {@code customer_id} y al leer se trae completo con un LEFT JOIN a
+ * {@code customers}, en la misma consulta. La eliminación es
  * lógica (cambio de estado), según la decisión D-02. Este DAO no valida reglas
  * de negocio: eso lo hace {@code VehicleService}.</p>
  *
@@ -45,6 +46,18 @@ public class VehicleDao implements CrudOperations<Vehicle> {
             + "fuel_type, mileage, status, vehicle_type, transmission, engine_number, "
             + "registration_card_number, observations, last_maintenance_mileage, last_maintenance_date, "
             + "next_maintenance_mileage, next_maintenance_date";
+
+    /** Prefijo de las columnas del propietario traídas con el JOIN. */
+    private static final String OWNER_PREFIX = "owner_";
+
+    /**
+     * Inicio de las consultas de lectura: trae el vehículo y, con un LEFT JOIN,
+     * los datos de su propietario en la misma consulta (columnas {@code owner_*}),
+     * para no consultar el cliente fila por fila.
+     */
+    private static final String SELECT_WITH_OWNER = "SELECT "
+            + prefixed("v", COLUMNS) + ", " + CustomerDao.prefixedColumns("c", OWNER_PREFIX)
+            + " FROM vehicles v LEFT JOIN customers c ON c.id = v.customer_id";
 
     private final DatabaseConnection connection;
 
@@ -83,14 +96,14 @@ public class VehicleDao implements CrudOperations<Vehicle> {
     /** {@inheritDoc} */
     @Override
     public Vehicle findById(int id) {
-        String sql = "SELECT " + COLUMNS + " FROM vehicles WHERE id = ?";
+        String sql = SELECT_WITH_OWNER + " WHERE v.id = ?";
         return query(sql, List.of(id)).stream().findFirst().orElse(null);
     }
 
     /** {@inheritDoc} */
     @Override
     public List<Vehicle> findAll() {
-        String sql = "SELECT " + COLUMNS + " FROM vehicles ORDER BY make, model";
+        String sql = SELECT_WITH_OWNER + " ORDER BY v.make, v.model";
         return query(sql, List.of());
     }
 
@@ -141,35 +154,35 @@ public class VehicleDao implements CrudOperations<Vehicle> {
      * @return la lista de vehículos que cumplen los filtros
      */
     public List<Vehicle> search(String text, String make, VehicleStatus status, VehicleType type) {
-        StringBuilder sql = new StringBuilder("SELECT ").append(COLUMNS).append(" FROM vehicles");
+        StringBuilder sql = new StringBuilder(SELECT_WITH_OWNER);
         List<String> conditions = new ArrayList<>();
         List<Object> params = new ArrayList<>();
 
         if (text != null && !text.isBlank()) {
-            conditions.add("(make ILIKE ? OR model ILIKE ? OR license_plate ILIKE ? OR vin ILIKE ? "
-                    + "OR customer_id IN (SELECT id FROM customers WHERE first_name ILIKE ? "
-                    + "OR last_name ILIKE ? OR (first_name || ' ' || last_name) ILIKE ?))");
+            conditions.add("(v.make ILIKE ? OR v.model ILIKE ? OR v.license_plate ILIKE ? OR v.vin ILIKE ? "
+                    + "OR c.first_name ILIKE ? OR c.last_name ILIKE ? "
+                    + "OR (c.first_name || ' ' || c.last_name) ILIKE ?)");
             String like = "%" + escapeLike(text.trim()) + "%";
             for (int i = 0; i < 7; i++) {
                 params.add(like);
             }
         }
         if (make != null && !make.isBlank()) {
-            conditions.add("make ILIKE ?");
+            conditions.add("v.make ILIKE ?");
             params.add("%" + escapeLike(make.trim()) + "%");
         }
         if (status != null) {
-            conditions.add("status = ?");
+            conditions.add("v.status = ?");
             params.add(status.name());
         }
         if (type != null) {
-            conditions.add("vehicle_type = ?");
+            conditions.add("v.vehicle_type = ?");
             params.add(type.name());
         }
         if (!conditions.isEmpty()) {
             sql.append(" WHERE ").append(String.join(" AND ", conditions));
         }
-        sql.append(" ORDER BY make, model");
+        sql.append(" ORDER BY v.make, v.model");
         return query(sql.toString(), params);
     }
 
@@ -187,7 +200,7 @@ public class VehicleDao implements CrudOperations<Vehicle> {
      * @return la lista de vehículos del propietario
      */
     public List<Vehicle> findByCustomer(int customerId) {
-        String sql = "SELECT " + COLUMNS + " FROM vehicles WHERE customer_id = ? ORDER BY make, model";
+        String sql = SELECT_WITH_OWNER + " WHERE v.customer_id = ? ORDER BY v.make, v.model";
         return query(sql, List.of(customerId));
     }
 
@@ -253,6 +266,33 @@ public class VehicleDao implements CrudOperations<Vehicle> {
     public int countMaintenanceDue(LocalDate date) {
         return count("SELECT COUNT(*) FROM vehicles WHERE next_maintenance_date IS NOT NULL "
                 + "AND next_maintenance_date <= ?", List.of(Date.valueOf(date)));
+    }
+
+    /**
+     * Calcula los cuatro indicadores de la pantalla de vehículos en una sola
+     * consulta: total, activos, en servicio y con mantenimiento próximo o
+     * vencido hasta la fecha indicada.
+     *
+     * @param maintenanceDate fecha límite del aviso de mantenimiento
+     * @return los indicadores
+     */
+    public VehicleCounts countSummary(LocalDate maintenanceDate) {
+        String sql = "SELECT COUNT(*), "
+                + "COUNT(*) FILTER (WHERE status = ?), "
+                + "COUNT(*) FILTER (WHERE status = ?), "
+                + "COUNT(*) FILTER (WHERE next_maintenance_date IS NOT NULL AND next_maintenance_date <= ?) "
+                + "FROM vehicles";
+        try (Connection conn = connection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            bind(ps, List.of(VehicleStatus.ACTIVE.name(), VehicleStatus.IN_SERVICE.name(),
+                    Date.valueOf(maintenanceDate)));
+            try (ResultSet rs = ps.executeQuery()) {
+                rs.next();
+                return new VehicleCounts(rs.getInt(1), rs.getInt(2), rs.getInt(3), rs.getInt(4));
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("No se pudo contar los vehículos.", e);
+        }
     }
 
     /**
@@ -373,9 +413,7 @@ public class VehicleDao implements CrudOperations<Vehicle> {
     private Vehicle map(ResultSet rs) throws SQLException {
         Vehicle vehicle = new Vehicle();
         vehicle.setId(rs.getInt("id"));
-        Customer owner = new Customer();
-        owner.setId(rs.getInt("customer_id"));
-        vehicle.setOwner(owner);
+        vehicle.setOwner(mapOwner(rs));
         vehicle.setMake(rs.getString("make"));
         vehicle.setModel(rs.getString("model"));
         vehicle.setYear(rs.getInt("year"));
@@ -397,6 +435,31 @@ public class VehicleDao implements CrudOperations<Vehicle> {
         vehicle.setNextMaintenanceMileage(getInteger(rs, "next_maintenance_mileage"));
         vehicle.setNextMaintenanceDate(getDate(rs, "next_maintenance_date"));
         return vehicle;
+    }
+
+    /**
+     * Lee el propietario que trajo el JOIN. Si el cliente no existe, devuelve
+     * uno con solo el id de {@code customer_id}.
+     */
+    private static Customer mapOwner(ResultSet rs) throws SQLException {
+        if (rs.getObject(OWNER_PREFIX + "id") != null) {
+            return CustomerDao.map(rs, OWNER_PREFIX);
+        }
+        Customer owner = new Customer();
+        owner.setId(rs.getInt("customer_id"));
+        return owner;
+    }
+
+    /** Antepone el alias de tabla a cada columna de la lista. */
+    private static String prefixed(String tableAlias, String columns) {
+        StringBuilder sql = new StringBuilder();
+        for (String column : columns.split(",\\s*")) {
+            if (sql.length() > 0) {
+                sql.append(", ");
+            }
+            sql.append(tableAlias).append('.').append(column);
+        }
+        return sql.toString();
     }
 
     /** Lee un entero que puede ser nulo. */
