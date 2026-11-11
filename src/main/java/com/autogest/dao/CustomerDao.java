@@ -267,20 +267,47 @@ public class CustomerDao implements CrudOperations<Customer> {
 
     /** Convierte una fila de {@code customers} en un {@link Customer}. */
     private Customer map(ResultSet rs) throws SQLException {
+        return map(rs, "");
+    }
+
+    /**
+     * Lista de columnas de {@code customers} con alias de tabla y prefijo, para
+     * consultas de otros DAO que traen al cliente con un JOIN.
+     *
+     * @param tableAlias alias de la tabla {@code customers} en la consulta
+     * @param prefix     prefijo de cada columna en el resultado
+     * @return fragmento SQL {@code alias.columna AS prefijo_columna, ...}
+     */
+    static String prefixedColumns(String tableAlias, String prefix) {
+        StringBuilder sql = new StringBuilder();
+        for (String column : COLUMNS.split(",\\s*")) {
+            if (sql.length() > 0) {
+                sql.append(", ");
+            }
+            sql.append(tableAlias).append('.').append(column).append(" AS ").append(prefix).append(column);
+        }
+        return sql.toString();
+    }
+
+    /**
+     * Convierte una fila en un {@link Customer} leyendo columnas con el prefijo
+     * indicado (vacío para una consulta directa de {@code customers}).
+     */
+    static Customer map(ResultSet rs, String prefix) throws SQLException {
         Customer customer = new Customer();
-        customer.setId(rs.getInt("id"));
-        customer.setDocumentType(DocumentType.valueOf(rs.getString("document_type")));
-        customer.setDocumentNumber(rs.getString("document_number"));
-        customer.setFirstName(rs.getString("first_name"));
-        customer.setLastName(rs.getString("last_name"));
-        customer.setPhone(rs.getString("phone"));
-        customer.setEmail(rs.getString("email"));
-        customer.setCity(rs.getString("city"));
-        customer.setAddress(rs.getString("address"));
-        customer.setNotes(rs.getString("notes"));
-        customer.setAcceptsPromotions(rs.getBoolean("accepts_promotions"));
-        customer.setStatus(CustomerStatus.valueOf(rs.getString("status")));
-        Date registration = rs.getDate("registration_date");
+        customer.setId(rs.getInt(prefix + "id"));
+        customer.setDocumentType(DocumentType.valueOf(rs.getString(prefix + "document_type")));
+        customer.setDocumentNumber(rs.getString(prefix + "document_number"));
+        customer.setFirstName(rs.getString(prefix + "first_name"));
+        customer.setLastName(rs.getString(prefix + "last_name"));
+        customer.setPhone(rs.getString(prefix + "phone"));
+        customer.setEmail(rs.getString(prefix + "email"));
+        customer.setCity(rs.getString(prefix + "city"));
+        customer.setAddress(rs.getString(prefix + "address"));
+        customer.setNotes(rs.getString(prefix + "notes"));
+        customer.setAcceptsPromotions(rs.getBoolean(prefix + "accepts_promotions"));
+        customer.setStatus(CustomerStatus.valueOf(rs.getString(prefix + "status")));
+        Date registration = rs.getDate(prefix + "registration_date");
         customer.setRegistrationDate(registration == null ? null : registration.toLocalDate());
         return customer;
     }

@@ -4,7 +4,7 @@ import com.autogest.config.AppContext;
 import com.autogest.controller.components.IconSet;
 import com.autogest.controller.components.CarTurntable;
 import com.autogest.exception.AutoGestException;
-import com.autogest.model.User;
+import com.autogest.util.Background;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -59,6 +59,8 @@ public class LoginController implements Initializable {
     private StackPane carStage;
 
     private Runnable onLoginSuccess;
+    /** Evita lanzar dos inicios de sesión a la vez (clic y Enter). */
+    private boolean loggingIn;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -83,24 +85,44 @@ public class LoginController implements Initializable {
         this.onLoginSuccess = onLoginSuccess;
     }
 
-    /** Intenta iniciar sesión con los datos del formulario. */
+    /**
+     * Intenta iniciar sesión con los datos del formulario. La consulta y la
+     * verificación de la contraseña corren en segundo plano para que la
+     * ventana (y la vitrina 3D) no se congelen mientras tanto.
+     */
     @FXML
     private void handleLogin() {
+        if (loggingIn) {
+            return;
+        }
+        loggingIn = true;
         hideError();
         loginButton.setDisable(true);
-        try {
-            User user = AppContext.getInstance().getAuthenticationService()
-                    .login(emailField.getText(), passwordField.getText());
-            if (onLoginSuccess != null) {
-                onLoginSuccess.run();
-            }
-        } catch (AutoGestException e) {
-            showError(e.getMessage());
-            passwordField.clear();
-            passwordField.requestFocus();
-        } finally {
-            loginButton.setDisable(false);
-        }
+        String buttonText = loginButton.getText();
+        loginButton.setText("Ingresando...");
+        String email = emailField.getText();
+        String password = passwordField.getText();
+        Background.run(
+                () -> AppContext.getInstance().getAuthenticationService().login(email, password),
+                user -> {
+                    finishLogin(buttonText);
+                    if (onLoginSuccess != null) {
+                        onLoginSuccess.run();
+                    }
+                },
+                error -> {
+                    finishLogin(buttonText);
+                    showError(error instanceof AutoGestException ? error.getMessage() : null);
+                    passwordField.clear();
+                    passwordField.requestFocus();
+                });
+    }
+
+    /** Devuelve el botón de ingreso a su estado normal. */
+    private void finishLogin(String buttonText) {
+        loggingIn = false;
+        loginButton.setText(buttonText);
+        loginButton.setDisable(false);
     }
 
     /** Muestra un mensaje de error bajo el formulario. */

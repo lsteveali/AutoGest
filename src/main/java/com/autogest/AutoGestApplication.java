@@ -1,5 +1,6 @@
 package com.autogest;
 
+import com.autogest.config.AppContext;
 import com.autogest.controller.MainController;
 import com.autogest.controller.user.LoginController;
 import javafx.application.Application;
@@ -64,6 +65,30 @@ public class AutoGestApplication extends Application {
         loadFonts();
         showLogin();
         stage.show();
+        warmUpDatabase();
+    }
+
+    /** Cierra el pool de conexiones con la base de datos al salir. */
+    @Override
+    public void stop() {
+        AppContext.shutdown();
+    }
+
+    /**
+     * Crea el contexto en segundo plano mientras el usuario escribe sus datos,
+     * para que el pool abra la primera conexión con Supabase antes del login.
+     * Si falla (sin red o sin configuración), el login mostrará el error.
+     */
+    private void warmUpDatabase() {
+        Thread warmUp = new Thread(() -> {
+            try {
+                AppContext.getInstance();
+            } catch (RuntimeException ignored) {
+                // El error se informa al intentar iniciar sesión.
+            }
+        }, "autogest-db-warmup");
+        warmUp.setDaemon(true);
+        warmUp.start();
     }
 
     /**

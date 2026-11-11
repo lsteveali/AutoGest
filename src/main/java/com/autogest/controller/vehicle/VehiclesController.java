@@ -14,9 +14,11 @@ import com.autogest.controller.components.PagedTable;
 import com.autogest.controller.components.StatusBadge;
 import com.autogest.exception.AutoGestException;
 import com.autogest.model.Vehicle;
+import com.autogest.model.VehicleCounts;
 import com.autogest.model.VehicleStatus;
 import com.autogest.model.VehicleType;
 import com.autogest.service.VehicleService;
+import com.autogest.util.Background;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -69,6 +71,8 @@ public class VehiclesController implements Initializable, NavigatorAware {
     private VehicleStatus statusFilter;
     private VehicleType typeFilter;
     private boolean suppressReload;
+    /** Número de la última recarga pedida; descarta resultados de recargas viejas. */
+    private int reloadRequest;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -222,33 +226,57 @@ public class VehiclesController implements Initializable, NavigatorAware {
         }
     }
 
-    /** Recarga la tabla, los indicadores y las marcas del filtro. */
+    /** Datos de la pantalla leídos en segundo plano. */
+    private record ScreenData(List<Vehicle> vehicles, VehicleCounts counts, List<String> makes) {
+    }
+
+    /**
+     * Recarga la tabla, los indicadores y las marcas del filtro. Las consultas
+     * corren en segundo plano para no congelar la ventana; si mientras tanto
+     * se pide otra recarga (por ejemplo, al escribir en el buscador), el
+     * resultado viejo se descarta.
+     */
     private void reload() {
         if (suppressReload) {
             return;
         }
-        VehicleService vehicleService = service();
-        try {
-            table.setData(vehicleService.searchVehicles(searchText, makeFilter, statusFilter, typeFilter));
-            totalCard.setValue(String.valueOf(vehicleService.countVehicles()));
-            activeCard.setValue(String.valueOf(vehicleService.countActiveVehicles()));
-            inServiceCard.setValue(String.valueOf(vehicleService.countInService()));
-            maintenanceCard.setValue(String.valueOf(vehicleService.countMaintenanceDue()));
-        } catch (AutoGestException e) {
+        int request = ++reloadRequest;
+        String text = searchText;
+        String make = makeFilter;
+        VehicleStatus status = statusFilter;
+        VehicleType type = typeFilter;
+        Background.run(() -> {
+            VehicleService vehicleService = service();
+            return new ScreenData(vehicleService.searchVehicles(text, make, status, type),
+                    vehicleService.getVehicleCounts(), safeMakes(vehicleService));
+        }, data -> {
+            if (request != reloadRequest) {
+                return;
+            }
+            table.setData(data.vehicles());
+            totalCard.setValue(String.valueOf(data.counts().total()));
+            activeCard.setValue(String.valueOf(data.counts().active()));
+            inServiceCard.setValue(String.valueOf(data.counts().inService()));
+            maintenanceCard.setValue(String.valueOf(data.counts().maintenanceDue()));
+            refreshMakes(data.makes());
+        }, error -> {
+            if (request != reloadRequest) {
+                return;
+            }
             table.setData(List.of());
-            ErrorDialog.show("No se pudieron cargar los vehículos", e.getMessage());
-        }
-        refreshMakes(vehicleService);
+            ErrorDialog.show("No se pudieron cargar los vehículos", error instanceof AutoGestException
+                    ? error.getMessage() : "Ocurrió un error inesperado.");
+        });
     }
 
     /** Actualiza el desplegable de marcas conservando la selección actual. */
-    private void refreshMakes(VehicleService vehicleService) {
+    private void refreshMakes(List<String> makes) {
         if (makeCombo == null) {
             return;
         }
         suppressReload = true;
         try {
-            List<String> options = options(FILTER_ALL, safeMakes(vehicleService));
+            List<String> options = options(FILTER_ALL, makes);
             String selected = makeCombo.getValue();
             makeCombo.getItems().setAll(options);
             String target = selected != null && options.contains(selected) ? selected : FILTER_ALL;
