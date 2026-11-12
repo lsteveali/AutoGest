@@ -8,6 +8,9 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Path;
 
@@ -33,24 +36,42 @@ public class Sidebar extends VBox {
     private record NavItem(View view, String label, String iconData) {
     }
 
-    private static final List<NavItem> NAV_ITEMS = List.of(
-            new NavItem(View.HOME, "Inicio", IconSet.HOME),
-            new NavItem(View.CUSTOMERS, "Clientes", IconSet.USERS),
-            new NavItem(View.VEHICLES, "Vehículos", IconSet.CAR),
-            new NavItem(View.ORDERS, "Órdenes de servicio", IconSet.FILE_TEXT),
-            new NavItem(View.SERVICES, "Servicios", IconSet.WRENCH),
-            new NavItem(View.INVENTORY, "Inventario", IconSet.BOX),
-            new NavItem(View.BILLING, "Facturación", IconSet.CREDIT_CARD),
-            new NavItem(View.NOTIFICATIONS, "Notificaciones", IconSet.BELL),
-            new NavItem(View.REPORTS, "Reportes", IconSet.BAR_CHART),
-            // «Configuración» abre Usuarios y roles en este sprint (solo administrador).
-            new NavItem(View.SETTINGS, "Configuración", IconSet.SETTINGS),
-            new NavItem(View.ASSISTANT, "Asistente AutoGest", IconSet.SPARKLES));
+    /** Grupo de ítems con su título (null = sin título). */
+    private record NavSection(String title, List<NavItem> items) {
+    }
+
+    /**
+     * Mismo orden oficial de antes, agrupado: el día a día del taller, la
+     * gestión del negocio y la administración. El Asistente va fijo al pie.
+     */
+    private static final List<NavSection> NAV_SECTIONS = List.of(
+            new NavSection(null, List.of(
+                    new NavItem(View.HOME, "Inicio", IconSet.HOME))),
+            new NavSection("Taller", List.of(
+                    new NavItem(View.CUSTOMERS, "Clientes", IconSet.USERS),
+                    new NavItem(View.VEHICLES, "Vehículos", IconSet.CAR),
+                    new NavItem(View.ORDERS, "Órdenes de servicio", IconSet.FILE_TEXT),
+                    new NavItem(View.SERVICES, "Servicios", IconSet.WRENCH),
+                    new NavItem(View.INVENTORY, "Inventario", IconSet.BOX))),
+            new NavSection("Gestión", List.of(
+                    new NavItem(View.BILLING, "Facturación", IconSet.CREDIT_CARD),
+                    new NavItem(View.NOTIFICATIONS, "Notificaciones", IconSet.BELL),
+                    new NavItem(View.REPORTS, "Reportes", IconSet.BAR_CHART),
+                    // «Configuración» abre Usuarios y roles en este sprint (solo administrador).
+                    new NavItem(View.SETTINGS, "Configuración", IconSet.SETTINGS))));
+
+    private static final NavItem ASSISTANT_ITEM =
+            new NavItem(View.ASSISTANT, "Asistente AutoGest", IconSet.SPARKLES);
+
+    /** Lado del espacio fijo de cada ícono: alinea los textos aunque los trazos midan distinto. */
+    private static final double ICON_SLOT = 24;
 
     /** Tuerca del logo en versión clara, para que contraste con el fondo navy. */
     private static final String LOGO = "/images/logo-gear-light-64.png";
 
     private final Map<View, HBox> itemsByView = new LinkedHashMap<>();
+    /** Título de cada sección con sus ítems, para ocultarlo si el rol no ve ninguno. */
+    private final Map<Label, List<View>> sectionTitles = new LinkedHashMap<>();
     private Consumer<View> onNavigate;
     private View activeView;
 
@@ -73,11 +94,32 @@ public class Sidebar extends VBox {
         }
         getChildren().add(brand);
 
-        for (NavItem item : NAV_ITEMS) {
-            HBox node = createItem(item);
-            itemsByView.put(item.view(), node);
-            getChildren().add(node);
+        for (NavSection section : NAV_SECTIONS) {
+            List<View> views = new ArrayList<>();
+            if (section.title() != null) {
+                Label sectionTitle = new Label(section.title());
+                sectionTitle.getStyleClass().add("sidebar-section");
+                getChildren().add(sectionTitle);
+                sectionTitles.put(sectionTitle, views);
+            }
+            for (NavItem item : section.items()) {
+                addItem(item);
+                views.add(item.view());
+            }
         }
+
+        // El Asistente queda al pie, separado de la navegación por módulos.
+        Region spacer = new Region();
+        VBox.setVgrow(spacer, Priority.ALWAYS);
+        getChildren().add(spacer);
+        addItem(ASSISTANT_ITEM);
+        itemsByView.get(View.ASSISTANT).getStyleClass().add("sidebar-item-footer");
+    }
+
+    private void addItem(NavItem item) {
+        HBox node = createItem(item);
+        itemsByView.put(item.view(), node);
+        getChildren().add(node);
     }
 
     /**
@@ -101,6 +143,11 @@ public class Sidebar extends VBox {
             boolean allowed = Permissions.canAccess(role, entry.getKey());
             entry.getValue().setVisible(allowed);
             entry.getValue().setManaged(allowed);
+        }
+        for (Map.Entry<Label, List<View>> entry : sectionTitles.entrySet()) {
+            boolean anyVisible = entry.getValue().stream().anyMatch(v -> itemsByView.get(v).isVisible());
+            entry.getKey().setVisible(anyVisible);
+            entry.getKey().setManaged(anyVisible);
         }
     }
 
@@ -129,9 +176,13 @@ public class Sidebar extends VBox {
 
     private HBox createItem(NavItem item) {
         Path icon = IconSet.icon(item.iconData());
+        StackPane iconSlot = new StackPane(icon);
+        iconSlot.setMinSize(ICON_SLOT, ICON_SLOT);
+        iconSlot.setPrefSize(ICON_SLOT, ICON_SLOT);
+        iconSlot.setMaxSize(ICON_SLOT, ICON_SLOT);
         Label label = new Label(item.label());
 
-        HBox box = new HBox(12, icon, label);
+        HBox box = new HBox(12, iconSlot, label);
         box.setAlignment(Pos.CENTER_LEFT);
         box.getStyleClass().add("sidebar-item");
         box.setOnMouseClicked(event -> {
