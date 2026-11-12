@@ -1222,3 +1222,86 @@
     -fx-font-size: 14px;
     -fx-text-fill: -ag-text;
 }
+
+/* --------------------------------------------------------------------------
+   Migas de pan clicables y «Volver» (PageHeader)
+   Son botones (Tab + Enter) con aspecto de enlace: sin el alto mínimo de 40px
+   de .button, para no separar tanto la ruta del título.
+   -------------------------------------------------------------------------- */
+.breadcrumb-row {
+    -fx-padding: 0 0 4 0;
+}
+
+.breadcrumb-current {
+    -fx-font-size: 13px;
+    -fx-text-fill: -ag-text;
+    -fx-font-weight: 500;
+}
+
+.breadcrumb-link,
+.back-link {
+    -fx-background-color: transparent;
+    -fx-background-radius: 6;
+    -fx-min-height: 28;
+    -fx-padding: 4 6;
+    -fx-font-size: 13px;
+    -fx-cursor: hand;
+}
+
+.breadcrumb-link {
+    -fx-text-fill: -ag-primary;
+}
+
+.back-link {
+    -fx-text-fill: -ag-text;
+    -fx-font-weight: 500;
+    -fx-graphic-text-gap: 6;
+    /* La flecha queda alineada con el borde izquierdo del título. */
+    -fx-translate-x: -6;
+}
+
+.back-link .icon {
+    -fx-stroke: -ag-text;
+    -fx-scale-x: 0.8;
+    -fx-scale-y: 0.8;
+}
+
+.breadcrumb-link:hover,
+.back-link:hover {
+    -fx-background-color: #E6ECF3;
+}
+
+.breadcrumb-link:hover {
+    -fx-underline: true;
+}
+
+.breadcrumb-link:pressed,
+.back-link:pressed {
+    -fx-background-color: #DCE4EE;
+    -fx-scale-x: 1;
+    -fx-scale-y: 1;
+}
+
+.breadcrumb-divider {
+    -fx-background-color: -ag-border;
+    -fx-min-width: 1;
+    -fx-pref-width: 1;
+    -fx-max-width: 1;
+    -fx-min-height: 16;
+    -fx-max-height: 16;
+}
+
+/* Menú «…» de las filas (icon-button): sin la flecha del MenuButton, que
+   duplicaba la señal de «abre un menú» y desalineaba el ícono. */
+.menu-button.icon-button > .arrow-button {
+    -fx-padding: 0;
+}
+
+.menu-button.icon-button > .arrow-button > .arrow {
+    -fx-shape: "";
+    -fx-padding: 0;
+}
+
+.menu-button.icon-button > .label {
+    -fx-padding: 0;
+}

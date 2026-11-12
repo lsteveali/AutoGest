@@ -161,12 +161,12 @@ public class SecurityController implements Initializable {
     private VBox buildAccessCard() {
         accessTable = new PagedTable<>(PAGE_SIZE);
         accessTable.addColumn("Usuario", User::getFullName);
-        accessTable.addColumn("Correo", User::getEmail);
+        accessTable.addColumn("Correo", User::getEmail, 240);
         accessTable.addColumn("Rol", user -> UserLabels.roleText(user.getRole()));
         accessTable.addColumn("Estado", user -> StatusBadge.of(UserLabels.statusText(user.getStatus()),
                 UserLabels.statusType(user.getStatus())));
         accessTable.addColumn("Último acceso", user -> lastAccessText(user.getLastAccess()));
-        accessTable.setPrefHeight(420);
+        accessTable.fitHeightToRows(48);
 
         return card("Último acceso de los usuarios", IconSet.USERS, accessTable);
     }

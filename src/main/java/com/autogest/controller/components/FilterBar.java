@@ -57,6 +57,11 @@ public class FilterBar extends HBox {
         ComboBox<String> combo = new ComboBox<>();
         combo.getItems().addAll(options);
         combo.getStyleClass().addAll("input", "filter-combo");
+        // La primera opción («Todos») queda elegida desde el inicio: antes el filtro
+        // se veía vacío. Se fija antes del listener para no recargar dos veces.
+        if (!options.isEmpty()) {
+            combo.setValue(options.get(0));
+        }
         combo.valueProperty().addListener((observable, oldValue, newValue) -> onSelect.accept(newValue));
 
         getChildren().addAll(filterLabel, combo);

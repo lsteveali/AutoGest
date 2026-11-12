@@ -128,7 +128,7 @@ public class BackupController implements Initializable {
         table.addColumn("Tablas", info -> String.valueOf(info.tables()));
         table.addColumn("Registros", info -> String.valueOf(info.rows()));
         table.addColumn("Tamaño", info -> sizeText(info.sizeBytes()));
-        table.setPrefHeight(360);
+        table.fitHeightToRows(44);
 
         Label note = new Label("Para restaurar una copia, por ahora, se cargan sus CSV en la base de datos "
                 + "desde Supabase. La restauración desde AutoGest llegará en una próxima entrega.");

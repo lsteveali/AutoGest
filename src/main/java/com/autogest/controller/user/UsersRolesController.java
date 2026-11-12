@@ -59,6 +59,8 @@ import java.util.ResourceBundle;
 public class UsersRolesController implements Initializable {
 
     private static final int PAGE_SIZE = 10;
+    /** Alto de una fila con avatar, nombre y usuario. */
+    private static final double ROW_HEIGHT = 60;
     private static final String FILTER_ALL = "Todos";
     private static final String STYLESHEET = "/css/autogest.css";
 
@@ -82,7 +84,9 @@ public class UsersRolesController implements Initializable {
         table = buildTable();
         VBox rolesCard = buildRolesCard();
 
-        VBox.setVgrow(table, Priority.ALWAYS);
+        // Dentro del ScrollPane la tabla toma el alto de sus filas: antes el VGrow la
+        // dejaba sin espacio cuando la tarjeta de roles empujaba desde abajo.
+        table.fitHeightToRows(ROW_HEIGHT);
         root.getChildren().addAll(header, kpis, filters, table, rolesCard);
 
         Platform.runLater(this::reload);
@@ -141,9 +145,9 @@ public class UsersRolesController implements Initializable {
 
     private PagedTable<User> buildTable() {
         PagedTable<User> pagedTable = new PagedTable<>(PAGE_SIZE);
-        pagedTable.addColumn("Usuario", this::userCell);
-        pagedTable.addColumn("Correo", User::getEmail);
-        pagedTable.addColumn("Rol", user -> UserLabels.roleText(user.getRole()));
+        pagedTable.addColumn("Usuario", this::userCell, 220);
+        pagedTable.addColumn("Correo", User::getEmail, 220);
+        pagedTable.addColumn("Rol", user -> UserLabels.roleText(user.getRole()), 130);
         pagedTable.addColumn("Estado", user -> StatusBadge.of(
                 UserLabels.statusText(user.getStatus()), UserLabels.statusType(user.getStatus())));
         pagedTable.addColumn("Último acceso", user -> lastAccessText(user));
