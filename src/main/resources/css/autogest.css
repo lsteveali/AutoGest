@@ -1305,3 +1305,42 @@
 .menu-button.icon-button > .label {
     -fx-padding: 0;
 }
+
+/* --------------------------------------------------------------------------
+   Diálogos con formulario (UserFormDialog): fondo de tarjeta, encabezado
+   propio y los botones de la app en lugar de los grises de modena.
+   -------------------------------------------------------------------------- */
+.app-dialog {
+    -fx-background-color: -ag-card;
+    -fx-padding: 0;
+}
+
+.app-dialog > .header-panel,
+.app-dialog > .graphic-container {
+    -fx-padding: 0;
+    -fx-pref-height: 0;
+    -fx-min-height: 0;
+}
+
+.app-dialog .dialog-content {
+    -fx-padding: 24 24 8 24;
+}
+
+.app-dialog > .button-bar {
+    -fx-padding: 8 24 20 24;
+}
+
+.app-dialog > .button-bar > .container {
+    -fx-spacing: 12;
+}
+
+.dialog-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -ag-navy;
+}
+
+.dialog-subtitle {
+    -fx-font-size: 13px;
+    -fx-text-fill: -ag-text-muted;
+}
