@@ -4,7 +4,7 @@
 > termina una tarea se agrega/actualiza su estado y, cuando aporta, una entrada
 > en la sección «Bitácora cronológica».
 >
-> Última actualización: **26/10/2026** — Líder (Leonarth Steve Ali Camargo).
+> Última actualización: **11/11/2026** — Líder (Leonarth Steve Ali Camargo).
 
 ---
 
@@ -15,8 +15,8 @@
 | Proyecto | AutoGest — Sistema de gestión integral para talleres automotrices |
 | Materia | Programación de Computadores III (SS462) |
 | Repositorio | https://github.com/lsteveali/AutoGest.git |
-| Rama de trabajo actual | `feature/servicios-inventario` (Sprint 3 — Servicios, Inventario y Repuestos) |
-| Sprint en curso | **Sprint 3 — Servicios, Inventario y Repuestos** (Líder: Dashboard v1 + Servicios + Inventario base · Dev 1: Repuestos + Movimientos de inventario) |
+| Rama de trabajo actual | `feature/servicios-inventario` (cierre del Sprint 3; el Sprint 4 sigue en `feature/ordenes`) |
+| Sprint en curso | **Sprint 3 — cierre de la parte del Líder** (pendiente: UI de Repuestos + Movimientos de Dev 1) · **Siguiente: Sprint 4 — Órdenes de servicio** |
 | Equipo | Líder: Leonarth Steve Ali Camargo · Dev 1: Sebastián Murgas Tejeda · Dev 2: **sin integrante vinculado** — el Líder asume todas sus responsabilidades (decisión 14/10/2026) |
 | Documento guía | `AutoGest_Guia_Lider` (V2.0) |
 
@@ -64,8 +64,8 @@
 
 | Sprint | Contenido | Estado |
 |---|---|---|
-| 3 | Servicios, Inventario y Repuestos (Líder: Dashboard v1) | 🟡 En curso |
-| 4 | Órdenes de servicio (Líder: estados e historial) | ⬜ No iniciado |
+| 3 | Servicios, Inventario y Repuestos (Líder: Dashboard v1) | 🟡 Parte del Líder ✅ (PR #10 + PR de pulido); falta la UI de Repuestos y Movimientos (Dev 1), en un PR aparte |
+| 4 | Órdenes de servicio (Líder: estados e historial; además detalle de la orden, backend de Movimientos e integración de stock) | ⬜ Próximo — rama `feature/ordenes` desde `develop` |
 | 5 | Facturación | ⬜ No iniciado |
 | 6 | Notificaciones | ⬜ No iniciado |
 | 7 | Reportes | ⬜ No iniciado |
@@ -486,6 +486,20 @@ estaba incorporado; el otro era un WIP viejo de `login-usuarios`). Quedan solo
 7. **Verificación:** `mvn clean test` → **312 pruebas, 0 fallos**.
 
 **No aplicable en JavaFX:** transiciones de CSS (`transition`), `text-wrap: balance/pretty` y `tabular-nums`. Roboto ya trae los dígitos con el mismo ancho.
+
+### 11/11/2026 — Sesión 16 (Líder): filtros, barra lateral y pulido general con `/impeccable polish`
+
+**Contexto.** Se instaló el plugin `impeccable` (solo en esta copia, alcance local) y se usó su guía `polish`, adaptada a JavaFX. El Líder reportó que el filtro «Estado» de Clientes mostraba una opción vacía arriba y que la barra lateral se veía mal.
+
+**Hecho:**
+1. **Filtro «Estado» con opción vacía.** **Causa:** la opción seleccionada («Todos») usa texto blanco de modena, y `customers.css` deja transparente el fondo de las celdas: quedaba blanco sobre blanco. Ahora `autogest.css` da colores propios a la lista abierta de todos los desplegables: tarjeta con borde y sombra, hover gris claro y la opción elegida en azul sobre `#E8F0FA`. Aplica a todos los filtros (Clientes, Vehículos, Servicios, Usuarios).
+2. **Campos `.input` en todas las pantallas:** desplegables, fechas y áreas de texto con 40px de alto, sin la línea gris interna de modena; texto de ejemplo más legible (`#6B7789`) y selección de texto con el azul de la marca. Antes solo Clientes los ajustaba.
+3. **Barra lateral** (`Sidebar`): cada ícono va en un espacio fijo de 24px (antes cada trazo medía distinto y los textos no quedaban alineados); ítems agrupados en «Taller» y «Gestión», con títulos que se ocultan si el rol no ve ningún ítem del grupo; el Asistente queda fijo al pie, separado por una línea tenue; ícono del carro redibujado como sedán (`IconSet.CAR`, también se usa en Vehículos y el Dashboard).
+4. **Tablas** (`PagedTable` y `.table-autogest`): ancho mínimo de cada columna según su título (ya no sale «Acció...» ni «Última vi...»), fondo blanco, títulos alineados a la izquierda como sus datos y sin líneas verticales entre celdas.
+5. **Barras de desplazamiento de toda la app:** delgadas, sin flechas y del color de los bordes.
+6. **Verificación:** capturas con una prueba temporal de JavaFX (filtro abierto con `customers.css`, barra lateral, tabla y campos; eliminada) y `mvn clean test` → **312 pruebas, 0 fallos**.
+
+**Sin cambios:** `customers.css` y los controladores de Clientes (Dev 1); «Última visita» y «Filtros» siguen deshabilitados a propósito (D-12).
 ---
 
 ## 4. Decisiones y acuerdos
@@ -512,6 +526,8 @@ estaba incorporado; el otro era un WIP viejo de `login-usuarios`). Quedan solo
 | 26/10/2026 | **El color y la fuente de un ítem se aplican al `Label`, no al contenedor** (`.sidebar-item .label`). | En JavaFX un `HBox` no hereda `-fx-text-fill` ni la fuente a sus hijos; el blanco de la Sesión 12 no se veía al ejecutar. |
 | 26/10/2026 | **La Topbar va dentro del área de contenido**, no en el `top` del `BorderPane`. | En los mockups la Sidebar ocupa todo el alto de la ventana. |
 | 26/10/2026 | **Los mockups (`V1/`) no se suben a Git**; solo las imágenes que usa la app, convertidas a PNG en `resources/images/`. | La carpeta pesa ~80 MB y sirve solo de referencia de diseño. |
+| 11/11/2026 | **El backend de Movimientos de inventario (`InventoryMovementDao/Repository/Service`) lo hace el Líder**; Dev 1 hace sus pantallas. | La tarea de Dev 1 es la UI «usando los servicios provistos por el Líder» (Sesión 10) y la integración de stock de las órdenes es del Líder (reasignación del 14/10). Pendiente de confirmar con Sebastián por si ya lo empezó. |
+| 11/11/2026 | **El Líder avanza al Sprint 4 sin esperar la UI de Repuestos y Movimientos.** | Esa UI no bloquea Órdenes: se integra después como PR propio de Dev 1 sobre `develop`. En el Sprint 4 la integración de stock va al final. |
 
 ---
 
@@ -581,7 +597,14 @@ Verificación: `develop` → `mvn clean test` **108 pruebas, 0 fallos**
 - [x] Pruebas del backend del Sprint 3: `ServiceOfferingServiceTest` (29) y `PartServiceTest` (38) con repositorios falsos — **312 pruebas, 0 fallos** (Sesión 13, 26/10/2026). La semilla del catálogo ya existía en `docs/database/seed.sql`.
 - [x] Logo, barra lateral, Topbar y login según los mockups (Sesión 14, 26/10/2026).
 - [x] Pulido de estados de interacción: hover, presionado, foco, áreas de clic y entrada de pantallas (Sesión 15, 09/11/2026).
-- [ ] UI de Repuestos + Movimientos de inventario (Dev 1).
+- [x] Barra de desplazamiento en formularios y espacio para el botón del Asistente (Sesión 15); filtros, barra lateral, tablas y campos con `/impeccable polish` (Sesión 16, 11/11/2026).
+- [ ] UI de Repuestos + Movimientos de inventario (Dev 1) — **PR aparte de Sebastián**; no bloquea el Sprint 4.
+
+**Próximo (Líder, Sprint 4 — rama `feature/ordenes` desde `develop`):**
+- [ ] Confirmar con Sebastián que el backend de Movimientos queda a cargo del Líder (decisión 11/11/2026).
+- [ ] Órdenes de servicio: estados, historial y detalle de la orden.
+- [ ] Backend de Movimientos de inventario (`InventoryMovementDao/Repository/Service`).
+- [ ] Integración de stock (las líneas de la orden generan movimientos de salida) — al final del sprint.
 
 **Pendientes nuevos (14/10/2026):**
 - [x] ~~Confirmar el estado del PR del backend de Clientes~~ — resuelto: PR **#5** (backend) y **#8** (interfaz completa) fusionados en `develop`; siguen pendientes de revisión de Sebastián los PRs del Líder.
