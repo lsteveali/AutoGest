@@ -15,6 +15,7 @@ import java.time.LocalDate;
 import java.time.Year;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * Reglas de negocio del módulo de vehículos: registro, edición, consulta y baja
@@ -147,6 +148,16 @@ public class VehicleService {
      */
     public int countByCustomer(int customerId) {
         return repository.countByCustomer(customerId);
+    }
+
+    /**
+     * Cantidad de vehículos de cada cliente, en una sola consulta (lista de
+     * clientes). Un cliente sin vehículos no aparece en el mapa.
+     *
+     * @return id del cliente → cantidad de vehículos
+     */
+    public Map<Integer, Integer> countVehiclesByCustomer() {
+        return repository.countAllByCustomer();
     }
 
     /**

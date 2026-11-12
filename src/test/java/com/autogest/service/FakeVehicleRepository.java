@@ -141,6 +141,17 @@ class FakeVehicleRepository extends VehicleRepository {
     }
 
     @Override
+    public Map<Integer, Integer> countAllByCustomer() {
+        Map<Integer, Integer> counts = new LinkedHashMap<>();
+        for (Vehicle v : vehicles.values()) {
+            if (v.getOwner() != null) {
+                counts.merge(v.getOwner().getId(), 1, Integer::sum);
+            }
+        }
+        return counts;
+    }
+
+    @Override
     public int countByCustomer(int customerId) {
         return (int) vehicles.values().stream()
                 .filter(v -> v.getOwner() != null && v.getOwner().getId() == customerId)
