@@ -15,8 +15,8 @@
 | Proyecto | AutoGest — Sistema de gestión integral para talleres automotrices |
 | Materia | Programación de Computadores III (SS462) |
 | Repositorio | https://github.com/lsteveali/AutoGest.git |
-| Rama de trabajo actual | `feature/servicios-inventario` (cierre del Sprint 3; el Sprint 4 sigue en `feature/ordenes`) |
-| Sprint en curso | **Sprint 3 — cierre de la parte del Líder** (pendiente: UI de Repuestos + Movimientos de Dev 1) · **Siguiente: Sprint 4 — Órdenes de servicio** |
+| Rama de trabajo actual | `feature/configuracion` (Sprint 8 — Configuración, parte del Líder) |
+| Sprint en curso | **Sprint 8 — Configuración (Líder)**, adelantado mientras Dev 1 entrega sus sprints 3 y 4 · Sprint 3 del Líder cerrado (PR #10 y #11) |
 | Equipo | Líder: Leonarth Steve Ali Camargo · Dev 1: Sebastián Murgas Tejeda · Dev 2: **sin integrante vinculado** — el Líder asume todas sus responsabilidades (decisión 14/10/2026) |
 | Documento guía | `AutoGest_Guia_Lider` (V2.0) |
 
@@ -65,11 +65,11 @@
 | Sprint | Contenido | Estado |
 |---|---|---|
 | 3 | Servicios, Inventario y Repuestos (Líder: Dashboard v1) | 🟡 Parte del Líder ✅ (PR #10 + PR de pulido); falta la UI de Repuestos y Movimientos (Dev 1), en un PR aparte |
-| 4 | Órdenes de servicio (Líder: estados e historial; además detalle de la orden, backend de Movimientos e integración de stock) | ⬜ Próximo — rama `feature/ordenes` desde `develop` |
+| 4 | Órdenes de servicio (Dev 1: backend, lista y nueva orden · Líder: detalle, cambio de estado, historial y descuento de stock) | ⏸ Parte del Líder en espera del backend de órdenes y de `InventoryService` (Dev 1) |
 | 5 | Facturación | ⬜ No iniciado |
 | 6 | Notificaciones | ⬜ No iniciado |
 | 7 | Reportes | ⬜ No iniciado |
-| 8 | Configuración | ⬜ No iniciado |
+| 8 | Configuración (Dev 1: Datos del taller y Preferencias · Líder: pantalla general y el resto de secciones, incluidas Copias de seguridad) | 🟡 En curso — rama `feature/configuracion` |
 | 9 | Asistente AutoGest (Líder) | ⬜ No iniciado |
 
 > **Reasignación (14/10/2026):** las columnas de Dev 2 de la hoja de ruta
@@ -500,6 +500,20 @@ estaba incorporado; el otro era un WIP viejo de `login-usuarios`). Quedan solo
 6. **Verificación:** capturas con una prueba temporal de JavaFX (filtro abierto con `customers.css`, barra lateral, tabla y campos; eliminada) y `mvn clean test` → **312 pruebas, 0 fallos**.
 
 **Sin cambios:** `customers.css` y los controladores de Clientes (Dev 1); «Última visita» y «Filtros» siguen deshabilitados a propósito (D-12).
+
+### 12/11/2026 — Sesión 17 (Líder): inicio del Sprint 8 — Configuración y Perfil y cuenta
+
+**Contexto.** Al revisar el paquete del Desarrollador 1 («Sprints 3 a 8», 04/11) se vio que el backend de órdenes y el de Movimientos son suyos, así que la parte del Líder del Sprint 4 queda en espera y se adelanta Configuración (ver decisiones del 12/11). Rama `feature/configuracion` desde `develop`.
+
+**Hecho:**
+1. **Pantalla general de Configuración** (`controller/settings/SettingsController` + `fxml/settings/settings.fxml`), según el mockup: tarjeta del usuario en sesión con «Editar perfil», las 8 secciones en dos columnas e «Información del sistema» (versión, estado de la base de datos comprobado en segundo plano a través del Service, Java, JavaFX y sesión). Cada sección se describe como dato; su tarjeta se habilita solo si su pantalla existe en `View` y su FXML está en el proyecto, y si no muestra «Próximamente». Las tarjetas toman el foco con Tab y se abren con clic, Enter o Espacio. Sin «Guardar cambios» ni «Restaurar» en esta pantalla: solo navega.
+2. **Perfil y cuenta** (`ProfileController` + `fxml/settings/profile.fxml`, `View.SETTINGS_PROFILE`): nombres, apellidos y correo editables; usuario y rol de solo lectura; cambio de contraseña con confirmación. Las llamadas van en segundo plano (el hash PBKDF2 congelaba la ventana) y el resultado se muestra junto al botón. Lo puede abrir cualquier rol (`Permissions`) desde «Mi perfil» en el menú del avatar; la Topbar se refresca tras cada navegación para mostrar el nombre editado.
+3. **`UserService.changePassword(id, actual, nueva)`**: exige la contraseña actual, aplica las reglas de una clave inicial y no permite repetirla; guarda solo el hash. 5 pruebas nuevas en `UserServiceTest` y 1 en `PermissionsTest`.
+4. **`MainController`**: «Configuración» ya no redirige a Usuarios y roles; abre la pantalla general.
+5. **Íconos** nuevos en `IconSet`: `USER`, `WAREHOUSE`, `SHIELD`, `CLOUD_DOWNLOAD`, `ARROW_RIGHT`, `INFO`. Estilos en `autogest.css` (sección «Configuración»).
+6. **Verificación:** capturas con una prueba temporal de JavaFX (eliminada) y `mvn clean test` → **318 pruebas, 0 fallos**.
+
+**Cuidado al integrar con Dev 1:** `View.SETTINGS_PROFILE` va junto a `HOME`, lejos de las líneas que tocan sus `View.diff`; no se crearon `controller/settings/package-info.java` ni `css/settings.css`, que vienen en su paquete.
 ---
 
 ## 4. Decisiones y acuerdos
@@ -526,8 +540,11 @@ estaba incorporado; el otro era un WIP viejo de `login-usuarios`). Quedan solo
 | 26/10/2026 | **El color y la fuente de un ítem se aplican al `Label`, no al contenedor** (`.sidebar-item .label`). | En JavaFX un `HBox` no hereda `-fx-text-fill` ni la fuente a sus hijos; el blanco de la Sesión 12 no se veía al ejecutar. |
 | 26/10/2026 | **La Topbar va dentro del área de contenido**, no en el `top` del `BorderPane`. | En los mockups la Sidebar ocupa todo el alto de la ventana. |
 | 26/10/2026 | **Los mockups (`V1/`) no se suben a Git**; solo las imágenes que usa la app, convertidas a PNG en `resources/images/`. | La carpeta pesa ~80 MB y sirve solo de referencia de diseño. |
-| 11/11/2026 | **El backend de Movimientos de inventario (`InventoryMovementDao/Repository/Service`) lo hace el Líder**; Dev 1 hace sus pantallas. | La tarea de Dev 1 es la UI «usando los servicios provistos por el Líder» (Sesión 10) y la integración de stock de las órdenes es del Líder (reasignación del 14/10). Pendiente de confirmar con Sebastián por si ya lo empezó. |
-| 11/11/2026 | **El Líder avanza al Sprint 4 sin esperar la UI de Repuestos y Movimientos.** | Esa UI no bloquea Órdenes: se integra después como PR propio de Dev 1 sobre `develop`. En el Sprint 4 la integración de stock va al final. |
+| 11/11/2026 | ~~El backend de Movimientos lo hace el Líder.~~ **Corregida el 12/11/2026.** | Se anotó sin revisar el paquete del Desarrollador 1 (04/11). |
+| 11/11/2026 | ~~El Líder avanza al Sprint 4 sin esperar a Dev 1.~~ **Reemplazada el 12/11/2026.** | La parte del Líder del Sprint 4 depende de servicios de Dev 1 (ver abajo). |
+| 12/11/2026 | **El backend de Movimientos (`InventoryMovementDao/Repository`, `InventoryService`) y el de órdenes (`ServiceOrderDao`, `ServiceOrderRepository`, `ServiceOrderService`) son de Dev 1**, como dice su paquete «Sprints 3 a 8» (`analysis-inventory.md`, `analysis-orders.md`). | En el Sprint 4 el Líder hace el detalle, el cambio de estado, el historial y el descuento de stock, sobre esos servicios. |
+| 12/11/2026 | **El Líder adelanta el Sprint 8 (Configuración) en `feature/configuracion`** mientras Dev 1 entrega sus sprints 3 y 4. | Configuración no depende de Órdenes ni de Inventario. Las tarjetas «Datos del taller» y «Preferencias» (Dev 1) se habilitan solas cuando existan su `View` y su FXML. No se crean `controller/settings/package-info.java` ni `css/settings.css`, que vienen en el paquete de Dev 1. |
+| 12/11/2026 | **Los commits y PR no llevan atribución a herramientas de IA** (`Co-Authored-By`, «Generated with…»). | Pedido del Líder. Se reescribió `develop` (15 commits desde `940a19a`) sin esas líneas y con el mismo contenido; las páginas de los PR #10 y #11 conservan los commits originales porque GitHub no las modifica. |
 
 ---
 
@@ -600,11 +617,14 @@ Verificación: `develop` → `mvn clean test` **108 pruebas, 0 fallos**
 - [x] Barra de desplazamiento en formularios y espacio para el botón del Asistente (Sesión 15); filtros, barra lateral, tablas y campos con `/impeccable polish` (Sesión 16, 11/11/2026).
 - [ ] UI de Repuestos + Movimientos de inventario (Dev 1) — **PR aparte de Sebastián**; no bloquea el Sprint 4.
 
-**Próximo (Líder, Sprint 4 — rama `feature/ordenes` desde `develop`):**
-- [ ] Confirmar con Sebastián que el backend de Movimientos queda a cargo del Líder (decisión 11/11/2026).
-- [ ] Órdenes de servicio: estados, historial y detalle de la orden.
-- [ ] Backend de Movimientos de inventario (`InventoryMovementDao/Repository/Service`).
-- [ ] Integración de stock (las líneas de la orden generan movimientos de salida) — al final del sprint.
+**En espera (Líder, Sprint 4):** detalle de la orden, cambio de estado, historial y descuento de stock — cuando Dev 1 integre `ServiceOrderService` (su Sprint 4) e `InventoryService` (su Sprint 3).
+
+**En curso (Líder, Sprint 8 — rama `feature/configuracion`):**
+- [x] Pantalla general de Configuración: tarjeta del usuario, secciones e información del sistema (Sesión 17).
+- [x] Perfil y cuenta: datos personales y cambio de contraseña; también desde «Mi perfil» en la Topbar (Sesión 17).
+- [ ] Seguridad.
+- [ ] Copias de seguridad.
+- [ ] Configuración de Facturación y de Notificaciones (guardan en `app_settings` de Dev 1: esperan su `SettingsService`).
 
 **Pendientes nuevos (14/10/2026):**
 - [x] ~~Confirmar el estado del PR del backend de Clientes~~ — resuelto: PR **#5** (backend) y **#8** (interfaz completa) fusionados en `develop`; siguen pendientes de revisión de Sebastián los PRs del Líder.
