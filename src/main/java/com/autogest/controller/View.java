@@ -12,6 +12,9 @@ public enum View {
     HOME("/fxml/home/home.fxml", "Inicio", "HOME"),
     // Pantalla personal: la abre cualquier rol (menú del avatar) y también Configuración.
     SETTINGS_PROFILE("/fxml/settings/profile.fxml", "Perfil y cuenta", "SETTINGS"),
+    // Secciones de Configuración del Líder (junto a HOME para no tocar las líneas de los View.diff de Dev 1).
+    SETTINGS_SECURITY("/fxml/settings/security.fxml", "Seguridad", "SETTINGS"),
+    SETTINGS_BACKUP("/fxml/settings/backup.fxml", "Copias de seguridad", "SETTINGS"),
     CUSTOMERS("/fxml/customer/customers.fxml", "Clientes", "CUSTOMERS"),
     CUSTOMER_NEW("/fxml/customer/customer-new.fxml", "Nuevo cliente", "CUSTOMERS"),
     CUSTOMER_EDIT("/fxml/customer/customer-edit.fxml", "Editar cliente", "CUSTOMERS"),

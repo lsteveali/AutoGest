@@ -1173,3 +1173,52 @@
 .form-message-error {
     -fx-text-fill: -ag-danger;
 }
+
+/* Seguridad y Copias de seguridad (Sprint 8, Líder) */
+.security-card-icon {
+    -fx-stroke: -ag-primary;
+}
+
+.security-check {
+    -fx-stroke: -ag-success;
+    -fx-scale-x: 0.8;
+    -fx-scale-y: 0.8;
+}
+
+.security-rule {
+    -fx-font-size: 14px;
+    -fx-text-fill: -ag-text;
+}
+
+.security-matrix {
+    -fx-hgap: 8;
+    -fx-vgap: 6;
+}
+
+.security-matrix-header {
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -ag-text-muted;
+    -fx-padding: 0 0 6 0;
+}
+
+.security-matrix-section {
+    -fx-font-size: 14px;
+    -fx-text-fill: -ag-text;
+}
+
+.security-allowed {
+    -fx-stroke: -ag-success;
+    -fx-stroke-width: 2.2;
+    -fx-scale-x: 0.8;
+    -fx-scale-y: 0.8;
+}
+
+.security-denied {
+    -fx-text-fill: #A6B0BF;
+}
+
+.backup-description {
+    -fx-font-size: 14px;
+    -fx-text-fill: -ag-text;
+}
