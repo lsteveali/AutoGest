@@ -1344,3 +1344,57 @@
     -fx-font-size: 13px;
     -fx-text-fill: -ag-text-muted;
 }
+
+/* --------------------------------------------------------------------------
+   Vehículos del cliente (detalle del cliente)
+   -------------------------------------------------------------------------- */
+.customer-vehicle-list {
+    -fx-spacing: 2;
+}
+
+.customer-vehicle-row {
+    -fx-padding: 10 12;
+    -fx-background-radius: 10;
+    -fx-cursor: hand;
+}
+
+.customer-vehicle-row:hover {
+    -fx-background-color: #F5F8FB;
+}
+
+.customer-vehicle-row:focus-visible {
+    -fx-background-color: #EEF3F8;
+    -fx-border-color: -ag-primary;
+    -fx-border-radius: 10;
+}
+
+/* Placa como la de un carro particular en Colombia: amarilla con borde negro. */
+.vehicle-plate {
+    -fx-background-color: #FFD43B;
+    -fx-background-radius: 5;
+    -fx-border-color: #1E2A3A;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 5;
+    -fx-padding: 4 10;
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #1E2A3A;
+    /* Ancho fijo: así el modelo de cada fila arranca en la misma columna. */
+    -fx-min-width: 96;
+    -fx-alignment: center;
+}
+
+.customer-vehicle-name {
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -ag-text;
+}
+
+.customer-vehicle-meta {
+    -fx-font-size: 13px;
+    -fx-text-fill: -ag-text-muted;
+}
+
+.customer-vehicle-arrow {
+    -fx-stroke: -ag-neutral;
+}

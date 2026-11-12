@@ -9,15 +9,20 @@ import com.autogest.controller.components.ConfirmDialog;
 import com.autogest.controller.components.ErrorDialog;
 import com.autogest.controller.components.IconSet;
 import com.autogest.controller.components.KpiCard;
+import com.autogest.controller.components.PageHeader;
 import com.autogest.controller.components.StatusBadge;
+import com.autogest.controller.vehicle.VehicleLabels;
 import com.autogest.exception.AutoGestException;
 import com.autogest.exception.NotFoundException;
 import com.autogest.model.Customer;
+import com.autogest.model.Vehicle;
 import com.autogest.service.CustomerService;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
+import javafx.scene.AccessibleRole;
 import javafx.scene.Node;
+import javafx.scene.input.KeyCode;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuButton;
@@ -29,6 +34,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -43,7 +49,7 @@ import java.util.stream.Stream;
  * y construye su contenido a partir del cliente cargado por el servicio. Hasta que existan
  * los módulos de órdenes, facturas y notificaciones, sus indicadores muestran «-» y sus
  * tarjetas muestran un estado vacío (decisión D-12). La tarjeta y el indicador de vehículos
- * funcionan de la misma manera hasta que {@code VehicleService} esté disponible en {@code AppContext}.</p>
+ * usan {@code VehicleService.findByCustomer}.</p>
  *
  * <p>Principios: controlador GRASP, bajo acoplamiento, alta cohesión y SRP.</p>
  */
@@ -89,7 +95,10 @@ public class CustomerDetailController implements NavigatorAware, ParameterizedCo
      * @param customer cliente que se mostrará
      */
     private void render(Customer customer) {
-        root.getChildren().setAll(buildHeader(customer), buildKpiRow(), buildColumns(customer));
+        // Una sola consulta: alimenta el indicador y la tarjeta «Vehículos del cliente».
+        List<Vehicle> vehicles = AppContext.getInstance().getVehicleService().findByCustomer(customer.getId());
+        root.getChildren().setAll(buildHeader(customer), buildKpiRow(vehicles.size()),
+                buildColumns(customer, vehicles));
     }
 
     /**
@@ -100,8 +109,8 @@ public class CustomerDetailController implements NavigatorAware, ParameterizedCo
      * @return el bloque del encabezado
      */
     private Node buildHeader(Customer customer) {
-        Label breadcrumb = new Label(String.join("  /  ", "Clientes", customer.getFullName()));
-        breadcrumb.getStyleClass().add("breadcrumb");
+        // Misma barra que las demás pantallas: «Volver» y «Clientes» clicable.
+        HBox breadcrumb = PageHeader.breadcrumbBar(List.of("Clientes", customer.getFullName()));
 
         Label avatar = new Label(CustomerLabels.initials(customer));
         avatar.getStyleClass().add("customer-avatar-large");
@@ -164,18 +173,18 @@ public class CustomerDetailController implements NavigatorAware, ParameterizedCo
     }
 
     /**
-     * Construye la fila de cuatro indicadores. Por ahora, todos los valores son «-»:
-     * los vehículos dependen de {@code VehicleService}; las órdenes, los servicios y la
-     * facturación dependen de sus respectivos módulos (D-12).
+     * Construye la fila de cuatro indicadores. Vehículos muestra la cantidad real;
+     * órdenes, servicios y facturación siguen en «-» hasta que existan sus módulos (D-12).
      *
+     * @param vehicleCount cantidad de vehículos a nombre del cliente
      * @return la fila de tarjetas de indicadores
      */
-    private HBox buildKpiRow() {
+    private HBox buildKpiRow(int vehicleCount) {
         HBox row = new HBox();
         row.getStyleClass().add("customer-kpi-row");
         row.setAlignment(Pos.CENTER_LEFT);
         for (KpiCard card : new KpiCard[] {
-                new KpiCard("Vehículos", CustomerLabels.PLACEHOLDER, "A su nombre", IconSet.CAR),
+                new KpiCard("Vehículos", String.valueOf(vehicleCount), "A su nombre", IconSet.CAR),
                 new KpiCard("Órdenes realizadas", CustomerLabels.PLACEHOLDER, "Todas sus órdenes", IconSet.WRENCH),
                 new KpiCard("Servicios realizados", CustomerLabels.PLACEHOLDER, "En todas sus órdenes", IconSet.CHECK),
                 new KpiCard("Total facturado", CustomerLabels.PLACEHOLDER, "Facturas pagadas", IconSet.CREDIT_CARD)}) {
@@ -191,9 +200,10 @@ public class CustomerDetailController implements NavigatorAware, ParameterizedCo
      * la izquierda; vehículos, actividad y notificaciones a la derecha.
      *
      * @param customer cliente que se mostrará
+     * @param vehicles vehículos a nombre del cliente
      * @return el bloque de dos columnas
      */
-    private Node buildColumns(Customer customer) {
+    private Node buildColumns(Customer customer, List<Vehicle> vehicles) {
         VBox left = new VBox(16,
                 buildInfoCard(customer),
                 miniCard("Facturas recientes", "Aún no hay facturas para este cliente."));
@@ -206,7 +216,7 @@ public class CustomerDetailController implements NavigatorAware, ParameterizedCo
             ((Region) card).setMaxWidth(Double.MAX_VALUE);
             HBox.setHgrow(card, Priority.ALWAYS);
         }
-        VBox right = new VBox(16, buildVehiclesCard(customer), bottom);
+        VBox right = new VBox(16, buildVehiclesCard(customer, vehicles), bottom);
 
         GridPane columns = new GridPane();
         columns.setHgap(16);
@@ -255,26 +265,79 @@ public class CustomerDetailController implements NavigatorAware, ParameterizedCo
     }
 
     /**
-     * Construye la tarjeta «Vehículos del cliente». {@code VehicleService} aún no está en
-     * {@code AppContext}, por lo que la tarjeta muestra su estado vacío; cuando se integre
-     * el módulo de vehículos, la tabla con {@code findByCustomer} reemplazará el mensaje.
+     * Construye la tarjeta «Vehículos del cliente»: una fila por vehículo con placa,
+     * marca, modelo, año, kilometraje y estado; la fila abre el detalle del vehículo.
+     * Sin vehículos muestra el estado vacío.
      *
      * @param customer cliente cuyos vehículos se mostrarán
+     * @param vehicles vehículos a su nombre
      * @return la tarjeta de vehículos
      */
-    private Node buildVehiclesCard(Customer customer) {
+    private Node buildVehiclesCard(Customer customer, List<Vehicle> vehicles) {
         Button add = new Button("+ Agregar vehículo");
-        add.getStyleClass().add("btn-primary");
+        add.getStyleClass().add("btn-secondary");
         add.setOnAction(event -> newVehicle(customer));
-        HBox footer = new HBox(add);
-        footer.setAlignment(Pos.CENTER_RIGHT);
 
-        VBox card = new VBox(12,
-                sectionTitle("Vehículos del cliente"),
-                emptyText("No hay vehículos para mostrar."),
-                footer);
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        HBox titleRow = new HBox(sectionTitle("Vehículos del cliente"), spacer, add);
+        titleRow.setAlignment(Pos.CENTER_LEFT);
+
+        VBox list = new VBox();
+        list.getStyleClass().add("customer-vehicle-list");
+        if (vehicles.isEmpty()) {
+            list.getChildren().add(emptyText("Este cliente aún no tiene vehículos registrados."));
+        } else {
+            for (Vehicle vehicle : vehicles) {
+                list.getChildren().add(vehicleRow(vehicle));
+            }
+        }
+
+        VBox card = new VBox(12, titleRow, list);
         card.getStyleClass().add("card");
         return card;
+    }
+
+    /** Fila de un vehículo: placa destacada, descripción, kilometraje y estado. */
+    private Node vehicleRow(Vehicle vehicle) {
+        Label plate = new Label(vehicle.getLicensePlate() == null ? CustomerLabels.PLACEHOLDER
+                : vehicle.getLicensePlate().toUpperCase());
+        plate.getStyleClass().add("vehicle-plate");
+        plate.setMinWidth(Region.USE_PREF_SIZE);
+
+        Label name = new Label(vehicle.getMake() + " " + vehicle.getModel());
+        name.getStyleClass().add("customer-vehicle-name");
+        Label meta = new Label(VehicleLabels.typeText(vehicle.getVehicleType()) + " · " + vehicle.getYear()
+                + " · " + VehicleLabels.mileage(vehicle.getMileage()));
+        meta.getStyleClass().add("customer-vehicle-meta");
+        VBox texts = new VBox(2, name, meta);
+        texts.setMinWidth(0);
+        HBox.setHgrow(texts, Priority.ALWAYS);
+
+        Label status = StatusBadge.of(VehicleLabels.statusText(vehicle.getStatus()),
+                VehicleLabels.statusType(vehicle.getStatus()));
+        status.setMinWidth(Region.USE_PREF_SIZE);
+        Node arrow = IconSet.icon(IconSet.CHEVRON_RIGHT);
+        arrow.getStyleClass().add("customer-vehicle-arrow");
+
+        HBox row = new HBox(14, plate, texts, status, arrow);
+        row.setAlignment(Pos.CENTER_LEFT);
+        row.getStyleClass().add("customer-vehicle-row");
+        row.setFocusTraversable(true);
+        row.setAccessibleRole(AccessibleRole.BUTTON);
+        row.setAccessibleText(vehicle.getLicensePlate() + " " + vehicle.getMake() + " " + vehicle.getModel());
+        row.setOnMouseClicked(event -> openVehicle(vehicle));
+        row.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.ENTER || event.getCode() == KeyCode.SPACE) {
+                openVehicle(vehicle);
+                event.consume();
+            }
+        });
+        return row;
+    }
+
+    private void openVehicle(Vehicle vehicle) {
+        navigator.navigateWithParameter(View.VEHICLE_DETAIL, vehicle.getId());
     }
 
     /**

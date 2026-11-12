@@ -85,9 +85,28 @@ public class PageHeader extends VBox {
         boolean show = breadcrumbs != null && !breadcrumbs.isEmpty();
         breadcrumbRow.setVisible(show);
         breadcrumbRow.setManaged(show);
-        if (!show) {
-            return;
+        if (show) {
+            fillBreadcrumbs(breadcrumbRow, breadcrumbs);
         }
+    }
+
+    /**
+     * Crea una barra de «Volver» y migas de pan igual a la de la cabecera,
+     * para pantallas que arman su propio encabezado (por ejemplo el detalle
+     * del cliente, con avatar).
+     *
+     * @param breadcrumbs pasos de la ruta (no vacío)
+     * @return la barra lista para agregar sobre el encabezado
+     */
+    public static HBox breadcrumbBar(List<String> breadcrumbs) {
+        HBox row = new HBox(6);
+        row.getStyleClass().add("breadcrumb-row");
+        row.setAlignment(Pos.CENTER_LEFT);
+        fillBreadcrumbs(row, breadcrumbs);
+        return row;
+    }
+
+    private static void fillBreadcrumbs(HBox breadcrumbRow, List<String> breadcrumbs) {
         if (breadcrumbs.size() > 1) {
             Button back = new Button("Volver");
             back.setGraphic(IconSet.icon(IconSet.ARROW_LEFT));
@@ -107,7 +126,7 @@ public class PageHeader extends VBox {
         }
     }
 
-    private Node crumb(String text, boolean current) {
+    private static Node crumb(String text, boolean current) {
         Optional<View> target = current ? Optional.empty() : View.byTitle(text);
         if (target.isEmpty()) {
             Label label = new Label(text);
