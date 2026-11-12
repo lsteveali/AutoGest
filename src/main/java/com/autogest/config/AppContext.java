@@ -33,6 +33,10 @@ public final class AppContext {
 
     private static AppContext instance;
 
+    /** Carpeta local de las copias de seguridad: {@code <inicio del usuario>/AutoGest/copias-de-seguridad}. */
+    private static final java.nio.file.Path BACKUP_DIRECTORY =
+            java.nio.file.Path.of(System.getProperty("user.home"), "AutoGest", "copias-de-seguridad");
+
     /** Fábrica de conexiones compartida por todos los DAO. */
     private final DatabaseConnection databaseConnection;
 
@@ -41,6 +45,10 @@ public final class AppContext {
     private final UserRepository userRepository;
     private final AuthenticationService authenticationService;
     private final UserService userService;
+
+    // ===== Copias de seguridad (Líder, Sprint 8) =====
+    // Nombres completos de clase: así no se tocan los imports, que modifican los AppContext.diff de Dev 1.
+    private final com.autogest.service.BackupService backupService;
 
     // ===== Customers (Dev 1) =====
     private final CustomerDao customerDao;
@@ -69,6 +77,11 @@ public final class AppContext {
         this.userRepository = new UserRepository(userDao);
         this.authenticationService = new AuthenticationService(userRepository);
         this.userService = new UserService(userRepository);
+
+        // ===== Copias de seguridad (Líder, Sprint 8) =====
+        this.backupService = new com.autogest.service.BackupService(
+                new com.autogest.dao.BackupDao(databaseConnection),
+                new com.autogest.repository.BackupRepository(BACKUP_DIRECTORY));
 
         // ===== Customers (Dev 1) =====
         this.customerDao = new CustomerDao(databaseConnection);
@@ -141,6 +154,17 @@ public final class AppContext {
      */
     public UserService getUserService() {
         return userService;
+    }
+
+    // ===== Copias de seguridad (Líder, Sprint 8) =====
+
+    /**
+     * Devuelve el servicio de copias de seguridad.
+     *
+     * @return servicio de copias compartido
+     */
+    public com.autogest.service.BackupService getBackupService() {
+        return backupService;
     }
 
     // ===== Customers (Dev 1) =====
