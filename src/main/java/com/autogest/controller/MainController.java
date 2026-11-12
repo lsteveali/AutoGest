@@ -50,18 +50,20 @@ public class MainController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         navigator = new ViewNavigator(contentArea);
-        navigator.setOnViewChange(sidebar::setActiveItem);
+        // Tras cada navegación se refresca la Topbar: así refleja el nombre
+        // editado en «Perfil y cuenta» sin acoplar esa pantalla al shell.
+        navigator.setOnViewChange(view -> {
+            sidebar.setActiveItem(view);
+            refreshTopbar();
+        });
 
         User currentUser = Session.getCurrentUser();
         Role role = currentUser == null ? null : currentUser.getRole();
         sidebar.setRole(role);
         sidebar.setOnNavigate(this::open);
-        if (currentUser != null) {
-            topbar.setUser(currentUser.getFullName(), UserLabels.roleText(currentUser.getRole()));
-        } else {
-            topbar.setUser("Invitado", "Sin sesión");
-        }
+        refreshTopbar();
         topbar.setOnLogout(this::logout);
+        topbar.setOnProfile(() -> open(View.SETTINGS_PROFILE));
 
         assistantButton.setOnAction(event -> open(View.ASSISTANT));
         StackPane.setMargin(assistantButton, new Insets(0, 24, 24, 0));
@@ -84,17 +86,23 @@ public class MainController implements Initializable {
         return navigator;
     }
 
-    /**
-     * Abre una pantalla comprobando antes los permisos del rol. En este sprint
-     * «Configuración» redirige a Usuarios y roles.
-     */
+    /** Muestra en la Topbar al usuario de la sesión (o «Invitado»). */
+    private void refreshTopbar() {
+        User user = Session.getCurrentUser();
+        if (user != null) {
+            topbar.setUser(user.getFullName(), UserLabels.roleText(user.getRole()));
+        } else {
+            topbar.setUser("Invitado", "Sin sesión");
+        }
+    }
+
+    /** Abre una pantalla comprobando antes los permisos del rol. */
     private void open(View view) {
         if (view == null) {
             return;
         }
-        View target = view == View.SETTINGS ? View.USERS_ROLES : view;
-        if (Permissions.canAccess(currentRole(), target)) {
-            navigator.navigateTo(target);
+        if (Permissions.canAccess(currentRole(), view)) {
+            navigator.navigateTo(view);
         } else {
             ErrorDialog.show("Acceso restringido", "No tienes permiso para abrir esta sección.");
         }

@@ -29,6 +29,16 @@ class PermissionsTest {
     }
 
     @Test
+    void ownProfileIsAvailableToEveryRoleButSettingsIsNot() {
+        for (Role role : Role.values()) {
+            assertTrue(Permissions.canAccess(role, View.SETTINGS_PROFILE), "Perfil para " + role);
+        }
+        assertFalse(Permissions.canAccess(Role.RECEPTIONIST, View.SETTINGS));
+        assertFalse(Permissions.canAccess(Role.MECHANIC, View.SETTINGS));
+        assertFalse(Permissions.canAccess(Role.SUPERVISOR, View.SETTINGS));
+    }
+
+    @Test
     void receptionistSeesCustomersVehiclesOrdersAndBillingOnly() {
         assertTrue(Permissions.canAccess(Role.RECEPTIONIST, View.CUSTOMERS));
         assertTrue(Permissions.canAccess(Role.RECEPTIONIST, View.VEHICLES));

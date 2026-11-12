@@ -10,6 +10,8 @@ package com.autogest.controller;
 public enum View {
 
     HOME("/fxml/home/home.fxml", "Inicio", "HOME"),
+    // Pantalla personal: la abre cualquier rol (menú del avatar) y también Configuración.
+    SETTINGS_PROFILE("/fxml/settings/profile.fxml", "Perfil y cuenta", "SETTINGS"),
     CUSTOMERS("/fxml/customer/customers.fxml", "Clientes", "CUSTOMERS"),
     CUSTOMER_NEW("/fxml/customer/customer-new.fxml", "Nuevo cliente", "CUSTOMERS"),
     CUSTOMER_EDIT("/fxml/customer/customer-edit.fxml", "Editar cliente", "CUSTOMERS"),
