@@ -136,6 +136,21 @@ class UserServiceTest {
     }
 
     @Test
+    void updateUserKeepsLastAccess() {
+        User created = service.createUser(newUser("ana.lopez@autogest.com", Role.RECEPTIONIST), PASSWORD);
+        java.time.LocalDateTime lastAccess = java.time.LocalDateTime.of(2026, 11, 11, 1, 3);
+        repository.findById(created.getId()).setLastAccess(lastAccess);
+
+        // Como en «Perfil y cuenta»: un objeto nuevo solo con los campos editables.
+        User edited = newUser("ana.lopez@autogest.com", Role.RECEPTIONIST);
+        edited.setId(created.getId());
+        edited.setFirstName("Ana María");
+        service.updateUser(edited);
+
+        assertEquals(lastAccess, repository.findById(created.getId()).getLastAccess());
+    }
+
+    @Test
     void updateUserOfMissingUserThrowsNotFound() {
         User ghost = newUser("nadie@autogest.com", Role.RECEPTIONIST);
         ghost.setId(999);

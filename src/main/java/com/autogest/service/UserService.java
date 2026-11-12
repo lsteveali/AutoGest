@@ -104,6 +104,8 @@ public class UserService {
         user.setUsername(current.getUsername());
         user.setPasswordHash(current.getPasswordHash());
         user.setStatus(current.getStatus());
+        // El UPDATE escribe todas las columnas: sin esto se borraba el último acceso.
+        user.setLastAccess(current.getLastAccess());
         repository.update(user);
         return user;
     }
