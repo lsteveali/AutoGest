@@ -30,11 +30,8 @@
             <Label text="AutoGest" styleClass="login-brand-title" />
         </HBox>
         <Label text="“Gestión inteligente para tu taller.”" styleClass="login-brand-slogan" wrapText="true" />
-        <ImageView fitWidth="400" preserveRatio="true" smooth="true">
-            <image>
-                <Image url="@../images/login-car.png" />
-            </image>
-        </ImageView>
+        <!-- Vitrina 3D del carro sobre la plataforma giratoria (la agrega el controlador). -->
+        <StackPane fx:id="carStage" />
     </VBox>
 
     <StackPane styleClass="login-form-side" HBox.hgrow="ALWAYS">

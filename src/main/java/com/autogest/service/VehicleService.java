@@ -5,6 +5,7 @@ import com.autogest.exception.ValidationException;
 import com.autogest.model.Customer;
 import com.autogest.model.CustomerStatus;
 import com.autogest.model.Vehicle;
+import com.autogest.model.VehicleCounts;
 import com.autogest.model.VehicleStatus;
 import com.autogest.model.VehicleType;
 import com.autogest.repository.CustomerRepository;
@@ -278,6 +279,17 @@ public class VehicleService {
     }
 
     /**
+     * Calcula en una sola consulta los cuatro indicadores de la pantalla de
+     * vehículos: total, activos, en servicio y con mantenimiento próximo o
+     * vencido en los próximos {@value #MAINTENANCE_WARNING_DAYS} días.
+     *
+     * @return los indicadores
+     */
+    public VehicleCounts getVehicleCounts() {
+        return repository.countSummary(LocalDate.now().plusDays(MAINTENANCE_WARNING_DAYS));
+    }
+
+    /**
      * Devuelve los clientes activos para el desplegable de propietario.
      *
      * @return lista de clientes activos
@@ -302,10 +314,14 @@ public class VehicleService {
         }
     }
 
-    /** Completa los datos del propietario del vehículo consultando el repositorio. */
+    /**
+     * Completa los datos del propietario del vehículo consultando el repositorio.
+     * Si el propietario ya viene completo (el DAO lo trae con un JOIN), no
+     * vuelve a consultarlo.
+     */
     private void resolveOwner(Vehicle vehicle) {
         Customer owner = vehicle.getOwner();
-        if (owner == null || owner.getId() <= 0) {
+        if (owner == null || owner.getId() <= 0 || owner.getFirstName() != null) {
             return;
         }
         Customer full = customerRepository.findById(owner.getId());

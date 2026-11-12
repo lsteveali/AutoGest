@@ -112,6 +112,17 @@ public final class AppContext {
         return instance;
     }
 
+    /**
+     * Cierra el pool de conexiones si el contexto llegó a crearse. Se llama al
+     * cerrar la aplicación.
+     */
+    public static synchronized void shutdown() {
+        if (instance != null) {
+            instance.databaseConnection.close();
+            instance = null;
+        }
+    }
+
     // ===== Users (Leader) =====
 
     /**

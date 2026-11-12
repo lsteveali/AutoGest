@@ -32,7 +32,8 @@ public final class IconSet {
     /** Íconos de navegación y comunes. */
     public static final String HOME = "M3 9 L12 2 L21 9 M3 9 L3 20 A1 1 0 0 0 4 21 L20 21 A1 1 0 0 0 21 20 L21 9 M9 21 L9 15 L15 15 L15 21";
     public static final String USERS = "M17 21 L17 19 A4 4 0 0 0 13 15 L5 15 A4 4 0 0 0 1 19 L1 21 M9 11 A4 4 0 1 1 9 3.2 A4 4 0 1 1 9 11 M23 21 L23 19 A4 4 0 0 0 20 15.4 M16 3.8 A4 4 0 1 1 15.6 10.4";
-    public static final String CAR = "M2 14 L15 10 L19 14 M19 14 L22 14 A1 1 0 0 1 23 15 L23 17 A1 1 0 0 1 22 18 L20.5 18 M2 14 L2 17 A1 1 0 0 0 3 18 L4.5 18 M8 18 A2 2 0 1 1 8 14 A2 2 0 1 1 8 18 M18 18 A2 2 0 1 1 18 14 A2 2 0 1 1 18 18";
+    /** Sedán de perfil (carrocería, cabina y dos ruedas); el anterior se leía como una patineta. */
+    public static final String CAR = "M19 17 L21 17 C21.6 17 22 16.6 22 16 L22 13 C22 12.1 21.3 11.3 20.5 11.1 C18.7 10.6 16 10 16 10 C16 10 14.7 8.6 13.8 7.7 C13.3 7.3 12.7 7 12 7 L5 7 C4.4 7 3.9 7.4 3.6 7.9 L2.2 10.8 C2.1 11.2 2 11.6 2 12 L2 16 C2 16.6 2.4 17 3 17 L5 17 M9 17 L15 17 M7 19 A2 2 0 1 1 7 15 A2 2 0 1 1 7 19 M17 19 A2 2 0 1 1 17 15 A2 2 0 1 1 17 19";
     public static final String FILE_TEXT = "M14 2 L14 7 L19 7 M6 2 L14 2 L19 7 L19 20 A1 1 0 0 1 18 21 L6 21 A1 1 0 0 1 5 20 L5 3 A1 1 0 0 1 6 2 M9 12 L15 12 M9 16 L13 16";
     public static final String WRENCH = "M14.7 6.3 A1 1 0 0 0 14.7 7.7 L16.3 9.3 A1 1 0 0 0 17.7 9.3 L21.5 5.5 A6 6 0 0 1 13.6 13.4 L6.7 20.3 A2.1 2.1 0 0 1 3.7 17.3 L10.6 10.4 A6 6 0 0 1 18.5 2.5 Z";
     public static final String BOX = "M21 16 L21 8 A2 2 0 0 0 20 6.3 L13 2.3 A2 2 0 0 0 11 2.3 L4 6.3 A2 2 0 0 0 3 8 L3 16 A2 2 0 0 0 4 17.7 L11 21.7 A2 2 0 0 0 13 21.7 L20 17.7 A2 2 0 0 0 21 16 Z M3.3 7 L12 12 L20.7 7 M12 12 L12 21.7";

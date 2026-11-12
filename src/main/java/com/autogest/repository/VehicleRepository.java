@@ -2,6 +2,7 @@ package com.autogest.repository;
 
 import com.autogest.dao.VehicleDao;
 import com.autogest.model.Vehicle;
+import com.autogest.model.VehicleCounts;
 import com.autogest.model.VehicleStatus;
 import com.autogest.model.VehicleType;
 
@@ -172,6 +173,16 @@ public class VehicleRepository {
      */
     public int countMaintenanceDue(LocalDate date) {
         return dao.countMaintenanceDue(date);
+    }
+
+    /**
+     * Calcula los indicadores de la pantalla de vehículos en una sola consulta.
+     *
+     * @param maintenanceDate fecha límite del aviso de mantenimiento
+     * @return total, activos, en servicio y con mantenimiento próximo
+     */
+    public VehicleCounts countSummary(LocalDate maintenanceDate) {
+        return dao.countSummary(maintenanceDate);
     }
 
     /**

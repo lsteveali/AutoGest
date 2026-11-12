@@ -1,6 +1,7 @@
 package com.autogest.service;
 
 import com.autogest.model.Vehicle;
+import com.autogest.model.VehicleCounts;
 import com.autogest.model.VehicleStatus;
 import com.autogest.model.VehicleType;
 import com.autogest.repository.VehicleRepository;
@@ -131,6 +132,12 @@ class FakeVehicleRepository extends VehicleRepository {
         return (int) vehicles.values().stream()
                 .filter(v -> v.getNextMaintenanceDate() != null && !v.getNextMaintenanceDate().isAfter(date))
                 .count();
+    }
+
+    @Override
+    public VehicleCounts countSummary(LocalDate maintenanceDate) {
+        return new VehicleCounts(count(), countByStatus(VehicleStatus.ACTIVE),
+                countByStatus(VehicleStatus.IN_SERVICE), countMaintenanceDue(maintenanceDate));
     }
 
     @Override
