@@ -214,6 +214,48 @@ class UserServiceTest {
         assertEquals(1, service.countAdministrators());
     }
 
+    @Test
+    void changePasswordStoresNewHash() {
+        User user = service.createUser(newUser("ana.lopez@autogest.com", Role.RECEPTIONIST), PASSWORD);
+
+        service.changePassword(user.getId(), PASSWORD, "NuevaClave99");
+
+        String stored = repository.findById(user.getId()).getPasswordHash();
+        assertTrue(PasswordHasher.verify("NuevaClave99", stored));
+        assertTrue(!PasswordHasher.verify(PASSWORD, stored));
+    }
+
+    @Test
+    void changePasswordRejectsWrongCurrentPassword() {
+        User user = service.createUser(newUser("ana.lopez@autogest.com", Role.RECEPTIONIST), PASSWORD);
+
+        assertThrows(ValidationException.class,
+                () -> service.changePassword(user.getId(), "Otra1234", "NuevaClave99"));
+    }
+
+    @Test
+    void changePasswordRejectsWeakNewPassword() {
+        User user = service.createUser(newUser("ana.lopez@autogest.com", Role.RECEPTIONIST), PASSWORD);
+
+        assertThrows(ValidationException.class,
+                () -> service.changePassword(user.getId(), PASSWORD, "corta"));
+        assertThrows(ValidationException.class,
+                () -> service.changePassword(user.getId(), PASSWORD, "sinnumeros"));
+    }
+
+    @Test
+    void changePasswordRejectsSamePassword() {
+        User user = service.createUser(newUser("ana.lopez@autogest.com", Role.RECEPTIONIST), PASSWORD);
+
+        assertThrows(ValidationException.class,
+                () -> service.changePassword(user.getId(), PASSWORD, PASSWORD));
+    }
+
+    @Test
+    void changePasswordRejectsUnknownUser() {
+        assertThrows(NotFoundException.class, () -> service.changePassword(999, PASSWORD, "NuevaClave99"));
+    }
+
     private static User newUser(String email, Role role) {
         User user = new User();
         user.setFirstName("Ana");

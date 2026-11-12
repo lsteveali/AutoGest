@@ -108,6 +108,30 @@ public class UserService {
     }
 
     /**
+     * Cambia la contraseña de un usuario («Perfil y cuenta»). Exige la
+     * contraseña actual, aplica las mismas reglas que una clave inicial y no
+     * permite repetir la misma. Solo se guarda el hash.
+     *
+     * @param id              identificador del usuario
+     * @param currentPassword contraseña actual en texto plano
+     * @param newPassword     nueva contraseña en texto plano
+     * @throws NotFoundException   si el usuario no existe
+     * @throws ValidationException si la contraseña actual no coincide o la nueva no cumple las reglas
+     */
+    public void changePassword(int id, String currentPassword, String newPassword) {
+        User user = requireUser(id);
+        if (isBlank(currentPassword) || !PasswordHasher.verify(currentPassword, user.getPasswordHash())) {
+            throw new ValidationException("La contraseña actual no es correcta.");
+        }
+        validatePassword(newPassword);
+        if (newPassword.equals(currentPassword)) {
+            throw new ValidationException("La nueva contraseña debe ser distinta de la actual.");
+        }
+        user.setPasswordHash(PasswordHasher.hash(newPassword));
+        repository.update(user);
+    }
+
+    /**
      * Cambia el estado de un usuario (activar o desactivar). No se puede
      * desactivar al último administrador activo, para no dejar el sistema sin
      * acceso administrativo.
