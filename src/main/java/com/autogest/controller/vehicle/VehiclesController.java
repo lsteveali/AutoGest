@@ -95,7 +95,7 @@ public class VehiclesController implements Initializable, NavigatorAware {
     private PageHeader buildHeader() {
         PageHeader header = new PageHeader("Vehículos",
                 "Consulta el parque automotor, su propietario y el mantenimiento programado.");
-        header.setBreadcrumbs(List.of("Vehículos", "Lista"));
+        header.setBreadcrumbs(List.of("Inicio", "Vehículos"));
         header.setPrimaryAction("+ Nuevo vehículo", () -> open(View.VEHICLE_NEW, 0));
         return header;
     }

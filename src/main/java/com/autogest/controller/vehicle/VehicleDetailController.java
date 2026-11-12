@@ -83,16 +83,12 @@ public class VehicleDetailController implements Initializable, ParameterizedCont
                 VehicleLabels.typeText(vehicle.getVehicleType())
                         + " · " + VehicleLabels.fuelText(vehicle.getFuelType())
                         + " · " + vehicle.getYear());
-        header.setBreadcrumbs(List.of("Vehículos", "Detalle"));
+        header.setBreadcrumbs(List.of("Vehículos", "Detalle del vehículo"));
         header.setPrimaryAction("Editar", () -> openEdit(vehicle.getId()));
         return header;
     }
 
     private HBox buildActions() {
-        Button back = new Button("Volver");
-        back.getStyleClass().add("btn-secondary");
-        back.setOnAction(event -> goBack());
-
         Button edit = new Button("Editar");
         edit.getStyleClass().add("btn-secondary");
         edit.setOnAction(event -> openEdit(vehicle.getId()));
@@ -104,7 +100,7 @@ public class VehicleDetailController implements Initializable, ParameterizedCont
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
-        HBox actions = new HBox(12, back, spacer, edit, deactivate);
+        HBox actions = new HBox(12, spacer, edit, deactivate);
         actions.setAlignment(Pos.CENTER_LEFT);
         return actions;
     }

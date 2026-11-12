@@ -65,6 +65,16 @@ public class MainController implements Initializable {
         topbar.setOnLogout(this::logout);
         topbar.setOnProfile(() -> open(View.SETTINGS_PROFILE));
 
+        // «Volver» y las migas de pan de cada pantalla (PageHeader) suben hasta aquí.
+        contentArea.addEventHandler(NavigationEvent.BACK, event -> {
+            navigator.goBack();
+            event.consume();
+        });
+        contentArea.addEventHandler(NavigationEvent.OPEN, event -> {
+            open(event.getView());
+            event.consume();
+        });
+
         assistantButton.setOnAction(event -> open(View.ASSISTANT));
         StackPane.setMargin(assistantButton, new Insets(0, 24, 24, 0));
 

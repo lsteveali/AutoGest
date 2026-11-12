@@ -63,4 +63,21 @@ public enum View {
     public View getSidebarSection() {
         return valueOf(sidebarSection);
     }
+
+    /**
+     * Busca la pantalla cuyo título coincide con el texto (lo usan las migas
+     * de pan para volverse clicables). Si varias comparten título, gana la
+     * primera declarada.
+     *
+     * @param title título visible, por ejemplo «Configuración»
+     * @return la pantalla, o vacío si ningún título coincide
+     */
+    public static java.util.Optional<View> byTitle(String title) {
+        for (View view : values()) {
+            if (view.title.equals(title)) {
+                return java.util.Optional.of(view);
+            }
+        }
+        return java.util.Optional.empty();
+    }
 }
