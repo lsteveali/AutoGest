@@ -24,7 +24,8 @@ import java.util.List;
 public class UserService {
 
     private static final String EMAIL_PATTERN = "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$";
-    private static final int MIN_PASSWORD_LENGTH = 8;
+    /** Largo mínimo de una contraseña (público: lo muestra la pantalla Seguridad). */
+    public static final int MIN_PASSWORD_LENGTH = 8;
 
     private final UserRepository repository;
 

@@ -22,7 +22,8 @@ import java.util.Base64;
 public final class PasswordHasher {
 
     private static final String ALGORITHM = "PBKDF2WithHmacSHA256";
-    private static final int ITERATIONS = 600_000;
+    /** Iteraciones de PBKDF2 (D-07; público: lo muestra la pantalla Seguridad). */
+    public static final int ITERATIONS = 600_000;
     private static final int SALT_BYTES = 16;
     private static final int KEY_BITS = 256;
     private static final String SEPARATOR = ":";
