@@ -12,6 +12,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 
 import java.util.ArrayList;
@@ -38,6 +40,9 @@ import java.util.function.Function;
  * @param <T> tipo de fila que muestra la tabla
  */
 public class PagedTable<T> extends VBox {
+
+    /** Relleno horizontal de la cabecera (12 + 12) más espacio para la flecha de orden. */
+    private static final double HEADER_EXTRA = 24 + 14;
 
     private final int pageSize;
     private final TableView<T> table = new TableView<>();
@@ -108,7 +113,16 @@ public class PagedTable<T> extends VBox {
         });
         column.setSortable(true);
         column.setComparator(String.CASE_INSENSITIVE_ORDER);
+        // Ancho mínimo = título completo + relleno de la cabecera + flecha de orden,
+        // para que el reparto de la política «constrained» no lo corte («Acció...»).
+        column.setMinWidth(headerWidth(title));
         table.getColumns().add(column);
+    }
+
+    private static double headerWidth(String title) {
+        Text measure = new Text(title);
+        measure.setFont(Font.font("Roboto", FontWeight.BOLD, 13));
+        return Math.ceil(measure.getLayoutBounds().getWidth()) + HEADER_EXTRA;
     }
 
     /**

@@ -36,12 +36,29 @@
 
 .sidebar {
     -fx-background-color: -ag-navy;
-    -fx-padding: 24 16 16 16;
-    -fx-spacing: 6;
+    -fx-padding: 22 14 16 14;
+    -fx-spacing: 2;
+    -fx-min-width: 232;
+    -fx-pref-width: 232;
 }
 
 .sidebar-brand {
-    -fx-padding: 0 0 20 4;
+    -fx-padding: 0 0 18 8;
+}
+
+/* Título de grupo («Taller», «Gestión»): más aire arriba que abajo, para que
+   se lea como inicio del grupo y no como cierre del anterior. */
+.sidebar-section {
+    -fx-text-fill: rgba(255, 255, 255, 0.55);
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+    -fx-padding: 16 12 6 12;
+}
+
+/* Asistente al pie, separado de los módulos por una línea tenue. */
+.sidebar-item-footer {
+    -fx-border-color: rgba(255, 255, 255, 0.10) transparent transparent transparent;
+    -fx-border-insets: -8 0 0 0;
 }
 
 .sidebar .app-title {
@@ -53,7 +70,7 @@
 /* El ítem es un HBox: el color y la fuente no se heredan a sus hijos, por eso
    se aplican al Label (si no, toma el gris oscuro de modena). */
 .sidebar-item {
-    -fx-padding: 12 14;
+    -fx-padding: 10 12;
     -fx-background-radius: 8;
     -fx-cursor: hand;
 }
@@ -215,6 +232,12 @@
     -fx-border-radius: 8;
     -fx-padding: 8 12;
     -fx-font-size: 14px;
+    /* Misma altura que los desplegables y las fechas (40px). */
+    -fx-min-height: 40;
+    /* Texto de ejemplo legible (~4.6:1 sobre blanco) y selección con la marca. */
+    -fx-prompt-text-fill: #6B7789;
+    -fx-highlight-fill: derive(-ag-primary, 72%);
+    -fx-highlight-text-fill: -ag-text;
 }
 
 .input:hover {
@@ -226,6 +249,110 @@
 .input:focused {
     -fx-border-color: -ag-primary;
     -fx-effect: dropshadow(three-pass-box, rgba(47, 109, 181, 0.18), 6, 0.5, 0, 0);
+}
+
+/* --------------------------------------------------------------------------
+   Desplegables, fechas y áreas de texto con .input (todas las pantallas)
+   Antes solo Clientes los ajustaba (customers.css); el resto mostraba el
+   relleno, la flecha y la línea interna de modena.
+   -------------------------------------------------------------------------- */
+.combo-box.input,
+.date-picker.input {
+    -fx-padding: 0;
+    -fx-min-height: 40;
+}
+
+.combo-box.input > .list-cell,
+.combo-box.input > .text-field,
+.date-picker.input > .text-field {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 9 12;
+    -fx-text-fill: -ag-text;
+}
+
+.combo-box.input > .arrow-button,
+.date-picker.input > .arrow-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0 14 0 4;
+}
+
+.combo-box.input > .arrow-button > .arrow,
+.date-picker.input > .arrow-button > .arrow {
+    -fx-background-color: -ag-text-muted;
+}
+
+.combo-box.input:disabled,
+.date-picker.input:disabled {
+    -fx-opacity: 0.55;
+}
+
+.text-area.input {
+    -fx-padding: 0;
+}
+
+.text-area.input .scroll-pane,
+.text-area.input .scroll-pane .viewport {
+    -fx-background-color: transparent;
+}
+
+/* modena pinta un degradado de 4px arriba del contenido: era la línea gris. */
+.text-area.input .content {
+    -fx-background-color: transparent;
+    -fx-padding: 9 12;
+}
+
+/* Lista abierta del desplegable. Causa de la «opción vacía» del filtro
+   Estado: la opción seleccionada usa texto blanco de modena y customers.css
+   deja su fondo transparente, así que «Todos» quedaba blanco sobre blanco.
+   Aquí la lista tiene sus propios colores para cada estado de la celda. */
+.combo-box-popup > .list-view {
+    -fx-background-color: -ag-card;
+    -fx-background-radius: 10;
+    -fx-border-color: -ag-border;
+    -fx-border-radius: 10;
+    -fx-padding: 4;
+    -fx-effect: dropshadow(gaussian, rgba(16, 30, 57, 0.14), 18, 0, 0, 6);
+}
+
+.combo-box-popup > .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell,
+.combo-box.input .combo-box-popup .list-view .list-cell {
+    -fx-background-color: transparent;
+    -fx-background-radius: 6;
+    -fx-padding: 8 12;
+    -fx-text-fill: -ag-text;
+    -fx-font-size: 14px;
+    -fx-cursor: hand;
+}
+
+.combo-box-popup > .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell:filled:hover,
+.combo-box.input .combo-box-popup .list-view .list-cell:filled:hover {
+    -fx-background-color: #F1F5F9;
+}
+
+.combo-box-popup > .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell:filled:selected,
+.combo-box.input .combo-box-popup .list-view .list-cell:filled:selected {
+    -fx-background-color: #E8F0FA;
+    -fx-text-fill: -ag-primary;
+    -fx-font-weight: 700;
+}
+
+/* Calendario del selector de fecha: mismo borde y sombra que la lista. */
+.date-picker-popup {
+    -fx-background-color: -ag-card;
+    -fx-background-radius: 10;
+    -fx-border-color: -ag-border;
+    -fx-border-radius: 10;
+    -fx-effect: dropshadow(gaussian, rgba(16, 30, 57, 0.14), 18, 0, 0, 6);
+}
+
+.date-picker-popup > .month-year-pane {
+    -fx-background-color: transparent;
+}
+
+.date-picker-popup .selected {
+    -fx-background-color: -ag-primary;
+    -fx-text-fill: #FFFFFF;
 }
 
 .label-required {
@@ -278,7 +405,10 @@
    Tabla
    -------------------------------------------------------------------------- */
 .table-autogest {
-    -fx-background-color: transparent;
+    /* Fondo de tarjeta: transparente dejaba ver el gris de la página. */
+    -fx-background-color: -ag-card;
+    -fx-background-insets: 0;
+    -fx-padding: 1;
     -fx-border-color: -ag-border;
     -fx-border-radius: 12;
     -fx-background-radius: 12;
@@ -302,6 +432,21 @@
     -fx-font-weight: 700;
     -fx-text-fill: -ag-text-muted;
     -fx-padding: 10 12;
+    /* Alineado a la izquierda, como los datos de su columna. */
+    -fx-alignment: center-left;
+}
+
+.table-autogest .column-header {
+    -fx-alignment: center-left;
+}
+
+/* Sin líneas verticales entre celdas: las filas ya separan con su borde inferior. */
+.table-autogest .table-row-cell .table-cell {
+    -fx-border-color: transparent;
+}
+
+.table-autogest .table-row-cell:empty {
+    -fx-border-color: transparent;
 }
 
 .table-autogest .table-row-cell {
@@ -742,45 +887,53 @@
     -fx-background-color: transparent;
 }
 
-/* Barra delgada y discreta, sin flechas, sobre el fondo de la app. */
-.page-scroll .scroll-bar:vertical,
-.dashboard-scroll .scroll-bar:vertical {
+/* Barras de desplazamiento de toda la app (pantallas, tablas, listas y
+   áreas de texto): delgadas, sin flechas y del color de los bordes, en vez
+   de la barra gris con botones de modena. */
+.scroll-bar {
     -fx-background-color: transparent;
+}
+
+.scroll-bar:vertical {
     -fx-pref-width: 10;
 }
 
-.page-scroll .scroll-bar .increment-button,
-.page-scroll .scroll-bar .decrement-button,
-.dashboard-scroll .scroll-bar .increment-button,
-.dashboard-scroll .scroll-bar .decrement-button {
-    -fx-padding: 0;
-    -fx-pref-height: 0;
+.scroll-bar:horizontal {
+    -fx-pref-height: 10;
 }
 
-.page-scroll .scroll-bar .increment-arrow,
-.page-scroll .scroll-bar .decrement-arrow,
-.dashboard-scroll .scroll-bar .increment-arrow,
-.dashboard-scroll .scroll-bar .decrement-arrow {
+.scroll-bar > .increment-button,
+.scroll-bar > .decrement-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.scroll-bar > .increment-button > .increment-arrow,
+.scroll-bar > .decrement-button > .decrement-arrow {
     -fx-shape: "";
     -fx-padding: 0;
 }
 
-.page-scroll .scroll-bar .track,
-.dashboard-scroll .scroll-bar .track {
+.scroll-bar > .track,
+.scroll-bar > .track-background {
     -fx-background-color: transparent;
     -fx-border-color: transparent;
 }
 
-.page-scroll .scroll-bar .thumb,
-.dashboard-scroll .scroll-bar .thumb {
+.scroll-bar > .thumb {
     -fx-background-color: #C9D3DE;
     -fx-background-radius: 999;
-    -fx-background-insets: 1 2;
+    -fx-background-insets: 2;
 }
 
-.page-scroll .scroll-bar .thumb:hover,
-.dashboard-scroll .scroll-bar .thumb:hover {
+.scroll-bar > .thumb:hover,
+.scroll-bar > .thumb:pressed {
     -fx-background-color: -ag-neutral;
+}
+
+/* Esquina donde se cruzan las dos barras de una tabla. */
+.table-autogest .corner {
+    -fx-background-color: transparent;
 }
 
 .dashboard-row {
