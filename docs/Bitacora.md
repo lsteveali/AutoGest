@@ -544,6 +544,20 @@ estaba incorporado; el otro era un WIP viejo de `login-usuarios`). Quedan solo
 5. **Pulido:** columnas con ancho mínimo propio (`PagedTable.addColumn(título, valor, ancho)`) para que no se corten nombre, correo ni rol; el menú «…» de cada fila ya no muestra la flecha del `MenuButton`.
 6. **Error de datos corregido:** `UserService.updateUser` borraba el último acceso del usuario editado (el `UPDATE` escribe todas las columnas y el objeto editado no lo traía). Se vio al editar el perfil del Líder. Prueba nueva en `UserServiceTest`.
 7. **Verificación:** prueba temporal sobre el shell real (Configuración → Seguridad → «Volver» vuelve a Configuración; la miga «Configuración» desde Perfil también) y capturas con datos reales; eliminada. `mvn clean test` → **324 pruebas, 0 fallos**.
+
+### 12/11/2026 — Sesión 20 (Líder): vehículos por cliente, ruta en Clientes y formulario de usuario
+
+**Contexto.** Segunda prueba manual del Líder: la lista de Clientes mostraba «-» en Vehículos y no tenía ruta ni «Volver», y el formulario de nuevo usuario necesitaba arreglos.
+
+**Hecho:**
+1. **Vehículos por cliente.** `VehicleDao.countAllByCustomer` (una consulta con `GROUP BY customer_id`) → `VehicleRepository.countAllByCustomer` → `VehicleService.countVehiclesByCustomer`. Se eligió una consulta agrupada y no `countByCustomer` por fila: las celdas se redibujan muchas veces y serían decenas de consultas en el hilo de la interfaz. Prueba nueva en `VehicleServiceTest`.
+2. **Cambio en un archivo de Dev 1, pedido por el Líder:** `CustomerListController` muestra la ruta «Inicio / Clientes» (con «Volver») y la columna Vehículos con el conteo real. Son 3 líneas de lógica más el campo y el import; «Última visita» sigue en «-» (D-12). **Sebastián: tenerlo en cuenta al actualizar tu rama.**
+3. **Formulario de usuario** (`UserFormDialog`, nueva clase; sale de `UsersRolesController`):
+   - Si el Service rechaza los datos, el diálogo no se cierra: el error aparece junto a los botones y lo escrito se conserva (antes se cerraba y había que escribir todo de nuevo).
+   - Dos columnas, campos obligatorios marcados, confirmación de la clave inicial y textos de ejemplo.
+   - Botones de la app («Cancelar» a la izquierda y «Crear usuario» / «Guardar cambios» a la derecha) y encabezado propio (`.app-dialog`).
+   - Las claves usan la clase `password-field` (los puntos salían gigantes con Roboto) y el guardado va en segundo plano (el hash congelaba la ventana).
+4. **Verificación:** capturas de Clientes y del formulario (vacío y con error de validación, sin escribir en la base de datos) con una prueba temporal, eliminada. `mvn clean test` → **325 pruebas, 0 fallos**.
 ---
 
 ## 4. Decisiones y acuerdos
