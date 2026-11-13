@@ -559,6 +559,10 @@ estaba incorporado; el otro era un WIP viejo de `login-usuarios`). Quedan solo
    - Las claves usan la clase `password-field` (los puntos salían gigantes con Roboto) y el guardado va en segundo plano (el hash congelaba la ventana).
 4. **Verificación:** capturas de Clientes y del formulario (vacío y con error de validación, sin escribir en la base de datos) con una prueba temporal, eliminada. `mvn clean test` → **325 pruebas, 0 fallos**.
 5. **Detalle del cliente (otro cambio en un archivo de Dev 1, pedido por el Líder):** `CustomerDetailController` seguía con el indicador «Vehículos» en «-» y la tarjeta «Vehículos del cliente» siempre vacía (esperaban a `VehicleService`). Ahora una sola llamada a `VehicleService.findByCustomer` alimenta el indicador y la lista: cada vehículo muestra su placa (estilo placa amarilla), marca, modelo, clase, año, kilometraje y estado, y abre su detalle con clic, Enter o Espacio. La ruta pasa a la barra común con «Volver» y «Clientes» clicable (`PageHeader.breadcrumbBar`, nuevo método estático reutilizable). Verificado con una captura del detalle de un cliente con 2 vehículos.
+6. **Un solo «Editar»** en los detalles de Vehículo y de Servicio: queda el de la cabecera y la fila inferior solo con «Dar de baja».
+7. **`.impeccable/` fuera del repositorio** (ver decisiones del 12/11).
+
+**Estado del vehículo (consulta del Líder):** hoy no hay pantalla para cambiarlo a mano. El formulario de Vehículo no tiene campo de estado; «Dar de baja» lo pasa a Inactivo y no hay forma de reactivarlo. «En servicio» lo pondrá el módulo de Órdenes (Sprint 4: al crear una orden, Dev 1; al entregarla, Líder). El Mazda CX-5 aparece «En servicio» porque así viene en los datos de ejemplo (`docs/database/seed.sql`), y desactivar un cliente no cambia el estado de sus vehículos.
 ---
 
 ## 4. Decisiones y acuerdos
@@ -589,6 +593,7 @@ estaba incorporado; el otro era un WIP viejo de `login-usuarios`). Quedan solo
 | 11/11/2026 | ~~El Líder avanza al Sprint 4 sin esperar a Dev 1.~~ **Reemplazada el 12/11/2026.** | La parte del Líder del Sprint 4 depende de servicios de Dev 1 (ver abajo). |
 | 12/11/2026 | **El backend de Movimientos (`InventoryMovementDao/Repository`, `InventoryService`) y el de órdenes (`ServiceOrderDao`, `ServiceOrderRepository`, `ServiceOrderService`) son de Dev 1**, como dice su paquete «Sprints 3 a 8» (`analysis-inventory.md`, `analysis-orders.md`). | En el Sprint 4 el Líder hace el detalle, el cambio de estado, el historial y el descuento de stock, sobre esos servicios. |
 | 12/11/2026 | **El Líder adelanta el Sprint 8 (Configuración) en `feature/configuracion`** mientras Dev 1 entrega sus sprints 3 y 4. | Configuración no depende de Órdenes ni de Inventario. Las tarjetas «Datos del taller» y «Preferencias» (Dev 1) se habilitan solas cuando existan su `View` y su FXML. No se crean `controller/settings/package-info.java` ni `css/settings.css`, que vienen en el paquete de Dev 1. |
+| 12/11/2026 | **`.impeccable/` y `.claude/` no van al repositorio** (están en `.gitignore`). | Son configuración local de herramientas del Líder. `.impeccable/config.json` se había subido por error en la Sesión 16 y se quitó del repositorio (el archivo sigue en el equipo del Líder). |
 | 12/11/2026 | **Los commits y PR no llevan atribución a herramientas de IA** (`Co-Authored-By`, «Generated with…»). | Pedido del Líder. Se reescribió `develop` (15 commits desde `940a19a`) sin esas líneas y con el mismo contenido; las páginas de los PR #10 y #11 conservan los commits originales porque GitHub no las modifica. |
 
 ---
