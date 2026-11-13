@@ -667,7 +667,7 @@ Verificación: `develop` → `mvn clean test` **108 pruebas, 0 fallos**
 - [x] Barra de desplazamiento en formularios y espacio para el botón del Asistente (Sesión 15); filtros, barra lateral, tablas y campos con `/impeccable polish` (Sesión 16, 11/11/2026).
 - [ ] UI de Repuestos + Movimientos de inventario (Dev 1) — **PR aparte de Sebastián**; no bloquea el Sprint 4.
 
-**En espera (Líder, Sprint 4):** detalle de la orden, cambio de estado, historial y descuento de stock — cuando Dev 1 integre `ServiceOrderService` (su Sprint 4) e `InventoryService` (su Sprint 3).
+**En espera (Líder, Sprint 4):** detalle de la orden, cambio de estado, historial y descuento de stock — cuando Dev 1 integre `ServiceOrderService` (su Sprint 4) e `InventoryService` (su Sprint 3). Incluye el estado del vehículo: al entregar la orden vuelve a Activo, y decidir entonces cómo reactivar un vehículo dado de baja (decisión del Líder, 12/11/2026: no agregar un control manual antes de Órdenes).
 
 **En curso (Líder, Sprint 8 — rama `feature/configuracion`):**
 - [x] Pantalla general de Configuración: tarjeta del usuario, secciones e información del sistema (Sesión 17).
