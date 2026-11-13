@@ -87,10 +87,6 @@ public class ServiceDetailController implements Initializable, ParameterizedCont
     }
 
     private HBox buildActions() {
-        Button edit = new Button("Editar");
-        edit.getStyleClass().add("btn-secondary");
-        edit.setOnAction(event -> openEdit(service.getId()));
-
         Button deactivate = new Button("Dar de baja");
         deactivate.getStyleClass().add("btn-danger");
         deactivate.setDisable(service.getStatus() == ServiceOfferingStatus.INACTIVE);
@@ -98,7 +94,7 @@ public class ServiceDetailController implements Initializable, ParameterizedCont
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
-        HBox actions = new HBox(12, spacer, edit, deactivate);
+        HBox actions = new HBox(12, spacer, deactivate);
         actions.setAlignment(Pos.CENTER_LEFT);
         return actions;
     }
