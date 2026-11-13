@@ -10,6 +10,11 @@ package com.autogest.controller;
 public enum View {
 
     HOME("/fxml/home/home.fxml", "Inicio", "HOME"),
+    // Pantalla personal: la abre cualquier rol (menú del avatar) y también Configuración.
+    SETTINGS_PROFILE("/fxml/settings/profile.fxml", "Perfil y cuenta", "SETTINGS"),
+    // Secciones de Configuración del Líder (junto a HOME para no tocar las líneas de los View.diff de Dev 1).
+    SETTINGS_SECURITY("/fxml/settings/security.fxml", "Seguridad", "SETTINGS"),
+    SETTINGS_BACKUP("/fxml/settings/backup.fxml", "Copias de seguridad", "SETTINGS"),
     CUSTOMERS("/fxml/customer/customers.fxml", "Clientes", "CUSTOMERS"),
     CUSTOMER_NEW("/fxml/customer/customer-new.fxml", "Nuevo cliente", "CUSTOMERS"),
     CUSTOMER_EDIT("/fxml/customer/customer-edit.fxml", "Editar cliente", "CUSTOMERS"),
@@ -57,5 +62,22 @@ public enum View {
     /** Sección de la barra lateral que se activa al mostrar esta pantalla. */
     public View getSidebarSection() {
         return valueOf(sidebarSection);
+    }
+
+    /**
+     * Busca la pantalla cuyo título coincide con el texto (lo usan las migas
+     * de pan para volverse clicables). Si varias comparten título, gana la
+     * primera declarada.
+     *
+     * @param title título visible, por ejemplo «Configuración»
+     * @return la pantalla, o vacío si ningún título coincide
+     */
+    public static java.util.Optional<View> byTitle(String title) {
+        for (View view : values()) {
+            if (view.title.equals(title)) {
+                return java.util.Optional.of(view);
+            }
+        }
+        return java.util.Optional.empty();
     }
 }

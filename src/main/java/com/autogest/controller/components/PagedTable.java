@@ -43,6 +43,12 @@ public class PagedTable<T> extends VBox {
 
     /** Relleno horizontal de la cabecera (12 + 12) más espacio para la flecha de orden. */
     private static final double HEADER_EXTRA = 24 + 14;
+    /** Alto de la fila de títulos (13px en negrita con relleno 10). */
+    private static final double HEADER_HEIGHT = 41;
+    private static final int MIN_FITTED_ROWS = 3;
+
+    /** Alto de fila cuando la tabla se ajusta a sus filas; 0 = la tabla crece. */
+    private double fitRowHeight;
 
     private final int pageSize;
     private final TableView<T> table = new TableView<>();
@@ -86,6 +92,18 @@ public class PagedTable<T> extends VBox {
      * @param cellValue función que obtiene el valor de cada fila: un texto o un nodo
      */
     public void addColumn(String title, Function<T, ?> cellValue) {
+        addColumn(title, cellValue, 0);
+    }
+
+    /**
+     * Agrega una columna con un ancho mínimo propio (por ejemplo, una celda con
+     * avatar y nombre que no debe cortarse en «Andrés…»).
+     *
+     * @param title     título de la columna (en español)
+     * @param cellValue función que obtiene el valor de cada fila: un texto o un nodo
+     * @param minWidth  ancho mínimo en píxeles; si es menor que el del título, manda el título
+     */
+    public void addColumn(String title, Function<T, ?> cellValue, double minWidth) {
         TableColumn<T, String> column = new TableColumn<>(title);
         columnValueProviders.put(column, cellValue);
         column.setCellValueFactory(cellData -> {
@@ -115,8 +133,35 @@ public class PagedTable<T> extends VBox {
         column.setComparator(String.CASE_INSENSITIVE_ORDER);
         // Ancho mínimo = título completo + relleno de la cabecera + flecha de orden,
         // para que el reparto de la política «constrained» no lo corte («Acció...»).
-        column.setMinWidth(headerWidth(title));
+        column.setMinWidth(Math.max(minWidth, headerWidth(title)));
         table.getColumns().add(column);
+    }
+
+    /**
+     * Ajusta el alto de la tabla a las filas de la página (hasta {@code pageSize}),
+     * en vez de crecer para llenar el espacio. Úsalo cuando la tabla va dentro de
+     * una pantalla con desplazamiento y hay contenido debajo: así no queda un
+     * hueco en blanco con pocas filas ni se aplasta con muchas.
+     *
+     * @param rowHeight alto fijo de cada fila en píxeles
+     */
+    public void fitHeightToRows(double rowHeight) {
+        this.fitRowHeight = rowHeight;
+        table.setFixedCellSize(rowHeight);
+        VBox.setVgrow(table, Priority.NEVER);
+        updateFittedHeight();
+    }
+
+    private void updateFittedHeight() {
+        if (fitRowHeight <= 0) {
+            return;
+        }
+        // Mínimo de 3 filas para que el mensaje de tabla vacía tenga lugar.
+        int rows = Math.max(MIN_FITTED_ROWS, table.getItems().size());
+        double height = HEADER_HEIGHT + rows * fitRowHeight + 2;
+        table.setMinHeight(height);
+        table.setPrefHeight(height);
+        table.setMaxHeight(height);
     }
 
     private static double headerWidth(String title) {
@@ -181,6 +226,7 @@ public class PagedTable<T> extends VBox {
         int from = currentPage * pageSize;
         int to = Math.min(from + pageSize, allData.size());
         table.getItems().setAll(allData.subList(from, to));
+        updateFittedHeight();
         rangeLabel.setText(rangeText(from, to));
         previousButton.setDisable(currentPage == 0);
         nextButton.setDisable(currentPage >= totalPages() - 1);

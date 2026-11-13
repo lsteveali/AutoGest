@@ -6,6 +6,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
@@ -26,6 +27,7 @@ public class Topbar extends HBox {
     private final Label roleLabel = new Label();
 
     private Runnable onLogout;
+    private Runnable onProfile;
 
     /** Crea la cabecera con el usuario provisional «Invitado». */
     public Topbar() {
@@ -49,6 +51,13 @@ public class Topbar extends HBox {
         userMenu.getStyleClass().add("topbar-user");
         userMenu.setCursor(Cursor.HAND);
 
+        MenuItem profileItem = new MenuItem("Mi perfil");
+        profileItem.setGraphic(IconSet.icon(IconSet.USER));
+        profileItem.setOnAction(event -> {
+            if (onProfile != null) {
+                onProfile.run();
+            }
+        });
         MenuItem logoutItem = new MenuItem("Cerrar sesión");
         logoutItem.setGraphic(IconSet.icon(IconSet.LOGOUT));
         logoutItem.setOnAction(event -> {
@@ -56,7 +65,7 @@ public class Topbar extends HBox {
                 onLogout.run();
             }
         });
-        ContextMenu userContextMenu = new ContextMenu(logoutItem);
+        ContextMenu userContextMenu = new ContextMenu(profileItem, new SeparatorMenuItem(), logoutItem);
         userMenu.setOnMouseClicked(event ->
                 userContextMenu.show(userMenu, event.getScreenX(), event.getScreenY()));
 
@@ -72,6 +81,15 @@ public class Topbar extends HBox {
      */
     public void setOnLogout(Runnable onLogout) {
         this.onLogout = onLogout;
+    }
+
+    /**
+     * Registra la acción de «Mi perfil» en el menú del avatar.
+     *
+     * @param onProfile acción que abre «Perfil y cuenta»
+     */
+    public void setOnProfile(Runnable onProfile) {
+        this.onProfile = onProfile;
     }
 
     /**

@@ -81,20 +81,12 @@ public class ServiceDetailController implements Initializable, ParameterizedCont
         PageHeader header = new PageHeader(service.getName(),
                 service.getCategory() == null || service.getCategory().isBlank()
                         ? "Servicio del catálogo del taller" : service.getCategory());
-        header.setBreadcrumbs(List.of("Catálogo", "Servicios", "Detalle"));
+        header.setBreadcrumbs(List.of("Servicios", "Detalle del servicio"));
         header.setPrimaryAction("Editar", () -> openEdit(service.getId()));
         return header;
     }
 
     private HBox buildActions() {
-        Button back = new Button("Volver");
-        back.getStyleClass().add("btn-secondary");
-        back.setOnAction(event -> goBack());
-
-        Button edit = new Button("Editar");
-        edit.getStyleClass().add("btn-secondary");
-        edit.setOnAction(event -> openEdit(service.getId()));
-
         Button deactivate = new Button("Dar de baja");
         deactivate.getStyleClass().add("btn-danger");
         deactivate.setDisable(service.getStatus() == ServiceOfferingStatus.INACTIVE);
@@ -102,7 +94,7 @@ public class ServiceDetailController implements Initializable, ParameterizedCont
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
-        HBox actions = new HBox(12, back, spacer, edit, deactivate);
+        HBox actions = new HBox(12, spacer, deactivate);
         actions.setAlignment(Pos.CENTER_LEFT);
         return actions;
     }
@@ -188,12 +180,6 @@ public class ServiceDetailController implements Initializable, ParameterizedCont
     private void openEdit(int id) {
         if (navigator != null) {
             navigator.navigateWithParameter(View.SERVICE_EDIT, id);
-        }
-    }
-
-    private void goBack() {
-        if (navigator != null) {
-            navigator.goBack();
         }
     }
 

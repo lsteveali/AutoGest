@@ -19,7 +19,9 @@ import java.sql.Statement;
 import java.sql.Types;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Acceso SQL a la tabla {@code vehicles}. Implementa {@link CrudOperations}
@@ -303,6 +305,27 @@ public class VehicleDao implements CrudOperations<Vehicle> {
      */
     public int countByCustomer(int customerId) {
         return count("SELECT COUNT(*) FROM vehicles WHERE customer_id = ?", List.of(customerId));
+    }
+
+    /**
+     * Cuenta los vehículos de todos los propietarios en una sola consulta (para
+     * la lista de clientes, sin una consulta por fila).
+     *
+     * @return id del cliente → cantidad de vehículos; los clientes sin vehículos no aparecen
+     */
+    public Map<Integer, Integer> countAllByCustomer() {
+        String sql = "SELECT customer_id, COUNT(*) AS total FROM vehicles GROUP BY customer_id";
+        try (Connection conn = connection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            Map<Integer, Integer> counts = new HashMap<>();
+            while (rs.next()) {
+                counts.put(rs.getInt("customer_id"), rs.getInt("total"));
+            }
+            return counts;
+        } catch (SQLException e) {
+            throw new DataAccessException("No se pudieron contar los vehículos por cliente.", e);
+        }
     }
 
     /**

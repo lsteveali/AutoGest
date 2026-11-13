@@ -1,6 +1,9 @@
 package com.autogest.controller.components;
 
+import com.autogest.controller.NavigationEvent;
+import com.autogest.controller.View;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
@@ -9,6 +12,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Cabecera de página reutilizable: breadcrumb opcional, título, subtítulo y
@@ -19,7 +23,7 @@ import java.util.List;
  */
 public class PageHeader extends VBox {
 
-    private final Label breadcrumbLabel = new Label();
+    private final HBox breadcrumbRow = new HBox(6);
     private final HBox titleRow = new HBox(16);
     private Button primaryButton;
 
@@ -32,9 +36,10 @@ public class PageHeader extends VBox {
     public PageHeader(String title, String subtitle) {
         getStyleClass().add("page-header");
 
-        breadcrumbLabel.getStyleClass().add("breadcrumb");
-        breadcrumbLabel.setVisible(false);
-        breadcrumbLabel.setManaged(false);
+        breadcrumbRow.getStyleClass().add("breadcrumb-row");
+        breadcrumbRow.setAlignment(Pos.CENTER_LEFT);
+        breadcrumbRow.setVisible(false);
+        breadcrumbRow.setManaged(false);
 
         Label titleLabel = new Label(title);
         titleLabel.getStyleClass().add("page-title");
@@ -48,7 +53,7 @@ public class PageHeader extends VBox {
         titleRow.setAlignment(Pos.CENTER_LEFT);
         titleRow.getChildren().addAll(titles, spacer);
 
-        getChildren().addAll(breadcrumbLabel, titleRow);
+        getChildren().addAll(breadcrumbRow, titleRow);
     }
 
     /**
@@ -68,19 +73,69 @@ public class PageHeader extends VBox {
     }
 
     /**
-     * Muestra el breadcrumb de navegación sobre el título.
+     * Muestra las migas de pan sobre el título. Cada paso (menos el último,
+     * que es la pantalla actual) cuyo texto coincide con el título de una
+     * pantalla se vuelve un enlace. Si hay más de un paso, se agrega «Volver»
+     * al inicio. Ambos lanzan un {@link NavigationEvent} que atiende el shell.
      *
      * @param breadcrumbs pasos de la ruta; si es nulo o vacío se oculta
      */
     public void setBreadcrumbs(List<String> breadcrumbs) {
-        if (breadcrumbs == null || breadcrumbs.isEmpty()) {
-            breadcrumbLabel.setText("");
-            breadcrumbLabel.setVisible(false);
-            breadcrumbLabel.setManaged(false);
-            return;
+        breadcrumbRow.getChildren().clear();
+        boolean show = breadcrumbs != null && !breadcrumbs.isEmpty();
+        breadcrumbRow.setVisible(show);
+        breadcrumbRow.setManaged(show);
+        if (show) {
+            fillBreadcrumbs(breadcrumbRow, breadcrumbs);
         }
-        breadcrumbLabel.setText(String.join("  /  ", breadcrumbs));
-        breadcrumbLabel.setVisible(true);
-        breadcrumbLabel.setManaged(true);
+    }
+
+    /**
+     * Crea una barra de «Volver» y migas de pan igual a la de la cabecera,
+     * para pantallas que arman su propio encabezado (por ejemplo el detalle
+     * del cliente, con avatar).
+     *
+     * @param breadcrumbs pasos de la ruta (no vacío)
+     * @return la barra lista para agregar sobre el encabezado
+     */
+    public static HBox breadcrumbBar(List<String> breadcrumbs) {
+        HBox row = new HBox(6);
+        row.getStyleClass().add("breadcrumb-row");
+        row.setAlignment(Pos.CENTER_LEFT);
+        fillBreadcrumbs(row, breadcrumbs);
+        return row;
+    }
+
+    private static void fillBreadcrumbs(HBox breadcrumbRow, List<String> breadcrumbs) {
+        if (breadcrumbs.size() > 1) {
+            Button back = new Button("Volver");
+            back.setGraphic(IconSet.icon(IconSet.ARROW_LEFT));
+            back.getStyleClass().add("back-link");
+            back.setOnAction(event -> back.fireEvent(NavigationEvent.back()));
+            Region divider = new Region();
+            divider.getStyleClass().add("breadcrumb-divider");
+            breadcrumbRow.getChildren().addAll(back, divider);
+        }
+        for (int i = 0; i < breadcrumbs.size(); i++) {
+            if (i > 0) {
+                Label slash = new Label("/");
+                slash.getStyleClass().add("breadcrumb");
+                breadcrumbRow.getChildren().add(slash);
+            }
+            breadcrumbRow.getChildren().add(crumb(breadcrumbs.get(i), i == breadcrumbs.size() - 1));
+        }
+    }
+
+    private static Node crumb(String text, boolean current) {
+        Optional<View> target = current ? Optional.empty() : View.byTitle(text);
+        if (target.isEmpty()) {
+            Label label = new Label(text);
+            label.getStyleClass().add(current ? "breadcrumb-current" : "breadcrumb");
+            return label;
+        }
+        Button link = new Button(text);
+        link.getStyleClass().add("breadcrumb-link");
+        link.setOnAction(event -> link.fireEvent(NavigationEvent.open(target.get())));
+        return link;
     }
 }

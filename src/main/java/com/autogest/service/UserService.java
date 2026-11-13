@@ -24,7 +24,8 @@ import java.util.List;
 public class UserService {
 
     private static final String EMAIL_PATTERN = "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$";
-    private static final int MIN_PASSWORD_LENGTH = 8;
+    /** Largo mínimo de una contraseña (público: lo muestra la pantalla Seguridad). */
+    public static final int MIN_PASSWORD_LENGTH = 8;
 
     private final UserRepository repository;
 
@@ -103,8 +104,34 @@ public class UserService {
         user.setUsername(current.getUsername());
         user.setPasswordHash(current.getPasswordHash());
         user.setStatus(current.getStatus());
+        // El UPDATE escribe todas las columnas: sin esto se borraba el último acceso.
+        user.setLastAccess(current.getLastAccess());
         repository.update(user);
         return user;
+    }
+
+    /**
+     * Cambia la contraseña de un usuario («Perfil y cuenta»). Exige la
+     * contraseña actual, aplica las mismas reglas que una clave inicial y no
+     * permite repetir la misma. Solo se guarda el hash.
+     *
+     * @param id              identificador del usuario
+     * @param currentPassword contraseña actual en texto plano
+     * @param newPassword     nueva contraseña en texto plano
+     * @throws NotFoundException   si el usuario no existe
+     * @throws ValidationException si la contraseña actual no coincide o la nueva no cumple las reglas
+     */
+    public void changePassword(int id, String currentPassword, String newPassword) {
+        User user = requireUser(id);
+        if (isBlank(currentPassword) || !PasswordHasher.verify(currentPassword, user.getPasswordHash())) {
+            throw new ValidationException("La contraseña actual no es correcta.");
+        }
+        validatePassword(newPassword);
+        if (newPassword.equals(currentPassword)) {
+            throw new ValidationException("La nueva contraseña debe ser distinta de la actual.");
+        }
+        user.setPasswordHash(PasswordHasher.hash(newPassword));
+        repository.update(user);
     }
 
     /**

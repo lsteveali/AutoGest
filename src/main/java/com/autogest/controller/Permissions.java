@@ -32,7 +32,8 @@ public final class Permissions {
         if (role == null || view == null) {
             return false;
         }
-        if (view == View.HOME || view == View.ASSISTANT) {
+        // Inicio, Asistente y el perfil propio («Perfil y cuenta») son para todos los roles.
+        if (view == View.HOME || view == View.ASSISTANT || view == View.SETTINGS_PROFILE) {
             return true;
         }
         if (role == Role.ADMINISTRATOR) {

@@ -3,3 +3,7 @@
 target/
 .env
 *.local.properties
+
+# Configuración local de herramientas de IA (impeccable, Claude Code): no va al repositorio.
+.impeccable/
+.claude/

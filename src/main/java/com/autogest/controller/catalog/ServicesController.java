@@ -83,7 +83,7 @@ public class ServicesController implements Initializable, NavigatorAware {
     private PageHeader buildHeader() {
         PageHeader header = new PageHeader("Servicios",
                 "Administra el catálogo de servicios del taller.");
-        header.setBreadcrumbs(List.of("Catálogo", "Servicios"));
+        header.setBreadcrumbs(List.of("Inicio", "Servicios"));
         header.setPrimaryAction("+ Nuevo servicio", () -> open(View.SERVICE_NEW, 0));
         return header;
     }

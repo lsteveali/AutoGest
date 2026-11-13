@@ -34,8 +34,12 @@ public class ViewNavigator {
      */
     private static final String SCROLL_CONTENT_PADDING = "-fx-padding: 0 12 88 0;";
 
+    /** Paso del historial: la pantalla y su parámetro (id de detalle/edición o {@code null}). */
+    private record Entry(View view, Integer parameter) {
+    }
+
     private final StackPane container;
-    private final Deque<View> history = new ArrayDeque<>();
+    private final Deque<Entry> history = new ArrayDeque<>();
     private Consumer<View> onViewChange;
 
     /**
@@ -49,27 +53,30 @@ public class ViewNavigator {
 
     /** Navega a una pantalla sin parámetros. */
     public void navigateTo(View view) {
-        history.push(view);
+        history.push(new Entry(view, null));
         load(view, null);
     }
 
     /** Navega a una pantalla pasando un id como parámetro (detalle/edición). */
     public void navigateWithParameter(View view, int parameter) {
-        history.push(view);
+        history.push(new Entry(view, parameter));
         load(view, parameter);
     }
 
-    /** Regresa a la pantalla visitada anteriormente. */
+    /**
+     * Regresa a la pantalla visitada anteriormente, con su mismo parámetro
+     * (así un detalle vuelve a abrir el mismo registro). Sin historial, va a
+     * Inicio.
+     */
     public void goBack() {
-        if (history.isEmpty()) {
-            return;
+        if (!history.isEmpty()) {
+            history.pop();
         }
-        history.pop();
-        View previous = history.isEmpty() ? View.HOME : history.peek();
+        Entry previous = history.isEmpty() ? new Entry(View.HOME, null) : history.peek();
         if (history.isEmpty()) {
             history.push(previous);
         }
-        load(previous, null);
+        load(previous.view(), previous.parameter());
     }
 
     /**

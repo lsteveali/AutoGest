@@ -136,6 +136,21 @@ class UserServiceTest {
     }
 
     @Test
+    void updateUserKeepsLastAccess() {
+        User created = service.createUser(newUser("ana.lopez@autogest.com", Role.RECEPTIONIST), PASSWORD);
+        java.time.LocalDateTime lastAccess = java.time.LocalDateTime.of(2026, 11, 11, 1, 3);
+        repository.findById(created.getId()).setLastAccess(lastAccess);
+
+        // Como en «Perfil y cuenta»: un objeto nuevo solo con los campos editables.
+        User edited = newUser("ana.lopez@autogest.com", Role.RECEPTIONIST);
+        edited.setId(created.getId());
+        edited.setFirstName("Ana María");
+        service.updateUser(edited);
+
+        assertEquals(lastAccess, repository.findById(created.getId()).getLastAccess());
+    }
+
+    @Test
     void updateUserOfMissingUserThrowsNotFound() {
         User ghost = newUser("nadie@autogest.com", Role.RECEPTIONIST);
         ghost.setId(999);
@@ -212,6 +227,48 @@ class UserServiceTest {
 
         assertEquals(1, service.countActiveUsers());
         assertEquals(1, service.countAdministrators());
+    }
+
+    @Test
+    void changePasswordStoresNewHash() {
+        User user = service.createUser(newUser("ana.lopez@autogest.com", Role.RECEPTIONIST), PASSWORD);
+
+        service.changePassword(user.getId(), PASSWORD, "NuevaClave99");
+
+        String stored = repository.findById(user.getId()).getPasswordHash();
+        assertTrue(PasswordHasher.verify("NuevaClave99", stored));
+        assertTrue(!PasswordHasher.verify(PASSWORD, stored));
+    }
+
+    @Test
+    void changePasswordRejectsWrongCurrentPassword() {
+        User user = service.createUser(newUser("ana.lopez@autogest.com", Role.RECEPTIONIST), PASSWORD);
+
+        assertThrows(ValidationException.class,
+                () -> service.changePassword(user.getId(), "Otra1234", "NuevaClave99"));
+    }
+
+    @Test
+    void changePasswordRejectsWeakNewPassword() {
+        User user = service.createUser(newUser("ana.lopez@autogest.com", Role.RECEPTIONIST), PASSWORD);
+
+        assertThrows(ValidationException.class,
+                () -> service.changePassword(user.getId(), PASSWORD, "corta"));
+        assertThrows(ValidationException.class,
+                () -> service.changePassword(user.getId(), PASSWORD, "sinnumeros"));
+    }
+
+    @Test
+    void changePasswordRejectsSamePassword() {
+        User user = service.createUser(newUser("ana.lopez@autogest.com", Role.RECEPTIONIST), PASSWORD);
+
+        assertThrows(ValidationException.class,
+                () -> service.changePassword(user.getId(), PASSWORD, PASSWORD));
+    }
+
+    @Test
+    void changePasswordRejectsUnknownUser() {
+        assertThrows(NotFoundException.class, () -> service.changePassword(999, PASSWORD, "NuevaClave99"));
     }
 
     private static User newUser(String email, Role role) {

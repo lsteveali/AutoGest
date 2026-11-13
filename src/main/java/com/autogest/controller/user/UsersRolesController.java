@@ -21,24 +21,16 @@ import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonBar;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
-import javafx.util.StringConverter;
 
 import java.net.URL;
 import java.util.List;
-import java.util.Optional;
 import java.util.ResourceBundle;
 
 /**
@@ -59,8 +51,9 @@ import java.util.ResourceBundle;
 public class UsersRolesController implements Initializable {
 
     private static final int PAGE_SIZE = 10;
+    /** Alto de una fila con avatar, nombre y usuario. */
+    private static final double ROW_HEIGHT = 60;
     private static final String FILTER_ALL = "Todos";
-    private static final String STYLESHEET = "/css/autogest.css";
 
     @FXML
     private VBox root;
@@ -82,7 +75,9 @@ public class UsersRolesController implements Initializable {
         table = buildTable();
         VBox rolesCard = buildRolesCard();
 
-        VBox.setVgrow(table, Priority.ALWAYS);
+        // Dentro del ScrollPane la tabla toma el alto de sus filas: antes el VGrow la
+        // dejaba sin espacio cuando la tarjeta de roles empujaba desde abajo.
+        table.fitHeightToRows(ROW_HEIGHT);
         root.getChildren().addAll(header, kpis, filters, table, rolesCard);
 
         Platform.runLater(this::reload);
@@ -141,9 +136,9 @@ public class UsersRolesController implements Initializable {
 
     private PagedTable<User> buildTable() {
         PagedTable<User> pagedTable = new PagedTable<>(PAGE_SIZE);
-        pagedTable.addColumn("Usuario", this::userCell);
-        pagedTable.addColumn("Correo", User::getEmail);
-        pagedTable.addColumn("Rol", user -> UserLabels.roleText(user.getRole()));
+        pagedTable.addColumn("Usuario", this::userCell, 220);
+        pagedTable.addColumn("Correo", User::getEmail, 220);
+        pagedTable.addColumn("Rol", user -> UserLabels.roleText(user.getRole()), 130);
         pagedTable.addColumn("Estado", user -> StatusBadge.of(
                 UserLabels.statusText(user.getStatus()), UserLabels.statusType(user.getStatus())));
         pagedTable.addColumn("Último acceso", user -> lastAccessText(user));
@@ -246,110 +241,13 @@ public class UsersRolesController implements Initializable {
     }
 
     /**
-     * Abre el diálogo de creación (usuario {@code null}) o de edición. El campo
-     * «Clave inicial» solo se pide al crear y «Especialidad» solo se muestra
-     * para el rol MECHANIC.
+     * Abre el formulario de nuevo usuario ({@code null}) o de edición
+     * ({@link UserFormDialog}); si se guardó, recarga la lista.
      *
      * @param existing usuario a editar, o {@code null} para crear uno nuevo
      */
     private void showUserDialog(User existing) {
-        boolean editing = existing != null;
-        Dialog<User> dialog = new Dialog<>();
-        dialog.setTitle(editing ? "Editar usuario" : "Nuevo usuario");
-        dialog.getDialogPane().getStylesheets().add(getClass().getResource(STYLESHEET).toExternalForm());
-        dialog.getDialogPane().setPrefWidth(460);
-
-        ButtonType saveType = new ButtonType("Guardar", ButtonBar.ButtonData.OK_DONE);
-        ButtonType cancelType = new ButtonType("Cancelar", ButtonBar.ButtonData.CANCEL_CLOSE);
-        dialog.getDialogPane().getButtonTypes().addAll(saveType, cancelType);
-
-        TextField firstName = textField(editing ? existing.getFirstName() : "");
-        TextField lastName = textField(editing ? existing.getLastName() : "");
-        TextField email = textField(editing ? existing.getEmail() : "");
-        PasswordField password = new PasswordField();
-        password.getStyleClass().add("input");
-        password.setPromptText("Mínimo 8 caracteres, con letras y números");
-
-        ComboBox<Role> roleBox = new ComboBox<>();
-        roleBox.getItems().addAll(Role.values());
-        roleBox.getStyleClass().add("input");
-        roleBox.setMaxWidth(Double.MAX_VALUE);
-        roleBox.setConverter(new StringConverter<>() {
-            @Override
-            public String toString(Role role) {
-                return UserLabels.roleText(role);
-            }
-
-            @Override
-            public Role fromString(String text) {
-                return UserLabels.roleFromText(text);
-            }
-        });
-        if (editing) {
-            roleBox.setValue(existing.getRole());
-        }
-
-        TextField specialty = textField(editing && existing.getSpecialty() != null
-                ? existing.getSpecialty() : "");
-        specialty.setPromptText("Área de especialidad del mecánico");
-        VBox specialtyBox = labeled("Especialidad", specialty);
-        specialtyBox.visibleProperty().bind(roleBox.valueProperty().isEqualTo(Role.MECHANIC));
-        specialtyBox.managedProperty().bind(specialtyBox.visibleProperty());
-
-        VBox form = new VBox(12,
-                labeled("Nombres", firstName),
-                labeled("Apellidos", lastName),
-                labeled("Correo electrónico", email),
-                labeled("Rol", roleBox));
-        if (!editing) {
-            form.getChildren().add(labeled("Clave inicial", password));
-        }
-        form.getChildren().add(specialtyBox);
-        dialog.getDialogPane().setContent(form);
-
-        dialog.setResultConverter(button -> {
-            if (button != saveType) {
-                return null;
-            }
-            User user = new User();
-            if (editing) {
-                user.setId(existing.getId());
-            }
-            user.setFirstName(firstName.getText());
-            user.setLastName(lastName.getText());
-            user.setEmail(email.getText());
-            user.setRole(roleBox.getValue());
-            user.setSpecialty(roleBox.getValue() == Role.MECHANIC ? specialty.getText() : null);
-            return user;
-        });
-
-        Optional<User> result = dialog.showAndWait();
-        if (result.isEmpty()) {
-            return;
-        }
-        try {
-            if (editing) {
-                service().updateUser(result.get());
-            } else {
-                service().createUser(result.get(), password.getText());
-            }
-            reload();
-        } catch (AutoGestException e) {
-            ErrorDialog.show("No se pudo guardar el usuario", e.getMessage());
-        }
-    }
-
-    private TextField textField(String value) {
-        TextField field = new TextField(value == null ? "" : value);
-        field.getStyleClass().add("input");
-        field.setMaxWidth(Double.MAX_VALUE);
-        return field;
-    }
-
-    private VBox labeled(String text, Node field) {
-        Label label = new Label(text);
-        label.getStyleClass().add("field-label");
-        return new VBox(6, label, field);
+        new UserFormDialog(existing).showAndWait().ifPresent(saved -> reload());
     }
 
     private String lastAccessText(User user) {

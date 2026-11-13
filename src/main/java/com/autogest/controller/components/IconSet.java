@@ -53,6 +53,18 @@ public final class IconSet {
     public static final String MORE = "M4 12 A1 1 0 1 1 6 12 A1 1 0 1 1 4 12 M11 12 A1 1 0 1 1 13 12 A1 1 0 1 1 11 12 M18 12 A1 1 0 1 1 20 12 A1 1 0 1 1 18 12";
     public static final String ARROW_LEFT = "M12 19 L5 12 L12 5 M19 12 L5 12";
     public static final String CHECK = "M20 6 L9 17 L4 12";
+    /** Persona (perfil y cuenta). */
+    public static final String USER = "M19 21 L19 19 A4 4 0 0 0 15 15 L9 15 A4 4 0 0 0 5 19 L5 21 M12 11 A4 4 0 1 1 12 3 A4 4 0 1 1 12 11";
+    /** Taller: nave con portón (datos del taller). */
+    public static final String WAREHOUSE = "M3 21 L3 9 L12 3 L21 9 L21 21 M7 21 L7 13 L17 13 L17 21 M7 17 L17 17";
+    /** Escudo (seguridad). */
+    public static final String SHIELD = "M12 22 C12 22 20 18 20 12 L20 5 L12 2 L4 5 L4 12 C4 18 12 22 12 22 Z M9 12 L11 14 L15 10";
+    /** Nube con flecha hacia abajo (copias de seguridad). */
+    public static final String CLOUD_DOWNLOAD = "M8 17 L12 21 L16 17 M12 12 L12 21 M20.9 18.1 A5 5 0 0 0 18 9 L16.7 9 A8 8 0 1 0 4 16.3";
+    /** Flecha hacia la derecha (abrir una sección). */
+    public static final String ARROW_RIGHT = "M5 12 L19 12 M13 6 L19 12 L13 18";
+    /** Círculo con «i» (información del sistema). */
+    public static final String INFO = "M12 22 A10 10 0 1 1 12 2 A10 10 0 1 1 12 22 M12 16 L12 12 M12 8 L12.01 8";
     public static final String MAIL = "M4 4 L20 4 A2 2 0 0 1 22 6 L22 18 A2 2 0 0 1 20 20 L4 20 A2 2 0 0 1 2 18 L2 6 A2 2 0 0 1 4 4 Z M22 6 L12 13 L2 6";
     public static final String LOCK = "M5 11 L19 11 A2 2 0 0 1 21 13 L21 20 A2 2 0 0 1 19 22 L5 22 A2 2 0 0 1 3 20 L3 13 A2 2 0 0 1 5 11 Z M7 11 L7 7 A5 5 0 0 1 17 7 L17 11";
     public static final String CALENDAR ="M3 5 A1 1 0 0 1 4 4 L20 4 A1 1 0 0 1 21 5 L21 19 A1 1 0 0 1 20 20 L4 20 A1 1 0 0 1 3 19 Z M3 9 L21 9 M8 2 L8 6 M16 2 L16 6";

@@ -8,6 +8,7 @@ import com.autogest.model.VehicleType;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Acceso a datos organizado de los vehículos. Delega cada operación en
@@ -193,6 +194,15 @@ public class VehicleRepository {
      */
     public int countByCustomer(int customerId) {
         return dao.countByCustomer(customerId);
+    }
+
+    /**
+     * Cuenta los vehículos de todos los propietarios en una sola consulta.
+     *
+     * @return id del cliente → cantidad de vehículos (los que no tienen no aparecen)
+     */
+    public Map<Integer, Integer> countAllByCustomer() {
+        return dao.countAllByCustomer();
     }
 
     /**

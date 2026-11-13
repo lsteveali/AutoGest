@@ -34,6 +34,7 @@ import javafx.scene.layout.VBox;
 
 import java.net.URL;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 /**
@@ -43,8 +44,8 @@ import java.util.ResourceBundle;
  * reglas de negocio ni conoce el repositorio ni el DAO.
  *
  * <p>Mientras no exista el módulo de órdenes, «Última visita» y la columna del
- * mismo nombre muestran «-» y su filtro queda deshabilitado (decisión D-12). Lo
- * mismo ocurre con el conteo de vehículos hasta que exista {@code VehicleService}.</p>
+ * mismo nombre muestran «-» y su filtro queda deshabilitado (decisión D-12). La
+ * columna «Vehículos» usa {@code VehicleService.countVehiclesByCustomer()}.</p>
  *
  * <p>Principles: GRASP Controller, Low Coupling, High Cohesion, SRP.</p>
  */
@@ -68,6 +69,8 @@ public class CustomerListController implements Initializable, NavigatorAware {
     private KpiCard newCard;
     private PagedTable<Customer> table;
     private ComboBox<String> statusCombo;
+    /** Vehículos de cada cliente (id → cantidad), cargados en cada recarga. */
+    private Map<Integer, Integer> vehicleCounts = Map.of();
 
     private String searchText = "";
     private CustomerStatus statusFilter = CustomerStatus.ACTIVE;
@@ -97,6 +100,7 @@ public class CustomerListController implements Initializable, NavigatorAware {
     private PageHeader buildHeader() {
         PageHeader header = new PageHeader("Clientes",
                 "Administra la información de los clientes registrados en AutoGest.");
+        header.setBreadcrumbs(List.of("Inicio", "Clientes"));
         header.setPrimaryAction("+ Nuevo cliente", () -> navigator.navigateTo(View.CUSTOMER_NEW));
         return header;
     }
@@ -149,7 +153,8 @@ public class CustomerListController implements Initializable, NavigatorAware {
         pagedTable.addColumn("Documento", CustomerLabels::documentText);
         pagedTable.addColumn("Teléfono", customer -> CustomerLabels.phoneText(customer.getPhone()));
         pagedTable.addColumn("Correo", Customer::getEmail);
-        pagedTable.addColumn("Vehículos", customer -> CustomerLabels.PLACEHOLDER);
+        pagedTable.addColumn("Vehículos",
+                customer -> String.valueOf(vehicleCounts.getOrDefault(customer.getId(), 0)));
         pagedTable.addColumn("Última visita", customer -> CustomerLabels.PLACEHOLDER);
         pagedTable.addColumn("Estado", customer -> StatusBadge.of(
                 CustomerLabels.statusText(customer.getStatus()), CustomerLabels.statusType(customer.getStatus())));
@@ -203,6 +208,8 @@ public class CustomerListController implements Initializable, NavigatorAware {
     private void reload() {
         try {
             CustomerService customerService = service();
+            // Una sola consulta agrupada antes de pintar la tabla (no una por fila).
+            vehicleCounts = AppContext.getInstance().getVehicleService().countVehiclesByCustomer();
             table.setData(customerService.searchCustomers(searchText, statusFilter));
             totalCard.setValue(String.valueOf(customerService.countCustomers()));
             activeCard.setValue(String.valueOf(customerService.countActiveCustomers()));

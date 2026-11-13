@@ -101,7 +101,7 @@ public abstract class ServiceFormController implements Initializable, NavigatorA
     private void buildForm() {
         PageHeader header = new PageHeader(title(),
                 "Los campos marcados con * son obligatorios. El resto es opcional.");
-        header.setBreadcrumbs(List.of("Catálogo", title()));
+        header.setBreadcrumbs(List.of("Servicios", title()));
 
         GridPane grid = buildGrid();
         VBox card = new VBox(grid);

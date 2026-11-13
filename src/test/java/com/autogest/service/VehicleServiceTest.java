@@ -664,6 +664,22 @@ class VehicleServiceTest {
     }
 
     @Test
+    void countVehiclesByCustomerGroupsAllOwnersAtOnce() {
+        register("Toyota", "Corolla", "ABC123");
+        register("Mazda", "CX5", "XYZ789");
+        Vehicle other = validVehicle();
+        other.setOwner(createOwner("Luis", "Gómez"));
+        other.setLicensePlate("OTR001");
+        service.registerVehicle(other);
+
+        java.util.Map<Integer, Integer> counts = service.countVehiclesByCustomer();
+
+        assertEquals(2, counts.get(owner.getId()));
+        assertEquals(1, counts.get(other.getOwner().getId()));
+        assertEquals(null, counts.get(999));
+    }
+
+    @Test
     void findMakesReturnsDistinctBrandsOrdered() {
         register("Toyota", "Corolla", "ABC123");
         register("Mazda", "CX5", "XYZ789");

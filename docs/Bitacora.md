@@ -15,8 +15,8 @@
 | Proyecto | AutoGest — Sistema de gestión integral para talleres automotrices |
 | Materia | Programación de Computadores III (SS462) |
 | Repositorio | https://github.com/lsteveali/AutoGest.git |
-| Rama de trabajo actual | `feature/servicios-inventario` (cierre del Sprint 3; el Sprint 4 sigue en `feature/ordenes`) |
-| Sprint en curso | **Sprint 3 — cierre de la parte del Líder** (pendiente: UI de Repuestos + Movimientos de Dev 1) · **Siguiente: Sprint 4 — Órdenes de servicio** |
+| Rama de trabajo actual | `feature/configuracion` (Sprint 8 — Configuración, parte del Líder) |
+| Sprint en curso | **Sprint 8 — Configuración (Líder)**, adelantado mientras Dev 1 entrega sus sprints 3 y 4 · Sprint 3 del Líder cerrado (PR #10 y #11) |
 | Equipo | Líder: Leonarth Steve Ali Camargo · Dev 1: Sebastián Murgas Tejeda · Dev 2: **sin integrante vinculado** — el Líder asume todas sus responsabilidades (decisión 14/10/2026) |
 | Documento guía | `AutoGest_Guia_Lider` (V2.0) |
 
@@ -65,11 +65,11 @@
 | Sprint | Contenido | Estado |
 |---|---|---|
 | 3 | Servicios, Inventario y Repuestos (Líder: Dashboard v1) | 🟡 Parte del Líder ✅ (PR #10 + PR de pulido); falta la UI de Repuestos y Movimientos (Dev 1), en un PR aparte |
-| 4 | Órdenes de servicio (Líder: estados e historial; además detalle de la orden, backend de Movimientos e integración de stock) | ⬜ Próximo — rama `feature/ordenes` desde `develop` |
+| 4 | Órdenes de servicio (Dev 1: backend, lista y nueva orden · Líder: detalle, cambio de estado, historial y descuento de stock) | ⏸ Parte del Líder en espera del backend de órdenes y de `InventoryService` (Dev 1) |
 | 5 | Facturación | ⬜ No iniciado |
 | 6 | Notificaciones | ⬜ No iniciado |
 | 7 | Reportes | ⬜ No iniciado |
-| 8 | Configuración | ⬜ No iniciado |
+| 8 | Configuración (Dev 1: Datos del taller y Preferencias · Líder: pantalla general y el resto de secciones, incluidas Copias de seguridad) | 🟡 En curso — rama `feature/configuracion` |
 | 9 | Asistente AutoGest (Líder) | ⬜ No iniciado |
 
 > **Reasignación (14/10/2026):** las columnas de Dev 2 de la hoja de ruta
@@ -500,6 +500,69 @@ estaba incorporado; el otro era un WIP viejo de `login-usuarios`). Quedan solo
 6. **Verificación:** capturas con una prueba temporal de JavaFX (filtro abierto con `customers.css`, barra lateral, tabla y campos; eliminada) y `mvn clean test` → **312 pruebas, 0 fallos**.
 
 **Sin cambios:** `customers.css` y los controladores de Clientes (Dev 1); «Última visita» y «Filtros» siguen deshabilitados a propósito (D-12).
+
+### 12/11/2026 — Sesión 17 (Líder): inicio del Sprint 8 — Configuración y Perfil y cuenta
+
+**Contexto.** Al revisar el paquete del Desarrollador 1 («Sprints 3 a 8», 04/11) se vio que el backend de órdenes y el de Movimientos son suyos, así que la parte del Líder del Sprint 4 queda en espera y se adelanta Configuración (ver decisiones del 12/11). Rama `feature/configuracion` desde `develop`.
+
+**Hecho:**
+1. **Pantalla general de Configuración** (`controller/settings/SettingsController` + `fxml/settings/settings.fxml`), según el mockup: tarjeta del usuario en sesión con «Editar perfil», las 8 secciones en dos columnas e «Información del sistema» (versión, estado de la base de datos comprobado en segundo plano a través del Service, Java, JavaFX y sesión). Cada sección se describe como dato; su tarjeta se habilita solo si su pantalla existe en `View` y su FXML está en el proyecto, y si no muestra «Próximamente». Las tarjetas toman el foco con Tab y se abren con clic, Enter o Espacio. Sin «Guardar cambios» ni «Restaurar» en esta pantalla: solo navega.
+2. **Perfil y cuenta** (`ProfileController` + `fxml/settings/profile.fxml`, `View.SETTINGS_PROFILE`): nombres, apellidos y correo editables; usuario y rol de solo lectura; cambio de contraseña con confirmación. Las llamadas van en segundo plano (el hash PBKDF2 congelaba la ventana) y el resultado se muestra junto al botón. Lo puede abrir cualquier rol (`Permissions`) desde «Mi perfil» en el menú del avatar; la Topbar se refresca tras cada navegación para mostrar el nombre editado.
+3. **`UserService.changePassword(id, actual, nueva)`**: exige la contraseña actual, aplica las reglas de una clave inicial y no permite repetirla; guarda solo el hash. 5 pruebas nuevas en `UserServiceTest` y 1 en `PermissionsTest`.
+4. **`MainController`**: «Configuración» ya no redirige a Usuarios y roles; abre la pantalla general.
+5. **Íconos** nuevos en `IconSet`: `USER`, `WAREHOUSE`, `SHIELD`, `CLOUD_DOWNLOAD`, `ARROW_RIGHT`, `INFO`. Estilos en `autogest.css` (sección «Configuración»).
+6. **Verificación:** capturas con una prueba temporal de JavaFX (eliminada) y `mvn clean test` → **318 pruebas, 0 fallos**.
+
+**Cuidado al integrar con Dev 1:** `View.SETTINGS_PROFILE` va junto a `HOME`, lejos de las líneas que tocan sus `View.diff`; no se crearon `controller/settings/package-info.java` ni `css/settings.css`, que vienen en su paquete.
+
+### 12/11/2026 — Sesión 18 (Líder): Seguridad y Copias de seguridad
+
+**Hecho:**
+1. **Seguridad** (`SecurityController` + `fxml/settings/security.fxml`, `View.SETTINGS_SECURITY`), de solo consulta:
+   - «Política de contraseñas»: los valores salen de `UserService.MIN_PASSWORD_LENGTH` y `PasswordHasher.ITERATIONS` (ahora públicos), así la pantalla no se desactualiza si cambian.
+   - «Permisos por rol»: matriz de secciones × roles leída de `Permissions.canAccess`; nunca contradice lo que la app aplica.
+   - «Último acceso de los usuarios»: tabla con estado y último acceso, los más recientes primero («Nunca» al final).
+2. **Copias de seguridad** (RF-32), en capas:
+   - `BackupDao`: descubre las tablas en `information_schema` (las nuevas, como `app_settings` de Dev 1, entran solas) y las lee con una conexión de solo lectura en `REPEATABLE READ`, para que la copia sea coherente.
+   - `BackupRepository`: guarda un ZIP con un CSV por tabla y `manifest.properties` en `<inicio del usuario>/AutoGest/copias-de-seguridad`. CSV en UTF-8 con comillas cuando hace falta; un nulo es campo vacío y un texto vacío es `""`, para distinguirlos al restaurar. Se escribe primero a `.tmp`, así una copia a medias nunca aparece en la lista.
+   - `BackupService` (`createBackup`, `listBackups`) y `BackupInfo` (modelo). Cableado en `AppContext` junto al bloque de Usuarios, con nombres completos de clase para no tocar los imports que modifican los `AppContext.diff` de Dev 1.
+   - Pantalla (`BackupController` + `fxml/settings/backup.fxml`, `View.SETTINGS_BACKUP`): crear la copia en segundo plano, última copia, cantidad, carpeta con «Abrir carpeta» y la lista de copias.
+3. **Pruebas:** `BackupServiceTest` (5) con un DAO falso y el repositorio real sobre una carpeta temporal (contenido de los CSV, nulos y caracteres especiales, base vacía, orden de la lista y archivos ajenos).
+4. **Verificación:** capturas de Seguridad y Copias con datos reales, y una copia real de solo lectura contra Supabase (14 tablas, 28 registros) guardada fuera del proyecto; ambas pruebas temporales se eliminaron. `mvn clean test` → **323 pruebas, 0 fallos**.
+
+**Pendiente:** restaurar una copia desde AutoGest. Por ahora la pantalla explica que los CSV se cargan desde Supabase.
+
+### 12/11/2026 — Sesión 19 (Líder): navegación «Volver», Usuarios y roles y pulido con `/impeccable`
+
+**Contexto.** Prueba manual del Líder: Usuarios y roles no mostraba los usuarios ni dejaba bajar, y no había forma de volver a la pantalla anterior sin usar la barra lateral.
+
+**Hecho:**
+1. **Usuarios y roles sin usuarios.** **Causa:** la pantalla era un `VBox` sin `ScrollPane`, con la tabla en `VGrow` y la tarjeta «Roles del sistema» debajo: en ventanas bajas JavaFX encogía la tabla hasta casi cero. Ahora va en un `ScrollPane` (`.page-scroll`) y la tabla toma el alto de sus filas (`PagedTable.fitHeightToRows`), así no queda un hueco con pocos usuarios ni se aplasta con muchos. Lo mismo en las tablas de Seguridad y Copias de seguridad.
+2. **«Volver» y migas de pan clicables** en todas las pantallas que usan `PageHeader`: en las subpáginas aparece «← Volver» y cada paso de la ruta que es una pantalla (por ejemplo «Configuración») se vuelve un enlace. Lanzan un `NavigationEvent` que sube hasta `MainController`, que aplica los permisos; `View.byTitle` resuelve el texto a la pantalla. Se quitaron los botones «Volver» repetidos de los detalles de Vehículo y de Servicio, y se ordenaron sus migas («Servicios / Detalle del servicio», «Inicio / Vehículos»).
+3. **El historial recuerda el id** (`ViewNavigator`): «Volver» desde un formulario regresa al mismo detalle, no a uno vacío.
+4. **Filtros con «Todos» elegido desde el inicio** (`FilterBar`): Rol y Estado de Usuarios, Estado y Clase de Vehículos y Estado de Servicios se veían vacíos.
+5. **Pulido:** columnas con ancho mínimo propio (`PagedTable.addColumn(título, valor, ancho)`) para que no se corten nombre, correo ni rol; el menú «…» de cada fila ya no muestra la flecha del `MenuButton`.
+6. **Error de datos corregido:** `UserService.updateUser` borraba el último acceso del usuario editado (el `UPDATE` escribe todas las columnas y el objeto editado no lo traía). Se vio al editar el perfil del Líder. Prueba nueva en `UserServiceTest`.
+7. **Verificación:** prueba temporal sobre el shell real (Configuración → Seguridad → «Volver» vuelve a Configuración; la miga «Configuración» desde Perfil también) y capturas con datos reales; eliminada. `mvn clean test` → **324 pruebas, 0 fallos**.
+
+### 12/11/2026 — Sesión 20 (Líder): vehículos por cliente, ruta en Clientes y formulario de usuario
+
+**Contexto.** Segunda prueba manual del Líder: la lista de Clientes mostraba «-» en Vehículos y no tenía ruta ni «Volver», y el formulario de nuevo usuario necesitaba arreglos.
+
+**Hecho:**
+1. **Vehículos por cliente.** `VehicleDao.countAllByCustomer` (una consulta con `GROUP BY customer_id`) → `VehicleRepository.countAllByCustomer` → `VehicleService.countVehiclesByCustomer`. Se eligió una consulta agrupada y no `countByCustomer` por fila: las celdas se redibujan muchas veces y serían decenas de consultas en el hilo de la interfaz. Prueba nueva en `VehicleServiceTest`.
+2. **Cambio en un archivo de Dev 1, pedido por el Líder:** `CustomerListController` muestra la ruta «Inicio / Clientes» (con «Volver») y la columna Vehículos con el conteo real. Son 3 líneas de lógica más el campo y el import; «Última visita» sigue en «-» (D-12). **Sebastián: tenerlo en cuenta al actualizar tu rama.**
+3. **Formulario de usuario** (`UserFormDialog`, nueva clase; sale de `UsersRolesController`):
+   - Si el Service rechaza los datos, el diálogo no se cierra: el error aparece junto a los botones y lo escrito se conserva (antes se cerraba y había que escribir todo de nuevo).
+   - Dos columnas, campos obligatorios marcados, confirmación de la clave inicial y textos de ejemplo.
+   - Botones de la app («Cancelar» a la izquierda y «Crear usuario» / «Guardar cambios» a la derecha) y encabezado propio (`.app-dialog`).
+   - Las claves usan la clase `password-field` (los puntos salían gigantes con Roboto) y el guardado va en segundo plano (el hash congelaba la ventana).
+4. **Verificación:** capturas de Clientes y del formulario (vacío y con error de validación, sin escribir en la base de datos) con una prueba temporal, eliminada. `mvn clean test` → **325 pruebas, 0 fallos**.
+5. **Detalle del cliente (otro cambio en un archivo de Dev 1, pedido por el Líder):** `CustomerDetailController` seguía con el indicador «Vehículos» en «-» y la tarjeta «Vehículos del cliente» siempre vacía (esperaban a `VehicleService`). Ahora una sola llamada a `VehicleService.findByCustomer` alimenta el indicador y la lista: cada vehículo muestra su placa (estilo placa amarilla), marca, modelo, clase, año, kilometraje y estado, y abre su detalle con clic, Enter o Espacio. La ruta pasa a la barra común con «Volver» y «Clientes» clicable (`PageHeader.breadcrumbBar`, nuevo método estático reutilizable). Verificado con una captura del detalle de un cliente con 2 vehículos.
+6. **Un solo «Editar»** en los detalles de Vehículo y de Servicio: queda el de la cabecera y la fila inferior solo con «Dar de baja».
+7. **`.impeccable/` fuera del repositorio** (ver decisiones del 12/11).
+
+**Estado del vehículo (consulta del Líder):** hoy no hay pantalla para cambiarlo a mano. El formulario de Vehículo no tiene campo de estado; «Dar de baja» lo pasa a Inactivo y no hay forma de reactivarlo. «En servicio» lo pondrá el módulo de Órdenes (Sprint 4: al crear una orden, Dev 1; al entregarla, Líder). El Mazda CX-5 aparece «En servicio» porque así viene en los datos de ejemplo (`docs/database/seed.sql`), y desactivar un cliente no cambia el estado de sus vehículos.
 ---
 
 ## 4. Decisiones y acuerdos
@@ -526,8 +589,12 @@ estaba incorporado; el otro era un WIP viejo de `login-usuarios`). Quedan solo
 | 26/10/2026 | **El color y la fuente de un ítem se aplican al `Label`, no al contenedor** (`.sidebar-item .label`). | En JavaFX un `HBox` no hereda `-fx-text-fill` ni la fuente a sus hijos; el blanco de la Sesión 12 no se veía al ejecutar. |
 | 26/10/2026 | **La Topbar va dentro del área de contenido**, no en el `top` del `BorderPane`. | En los mockups la Sidebar ocupa todo el alto de la ventana. |
 | 26/10/2026 | **Los mockups (`V1/`) no se suben a Git**; solo las imágenes que usa la app, convertidas a PNG en `resources/images/`. | La carpeta pesa ~80 MB y sirve solo de referencia de diseño. |
-| 11/11/2026 | **El backend de Movimientos de inventario (`InventoryMovementDao/Repository/Service`) lo hace el Líder**; Dev 1 hace sus pantallas. | La tarea de Dev 1 es la UI «usando los servicios provistos por el Líder» (Sesión 10) y la integración de stock de las órdenes es del Líder (reasignación del 14/10). Pendiente de confirmar con Sebastián por si ya lo empezó. |
-| 11/11/2026 | **El Líder avanza al Sprint 4 sin esperar la UI de Repuestos y Movimientos.** | Esa UI no bloquea Órdenes: se integra después como PR propio de Dev 1 sobre `develop`. En el Sprint 4 la integración de stock va al final. |
+| 11/11/2026 | ~~El backend de Movimientos lo hace el Líder.~~ **Corregida el 12/11/2026.** | Se anotó sin revisar el paquete del Desarrollador 1 (04/11). |
+| 11/11/2026 | ~~El Líder avanza al Sprint 4 sin esperar a Dev 1.~~ **Reemplazada el 12/11/2026.** | La parte del Líder del Sprint 4 depende de servicios de Dev 1 (ver abajo). |
+| 12/11/2026 | **El backend de Movimientos (`InventoryMovementDao/Repository`, `InventoryService`) y el de órdenes (`ServiceOrderDao`, `ServiceOrderRepository`, `ServiceOrderService`) son de Dev 1**, como dice su paquete «Sprints 3 a 8» (`analysis-inventory.md`, `analysis-orders.md`). | En el Sprint 4 el Líder hace el detalle, el cambio de estado, el historial y el descuento de stock, sobre esos servicios. |
+| 12/11/2026 | **El Líder adelanta el Sprint 8 (Configuración) en `feature/configuracion`** mientras Dev 1 entrega sus sprints 3 y 4. | Configuración no depende de Órdenes ni de Inventario. Las tarjetas «Datos del taller» y «Preferencias» (Dev 1) se habilitan solas cuando existan su `View` y su FXML. No se crean `controller/settings/package-info.java` ni `css/settings.css`, que vienen en el paquete de Dev 1. |
+| 12/11/2026 | **`.impeccable/` y `.claude/` no van al repositorio** (están en `.gitignore`). | Son configuración local de herramientas del Líder. `.impeccable/config.json` se había subido por error en la Sesión 16 y se quitó del repositorio (el archivo sigue en el equipo del Líder). |
+| 12/11/2026 | **Los commits y PR no llevan atribución a herramientas de IA** (`Co-Authored-By`, «Generated with…»). | Pedido del Líder. Se reescribió `develop` (15 commits desde `940a19a`) sin esas líneas y con el mismo contenido; las páginas de los PR #10 y #11 conservan los commits originales porque GitHub no las modifica. |
 
 ---
 
@@ -600,11 +667,15 @@ Verificación: `develop` → `mvn clean test` **108 pruebas, 0 fallos**
 - [x] Barra de desplazamiento en formularios y espacio para el botón del Asistente (Sesión 15); filtros, barra lateral, tablas y campos con `/impeccable polish` (Sesión 16, 11/11/2026).
 - [ ] UI de Repuestos + Movimientos de inventario (Dev 1) — **PR aparte de Sebastián**; no bloquea el Sprint 4.
 
-**Próximo (Líder, Sprint 4 — rama `feature/ordenes` desde `develop`):**
-- [ ] Confirmar con Sebastián que el backend de Movimientos queda a cargo del Líder (decisión 11/11/2026).
-- [ ] Órdenes de servicio: estados, historial y detalle de la orden.
-- [ ] Backend de Movimientos de inventario (`InventoryMovementDao/Repository/Service`).
-- [ ] Integración de stock (las líneas de la orden generan movimientos de salida) — al final del sprint.
+**En espera (Líder, Sprint 4):** detalle de la orden, cambio de estado, historial y descuento de stock — cuando Dev 1 integre `ServiceOrderService` (su Sprint 4) e `InventoryService` (su Sprint 3). Incluye el estado del vehículo: al entregar la orden vuelve a Activo, y decidir entonces cómo reactivar un vehículo dado de baja (decisión del Líder, 12/11/2026: no agregar un control manual antes de Órdenes).
+
+**En curso (Líder, Sprint 8 — rama `feature/configuracion`):**
+- [x] Pantalla general de Configuración: tarjeta del usuario, secciones e información del sistema (Sesión 17).
+- [x] Perfil y cuenta: datos personales y cambio de contraseña; también desde «Mi perfil» en la Topbar (Sesión 17).
+- [x] Seguridad: política de contraseñas, permisos por rol y último acceso (Sesión 18).
+- [x] Copias de seguridad: crear y listar (Sesión 18).
+- [ ] Restaurar una copia desde AutoGest (vaciar y recargar las tablas en orden de dependencias, en una transacción).
+- [ ] Configuración de Facturación y de Notificaciones (guardan en `app_settings` de Dev 1: esperan su `SettingsService`).
 
 **Pendientes nuevos (14/10/2026):**
 - [x] ~~Confirmar el estado del PR del backend de Clientes~~ — resuelto: PR **#5** (backend) y **#8** (interfaz completa) fusionados en `develop`; siguen pendientes de revisión de Sebastián los PRs del Líder.
