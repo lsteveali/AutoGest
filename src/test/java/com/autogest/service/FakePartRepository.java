@@ -100,6 +100,16 @@ class FakePartRepository extends PartRepository {
         return (int) parts.values().stream().filter(part -> part.getStatus() == StockStatus.OUT_OF_STOCK).count();
     }
 
+    @Override
+    public List<String> findCategories() {
+        return parts.values().stream()
+                .map(Part::getCategory)
+                .filter(category -> category != null && !category.isBlank())
+                .distinct()
+                .sorted()
+                .toList();
+    }
+
     private static boolean contains(String value, String needle) {
         return value != null && value.toLowerCase().contains(needle);
     }
