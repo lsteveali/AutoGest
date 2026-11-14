@@ -15,8 +15,8 @@
 | Proyecto | AutoGest — Sistema de gestión integral para talleres automotrices |
 | Materia | Programación de Computadores III (SS462) |
 | Repositorio | https://github.com/lsteveali/AutoGest.git |
-| Rama de trabajo actual | `feature/configuracion` (Sprint 8 — Configuración, parte del Líder) |
-| Sprint en curso | **Sprint 8 — Configuración (Líder)**, adelantado mientras Dev 1 entrega sus sprints 3 y 4 · Sprint 3 del Líder cerrado (PR #10 y #11) |
+| Rama de trabajo actual | `feature/ordenes-detalle` (Sprint 4 — parte del Líder) |
+| Sprint en curso | **Sprint 4 — Órdenes de servicio (parte del Líder)**: detalle, estados, historial y stock · Dev 1 entregó sus sprints 3 (PR #13) y 4 (PR #14) |
 | Equipo | Líder: Leonarth Steve Ali Camargo · Dev 1: Sebastián Murgas Tejeda · Dev 2: **sin integrante vinculado** — el Líder asume todas sus responsabilidades (decisión 14/10/2026) |
 | Documento guía | `AutoGest_Guia_Lider` (V2.0) |
 
@@ -64,8 +64,8 @@
 
 | Sprint | Contenido | Estado |
 |---|---|---|
-| 3 | Servicios, Inventario y Repuestos (Líder: Dashboard v1) | 🟡 Parte del Líder ✅ (PR #10 + PR de pulido); falta la UI de Repuestos y Movimientos (Dev 1), en un PR aparte |
-| 4 | Órdenes de servicio (Dev 1: backend, lista y nueva orden · Líder: detalle, cambio de estado, historial y descuento de stock) | ⏸ Parte del Líder en espera del backend de órdenes y de `InventoryService` (Dev 1) |
+| 3 | Servicios, Inventario y Repuestos (Líder: Dashboard v1) | ✅ Líder (PR #10 y #11) · Dev 1: Inventario, repuestos, proveedores y movimientos (PR #13) |
+| 4 | Órdenes de servicio (Dev 1: backend, lista y nueva orden · Líder: detalle, cambio de estado, historial y descuento de stock) | 🟡 Dev 1 ✅ (PR #14) · Líder en curso en `feature/ordenes-detalle` (Sesión 21) |
 | 5 | Facturación | ⬜ No iniciado |
 | 6 | Notificaciones | ⬜ No iniciado |
 | 7 | Reportes | ⬜ No iniciado |
@@ -562,6 +562,21 @@ estaba incorporado; el otro era un WIP viejo de `login-usuarios`). Quedan solo
 6. **Un solo «Editar»** en los detalles de Vehículo y de Servicio: queda el de la cabecera y la fila inferior solo con «Dar de baja».
 7. **`.impeccable/` fuera del repositorio** (ver decisiones del 12/11).
 
+### 14/11/2026 — Sesión 21 (Líder): Sprint 4 — detalle, estados, historial y stock de la orden
+
+**Contexto.** Dev 1 entregó su Sprint 3 (Inventario, PR #13) y su Sprint 4 (backend de órdenes, lista y nueva orden, PR #14); se revisaron sobre `develop` (373 pruebas) y quedó destrabada la parte del Líder. Rama `feature/ordenes-detalle` desde `develop`.
+
+**Hecho:**
+1. **`OrderWorkflowService`** (nuevo; separado de `ServiceOrderService` de Dev 1 como sugiere la guía para estados y costos, SRP): `changeStatus`, `saveDiagnosis`, `assignResponsible`, `addNote`, `addService`, `addPart` y `nextStatus`. Las transiciones las decide `ServiceOrder.canChangeTo` (D-04); cada cambio deja su entrada en el historial y solo se guardan las entradas nuevas.
+2. **Regla de stock:** mientras la orden está En reparación, Lista o Entregada, todos sus repuestos ya están descontados. Al pasar a En reparación se descuentan todos con `InventoryService` (movimiento «Orden de servicio #0145»); antes se comprueba que alcance el stock de cada repuesto y, si una salida falla a mitad, se devuelven las ya hechas. Un repuesto agregado en reparación se descuenta en el momento. Al cancelar una orden que ya los había descontado, vuelven al inventario.
+3. **Vehículo:** al entregar o cancelar, vuelve a Activo (si estaba En servicio).
+4. **Pantalla `OrderDetailController`** (reemplaza el marcador `order-detail.fxml` que dejó Dev 1), según el mockup: número y estado, pasos Recibido → Diagnóstico → En reparación → Listo → Entregado, «Pasar a …» y «Cancelar orden» con confirmación (avisa cuántos repuestos se descuentan o devuelven), cliente y vehículo con enlaces, diagnóstico, servicios y repuestos (con aviso del estado en el inventario), resumen de costos, mecánico responsable e historial con notas. Sin «Generar factura» ni «Comunicación» (Sprints 5 y 6).
+5. **`FormDialog`** (componente nuevo): diálogo de formulario con acción en segundo plano que no se cierra si hay error; lo usan diagnóstico, agregar servicio o repuesto y responsable.
+6. **`AppContext`:** `getOrderWorkflowService()` se crea al pedirlo, junto al bloque de copias de seguridad, para no tocar las líneas que usan los `AppContext.diff` de Dev 1.
+7. **Pruebas:** `OrderWorkflowServiceTest` (14) con los servicios reales de vehículos, repuestos e inventario sobre repositorios falsos: flujo completo, stock insuficiente sin cambios, cancelación con y sin devolución, transiciones inválidas, líneas nuevas, diagnóstico, responsable y notas. Capturas del detalle en Diagnóstico y En reparación con una orden de ejemplo en memoria (sin escribir en Supabase). `mvn clean test` → **387 pruebas, 0 fallos**.
+
+**Límite conocido:** el cambio de estado, el historial y los movimientos de stock se guardan en llamadas separadas (no en una sola transacción entre tablas); si falla el descuento de stock, la orden no cambia de estado.
+
 **Estado del vehículo (consulta del Líder):** hoy no hay pantalla para cambiarlo a mano. El formulario de Vehículo no tiene campo de estado; «Dar de baja» lo pasa a Inactivo y no hay forma de reactivarlo. «En servicio» lo pondrá el módulo de Órdenes (Sprint 4: al crear una orden, Dev 1; al entregarla, Líder). El Mazda CX-5 aparece «En servicio» porque así viene en los datos de ejemplo (`docs/database/seed.sql`), y desactivar un cliente no cambia el estado de sus vehículos.
 ---
 
@@ -665,9 +680,13 @@ Verificación: `develop` → `mvn clean test` **108 pruebas, 0 fallos**
 - [x] Logo, barra lateral, Topbar y login según los mockups (Sesión 14, 26/10/2026).
 - [x] Pulido de estados de interacción: hover, presionado, foco, áreas de clic y entrada de pantallas (Sesión 15, 09/11/2026).
 - [x] Barra de desplazamiento en formularios y espacio para el botón del Asistente (Sesión 15); filtros, barra lateral, tablas y campos con `/impeccable polish` (Sesión 16, 11/11/2026).
-- [ ] UI de Repuestos + Movimientos de inventario (Dev 1) — **PR aparte de Sebastián**; no bloquea el Sprint 4.
+- [x] UI de Repuestos + Movimientos de inventario (Dev 1) — PR #13 (14/11/2026).
 
-**En espera (Líder, Sprint 4):** detalle de la orden, cambio de estado, historial y descuento de stock — cuando Dev 1 integre `ServiceOrderService` (su Sprint 4) e `InventoryService` (su Sprint 3). Incluye el estado del vehículo: al entregar la orden vuelve a Activo, y decidir entonces cómo reactivar un vehículo dado de baja (decisión del Líder, 12/11/2026: no agregar un control manual antes de Órdenes).
+**Sprint 4 (Líder, `feature/ordenes-detalle`):**
+- [x] Detalle de la orden, cambio de estado, historial, diagnóstico, responsable, líneas nuevas y descuento de stock (Sesión 21).
+- [ ] Reactivar un vehículo dado de baja (pendiente de decidir; al entregar o cancelar una orden el vehículo ya vuelve a Activo).
+
+**Barrido de interfaz pendiente (lo hará el Líder):** Inventario (filtros, nombres y estados cortados; «Volver» repetido en el detalle del repuesto; «Registrar entrada» debajo de «+ Nuevo repuesto») y Órdenes (última columna cortada).
 
 **En curso (Líder, Sprint 8 — rama `feature/configuracion`):**
 - [x] Pantalla general de Configuración: tarjeta del usuario, secciones e información del sistema (Sesión 17).
