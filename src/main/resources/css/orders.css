@@ -1,0 +1,49 @@
+/* ==========================================================================
+   AutoGest - Módulo Órdenes de servicio (Sprint 4, Desarrollador 1)
+   Solo estilos propios del módulo; el resto viene de autogest.css.
+   ========================================================================== */
+
+.module-scroll,
+.module-scroll > .viewport {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.module-page {
+    -fx-padding: 0 4 24 0;
+}
+
+.module-page .page-title {
+    -fx-text-fill: -ag-text;
+}
+
+.module-page .filter-field {
+    -fx-min-width: 320;
+}
+
+/* Flecha entre etapas del «Flujo de órdenes» */
+.order-flow-arrow {
+    -fx-text-fill: -ag-primary;
+    -fx-font-size: 16px;
+    -fx-padding: 0 4;
+}
+
+/* Subtotales de servicios y repuestos (alineados a la derecha) */
+.order-subtotal {
+    -fx-font-weight: 700;
+    -fx-text-fill: -ag-text;
+    -fx-alignment: center-right;
+    -fx-max-width: infinity;
+}
+
+.order-total-label {
+    -fx-font-weight: 700;
+    -fx-font-size: 15px;
+    -fx-text-fill: -ag-text;
+}
+
+.order-total {
+    -fx-font-weight: 700;
+    -fx-font-size: 18px;
+    -fx-text-fill: -ag-primary;
+}
