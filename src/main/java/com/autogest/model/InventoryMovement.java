@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
  */
 public class InventoryMovement {
 
+    private int id;
     private MovementType type;
     private int quantity;
     private LocalDateTime timestamp;
@@ -33,6 +34,16 @@ public class InventoryMovement {
      */
     public boolean isEntry() {
         return type == MovementType.ENTRY;
+    }
+
+    /** Devuelve el id del movimiento (0 mientras no se guarde). */
+    public int getId() {
+        return id;
+    }
+
+    /** Asigna el id del movimiento. */
+    public void setId(int id) {
+        this.id = id;
     }
 
     /** Devuelve el tipo de movimiento. */
