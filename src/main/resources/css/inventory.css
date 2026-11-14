@@ -1,0 +1,43 @@
+/* ==========================================================================
+   AutoGest - Módulo Inventario (Sprint 3, Desarrollador 1)
+   Solo estilos propios del módulo. Los colores y las clases generales
+   (.card, .input, .btn-*, .badge-*) vienen de autogest.css.
+   ========================================================================== */
+
+/* Contenedor desplazable transparente (deja ver el fondo del shell) */
+.module-scroll,
+.module-scroll > .viewport {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.module-page {
+    -fx-padding: 0 4 24 0;
+}
+
+.module-page .page-title {
+    -fx-text-fill: -ag-text;
+}
+
+.module-page .filter-field {
+    -fx-min-width: 300;
+}
+
+/* Aviso amarillo de productos con stock bajo */
+.inventory-alert {
+    -fx-background-color: #FFF7E6;
+    -fx-border-color: -ag-warning;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-padding: 16 20;
+}
+
+.inventory-alert-title {
+    -fx-font-weight: 700;
+    -fx-font-size: 15px;
+    -fx-text-fill: #7A5300;
+}
+
+.inventory-alert-text {
+    -fx-text-fill: #7A5300;
+}
