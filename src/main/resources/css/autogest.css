@@ -1398,3 +1398,161 @@
 .customer-vehicle-arrow {
     -fx-stroke: -ag-neutral;
 }
+
+/* --------------------------------------------------------------------------
+   Detalle de la orden (Sprint 4, Líder)
+   -------------------------------------------------------------------------- */
+.order-stepper {
+    -fx-padding: 2 0 4 0;
+}
+
+.order-step {
+    -fx-font-size: 14px;
+    -fx-text-fill: #8A94A6;
+    -fx-padding: 4 10;
+    -fx-background-radius: 999;
+}
+
+.order-step-done {
+    -fx-text-fill: -ag-text;
+}
+
+.order-step-current {
+    -fx-text-fill: -ag-primary;
+    -fx-font-weight: 700;
+    -fx-background-color: #E8F0FA;
+}
+
+.order-step-arrow {
+    -fx-stroke: #B9C3D0;
+    -fx-scale-x: 0.7;
+    -fx-scale-y: 0.7;
+}
+
+.order-step-cancelled {
+    -fx-text-fill: -ag-danger;
+    -fx-font-weight: 700;
+    -fx-padding: 0 0 0 12;
+}
+
+.order-card-icon {
+    -fx-stroke: -ag-primary;
+}
+
+.order-strong {
+    -fx-font-size: 15px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -ag-text;
+}
+
+.order-muted {
+    -fx-font-size: 13px;
+    -fx-text-fill: -ag-text-muted;
+}
+
+.order-paragraph {
+    -fx-font-size: 14px;
+    -fx-text-fill: -ag-text;
+}
+
+.btn-small {
+    -fx-min-height: 32;
+    -fx-padding: 5 12;
+    -fx-font-size: 13px;
+}
+
+.order-lines {
+    -fx-hgap: 0;
+    -fx-vgap: 0;
+}
+
+.order-lines-header {
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -ag-text-muted;
+    -fx-padding: 0 0 8 0;
+}
+
+.order-lines-cell {
+    -fx-font-size: 14px;
+    -fx-text-fill: -ag-text;
+    -fx-padding: 8 0;
+    -fx-border-color: #EAF0F6 transparent transparent transparent;
+}
+
+.order-lines-total {
+    -fx-font-weight: 700;
+}
+
+.order-lines-number {
+    -fx-padding: 8 0 8 12;
+}
+
+.order-stock-note {
+    -fx-font-size: 13px;
+    -fx-padding: 6 10;
+    -fx-background-radius: 8;
+}
+
+.order-stock-pending {
+    -fx-background-color: #FFF6E0;
+    -fx-text-fill: derive(-ag-warning, -45%);
+}
+
+.order-stock-done {
+    -fx-background-color: #E7F6EE;
+    -fx-text-fill: derive(-ag-success, -30%);
+}
+
+.order-costs {
+    -fx-vgap: 8;
+}
+
+.order-cost-label {
+    -fx-font-size: 14px;
+    -fx-text-fill: -ag-text-muted;
+}
+
+.order-cost-value {
+    -fx-font-size: 14px;
+    -fx-text-fill: -ag-text;
+}
+
+.order-costs-divider {
+    -fx-background-color: -ag-border;
+    -fx-min-height: 1;
+    -fx-max-height: 1;
+}
+
+.order-cost-total-label {
+    -fx-font-size: 18px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -ag-text;
+}
+
+.order-cost-total {
+    -fx-font-size: 22px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -ag-primary;
+}
+
+.order-costs-card {
+    -fx-border-color: derive(-ag-primary, 60%);
+}
+
+.order-history-item {
+    -fx-padding: 0 0 0 12;
+    /* Línea de tiempo de 1px en el color de los bordes (no un acento de color). */
+    -fx-border-color: transparent transparent transparent -ag-border;
+    -fx-border-width: 0 0 0 1;
+}
+
+.order-history-text {
+    -fx-font-size: 14px;
+    -fx-text-fill: -ag-text;
+}
+
+.order-history-meta {
+    -fx-font-size: 12px;
+    -fx-text-fill: -ag-text-muted;
+}
