@@ -16,7 +16,12 @@ import com.autogest.service.PartService;
 import com.autogest.service.ServiceOfferingService;
 import com.autogest.service.UserService;
 import com.autogest.service.VehicleService;
-
+import com.autogest.dao.SupplierDao;
+import com.autogest.repository.InventoryMovementRepository;
+import com.autogest.repository.SupplierRepository;
+import com.autogest.service.InventoryService;
+import com.autogest.service.SupplierService;
+import com.autogest.dao.InventoryMovementDao;
 /**
  * Punto único de conexión de dependencias de AutoGest. Es el único lugar donde
  * se crean los DAO, Repository y Service, y los entrega ya armados al resto del
@@ -70,6 +75,14 @@ public final class AppContext {
     private final PartRepository partRepository;
     private final PartService partService;
 
+    // ===== Inventory: proveedores y movimientos (Dev 1) =====
+    private final SupplierDao supplierDao;
+    private final SupplierRepository supplierRepository;
+    private final SupplierService supplierService;
+    private final InventoryMovementDao inventoryMovementDao;
+    private final InventoryMovementRepository inventoryMovementRepository;
+    private final InventoryService inventoryService;
+
     private AppContext() {
         // ===== Users (Leader) =====
         this.databaseConnection = new DatabaseConnection();
@@ -98,19 +111,24 @@ public final class AppContext {
         this.serviceOfferingRepository = new ServiceOfferingRepository(serviceOfferingDao);
         this.serviceOfferingService = new ServiceOfferingService(serviceOfferingRepository);
 
+        // ===== Inventory: proveedores (Dev 1) — antes de Repuestos =====
+        this.supplierDao = new SupplierDao(databaseConnection);
+        this.supplierRepository = new SupplierRepository(supplierDao);
+        this.supplierService = new SupplierService(supplierRepository);
+
         // ===== Inventario / Repuestos (Lider) =====
         this.partDao = new PartDao(databaseConnection);
-        this.partRepository = new PartRepository(partDao);
+        this.partRepository = new PartRepository(partDao, supplierRepository);
         this.partService = new PartService(partRepository);
+
+        // ===== Inventory: movimientos (Dev 1) =====
+        this.inventoryMovementDao = new InventoryMovementDao(databaseConnection);
+        this.inventoryMovementRepository = new InventoryMovementRepository(inventoryMovementDao, partRepository, userRepository);
+        this.inventoryService = new InventoryService(inventoryMovementRepository, partService);
 
         // ===== Orders (Dev 1 / Dev 2) =====
         // Sprint 4: ServiceOrderDao -> ServiceOrderRepository -> ServiceOrderService
 
-        // ===== Catalog (Dev 1) =====
-        // Sprint 3: ServiceOfferingDao -> ServiceOfferingRepository -> CatalogService
-
-        // ===== Inventory (Dev 2) =====
-        // Sprint 3: PartDao -> PartRepository -> InventoryService
     }
 
     /**
@@ -201,5 +219,25 @@ public final class AppContext {
      */
     public PartService getPartService() {
         return partService;
+    }
+
+    // ===== Inventory (Dev 1) =====
+
+    /**
+     * Devuelve el servicio de proveedores de repuestos.
+     *
+     * @return servicio de proveedores compartido
+     */
+    public SupplierService getSupplierService() {
+        return supplierService;
+    }
+
+    /**
+     * Devuelve el servicio de movimientos de inventario (entradas, salidas y ajustes).
+     *
+     * @return servicio de inventario compartido
+     */
+    public InventoryService getInventoryService() {
+        return inventoryService;
     }
 }

@@ -42,6 +42,35 @@ public class PartService {
         return repository.search(text, status, category);
     }
 
+    /**
+     * Busca repuestos por texto, estado, categoría y proveedor.
+     *
+     * @param text       texto en nombre o código (vacío = todos)
+     * @param status     estado de stock ({@code null} = todos)
+     * @param category   categoría ({@code null} = todas)
+     * @param supplierId id del proveedor (0 = todos)
+     * @return repuestos que cumplen todos los filtros
+     */
+    public List<Part> searchParts(String text, StockStatus status, String category, int supplierId) {
+        List<Part> parts = repository.search(text, status, category);
+        if (supplierId <= 0) {
+            return parts;
+        }
+        return parts.stream()
+                .filter(part -> part.getSupplier() != null && part.getSupplier().getId() == supplierId)
+                .toList();
+    }
+
+    /** Categorías distintas de los repuestos (para el desplegable de filtros y formularios). */
+    public List<String> findCategories() {
+        return repository.findCategories();
+    }
+
+    /** Cantidad de repuestos con stock disponible (por encima del mínimo). */
+    public int countAvailable() {
+        return countParts() - countLowStock() - countOutOfStock();
+    }
+
     public List<Part> findAll() {
         return repository.findAll();
     }

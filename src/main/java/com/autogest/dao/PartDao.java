@@ -4,6 +4,7 @@ import com.autogest.config.DatabaseConnection;
 import com.autogest.exception.DataAccessException;
 import com.autogest.model.Part;
 import com.autogest.model.StockStatus;
+import com.autogest.model.Supplier;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -165,6 +166,26 @@ public class PartDao implements CrudOperations<Part> {
         }
     }
 
+    /**
+     * Categorías distintas registradas en los repuestos, en orden alfabético.
+     *
+     * @return categorías sin repetir (sin vacías)
+     */
+    public List<String> findCategories() {
+        String sql = "SELECT DISTINCT category FROM parts WHERE category IS NOT NULL AND category <> '' ORDER BY category";
+        try (Connection conn = connection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            List<String> categories = new ArrayList<>();
+            while (rs.next()) {
+                categories.add(rs.getString(1));
+            }
+            return categories;
+        } catch (SQLException e) {
+            throw new DataAccessException("No se pudieron consultar las categorías de repuestos.", e);
+        }
+    }
+
     private void bind(PreparedStatement ps, Part entity) throws SQLException {
         ps.setString(1, entity.getCode());
         ps.setString(2, entity.getName());
@@ -215,7 +236,13 @@ public class PartDao implements CrudOperations<Part> {
         part.setCurrentStock(rs.getInt("current_stock"));
         part.setMinimumStock(rs.getInt("minimum_stock"));
         part.setUnitPrice(rs.getBigDecimal("unit_price"));
-        // status is derived in model but we can set; model recalculates on setters
+        // El estado lo deriva el modelo a partir del stock (Information Expert).
+        int supplierId = rs.getInt("supplier_id");
+        if (!rs.wasNull()) {
+            Supplier supplier = new Supplier();
+            supplier.setId(supplierId);
+            part.setSupplier(supplier);
+        }
         return part;
     }
 }
