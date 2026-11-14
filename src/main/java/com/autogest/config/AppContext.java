@@ -1,5 +1,11 @@
 package com.autogest.config;
 
+import com.autogest.dao.DiagnosisDao;
+import com.autogest.dao.OrderHistoryDao;
+import com.autogest.dao.OrderLineDao;
+import com.autogest.dao.ServiceOrderDao;
+import com.autogest.repository.ServiceOrderRepository;
+import com.autogest.service.ServiceOrderService;
 import com.autogest.dao.CustomerDao;
 import com.autogest.dao.PartDao;
 import com.autogest.dao.ServiceOfferingDao;
@@ -83,6 +89,14 @@ public final class AppContext {
     private final InventoryMovementRepository inventoryMovementRepository;
     private final InventoryService inventoryService;
 
+    // ===== Orders (Dev 1) =====
+    private final OrderLineDao orderLineDao;
+    private final OrderHistoryDao orderHistoryDao;
+    private final DiagnosisDao diagnosisDao;
+    private final ServiceOrderDao serviceOrderDao;
+    private final ServiceOrderRepository serviceOrderRepository;
+    private final ServiceOrderService serviceOrderService;
+
     private AppContext() {
         // ===== Users (Leader) =====
         this.databaseConnection = new DatabaseConnection();
@@ -126,8 +140,15 @@ public final class AppContext {
         this.inventoryMovementRepository = new InventoryMovementRepository(inventoryMovementDao, partRepository, userRepository);
         this.inventoryService = new InventoryService(inventoryMovementRepository, partService);
 
-        // ===== Orders (Dev 1 / Dev 2) =====
-        // Sprint 4: ServiceOrderDao -> ServiceOrderRepository -> ServiceOrderService
+        // ===== Orders (Dev 1) =====
+        this.orderLineDao = new OrderLineDao(databaseConnection);
+        this.orderHistoryDao = new OrderHistoryDao(databaseConnection);
+        this.diagnosisDao = new DiagnosisDao(databaseConnection);
+        this.serviceOrderDao = new ServiceOrderDao(databaseConnection, orderLineDao, orderHistoryDao);
+        this.serviceOrderRepository = new ServiceOrderRepository(serviceOrderDao, orderLineDao,
+                orderHistoryDao, diagnosisDao, vehicleRepository, customerRepository, userRepository,
+                serviceOfferingRepository, partRepository);
+        this.serviceOrderService = new ServiceOrderService(serviceOrderRepository, vehicleService);
 
     }
 
@@ -239,5 +260,16 @@ public final class AppContext {
      */
     public InventoryService getInventoryService() {
         return inventoryService;
+    }
+
+    // ===== Orders (Dev 1) =====
+
+    /**
+     * Devuelve el servicio de órdenes de servicio.
+     *
+     * @return servicio de órdenes compartido
+     */
+    public ServiceOrderService getServiceOrderService() {
+        return serviceOrderService;
     }
 }

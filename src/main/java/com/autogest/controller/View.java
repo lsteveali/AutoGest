@@ -24,6 +24,8 @@ public enum View {
     VEHICLE_EDIT("/fxml/vehicle/vehicle-edit.fxml", "Editar vehículo", "VEHICLES"),
     VEHICLE_DETAIL("/fxml/vehicle/vehicle-detail.fxml", "Detalle del vehículo", "VEHICLES"),
     ORDERS("/fxml/order/orders.fxml", "Órdenes de servicio", "ORDERS"),
+    ORDER_NEW("/fxml/order/order-new.fxml", "Nueva orden", "ORDERS"),
+    ORDER_DETAIL("/fxml/order/order-detail.fxml", "Detalle de la orden", "ORDERS"),
     SERVICES("/fxml/catalog/services.fxml", "Servicios", "SERVICES"),
     SERVICE_NEW("/fxml/catalog/service-new.fxml", "Nuevo servicio", "SERVICES"),
     SERVICE_EDIT("/fxml/catalog/service-edit.fxml", "Editar servicio", "SERVICES"),
