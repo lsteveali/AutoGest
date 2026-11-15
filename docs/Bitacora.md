@@ -15,8 +15,8 @@
 | Proyecto | AutoGest — Sistema de gestión integral para talleres automotrices |
 | Materia | Programación de Computadores III (SS462) |
 | Repositorio | https://github.com/lsteveali/AutoGest.git |
-| Rama de trabajo actual | `feature/facturacion` (Sprint 5 — Facturación, Líder) |
-| Sprint en curso | **Sprint 5 — Facturación (Líder)**: backend, lista, nueva factura, detalle, pago, anulación, PDF y avisos al cliente · Dev 1 fusionó el backend de Notificaciones (PR #17) |
+| Rama de trabajo actual | `develop` (Sprint 5 cerrado; la próxima rama del Líder se crea desde aquí) |
+| Sprint en curso | **Sprint 5 — Facturación (Líder): ✅ cerrado** (PR #16 fusionado el 15/11/2026) · Dev 1: backend de Notificaciones fusionado (PR #17) |
 | Equipo | Líder: Leonarth Steve Ali Camargo · Dev 1: Sebastián Murgas Tejeda · Dev 2: **sin integrante vinculado** — el Líder asume todas sus responsabilidades (decisión 14/10/2026) |
 | Documento guía | `AutoGest_Guia_Lider` (V2.0) |
 
@@ -66,8 +66,8 @@
 |---|---|---|
 | 3 | Servicios, Inventario y Repuestos (Líder: Dashboard v1) | ✅ Líder (PR #10 y #11) · Dev 1: Inventario, repuestos, proveedores y movimientos (PR #13) |
 | 4 | Órdenes de servicio (Dev 1: backend, lista y nueva orden · Líder: detalle, cambio de estado, historial y descuento de stock) | ✅ Dev 1 (PR #14) · Líder (PR #15, Sesión 21) |
-| 5 | Facturación (Líder: todo el módulo) | 🟡 Hecho en `feature/facturacion` (Sesión 22), con los avisos al cliente ya conectados; falta volver a abrir el PR (el #16 se cerró para que entrara primero el #17 de Dev 1) |
-| 6 | Notificaciones | ⬜ No iniciado |
+| 5 | Facturación (Líder: todo el módulo) | ✅ PR #16 fusionado en `develop` (`b858e80`, 15/11/2026): facturación, PDF, avisos al cliente e Inicio con órdenes y facturas (Sesión 22) |
+| 6 | Notificaciones | 🟡 Dev 1: backend fusionado (PR #17); falta su interfaz |
 | 7 | Reportes | ⬜ No iniciado |
 | 8 | Configuración (Dev 1: Datos del taller y Preferencias · Líder: pantalla general y el resto de secciones, incluidas Copias de seguridad) | 🟡 En curso — rama `feature/configuracion` |
 | 9 | Asistente AutoGest (Líder) | ⬜ No iniciado |
@@ -748,9 +748,9 @@ Verificación: `develop` → `mvn clean test` **108 pruebas, 0 fallos**
 
 **Sprint 5 (Líder, `feature/facturacion`):**
 - [x] Backend, lista, nueva factura, detalle, pago, anulación y «Generar factura» en la orden (Sesión 22).
-- [ ] Subir la rama y abrir el PR hacia `develop` después de la prueba manual del Líder.
+- [x] ~~Subir la rama y abrir el PR hacia `develop`~~ — PR #16 fusionado (`b858e80`, 15/11/2026).
 - [x] ~~**Avisos al cliente**~~ — conectados el 15/11/2026 tras el PR #17 de Dev 1 (ver §3, Sesión 22).
-- [ ] Volver a abrir el PR de `feature/facturacion` hacia `develop` (el #16 se cerró el 15/11 para que entrara primero el #17).
+- [x] ~~Volver a abrir el PR de `feature/facturacion`~~ — reabierto, revisado por Dev 1 y fusionado; `develop` → **445 pruebas, 0 fallos**.
 - [ ] Tasa de IVA y plazo de pago desde Configuración de Facturación cuando exista el `SettingsService` de Dev 1 (Sprint 8).
 - [ ] «Ver facturas» en el menú del detalle del cliente (`CustomerDetailController`, archivo de Dev 1) sigue desactivado: habilitarlo solo si el Líder lo pide.
 - [ ] Decidir si `OrderWorkflowService` debe impedir cancelar una orden con factura vigente (hoy solo lo evita la pantalla).
