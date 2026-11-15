@@ -63,6 +63,9 @@ import java.util.ResourceBundle;
  */
 public class OrderNewController implements Initializable, NavigatorAware, ParameterizedController {
 
+    /** Alto de una fila de las tablas de servicios y repuestos (con el botón «Quitar»). */
+    private static final double LINE_ROW_HEIGHT = 52;
+
     private static final List<String> COMMON_REASONS = List.of(
             "Mantenimiento preventivo y revisión general",
             "Cambio de aceite y filtros",
@@ -103,25 +106,21 @@ public class OrderNewController implements Initializable, NavigatorAware, Parame
                 "Registra el ingreso de un vehículo y crea una nueva orden de trabajo.");
         header.setBreadcrumbs(List.of("Inicio", "Órdenes de servicio", "Nueva orden"));
 
-        // Dos columnas (el área de contenido mide ~1000 px con la ventana mínima)
-        // y el resumen abajo, a todo el ancho.
+        // Dos columnas de alto parecido (el área de contenido mide ~1000 px con la
+        // ventana mínima): datos de la orden a la izquierda; servicios, repuestos y
+        // estado inicial a la derecha. Las tablas toman el alto de sus filas (antes
+        // crecían y dejaban un hueco en blanco bajo la columna izquierda). El
+        // resumen va abajo, a todo el ancho.
         VBox left = column(buildCustomerCard(), buildEntryCard(), buildReasonCard(), buildObservationsCard());
-        VBox right = column(buildServicesCard(), buildPartsCard());
+        VBox right = column(buildServicesCard(), buildPartsCard(), buildStatusCard());
         HBox columns = new HBox(16, left, right);
         HBox.setHgrow(left, Priority.ALWAYS);
         HBox.setHgrow(right, Priority.ALWAYS);
         left.setPrefWidth(420);
         right.setPrefWidth(520);
-
         VBox summaryCard = FormLayout.card("Resumen de la orden", summary);
-        VBox statusCard = buildStatusCard();
-        HBox bottom = new HBox(16, summaryCard, statusCard);
-        HBox.setHgrow(summaryCard, Priority.ALWAYS);
-        HBox.setHgrow(statusCard, Priority.ALWAYS);
-        summaryCard.setMaxWidth(Double.MAX_VALUE);
-        statusCard.setMaxWidth(Double.MAX_VALUE);
 
-        root.getChildren().addAll(header, columns, bottom, FormLayout.actions(
+        root.getChildren().addAll(header, columns, summaryCard, FormLayout.actions(
                 FormLayout.button("Cancelar", "btn-secondary", this::goBack),
                 FormLayout.button("Crear orden", "btn-primary", this::save)));
         refreshSummary();
@@ -193,6 +192,7 @@ public class OrderNewController implements Initializable, NavigatorAware, Parame
             serviceLines.remove(line);
             refreshLines();
         }));
+        servicesTable.fitHeightToRows(LINE_ROW_HEIGHT);
         servicesSubtotal = new Label();
         servicesSubtotal.getStyleClass().add("order-subtotal");
         return FormLayout.card("Servicios", picker, servicesTable, servicesSubtotal);
@@ -218,7 +218,8 @@ public class OrderNewController implements Initializable, NavigatorAware, Parame
             partLines.remove(line);
             refreshLines();
         }));
-        Label note = new Label("Los repuestos utilizados en la orden se descontarán del inventario cuando corresponda.");
+        partsTable.fitHeightToRows(LINE_ROW_HEIGHT);
+        Label note = new Label("Los repuestos se descontarán del inventario cuando la orden pase a En reparación.");
         note.setWrapText(true);
         note.getStyleClass().add("page-subtitle");
         partsSubtotal = new Label();
@@ -228,7 +229,13 @@ public class OrderNewController implements Initializable, NavigatorAware, Parame
 
     private VBox buildObservationsCard() {
         observationsArea = FormLayout.textArea("Agregar observaciones internas sobre la orden...", 3);
-        return FormLayout.card("Observaciones", observationsArea);
+        VBox card = FormLayout.card("Observaciones", observationsArea);
+        // Última tarjeta de la columna izquierda: se estira hasta el alto de la
+        // derecha (y el área de texto con ella) para que no quede un hueco debajo.
+        VBox.setVgrow(card, Priority.ALWAYS);
+        VBox.setVgrow(observationsArea, Priority.ALWAYS);
+        card.setMaxHeight(Double.MAX_VALUE);
+        return card;
     }
 
     private VBox buildStatusCard() {
