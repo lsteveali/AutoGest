@@ -4,7 +4,7 @@
 > termina una tarea se agrega/actualiza su estado y, cuando aporta, una entrada
 > en la sección «Bitácora cronológica».
 >
-> Última actualización: **11/11/2026** — Líder (Leonarth Steve Ali Camargo).
+> Última actualización: **14/11/2026** — Líder (Leonarth Steve Ali Camargo).
 
 ---
 
@@ -15,8 +15,8 @@
 | Proyecto | AutoGest — Sistema de gestión integral para talleres automotrices |
 | Materia | Programación de Computadores III (SS462) |
 | Repositorio | https://github.com/lsteveali/AutoGest.git |
-| Rama de trabajo actual | `feature/ordenes-detalle` (Sprint 4 — parte del Líder) |
-| Sprint en curso | **Sprint 4 — Órdenes de servicio (parte del Líder)**: detalle, estados, historial y stock · Dev 1 entregó sus sprints 3 (PR #13) y 4 (PR #14) |
+| Rama de trabajo actual | `feature/facturacion` (Sprint 5 — Facturación, Líder) |
+| Sprint en curso | **Sprint 5 — Facturación (Líder)**: backend, lista, nueva factura, detalle, pago y anulación · Dev 1 trabaja en paralelo su Sprint 5 (Notificaciones) |
 | Equipo | Líder: Leonarth Steve Ali Camargo · Dev 1: Sebastián Murgas Tejeda · Dev 2: **sin integrante vinculado** — el Líder asume todas sus responsabilidades (decisión 14/10/2026) |
 | Documento guía | `AutoGest_Guia_Lider` (V2.0) |
 
@@ -65,8 +65,8 @@
 | Sprint | Contenido | Estado |
 |---|---|---|
 | 3 | Servicios, Inventario y Repuestos (Líder: Dashboard v1) | ✅ Líder (PR #10 y #11) · Dev 1: Inventario, repuestos, proveedores y movimientos (PR #13) |
-| 4 | Órdenes de servicio (Dev 1: backend, lista y nueva orden · Líder: detalle, cambio de estado, historial y descuento de stock) | 🟡 Dev 1 ✅ (PR #14) · Líder en curso en `feature/ordenes-detalle` (Sesión 21) |
-| 5 | Facturación | ⬜ No iniciado |
+| 4 | Órdenes de servicio (Dev 1: backend, lista y nueva orden · Líder: detalle, cambio de estado, historial y descuento de stock) | ✅ Dev 1 (PR #14) · Líder (PR #15, Sesión 21) |
+| 5 | Facturación (Líder: todo el módulo) | 🟡 Hecho en `feature/facturacion` (Sesión 22), falta la prueba manual del Líder y el PR · avisos al cliente pendientes del `NotificationService` de Dev 1 |
 | 6 | Notificaciones | ⬜ No iniciado |
 | 7 | Reportes | ⬜ No iniciado |
 | 8 | Configuración (Dev 1: Datos del taller y Preferencias · Líder: pantalla general y el resto de secciones, incluidas Copias de seguridad) | 🟡 En curso — rama `feature/configuracion` |
@@ -584,6 +584,32 @@ estaba incorporado; el otro era un WIP viejo de `login-usuarios`). Quedan solo
 **Límite conocido:** el cambio de estado, el historial y los movimientos de stock se guardan en llamadas separadas (no en una sola transacción entre tablas); si falla el descuento de stock, la orden no cambia de estado.
 
 **Estado del vehículo (consulta del Líder):** hoy no hay pantalla para cambiarlo a mano. El formulario de Vehículo no tiene campo de estado; «Dar de baja» lo pasa a Inactivo y no hay forma de reactivarlo. «En servicio» lo pondrá el módulo de Órdenes (Sprint 4: al crear una orden, Dev 1; al entregarla, Líder). El Mazda CX-5 aparece «En servicio» porque así viene en los datos de ejemplo (`docs/database/seed.sql`), y desactivar un cliente no cambia el estado de sus vehículos.
+
+### 14/11/2026 — Sesión 22 (Líder): Sprint 5 — Facturación
+
+**Contexto.** PR #15 (Sprint 4 del Líder) fusionado. Rama `feature/facturacion` desde `origin/develop` (`e78b3d3`). Todo el módulo es del Líder. Mockups: Facturación, Nueva factura y Detalle de factura (V1).
+
+**Hecho:**
+1. **Backend** (DAO → Repository → Service, como el resto):
+   - `InvoiceDao`: CRUD, búsqueda (número de factura u orden, placa, vehículo o cliente; estado; emitidas desde; método), indicadores en una sola consulta (`InvoiceSummary`, modelo nuevo), paso a vencidas con un solo `UPDATE … RETURNING id`, órdenes con factura vigente y consecutivo. Las lecturas traen con un JOIN la orden, el vehículo y el cliente: la lista sale en una consulta.
+   - `InvoiceRepository` (delgado) e `InvoiceService` con las reglas: solo órdenes **Listas o Entregadas** con al menos una línea; **una factura vigente por orden**; IVA en 0 % (`TAX_RATE`, D-05); descuento como valor que no supera el total (lo valida `Invoice.calculateTotal`); vencimiento por defecto a 14 días; pago y anulación con las reglas de `Invoice` (pagar desde Pendiente o Vencida, anular solo si no está pagada); cada factura generada, pagada o anulada deja su entrada en el **historial de la orden**.
+   - Número visible `FAC-2026-001` (año y consecutivo del id más alto + 1, como las órdenes).
+   - `AppContext.getInvoiceService()` se crea al pedirlo, junto a los bloques del Líder, con nombres completos de clase y sin tocar imports ni el final del constructor.
+2. **Pantallas** (`controller/billing`): `BillingController` (indicadores Generadas / Pagadas / Pendientes / Vencidas, filtros de texto, estado, fecha —Hoy, Esta semana, Este mes— y método, tabla con «Ver factura», «Registrar pago» y «Anular», y resumen de lo facturado, pagado y por cobrar); `InvoiceNewController` (orden, cliente y vehículo, conceptos, descuento con el resumen recalculado mientras se escribe, vencimiento y «Registrar el pago ahora»); `InvoiceDetailController` (cliente y vehículo, orden relacionada, conceptos, resumen, información de pago e historial de la factura, con «Registrar pago» y «Anular factura»). Ayudas compartidas en `BillingUi` e `InvoiceLabels`. `View.INVOICE_NEW` e `INVOICE_DETAIL` junto a HOME / SETTINGS_PROFILE. Estilos al final de `autogest.css` (sección «Facturación»), reutilizando las clases `order-*` del detalle de la orden.
+3. **Detalle de la orden** (`OrderDetailController`, archivo del Líder): en órdenes Listas o Entregadas sin factura aparece «Generar factura», que abre Nueva factura con la orden elegida; si ya tiene factura vigente aparece «Ver factura FAC-…» y se oculta «Cancelar orden».
+4. **Vencidas:** al abrir la lista o un detalle se pasan a Vencida las pendientes cuyo vencimiento ya pasó.
+5. **Pulido con `/impeccable polish`:** fechas completas en la tabla (anchos mínimos) y tabla al alto de sus filas; tarjetas de a dos con el mismo ancho; documento y teléfono en líneas separadas; «Ver vehículo» bajo el vehículo; el descuento inválido marca el campo en rojo y dice el motivo debajo; «Guardar factura» desactivado sin orden o con un descuento inválido; el desplegable de la orden muestra «#0045 · cliente» sin cortarse.
+6. **Verificación:**
+   - `InvoiceServiceTest` (25) con `FakeInvoiceRepository` y el `ServiceOrderService` real: totales, descuento, pago inmediato, estados facturables, una sola factura, reemisión tras anular, vencimiento, métodos, historial, órdenes facturables, pagar, anular, vencidas, indicadores, detalle y búsqueda. `mvn clean test` → **412 pruebas, 0 fallos**.
+   - SQL del `InvoiceDao` probado contra Supabase **dentro de una transacción que siempre se deshace** (crear, leer con JOIN, buscar, vencer, pagar, indicadores, anular): todo correcto y la tabla quedó vacía. Efecto visible: la secuencia de `invoices.id` avanzó en uno (las secuencias de PostgreSQL no se deshacen); el número de factura no se afecta.
+   - Capturas de la lista, Nueva factura (vacía, con orden y con descuento inválido) y el detalle (pagada y vencida) con datos de ejemplo en memoria, desde un programa temporal fuera del repositorio y sin configuración de base de datos (la lista ejecuta un `UPDATE` de vencidas al cargar). No se escribió en Supabase.
+
+**Límites conocidos:**
+- `invoices` no tiene líneas propias: los conceptos son las líneas de la orden y no se editan en la factura (el mockup permite editar y borrar conceptos y descuento por línea). El descuento es uno solo, sobre el total.
+- No hay columnas para observaciones, fecha de pago ni usuario que crea o paga: el historial de la factura se arma con el historial de la orden, que sí guarda fecha, hora y usuario.
+- La tabla exige un `order_id` único: una factura anulada se vuelve a emitir **sobre la misma fila** con un número nuevo.
+- «Cancelar orden» se oculta en la pantalla si hay factura vigente, pero `OrderWorkflowService` no lo impide por sí mismo.
+- «Descargar PDF», «Imprimir» y «Enviar al cliente» del mockup no están (no hay exportación ni `NotificationService` todavía).
 ---
 
 ## 4. Decisiones y acuerdos
@@ -616,6 +642,11 @@ estaba incorporado; el otro era un WIP viejo de `login-usuarios`). Quedan solo
 | 12/11/2026 | **El Líder adelanta el Sprint 8 (Configuración) en `feature/configuracion`** mientras Dev 1 entrega sus sprints 3 y 4. | Configuración no depende de Órdenes ni de Inventario. Las tarjetas «Datos del taller» y «Preferencias» (Dev 1) se habilitan solas cuando existan su `View` y su FXML. No se crean `controller/settings/package-info.java` ni `css/settings.css`, que vienen en el paquete de Dev 1. |
 | 12/11/2026 | **`.impeccable/` y `.claude/` no van al repositorio** (están en `.gitignore`). | Son configuración local de herramientas del Líder. `.impeccable/config.json` se había subido por error en la Sesión 16 y se quitó del repositorio (el archivo sigue en el equipo del Líder). |
 | 12/11/2026 | **Los commits y PR no llevan atribución a herramientas de IA** (`Co-Authored-By`, «Generated with…»). | Pedido del Líder. Se reescribió `develop` (15 commits desde `940a19a`) sin esas líneas y con el mismo contenido; las páginas de los PR #10 y #11 conservan los commits originales porque GitHub no las modifica. |
+| 14/11/2026 | **Facturación: IVA en 0 % y vencimiento a 14 días** (`InvoiceService.TAX_RATE`, `DEFAULT_DUE_DAYS`). | D-05: la tasa se leerá de Configuración cuando exista el `SettingsService` de Dev 1 (su Sprint 8). Los 14 días salen del mockup (emisión 02/10, vencimiento 16/10). |
+| 14/11/2026 | **Los métodos de pago se guardan como códigos** (`CASH`, `CARD`, `TRANSFER`, `OTHER`) en el texto `payment_method`. | `Invoice` usa `String` mientras no exista `PaymentMethod`; los códigos coinciden con los nombres que tendría ese enum, así el cambio no requiere migrar datos. Los nombres en español viven en `InvoiceService.methodText` / `InvoiceLabels`. |
+| 14/11/2026 | **Solo se facturan órdenes Listas o Entregadas, con una factura vigente por orden;** al anular, la orden puede facturarse de nuevo y se reutiliza la misma fila. | Pedido del Líder (una orden tiene 0..1 factura) y restricción `UNIQUE (order_id)` de `invoices`. |
+| 14/11/2026 | **Generar, pagar y anular dejan constancia en el historial de la orden.** | `invoices` no guarda fechas de pago ni usuarios; así queda trazabilidad sin cambiar el esquema de Dev 2. |
+| 14/11/2026 | **Las capturas de Facturación se toman fuera del repositorio y sin configuración de base de datos.** | La lista ejecuta el paso a vencidas (`UPDATE`) al cargar; así las capturas no escriben en Supabase. |
 
 ---
 
@@ -691,6 +722,16 @@ Verificación: `develop` → `mvn clean test` **108 pruebas, 0 fallos**
 **Sprint 4 (Líder, `feature/ordenes-detalle`):**
 - [x] Detalle de la orden, cambio de estado, historial, diagnóstico, responsable, líneas nuevas y descuento de stock (Sesión 21).
 - [ ] Reactivar un vehículo dado de baja (pendiente de decidir; al entregar o cancelar una orden el vehículo ya vuelve a Activo).
+- [x] ~~PR #15 fusionado en `develop`~~ — base de `feature/facturacion`.
+
+**Sprint 5 (Líder, `feature/facturacion`):**
+- [x] Backend, lista, nueva factura, detalle, pago, anulación y «Generar factura» en la orden (Sesión 22).
+- [ ] Subir la rama y abrir el PR hacia `develop` después de la prueba manual del Líder.
+- [ ] **Avisos al cliente** (`notifyInvoiceIssued`, `notifyInvoicePaid`, `notifyInvoiceOverdue`): conectarlos en `InvoiceService.createInvoice`, `markAsPaid` y `refreshOverdue` (este último ya devuelve los ids que acaban de vencer) cuando Dev 1 fusione su `NotificationService` (su Sprint 5). No bloquea.
+- [ ] Tasa de IVA y plazo de pago desde Configuración de Facturación cuando exista el `SettingsService` de Dev 1 (Sprint 8).
+- [ ] «Ver facturas» en el menú del detalle del cliente (`CustomerDetailController`, archivo de Dev 1) sigue desactivado: habilitarlo solo si el Líder lo pide.
+- [ ] Decidir si `OrderWorkflowService` debe impedir cancelar una orden con factura vigente (hoy solo lo evita la pantalla).
+- [ ] Descargar o imprimir la factura en PDF (no planificado aún).
 
 **Barrido de interfaz pendiente (lo hará el Líder):** Inventario (filtros, nombres y estados cortados; «Volver» repetido en el detalle del repuesto; «Registrar entrada» debajo de «+ Nuevo repuesto») (Órdenes ya corregida en la Sesión 21).
 
