@@ -69,6 +69,8 @@ public final class AppContext {
     // ===== Facturación (Líder, Sprint 5) =====
     // Se crea al pedirlo, como el seguimiento de órdenes: depende de las órdenes (final del constructor).
     private com.autogest.service.InvoiceService invoiceService;
+    private final com.autogest.service.InvoicePdfService invoicePdfService =
+            new com.autogest.service.InvoicePdfService();
 
     // ===== Customers (Dev 1) =====
     private final CustomerDao customerDao;
@@ -246,6 +248,15 @@ public final class AppContext {
                     serviceOrderService, serviceOrderRepository);
         }
         return invoiceService;
+    }
+
+    /**
+     * Devuelve el generador del PDF de las facturas.
+     *
+     * @return generador de PDF compartido
+     */
+    public com.autogest.service.InvoicePdfService getInvoicePdfService() {
+        return invoicePdfService;
     }
 
     // ===== Customers (Dev 1) =====

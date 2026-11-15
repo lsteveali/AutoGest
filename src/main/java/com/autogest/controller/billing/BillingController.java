@@ -173,7 +173,11 @@ public class BillingController implements Initializable, NavigatorAware {
         menu.setFocusTraversable(false);
         MenuItem detail = new MenuItem("Ver factura");
         detail.setOnAction(event -> openDetail(invoice.getId()));
-        menu.getItems().add(detail);
+        MenuItem pdf = new MenuItem("Descargar PDF");
+        // La fila trae la orden resumida: el PDF necesita el detalle completo (líneas y cliente).
+        pdf.setOnAction(event -> BillingUi.downloadPdf(window(), invoice,
+                () -> BillingUi.service().getDetail(invoice.getId())));
+        menu.getItems().addAll(detail, pdf);
         if (InvoiceLabels.isOpen(invoice)) {
             MenuItem pay = new MenuItem("Registrar pago");
             pay.setOnAction(event -> {

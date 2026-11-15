@@ -44,9 +44,9 @@ import java.util.List;
  * registra el pago o se anula.
  *
  * <p>El historial sale de las entradas del historial de la orden que
- * mencionan esta factura (generada, pagada, anulada). «Descargar PDF» y
- * «Enviar al cliente» del mockup quedan para cuando existan la exportación y
- * el {@code NotificationService}.</p>
+ * mencionan esta factura (generada, pagada, anulada). «Descargar PDF» guarda
+ * la factura con {@code InvoicePdfService}; «Enviar al cliente» del mockup
+ * queda para cuando exista el {@code NotificationService}.</p>
  *
  * <p>Principles: GRASP Controller, SRP, DIP.</p>
  */
@@ -125,6 +125,12 @@ public class InvoiceDetailController implements NavigatorAware, ParameterizedCon
         HBox.setHgrow(spacer, Priority.ALWAYS);
         HBox actions = new HBox(10);
         actions.setAlignment(Pos.CENTER_RIGHT);
+        Button pdf = new Button("Descargar PDF");
+        pdf.setGraphic(IconSet.icon(IconSet.CLOUD_DOWNLOAD));
+        pdf.getStyleClass().add("btn-secondary");
+        // La factura de esta pantalla ya trae su orden completa.
+        pdf.setOnAction(event -> BillingUi.downloadPdf(window(), invoice, () -> invoice));
+        actions.getChildren().add(pdf);
         if (InvoiceLabels.isOpen(invoice)) {
             Button cancel = new Button("Anular factura");
             cancel.getStyleClass().add("btn-secondary");
@@ -132,7 +138,7 @@ public class InvoiceDetailController implements NavigatorAware, ParameterizedCon
             Button pay = new Button("Registrar pago");
             pay.getStyleClass().add("btn-primary");
             pay.setOnAction(event -> {
-                if (BillingUi.pay(root.getScene() == null ? null : root.getScene().getWindow(), invoice)) {
+                if (BillingUi.pay(window(), invoice)) {
                     reload();
                 }
             });
@@ -277,6 +283,10 @@ public class InvoiceDetailController implements NavigatorAware, ParameterizedCon
                     ErrorDialog.show("No se pudo anular la factura", error instanceof AutoGestException
                             ? error.getMessage() : "Revisa la conexión e inténtalo de nuevo.");
                 });
+    }
+
+    private javafx.stage.Window window() {
+        return root.getScene() == null ? null : root.getScene().getWindow();
     }
 
     private static Button link(String text, Runnable action) {

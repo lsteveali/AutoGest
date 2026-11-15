@@ -609,7 +609,7 @@ estaba incorporado; el otro era un WIP viejo de `login-usuarios`). Quedan solo
 - No hay columnas para observaciones, fecha de pago ni usuario que crea o paga: el historial de la factura se arma con el historial de la orden, que sí guarda fecha, hora y usuario.
 - La tabla exige un `order_id` único: una factura anulada se vuelve a emitir **sobre la misma fila** con un número nuevo.
 - «Cancelar orden» se oculta en la pantalla si hay factura vigente, pero `OrderWorkflowService` no lo impide por sí mismo.
-- «Descargar PDF», «Imprimir» y «Enviar al cliente» del mockup no están (no hay exportación ni `NotificationService` todavía).
+- ~~«Descargar PDF»~~ (hecho el 15/11, ver abajo). «Imprimir» y «Enviar al cliente» del mockup no están (no hay `NotificationService` todavía; el PDF se puede imprimir desde el visor).
 
 **Prueba manual del Líder (15/11/2026): «el dashboard del inicio no marca las órdenes ni las facturas».** Las tarjetas «Órdenes activas» y «Facturación del mes» del Dashboard v1 (Sesión 12) seguían con «-» y «Disponible en el Sprint 4/5»: nunca se conectaron al llegar esos módulos. **Arreglo** (`HomeController`, archivo del Líder):
 - «Órdenes activas» muestra las órdenes sin entregar ni cancelar y cuántas están listas para entregar; «Facturación del mes», el valor facturado este mes (sin anuladas), cuántas facturas y cuánto se cobró (`InvoiceService.getMonthSummary`, con `InvoiceDao.summary(desde)`). Ambas tarjetas abren su módulo con `NavigationEvent`, así respetan los permisos del rol.
@@ -617,6 +617,13 @@ estaba incorporado; el otro era un WIP viejo de `login-usuarios`). Quedan solo
 - «+ Nueva orden» abre Nueva orden (abría la lista).
 - «Próximos mantenimientos» ya no corta el cliente ni el vehículo.
 - Verificado con una captura del Inicio con los datos reales (solo lecturas): 1 orden activa, 1 lista para entregar y $240.000 facturados y cobrados este mes. `mvn clean test` → **413 pruebas, 0 fallos**.
+
+**PDF de la factura (15/11/2026, pedido del Líder):**
+- `InvoicePdfService` (nuevo) genera la factura en A4 con **Apache PDFBox 3.0.3** (dependencia nueva en `pom.xml`): logo y número, cliente, datos de la factura (emisión, vencimiento, orden y vehículo), conceptos, subtotal, descuento, IVA y total, y el estado del pago. Una factura anulada lleva «ANULADA». Si los conceptos no caben, la tabla sigue en otra página con su encabezado; el pie dice la fecha de generación y «Página X de Y». Incrusta las fuentes Roboto del proyecto (D-18); un carácter que la fuente no tiene (un emoji en un nombre) sale como «?» en vez de romper el PDF.
+- «Descargar PDF» en el detalle de la factura y en el menú «…» de la lista: pide dónde guardar (por defecto Documentos, nombre «Factura FAC-2026-001.pdf»), lo genera en segundo plano y ofrece abrirlo.
+- `AppContext.getInvoicePdfService()` en el bloque de Facturación del Líder.
+- Pruebas: `InvoicePdfServiceTest` (7) lee el texto del PDF generado (número, cliente, conceptos, totales, pago, anulada, varias páginas, caracteres raros, archivo guardado). Revisado también como imagen (pagada y anulada). `mvn clean test` → **420 pruebas, 0 fallos**.
+- Pendiente: los datos del taller (nombre, NIT, dirección, teléfono) en el encabezado, cuando exista «Datos del taller» de Dev 1 (Sprint 8).
 ---
 
 ## 4. Decisiones y acuerdos
@@ -653,6 +660,7 @@ estaba incorporado; el otro era un WIP viejo de `login-usuarios`). Quedan solo
 | 14/11/2026 | **Los métodos de pago se guardan como códigos** (`CASH`, `CARD`, `TRANSFER`, `OTHER`) en el texto `payment_method`. | `Invoice` usa `String` mientras no exista `PaymentMethod`; los códigos coinciden con los nombres que tendría ese enum, así el cambio no requiere migrar datos. Los nombres en español viven en `InvoiceService.methodText` / `InvoiceLabels`. |
 | 14/11/2026 | **Solo se facturan órdenes Listas o Entregadas, con una factura vigente por orden;** al anular, la orden puede facturarse de nuevo y se reutiliza la misma fila. | Pedido del Líder (una orden tiene 0..1 factura) y restricción `UNIQUE (order_id)` de `invoices`. |
 | 14/11/2026 | **Generar, pagar y anular dejan constancia en el historial de la orden.** | `invoices` no guarda fechas de pago ni usuarios; así queda trazabilidad sin cambiar el esquema de Dev 2. |
+| 15/11/2026 | **PDF de la factura con Apache PDFBox 3.0.3** (dependencia nueva). | Licencia Apache, sin servicios externos, permite incrustar Roboto y probar el contenido leyendo el texto del PDF. Alternativas descartadas: imprimir desde JavaFX a «Microsoft Print to PDF» (depende del equipo y no se puede probar) y librerías con licencia AGPL. |
 | 14/11/2026 | **Las capturas de Facturación se toman fuera del repositorio y sin configuración de base de datos.** | La lista ejecuta el paso a vencidas (`UPDATE`) al cargar; así las capturas no escriben en Supabase. |
 
 ---
@@ -738,7 +746,8 @@ Verificación: `develop` → `mvn clean test` **108 pruebas, 0 fallos**
 - [ ] Tasa de IVA y plazo de pago desde Configuración de Facturación cuando exista el `SettingsService` de Dev 1 (Sprint 8).
 - [ ] «Ver facturas» en el menú del detalle del cliente (`CustomerDetailController`, archivo de Dev 1) sigue desactivado: habilitarlo solo si el Líder lo pide.
 - [ ] Decidir si `OrderWorkflowService` debe impedir cancelar una orden con factura vigente (hoy solo lo evita la pantalla).
-- [ ] Descargar o imprimir la factura en PDF (no planificado aún).
+- [x] ~~Descargar la factura en PDF~~ — hecho (15/11/2026, `InvoicePdfService`).
+- [ ] Datos del taller en el encabezado del PDF cuando exista «Datos del taller» (Dev 1, Sprint 8).
 
 **Barrido de interfaz pendiente (lo hará el Líder):** Inventario (filtros, nombres y estados cortados; «Volver» repetido en el detalle del repuesto; «Registrar entrada» debajo de «+ Nuevo repuesto») (Órdenes ya corregida en la Sesión 21).
 
