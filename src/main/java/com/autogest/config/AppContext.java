@@ -66,6 +66,10 @@ public final class AppContext {
     // constructor, y así este bloque no toca las líneas que modifican los AppContext.diff de Dev 1.
     private com.autogest.service.OrderWorkflowService orderWorkflowService;
 
+    // ===== Facturación (Líder, Sprint 5) =====
+    // Se crea al pedirlo, como el seguimiento de órdenes: depende de las órdenes (final del constructor).
+    private com.autogest.service.InvoiceService invoiceService;
+
     // ===== Customers (Dev 1) =====
     private final CustomerDao customerDao;
     private final CustomerRepository customerRepository;
@@ -225,6 +229,23 @@ public final class AppContext {
                     serviceOrderService, vehicleService, inventoryService, partService, userService);
         }
         return orderWorkflowService;
+    }
+
+    // ===== Facturación (Líder, Sprint 5) =====
+
+    /**
+     * Devuelve el servicio de facturación (generar, pagar, anular y vencidas).
+     *
+     * @return servicio de facturación compartido
+     */
+    public synchronized com.autogest.service.InvoiceService getInvoiceService() {
+        if (invoiceService == null) {
+            invoiceService = new com.autogest.service.InvoiceService(
+                    new com.autogest.repository.InvoiceRepository(
+                            new com.autogest.dao.InvoiceDao(databaseConnection)),
+                    serviceOrderService, serviceOrderRepository);
+        }
+        return invoiceService;
     }
 
     // ===== Customers (Dev 1) =====
