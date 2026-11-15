@@ -579,6 +579,8 @@ estaba incorporado; el otro era un WIP viejo de `login-usuarios`). Quedan solo
 - **«Creé una orden y no aparece en la lista».** Diagnóstico: `service_orders` estaba vacía (la orden nunca se guardó). El Mazda XYZ-789 figuraba «En servicio» desde los datos de ejemplo, no por esa orden. Se reprodujo «Crear orden» con 4 servicios contra la base real dentro de una transacción que siempre se deshace, y funcionó; tampoco hay diferencias entre el SQL de líneas e historial y las tablas. La pantalla solo atrapa `AutoGestException`, así que un error inesperado quedaba solo en la consola. **Arreglo:** `AutoGestApplication.installErrorHandler` muestra en un diálogo cualquier error no atrapado, con su tipo, mensaje y causa. Si se repite, el diálogo dirá el motivo exacto. Pendiente: volver a probar.
 - **Espacio en blanco en Nueva orden** (`OrderNewController`, archivo de Dev 1, cambio pedido por el Líder): las tablas de servicios y repuestos crecían y dejaban un hueco bajo la columna izquierda. Ahora toman el alto de sus filas (`fitHeightToRows`), el estado inicial pasa a la columna derecha, el resumen va abajo a todo el ancho y Observaciones se estira para que ambas columnas terminen a la misma altura. El aviso de repuestos dice cuándo se descuentan: «cuando la orden pase a En reparación».
 
+- **Segunda prueba (14/11/2026):** la orden #0001 se creó y aparece en la lista En reparación. Ajustes pedidos en archivos de Dev 1: los botones de servicios y repuestos de Nueva orden dicen solo «Agregar»; la lista de Órdenes da ancho mínimo a Cliente, Vehículo, Responsable, Estado («En reparación» completo) y Total, lleva la placa bajo el vehículo, usa títulos cortos de fecha («Ingreso», «Entrega») y deja sin título la columna del menú «…», para caber sin barra horizontal en 1280 px.
+
 **Límite conocido:** el cambio de estado, el historial y los movimientos de stock se guardan en llamadas separadas (no en una sola transacción entre tablas); si falla el descuento de stock, la orden no cambia de estado.
 
 **Estado del vehículo (consulta del Líder):** hoy no hay pantalla para cambiarlo a mano. El formulario de Vehículo no tiene campo de estado; «Dar de baja» lo pasa a Inactivo y no hay forma de reactivarlo. «En servicio» lo pondrá el módulo de Órdenes (Sprint 4: al crear una orden, Dev 1; al entregarla, Líder). El Mazda CX-5 aparece «En servicio» porque así viene en los datos de ejemplo (`docs/database/seed.sql`), y desactivar un cliente no cambia el estado de sus vehículos.
@@ -690,7 +692,7 @@ Verificación: `develop` → `mvn clean test` **108 pruebas, 0 fallos**
 - [x] Detalle de la orden, cambio de estado, historial, diagnóstico, responsable, líneas nuevas y descuento de stock (Sesión 21).
 - [ ] Reactivar un vehículo dado de baja (pendiente de decidir; al entregar o cancelar una orden el vehículo ya vuelve a Activo).
 
-**Barrido de interfaz pendiente (lo hará el Líder):** Inventario (filtros, nombres y estados cortados; «Volver» repetido en el detalle del repuesto; «Registrar entrada» debajo de «+ Nuevo repuesto») y Órdenes (última columna cortada).
+**Barrido de interfaz pendiente (lo hará el Líder):** Inventario (filtros, nombres y estados cortados; «Volver» repetido en el detalle del repuesto; «Registrar entrada» debajo de «+ Nuevo repuesto») (Órdenes ya corregida en la Sesión 21).
 
 **En curso (Líder, Sprint 8 — rama `feature/configuracion`):**
 - [x] Pantalla general de Configuración: tarjeta del usuario, secciones e información del sistema (Sesión 17).
