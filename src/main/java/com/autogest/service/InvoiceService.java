@@ -241,6 +241,16 @@ public class InvoiceService {
     }
 
     /**
+     * Indicadores de las facturas emitidas en el mes de la fecha dada (Dashboard).
+     *
+     * @param today fecha de referencia
+     * @return conteos y valores desde el día 1 de ese mes
+     */
+    public InvoiceSummary getMonthSummary(LocalDate today) {
+        return repository.summary(today.withDayOfMonth(1));
+    }
+
+    /**
      * Pasa a vencidas las facturas pendientes cuyo vencimiento ya pasó.
      *
      * @return ids de las que acaban de vencer

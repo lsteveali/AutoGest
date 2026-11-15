@@ -306,6 +306,19 @@ class InvoiceServiceTest {
     }
 
     @Test
+    void monthSummaryOnlyCountsInvoicesIssuedThisMonth() {
+        Invoice old = service.createInvoice(order(OrderStatus.READY, "100000").getId(), null, null, null,
+                receptionist);
+        old.setIssueDate(LocalDate.now().withDayOfMonth(1).minusDays(1));
+        service.createInvoice(order(OrderStatus.READY, "40000").getId(), null, null, null, receptionist);
+
+        InvoiceSummary month = service.getMonthSummary(LocalDate.now());
+
+        assertEquals(1, month.total());
+        assertEquals(0, new BigDecimal("40000").compareTo(month.billedAmount()));
+    }
+
+    @Test
     void detailBringsTheFullOrder() {
         ServiceOrder order = order(OrderStatus.READY, "50000", "25000");
         Invoice invoice = service.createInvoice(order.getId(), null, null, null, receptionist);

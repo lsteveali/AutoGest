@@ -78,10 +78,18 @@ class FakeInvoiceRepository extends InvoiceRepository {
 
     @Override
     public InvoiceSummary summary() {
-        return new InvoiceSummary(invoices.size(), count(i -> i.getStatus() == InvoiceStatus.PAID),
-                count(i -> i.getStatus() == InvoiceStatus.PENDING), count(i -> i.getStatus() == InvoiceStatus.OVERDUE),
-                sum(i -> i.getStatus() != InvoiceStatus.VOIDED), sum(i -> i.getStatus() == InvoiceStatus.PAID),
-                sum(i -> i.getStatus() == InvoiceStatus.PENDING || i.getStatus() == InvoiceStatus.OVERDUE));
+        return summary(null);
+    }
+
+    @Override
+    public InvoiceSummary summary(LocalDate issuedFrom) {
+        Predicate<Invoice> since = i -> issuedFrom == null || !i.getIssueDate().isBefore(issuedFrom);
+        return new InvoiceSummary(count(since), count(since.and(i -> i.getStatus() == InvoiceStatus.PAID)),
+                count(since.and(i -> i.getStatus() == InvoiceStatus.PENDING)),
+                count(since.and(i -> i.getStatus() == InvoiceStatus.OVERDUE)),
+                sum(since.and(i -> i.getStatus() != InvoiceStatus.VOIDED)),
+                sum(since.and(i -> i.getStatus() == InvoiceStatus.PAID)),
+                sum(since.and(i -> i.getStatus() == InvoiceStatus.PENDING || i.getStatus() == InvoiceStatus.OVERDUE)));
     }
 
     @Override

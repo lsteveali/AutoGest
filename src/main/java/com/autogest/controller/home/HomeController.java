@@ -1,6 +1,7 @@
 package com.autogest.controller.home;
 
 import com.autogest.config.AppContext;
+import com.autogest.controller.NavigationEvent;
 import com.autogest.controller.NavigatorAware;
 import com.autogest.controller.View;
 import com.autogest.controller.ViewNavigator;
@@ -12,11 +13,16 @@ import com.autogest.controller.components.PagedTable;
 import com.autogest.controller.components.StatusBadge;
 import com.autogest.controller.vehicle.VehicleLabels;
 import com.autogest.exception.AutoGestException;
+import com.autogest.model.InvoiceSummary;
+import com.autogest.model.OrderStatus;
 import com.autogest.model.User;
 import com.autogest.model.Vehicle;
+import com.autogest.model.VehicleCounts;
 import com.autogest.service.CustomerService;
 import com.autogest.service.PartService;
+import com.autogest.service.ServiceOrderService;
 import com.autogest.service.VehicleService;
+import com.autogest.util.Background;
 import com.autogest.util.Formatter;
 import com.autogest.util.Session;
 import javafx.application.Platform;
@@ -44,9 +50,10 @@ import java.util.ResourceBundle;
  * automotor, las alertas de inventario, los próximos mantenimientos y el
  * espacio reservado para notificaciones.
  *
- * <p>Los módulos aún no construidos (órdenes, facturación, notificaciones)
- * muestran el marcador «-» con su sprint previsto, igual que otros tableros
- * del sistema (D-14).</p>
+ * <p>Órdenes activas (y cuántas están listas para entregar) y la facturación
+ * del mes llegaron con los sprints 4 y 5; sus tarjetas abren el módulo.
+ * Notificaciones sigue como marcador hasta su sprint (D-14). Todo se lee en
+ * una sola tarea en segundo plano.</p>
  *
  * <p>Principles: GRASP Controller, Indirection, SRP, DIP, Low Coupling,
  * High Cohesion.</p>
@@ -87,11 +94,7 @@ public class HomeController implements Initializable, NavigatorAware {
         PageHeader header = new PageHeader(greeting(),
                 "Aquí tienes un resumen de lo que está pasando en tu taller.");
         header.setBreadcrumbs(List.of("Inicio"));
-        header.setPrimaryAction("+ Nueva orden", () -> {
-            if (navigator != null) {
-                navigator.navigateTo(View.ORDERS);
-            }
-        });
+        header.setPrimaryAction("+ Nueva orden", () -> header.fireEvent(NavigationEvent.open(View.ORDER_NEW)));
         return header;
     }
 
@@ -121,8 +124,13 @@ public class HomeController implements Initializable, NavigatorAware {
     private HBox buildKpiRow() {
         customersCard = new KpiCard("Clientes", "-", "Registrados en AutoGest", IconSet.USERS);
         vehiclesCard = new KpiCard("Vehículos registrados", "-", "Parque automotor", IconSet.CAR);
-        ordersCard = new KpiCard("Órdenes activas", "-", "Disponible en el Sprint 4", IconSet.FILE_TEXT);
-        billingCard = new KpiCard("Facturación del mes", "-", "Disponible en el Sprint 5", IconSet.CREDIT_CARD);
+        ordersCard = new KpiCard("Órdenes activas", "-", "Sin entregar ni cancelar", IconSet.FILE_TEXT);
+        billingCard = new KpiCard("Facturación del mes", "-", "Facturas emitidas este mes", IconSet.CREDIT_CARD);
+        // NavigationEvent pasa por MainController, que aplica los permisos del rol.
+        ordersCard.setOnMouseClicked(event -> ordersCard.fireEvent(NavigationEvent.open(View.ORDERS)));
+        billingCard.setOnMouseClicked(event -> billingCard.fireEvent(NavigationEvent.open(View.BILLING)));
+        ordersCard.getStyleClass().add("kpi-link");
+        billingCard.getStyleClass().add("kpi-link");
 
         HBox row = new HBox(16);
         row.getStyleClass().add("dashboard-row");
@@ -261,13 +269,15 @@ public class HomeController implements Initializable, NavigatorAware {
 
     private PagedTable<Vehicle> buildMaintenanceTable() {
         PagedTable<Vehicle> table = new PagedTable<>(PAGE_SIZE);
+        // Anchos mínimos para que no se corten el cliente ni el vehículo (marca y modelo, sin la placa,
+        // que ya tiene su columna).
         table.addColumn("Cliente", vehicle -> vehicle.getOwner() == null
-                ? "Sin propietario" : vehicle.getOwner().getFullName());
-        table.addColumn("Vehículo", Vehicle::getShortDescription);
-        table.addColumn("Placa", Vehicle::getLicensePlate);
-        table.addColumn("Fecha", vehicle -> Formatter.date(vehicle.getNextMaintenanceDate()));
+                ? "Sin propietario" : vehicle.getOwner().getFullName(), 140);
+        table.addColumn("Vehículo", vehicle -> vehicle.getMake() + " " + vehicle.getModel(), 130);
+        table.addColumn("Placa", Vehicle::getLicensePlate, 80);
+        table.addColumn("Fecha", vehicle -> Formatter.date(vehicle.getNextMaintenanceDate()), 100);
         table.addColumn("Estado", vehicle -> StatusBadge.of(
-                VehicleLabels.maintenanceText(vehicle), VehicleLabels.maintenanceType(vehicle)));
+                VehicleLabels.maintenanceText(vehicle), VehicleLabels.maintenanceType(vehicle)), 90);
         table.setOnSelect(vehicle -> {
             if (navigator != null) {
                 navigator.navigateWithParameter(View.VEHICLE_DETAIL, vehicle.getId());
@@ -305,69 +315,69 @@ public class HomeController implements Initializable, NavigatorAware {
 
     // ---------- carga de datos ----------
 
+    /** Datos del tablero, leídos juntos en segundo plano. */
+    record DashboardData(int customers, int newCustomers, VehicleCounts vehicles, int inactiveVehicles,
+                         int parts, int lowStock, int outOfStock, List<Vehicle> maintenance,
+                         int activeOrders, int readyOrders, InvoiceSummary monthBilling) {
+    }
+
+    /** Lee todos los indicadores fuera del hilo de la interfaz y los muestra al terminar. */
     private void reload() {
-        loadCustomers();
-        loadVehicles();
-        loadInventory();
-        loadMaintenance();
+        Background.run(HomeController::loadData, this::show,
+                error -> ErrorDialog.show("No se pudo cargar el resumen del taller",
+                        error instanceof AutoGestException ? error.getMessage()
+                                : "Revisa la conexión e inténtalo de nuevo."));
     }
 
-    private void loadCustomers() {
-        try {
-            CustomerService service = AppContext.getInstance().getCustomerService();
-            customersCard.setValue(String.valueOf(service.countCustomers()));
-            customersCard.setDetail("+" + service.countNewCustomersThisMonth() + " este mes");
-        } catch (AutoGestException e) {
-            ErrorDialog.show("No se pudieron cargar los clientes", e.getMessage());
-        }
+    private static DashboardData loadData() {
+        AppContext context = AppContext.getInstance();
+        CustomerService customers = context.getCustomerService();
+        VehicleService vehicles = context.getVehicleService();
+        PartService parts = context.getPartService();
+        ServiceOrderService orders = context.getServiceOrderService();
+
+        VehicleCounts counts = vehicles.getVehicleCounts();
+        LocalDate today = LocalDate.now();
+        // Mantenimientos vencidos o por vencer (D-13), del más próximo al más lejano.
+        List<Vehicle> upcoming = vehicles.searchVehicles("", null, null, null).stream()
+                .filter(vehicle -> vehicle.isMaintenanceDue(today))
+                .sorted(Comparator.comparing(Vehicle::getNextMaintenanceDate))
+                .toList();
+        return new DashboardData(customers.countCustomers(), customers.countNewCustomersThisMonth(),
+                counts, Math.max(0, counts.total() - counts.active() - counts.inService()),
+                parts.countParts(), parts.countLowStock(), parts.countOutOfStock(), upcoming,
+                orders.countActive(), orders.countByStatus(OrderStatus.READY),
+                context.getInvoiceService().getMonthSummary(today));
     }
 
-    private void loadVehicles() {
-        try {
-            VehicleService service = AppContext.getInstance().getVehicleService();
-            int total = service.countVehicles();
-            int active = service.countActiveVehicles();
-            int inService = service.countInService();
-            int maintenance = service.countMaintenanceDue();
-            int inactive = Math.max(0, total - active - inService);
+    /** Muestra los datos del tablero (visible en el paquete para las pruebas de interfaz). */
+    void show(DashboardData data) {
+        customersCard.setValue(String.valueOf(data.customers()));
+        customersCard.setDetail("+" + data.newCustomers() + " este mes");
 
-            vehiclesCard.setValue(String.valueOf(total));
-            vehiclesCard.setDetail(active + " activos · " + inService + " en servicio");
-            setStageCount("stage-registrados", total);
-            setStageCount("stage-activos", active);
-            setStageCount("stage-en-servicio", inService);
-            setStageCount("stage-mantenimiento", maintenance);
-            setStageCount("stage-inactivos", inactive);
-        } catch (AutoGestException e) {
-            ErrorDialog.show("No se pudieron cargar los vehículos", e.getMessage());
-        }
-    }
+        VehicleCounts vehicles = data.vehicles();
+        vehiclesCard.setValue(String.valueOf(vehicles.total()));
+        vehiclesCard.setDetail(vehicles.active() + " activos · " + vehicles.inService() + " en servicio");
+        setStageCount("stage-registrados", vehicles.total());
+        setStageCount("stage-activos", vehicles.active());
+        setStageCount("stage-en-servicio", vehicles.inService());
+        setStageCount("stage-mantenimiento", vehicles.maintenanceDue());
+        setStageCount("stage-inactivos", data.inactiveVehicles());
 
-    private void loadInventory() {
-        try {
-            PartService service = AppContext.getInstance().getPartService();
-            inventoryTotal.setText(String.valueOf(service.countParts()));
-            inventoryLow.setText(String.valueOf(service.countLowStock()));
-            inventoryOut.setText(String.valueOf(service.countOutOfStock()));
-        } catch (AutoGestException e) {
-            ErrorDialog.show("No se pudo cargar el inventario", e.getMessage());
-        }
-    }
+        ordersCard.setValue(String.valueOf(data.activeOrders()));
+        ordersCard.setDetail(data.readyOrders() == 0 ? "Ninguna lista para entregar"
+                : data.readyOrders() + (data.readyOrders() == 1 ? " lista" : " listas") + " para entregar");
 
-    /** Carga los vehículos con mantenimiento vencido o por vencer (D-13). */
-    private void loadMaintenance() {
-        try {
-            VehicleService service = AppContext.getInstance().getVehicleService();
-            LocalDate today = LocalDate.now();
-            List<Vehicle> upcoming = service.searchVehicles("", null, null, null).stream()
-                    .filter(vehicle -> vehicle.isMaintenanceDue(today))
-                    .sorted(Comparator.comparing(Vehicle::getNextMaintenanceDate))
-                    .toList();
-            maintenanceTable.setData(upcoming);
-        } catch (AutoGestException e) {
-            maintenanceTable.setData(List.of());
-            ErrorDialog.show("No se pudieron cargar los mantenimientos", e.getMessage());
-        }
+        InvoiceSummary billing = data.monthBilling();
+        billingCard.setValue(Formatter.money(billing.billedAmount()));
+        billingCard.setDetail(billing.total() == 0 ? "Sin facturas este mes"
+                : billing.total() + (billing.total() == 1 ? " factura" : " facturas") + " · "
+                + Formatter.money(billing.paidAmount()) + " cobrado");
+
+        inventoryTotal.setText(String.valueOf(data.parts()));
+        inventoryLow.setText(String.valueOf(data.lowStock()));
+        inventoryOut.setText(String.valueOf(data.outOfStock()));
+        maintenanceTable.setData(data.maintenance());
     }
 
     private void setStageCount(String id, int value) {

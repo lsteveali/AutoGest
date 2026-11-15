@@ -610,6 +610,13 @@ estaba incorporado; el otro era un WIP viejo de `login-usuarios`). Quedan solo
 - La tabla exige un `order_id` único: una factura anulada se vuelve a emitir **sobre la misma fila** con un número nuevo.
 - «Cancelar orden» se oculta en la pantalla si hay factura vigente, pero `OrderWorkflowService` no lo impide por sí mismo.
 - «Descargar PDF», «Imprimir» y «Enviar al cliente» del mockup no están (no hay exportación ni `NotificationService` todavía).
+
+**Prueba manual del Líder (15/11/2026): «el dashboard del inicio no marca las órdenes ni las facturas».** Las tarjetas «Órdenes activas» y «Facturación del mes» del Dashboard v1 (Sesión 12) seguían con «-» y «Disponible en el Sprint 4/5»: nunca se conectaron al llegar esos módulos. **Arreglo** (`HomeController`, archivo del Líder):
+- «Órdenes activas» muestra las órdenes sin entregar ni cancelar y cuántas están listas para entregar; «Facturación del mes», el valor facturado este mes (sin anuladas), cuántas facturas y cuánto se cobró (`InvoiceService.getMonthSummary`, con `InvoiceDao.summary(desde)`). Ambas tarjetas abren su módulo con `NavigationEvent`, así respetan los permisos del rol.
+- Todo el tablero se lee en una sola tarea en segundo plano (antes, unas 12 consultas en el hilo de la interfaz) y los vehículos usan `getVehicleCounts` (una consulta).
+- «+ Nueva orden» abre Nueva orden (abría la lista).
+- «Próximos mantenimientos» ya no corta el cliente ni el vehículo.
+- Verificado con una captura del Inicio con los datos reales (solo lecturas): 1 orden activa, 1 lista para entregar y $240.000 facturados y cobrados este mes. `mvn clean test` → **413 pruebas, 0 fallos**.
 ---
 
 ## 4. Decisiones y acuerdos

@@ -172,6 +172,17 @@ public class InvoiceDao implements CrudOperations<Invoice> {
      * @return conteos por estado y valores facturado, pagado y por cobrar
      */
     public InvoiceSummary summary() {
+        return summary(null);
+    }
+
+    /**
+     * Calcula los indicadores de las facturas emitidas desde una fecha (el
+     * Dashboard lo usa para el mes en curso).
+     *
+     * @param issuedFrom emitidas desde esta fecha, inclusive ({@code null} = todas)
+     * @return conteos por estado y valores facturado, pagado y por cobrar
+     */
+    public InvoiceSummary summary(LocalDate issuedFrom) {
         String sql = "SELECT COUNT(*),"
                 + " COUNT(*) FILTER (WHERE status = 'PAID'),"
                 + " COUNT(*) FILTER (WHERE status = 'PENDING'),"
@@ -179,13 +190,17 @@ public class InvoiceDao implements CrudOperations<Invoice> {
                 + " COALESCE(SUM(total) FILTER (WHERE status <> 'VOIDED'), 0),"
                 + " COALESCE(SUM(total) FILTER (WHERE status = 'PAID'), 0),"
                 + " COALESCE(SUM(total) FILTER (WHERE status IN ('PENDING', 'OVERDUE')), 0)"
-                + " FROM invoices";
+                + " FROM invoices" + (issuedFrom == null ? "" : " WHERE issue_date >= ?");
         try (Connection conn = connection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-            rs.next();
-            return new InvoiceSummary(rs.getInt(1), rs.getInt(2), rs.getInt(3), rs.getInt(4),
-                    rs.getBigDecimal(5), rs.getBigDecimal(6), rs.getBigDecimal(7));
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            if (issuedFrom != null) {
+                ps.setDate(1, Date.valueOf(issuedFrom));
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                rs.next();
+                return new InvoiceSummary(rs.getInt(1), rs.getInt(2), rs.getInt(3), rs.getInt(4),
+                        rs.getBigDecimal(5), rs.getBigDecimal(6), rs.getBigDecimal(7));
+            }
         } catch (SQLException e) {
             throw new DataAccessException("No se pudieron calcular los indicadores de facturación.", e);
         }

@@ -62,6 +62,11 @@ public class InvoiceRepository {
         return dao.summary();
     }
 
+    /** Conteos y valores de las facturas emitidas desde una fecha ({@code null} = todas). */
+    public InvoiceSummary summary(LocalDate issuedFrom) {
+        return dao.summary(issuedFrom);
+    }
+
     /** Pasa a vencidas las pendientes con vencimiento anterior a {@code today}; devuelve sus ids. */
     public List<Integer> markOverdue(LocalDate today) {
         return dao.markOverdue(today);

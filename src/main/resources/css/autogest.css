@@ -1632,3 +1632,12 @@
 .input.input-invalid:focused {
     -fx-border-color: -ag-danger;
 }
+
+/* Indicadores del Inicio que abren su módulo (Órdenes, Facturación). */
+.kpi-card.kpi-link {
+    -fx-cursor: hand;
+}
+
+.kpi-card.kpi-link:hover {
+    -fx-border-color: derive(-ag-primary, 55%);
+}
