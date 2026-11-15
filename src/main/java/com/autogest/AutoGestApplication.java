@@ -2,8 +2,10 @@ package com.autogest;
 
 import com.autogest.config.AppContext;
 import com.autogest.controller.MainController;
+import com.autogest.controller.components.ErrorDialog;
 import com.autogest.controller.user.LoginController;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -61,11 +63,47 @@ public class AutoGestApplication extends Application {
     public void start(Stage stage) {
         this.stage = stage;
         stage.setTitle("AutoGest");
+        installErrorHandler();
         loadAppIcons();
         loadFonts();
         showLogin();
         stage.show();
         warmUpDatabase();
+    }
+
+    /**
+     * Muestra en un diálogo cualquier error que ninguna pantalla atrapó. Sin
+     * esto, un error inesperado al pulsar un botón (por ejemplo «Crear orden»)
+     * solo quedaba en la consola y la pantalla parecía no hacer nada.
+     */
+    private void installErrorHandler() {
+        Thread.setDefaultUncaughtExceptionHandler((thread, error) -> {
+            error.printStackTrace();
+            Runnable show = () -> ErrorDialog.show("Ocurrió un error inesperado",
+                    "La acción no se completó. Detalle técnico (compártelo con el equipo):\n\n" + describe(error));
+            // Siempre en un pulso nuevo: showAndWait no se puede llamar en medio
+            // del manejo de la excepción.
+            Platform.runLater(show);
+        });
+    }
+
+    /** Tipo y mensaje del error y de sus causas, para poder diagnosticarlo. */
+    static String describe(Throwable error) {
+        StringBuilder text = new StringBuilder();
+        Throwable current = error;
+        int depth = 0;
+        while (current != null && depth < 4) {
+            if (depth > 0) {
+                text.append("\nCausa: ");
+            }
+            text.append(current.getClass().getSimpleName());
+            if (current.getMessage() != null) {
+                text.append(": ").append(current.getMessage());
+            }
+            current = current.getCause();
+            depth++;
+        }
+        return text.toString();
     }
 
     /** Cierra el pool de conexiones con la base de datos al salir. */
