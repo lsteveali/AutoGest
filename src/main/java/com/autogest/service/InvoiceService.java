@@ -43,8 +43,12 @@ import java.util.Set;
  *       historial de su orden.</li>
  * </ul>
  *
- * <p>Los avisos al cliente (factura emitida, pagada o vencida) se conectarán
- * cuando llegue el {@code NotificationService} de Dev 1 (su Sprint 5).</p>
+ * <p><b>Avisos al cliente</b> ({@link NotificationService} de Dev 1): al
+ * generar una factura pendiente se envía «Factura disponible»; al pagarla
+ * (también si se paga al generarla) «Pago recibido»; y cuando una pendiente
+ * pasa a vencida, «Factura vencida». Un aviso que falle no deshace la
+ * factura: la notificación queda como fallida (por ejemplo, si el cliente no
+ * tiene correo) y se reintenta desde Notificaciones.</p>
  *
  * <p>Principles: GRASP Controller (de caso de uso), Information Expert (los
  * importes y estados los decide {@link Invoice}), SRP, DIP.</p>
@@ -63,17 +67,20 @@ public class InvoiceService {
     private final InvoiceRepository repository;
     private final ServiceOrderService orderService;
     private final ServiceOrderRepository orderRepository;
+    private final NotificationService notificationService;
 
     /**
-     * @param repository      facturas
-     * @param orderService    consulta de órdenes (detalle completo y búsqueda)
-     * @param orderRepository historial de la orden
+     * @param repository          facturas
+     * @param orderService        consulta de órdenes (detalle completo y búsqueda)
+     * @param orderRepository     historial de la orden
+     * @param notificationService avisos al cliente (Dev 1)
      */
     public InvoiceService(InvoiceRepository repository, ServiceOrderService orderService,
-                          ServiceOrderRepository orderRepository) {
+                          ServiceOrderRepository orderRepository, NotificationService notificationService) {
         this.repository = repository;
         this.orderService = orderService;
         this.orderRepository = orderRepository;
+        this.notificationService = notificationService;
     }
 
     // ---------- generar ----------
@@ -178,6 +185,12 @@ public class InvoiceService {
                 + (invoice.getStatus() == InvoiceStatus.PAID
                 ? " y pagada con " + methodText(invoice.getPaymentMethod()) : "");
         record(orderId, text, user);
+        // Si se paga al generarla, un solo aviso: «Pago recibido».
+        if (invoice.getStatus() == InvoiceStatus.PAID) {
+            notifyCustomer(() -> notificationService.notifyInvoicePaid(invoice));
+        } else {
+            notifyCustomer(() -> notificationService.notifyInvoiceIssued(invoice));
+        }
         return invoice;
     }
 
@@ -260,13 +273,21 @@ public class InvoiceService {
     }
 
     /**
-     * Pasa a vencidas las facturas pendientes con vencimiento anterior a la fecha.
+     * Pasa a vencidas las facturas pendientes con vencimiento anterior a la
+     * fecha y avisa a cada cliente una sola vez (solo las que acaban de vencer).
      *
      * @param today fecha de referencia (se recibe para probar con fechas fijas)
      * @return ids de las que acaban de vencer
      */
     public List<Integer> refreshOverdue(LocalDate today) {
-        return repository.markOverdue(today);
+        List<Integer> changed = repository.markOverdue(today);
+        for (int id : changed) {
+            notifyCustomer(() -> {
+                Invoice invoice = repository.findById(id);
+                return invoice == null ? null : notificationService.notifyInvoiceOverdue(invoice);
+            });
+        }
+        return changed;
     }
 
     // ---------- pagar y anular ----------
@@ -287,6 +308,7 @@ public class InvoiceService {
         repository.update(invoice);
         record(invoice.getOrder().getId(), "Factura " + invoice.getNumber() + " pagada con "
                 + methodText(invoice.getPaymentMethod()), user);
+        notifyCustomer(() -> notificationService.notifyInvoicePaid(invoice));
         return invoice;
     }
 
@@ -345,6 +367,22 @@ public class InvoiceService {
             throw new ValidationException("Método de pago no válido");
         }
         return method;
+    }
+
+    /**
+     * Envía un aviso al cliente sin afectar la factura: si falla (cliente sin
+     * datos, error de conexión) la factura ya quedó guardada y el error no se
+     * propaga. Una notificación sin correo queda «Fallida» en Notificaciones.
+     */
+    private void notifyCustomer(java.util.function.Supplier<?> send) {
+        if (notificationService == null) {
+            return;
+        }
+        try {
+            send.get();
+        } catch (RuntimeException ignored) {
+            // El aviso es secundario: la operación de facturación ya se completó.
+        }
     }
 
     private void record(int orderId, String text, User user) {

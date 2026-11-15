@@ -258,7 +258,7 @@ public final class AppContext {
             invoiceService = new com.autogest.service.InvoiceService(
                     new com.autogest.repository.InvoiceRepository(
                             new com.autogest.dao.InvoiceDao(databaseConnection)),
-                    serviceOrderService, serviceOrderRepository);
+                    serviceOrderService, serviceOrderRepository, notificationService);
         }
         return invoiceService;
     }

@@ -6,6 +6,9 @@ import com.autogest.model.Customer;
 import com.autogest.model.Invoice;
 import com.autogest.model.InvoiceStatus;
 import com.autogest.model.InvoiceSummary;
+import com.autogest.model.Notification;
+import com.autogest.model.NotificationStatus;
+import com.autogest.model.NotificationType;
 import com.autogest.model.OrderHistory;
 import com.autogest.model.OrderStatus;
 import com.autogest.model.Role;
@@ -37,13 +40,28 @@ class InvoiceServiceTest {
     private HistoryOrderRepository orders;
     private InvoiceService service;
     private User receptionist;
+    private FakeCustomerRepository customers;
+    private FakeNotificationRepository notifications;
+    private Customer owner;
 
     @BeforeEach
     void setUp() {
         invoices = new FakeInvoiceRepository();
         orders = new HistoryOrderRepository();
         ServiceOrderService orderService = new ServiceOrderService(orders, null);
-        service = new InvoiceService(invoices, orderService, orders);
+        customers = new FakeCustomerRepository();
+        owner = new Customer();
+        owner.setDocumentType(com.autogest.model.DocumentType.CC);
+        owner.setDocumentNumber("1098456789");
+        owner.setFirstName("Juan");
+        owner.setLastName("Pérez");
+        owner.setEmail("juan@correo.com");
+        customers.create(owner);
+        notifications = new FakeNotificationRepository();
+        // NotificationService real de Dev 1 sobre su repositorio falso.
+        NotificationService notificationService = new NotificationService(notifications,
+                new CustomerService(customers));
+        service = new InvoiceService(invoices, orderService, orders, notificationService);
         receptionist = new User();
         receptionist.setId(7);
         receptionist.setFirstName("Laura");
@@ -340,6 +358,78 @@ class InvoiceServiceTest {
         assertEquals(0, service.searchInvoices(null, null, LocalDate.now().plusDays(1), null).size());
     }
 
+    // ---------- avisos al cliente (NotificationService de Dev 1) ----------
+
+    @Test
+    void generatingSendsInvoiceIssued() {
+        Invoice invoice = service.createInvoice(order(OrderStatus.READY, "50000").getId(), null, null, null,
+                receptionist);
+
+        List<Notification> sent = notifications.findAll();
+        assertEquals(1, sent.size());
+        assertEquals(NotificationType.BILLING, sent.get(0).getType());
+        assertEquals(NotificationStatus.SENT, sent.get(0).getStatus());
+        assertEquals("Factura " + invoice.getNumber() + " disponible", sent.get(0).getSubject());
+    }
+
+    @Test
+    void payingSendsPaymentReceived() {
+        Invoice invoice = service.createInvoice(order(OrderStatus.READY, "50000").getId(), null, null, null,
+                receptionist);
+
+        service.markAsPaid(invoice.getId(), "CASH", receptionist);
+
+        assertEquals(2, notifications.findAll().size());
+        assertTrue(subjects().contains("Pago recibido de la factura " + invoice.getNumber()), subjects().toString());
+    }
+
+    @Test
+    void payingAtOnceSendsOnlyPaymentReceived() {
+        Invoice invoice = service.createInvoice(order(OrderStatus.READY, "50000").getId(), null, null, "CARD",
+                receptionist);
+
+        assertEquals(List.of("Pago recibido de la factura " + invoice.getNumber()), subjects());
+    }
+
+    @Test
+    void overdueNoticeIsSentOnlyOnce() {
+        Invoice invoice = service.createInvoice(order(OrderStatus.READY, "50000").getId(), null, null, null,
+                receptionist);
+        LocalDate later = LocalDate.now().plusDays(InvoiceService.DEFAULT_DUE_DAYS + 1);
+
+        service.refreshOverdue(later);
+        service.refreshOverdue(later);
+
+        long overdue = subjects().stream().filter(s -> s.equals("Factura " + invoice.getNumber() + " vencida")).count();
+        assertEquals(1, overdue, subjects().toString());
+    }
+
+    @Test
+    void customerWithoutEmailLeavesAFailedNoticeButTheInvoiceIsSaved() {
+        owner.setEmail(null);
+
+        Invoice invoice = service.createInvoice(order(OrderStatus.READY, "50000").getId(), null, null, null,
+                receptionist);
+
+        assertEquals(invoice, invoices.findById(invoice.getId()));
+        assertEquals(NotificationStatus.FAILED, notifications.findAll().get(0).getStatus());
+    }
+
+    @Test
+    void noticeErrorsDoNotUndoTheInvoice() {
+        owner.setId(999);
+
+        Invoice invoice = service.createInvoice(order(OrderStatus.READY, "50000").getId(), null, null, null,
+                receptionist);
+
+        assertEquals(InvoiceStatus.PENDING, invoices.findById(invoice.getId()).getStatus());
+        assertTrue(notifications.findAll().isEmpty(), "El cliente no existe: no hay aviso, pero sí factura");
+    }
+
+    private List<String> subjects() {
+        return notifications.findAll().stream().map(Notification::getSubject).toList();
+    }
+
     @Test
     void methodNamesAreInSpanish() {
         assertEquals("Efectivo", InvoiceService.methodText("CASH"));
@@ -352,10 +442,6 @@ class InvoiceServiceTest {
 
     /** Orden guardada en el repositorio falso, con un servicio por cada precio. */
     private ServiceOrder order(OrderStatus status, String... prices) {
-        Customer owner = new Customer();
-        owner.setId(3);
-        owner.setFirstName("Juan");
-        owner.setLastName("Pérez");
         Vehicle vehicle = new Vehicle();
         vehicle.setId(5);
         vehicle.setMake("Toyota");

@@ -16,7 +16,7 @@
 | Materia | Programación de Computadores III (SS462) |
 | Repositorio | https://github.com/lsteveali/AutoGest.git |
 | Rama de trabajo actual | `feature/facturacion` (Sprint 5 — Facturación, Líder) |
-| Sprint en curso | **Sprint 5 — Facturación (Líder)**: backend, lista, nueva factura, detalle, pago y anulación · Dev 1 trabaja en paralelo su Sprint 5 (Notificaciones) |
+| Sprint en curso | **Sprint 5 — Facturación (Líder)**: backend, lista, nueva factura, detalle, pago, anulación, PDF y avisos al cliente · Dev 1 fusionó el backend de Notificaciones (PR #17) |
 | Equipo | Líder: Leonarth Steve Ali Camargo · Dev 1: Sebastián Murgas Tejeda · Dev 2: **sin integrante vinculado** — el Líder asume todas sus responsabilidades (decisión 14/10/2026) |
 | Documento guía | `AutoGest_Guia_Lider` (V2.0) |
 
@@ -66,7 +66,7 @@
 |---|---|---|
 | 3 | Servicios, Inventario y Repuestos (Líder: Dashboard v1) | ✅ Líder (PR #10 y #11) · Dev 1: Inventario, repuestos, proveedores y movimientos (PR #13) |
 | 4 | Órdenes de servicio (Dev 1: backend, lista y nueva orden · Líder: detalle, cambio de estado, historial y descuento de stock) | ✅ Dev 1 (PR #14) · Líder (PR #15, Sesión 21) |
-| 5 | Facturación (Líder: todo el módulo) | 🟡 Hecho en `feature/facturacion` (Sesión 22), falta la prueba manual del Líder y el PR · avisos al cliente pendientes del `NotificationService` de Dev 1 |
+| 5 | Facturación (Líder: todo el módulo) | 🟡 Hecho en `feature/facturacion` (Sesión 22), con los avisos al cliente ya conectados; falta volver a abrir el PR (el #16 se cerró para que entrara primero el #17 de Dev 1) |
 | 6 | Notificaciones | ⬜ No iniciado |
 | 7 | Reportes | ⬜ No iniciado |
 | 8 | Configuración (Dev 1: Datos del taller y Preferencias · Líder: pantalla general y el resto de secciones, incluidas Copias de seguridad) | 🟡 En curso — rama `feature/configuracion` |
@@ -624,6 +624,13 @@ estaba incorporado; el otro era un WIP viejo de `login-usuarios`). Quedan solo
 - `AppContext.getInvoicePdfService()` en el bloque de Facturación del Líder.
 - Pruebas: `InvoicePdfServiceTest` (7) lee el texto del PDF generado (número, cliente, conceptos, totales, pago, anulada, varias páginas, caracteres raros, archivo guardado). Revisado también como imagen (pagada y anulada). `mvn clean test` → **420 pruebas, 0 fallos**.
 - Pendiente: los datos del taller (nombre, NIT, dirección, teléfono) en el encabezado, cuando exista «Datos del taller» de Dev 1 (Sprint 8).
+
+**PR #16 cerrado y avisos al cliente conectados (15/11/2026):**
+- El PR #16 se abrió y se cerró el mismo día, a pedido del Líder, para que entrara primero el de Dev 1. La rama quedó intacta.
+- Dev 1 fusionó el backend de Notificaciones (**PR #17**: `NotificationDao/Repository/Service`, 19 pruebas). Se fusionó `develop` en `feature/facturacion` **sin conflictos**: sus bloques de `AppContext` (imports, campos y constructor al final) no tocan los del Líder.
+- `InvoiceService` recibe el `NotificationService` (`AppContext.getInvoiceService()` se lo pasa) y avisa al cliente: «Factura disponible» al generar una factura pendiente, «Pago recibido» al pagarla (si se paga al generarla, solo este) y «Factura vencida» una sola vez, cuando `refreshOverdue` la pasa a vencida. Un aviso que falla no deshace la factura: sin correo queda «Fallida» (la reintenta Notificaciones) y un error inesperado se ignora.
+- `InvoiceServiceTest` usa el `NotificationService` real de Dev 1 sobre su `FakeNotificationRepository`: 6 pruebas nuevas (emitida, pagada, pago inmediato, vencida una sola vez, cliente sin correo, cliente inexistente). `mvn clean test` → **445 pruebas, 0 fallos**.
+- No se tocó ningún archivo de Dev 1.
 ---
 
 ## 4. Decisiones y acuerdos
@@ -742,7 +749,8 @@ Verificación: `develop` → `mvn clean test` **108 pruebas, 0 fallos**
 **Sprint 5 (Líder, `feature/facturacion`):**
 - [x] Backend, lista, nueva factura, detalle, pago, anulación y «Generar factura» en la orden (Sesión 22).
 - [ ] Subir la rama y abrir el PR hacia `develop` después de la prueba manual del Líder.
-- [ ] **Avisos al cliente** (`notifyInvoiceIssued`, `notifyInvoicePaid`, `notifyInvoiceOverdue`): conectarlos en `InvoiceService.createInvoice`, `markAsPaid` y `refreshOverdue` (este último ya devuelve los ids que acaban de vencer) cuando Dev 1 fusione su `NotificationService` (su Sprint 5). No bloquea.
+- [x] ~~**Avisos al cliente**~~ — conectados el 15/11/2026 tras el PR #17 de Dev 1 (ver §3, Sesión 22).
+- [ ] Volver a abrir el PR de `feature/facturacion` hacia `develop` (el #16 se cerró el 15/11 para que entrara primero el #17).
 - [ ] Tasa de IVA y plazo de pago desde Configuración de Facturación cuando exista el `SettingsService` de Dev 1 (Sprint 8).
 - [ ] «Ver facturas» en el menú del detalle del cliente (`CustomerDetailController`, archivo de Dev 1) sigue desactivado: habilitarlo solo si el Líder lo pide.
 - [ ] Decidir si `OrderWorkflowService` debe impedir cancelar una orden con factura vigente (hoy solo lo evita la pantalla).
