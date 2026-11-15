@@ -15,6 +15,9 @@ public enum View {
     // Secciones de Configuración del Líder (junto a HOME para no tocar las líneas de los View.diff de Dev 1).
     SETTINGS_SECURITY("/fxml/settings/security.fxml", "Seguridad", "SETTINGS"),
     SETTINGS_BACKUP("/fxml/settings/backup.fxml", "Copias de seguridad", "SETTINGS"),
+    // Facturación del Líder (Sprint 5), también junto a HOME por los View.diff de Dev 1.
+    INVOICE_NEW("/fxml/billing/invoice-new.fxml", "Nueva factura", "BILLING"),
+    INVOICE_DETAIL("/fxml/billing/invoice-detail.fxml", "Detalle de la factura", "BILLING"),
     CUSTOMERS("/fxml/customer/customers.fxml", "Clientes", "CUSTOMERS"),
     CUSTOMER_NEW("/fxml/customer/customer-new.fxml", "Nuevo cliente", "CUSTOMERS"),
     CUSTOMER_EDIT("/fxml/customer/customer-edit.fxml", "Editar cliente", "CUSTOMERS"),

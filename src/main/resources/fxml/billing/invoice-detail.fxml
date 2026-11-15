@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.VBox?>
+
+<!-- Pantalla «Detalle de factura» (mockup Detalle de factura V1). El controlador carga la factura por id y la arma sobre el VBox. -->
+<ScrollPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.autogest.controller.billing.InvoiceDetailController"
+            styleClass="page-scroll"
+            fitToWidth="true"
+            hbarPolicy="NEVER"
+            vbarPolicy="AS_NEEDED">
+    <VBox fx:id="root" spacing="16" />
+</ScrollPane>

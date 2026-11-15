@@ -1567,3 +1567,68 @@
     -fx-font-size: 12px;
     -fx-text-fill: -ag-text-muted;
 }
+
+/* --------------------------------------------------------------------------
+   Facturación (Sprint 5)
+   -------------------------------------------------------------------------- */
+
+/* Indicadores con el valor en color (mockup: Pagadas en verde, Vencidas en rojo). */
+.kpi-success .kpi-value {
+    -fx-text-fill: -ag-success;
+}
+
+.kpi-danger .kpi-value {
+    -fx-text-fill: -ag-danger;
+}
+
+/* Filtros dentro de la tarjeta de la tabla: sin segundo borde ni fondo propio. */
+.filter-bar-flat {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+}
+
+/* Resumen de facturación: tres recuadros con el valor en grande. */
+.billing-tile {
+    -fx-background-color: -ag-bg;
+    -fx-background-radius: 10;
+    -fx-padding: 14 16;
+}
+
+.billing-tile-title {
+    -fx-font-size: 13px;
+    -fx-text-fill: -ag-text-muted;
+}
+
+.billing-tile-value {
+    -fx-font-size: 22px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -ag-text;
+}
+
+.billing-tile-detail {
+    -fx-font-size: 12px;
+    -fx-text-fill: -ag-text-muted;
+}
+
+/* Vehículo dentro de la tarjeta del cliente. */
+.billing-vehicle-box {
+    -fx-background-color: -ag-bg;
+    -fx-background-radius: 10;
+    -fx-padding: 10 14;
+}
+
+.billing-overdue {
+    -fx-text-fill: -ag-danger;
+}
+
+/* «Ver vehículo» alineado con el texto del vehículo: el relleno queda para el hover. */
+.billing-vehicle-box .breadcrumb-link {
+    -fx-translate-x: -6;
+}
+
+/* Campo con un valor que no se puede usar (descuento mal escrito o mayor que el total). */
+.input.input-invalid,
+.input.input-invalid:focused {
+    -fx-border-color: -ag-danger;
+}
