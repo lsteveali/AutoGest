@@ -1556,3 +1556,14 @@
     -fx-font-size: 12px;
     -fx-text-fill: -ag-text-muted;
 }
+
+/* Lista de órdenes: vehículo y placa en la misma celda. */
+.order-cell-vehicle {
+    -fx-font-size: 13px;
+    -fx-text-fill: -ag-text;
+}
+
+.order-cell-plate {
+    -fx-font-size: 12px;
+    -fx-text-fill: -ag-text-muted;
+}

@@ -30,6 +30,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
 import java.net.URL;
@@ -127,20 +128,36 @@ public class OrdersController implements Initializable, NavigatorAware {
 
     private PagedTable<ServiceOrder> buildTable() {
         PagedTable<ServiceOrder> pagedTable = new PagedTable<>(PAGE_SIZE);
+        // Anchos mínimos para que no se corten el cliente, el vehículo ni el estado
+        // («En reparación» es el más largo). Para que la tabla quepa sin barra
+        // horizontal, la placa va bajo el vehículo, los títulos de fechas son
+        // cortos y la columna del menú «…» no lleva título.
         pagedTable.addColumn("Orden", OrderLabels::number);
-        pagedTable.addColumn("Cliente", OrderLabels::customer);
-        pagedTable.addColumn("Vehículo", OrderLabels::vehicle);
-        pagedTable.addColumn("Placa", OrderLabels::plate);
-        pagedTable.addColumn("Fecha de ingreso", order -> Formatter.date(order.getEntryDate()));
-        pagedTable.addColumn("Entrega estimada", order -> order.getEstimatedDeliveryDate() == null
-                ? "-" : Formatter.date(order.getEstimatedDeliveryDate()));
-        pagedTable.addColumn("Responsable", OrderLabels::responsible);
-        pagedTable.addColumn("Estado", order -> StatusBadge.of(OrderLabels.statusText(order.getStatus()),
-                OrderLabels.statusType(order.getStatus())));
-        pagedTable.addColumn("Total", order -> Formatter.money(order.calculateTotal()));
-        pagedTable.addColumn("Acciones", this::actionsCell);
+        pagedTable.addColumn("Cliente", OrderLabels::customer, 130);
+        pagedTable.addColumn("Vehículo", this::vehicleCell, 130);
+        pagedTable.addColumn("Ingreso", order -> Formatter.date(order.getEntryDate()), 100);
+        pagedTable.addColumn("Entrega", order -> order.getEstimatedDeliveryDate() == null
+                ? "-" : Formatter.date(order.getEstimatedDeliveryDate()), 100);
+        pagedTable.addColumn("Responsable", OrderLabels::responsible, 115);
+        pagedTable.addColumn("Estado", order -> {
+            Label badge = StatusBadge.of(OrderLabels.statusText(order.getStatus()),
+                    OrderLabels.statusType(order.getStatus()));
+            badge.setMinWidth(Region.USE_PREF_SIZE);
+            return badge;
+        }, 140);
+        pagedTable.addColumn("Total", order -> Formatter.money(order.calculateTotal()), 95);
+        pagedTable.addColumn("", this::actionsCell, 50);
         pagedTable.setOnSelect(order -> openDetail(order.getId()));
         return pagedTable;
+    }
+
+    /** Vehículo arriba y placa debajo, en una sola columna. */
+    private Node vehicleCell(ServiceOrder order) {
+        Label vehicle = new Label(OrderLabels.vehicle(order));
+        vehicle.getStyleClass().add("order-cell-vehicle");
+        Label plate = new Label(OrderLabels.plate(order));
+        plate.getStyleClass().add("order-cell-plate");
+        return new VBox(2, vehicle, plate);
     }
 
     private Node actionsCell(ServiceOrder order) {

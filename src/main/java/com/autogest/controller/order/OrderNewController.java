@@ -181,7 +181,7 @@ public class OrderNewController implements Initializable, NavigatorAware, Parame
     private VBox buildServicesCard() {
         serviceBox = FormLayout.combo("Seleccionar servicio",
                 s -> s.getName() + " · " + Formatter.money(s.getPrice()));
-        Button add = FormLayout.button("+ Agregar servicio", "btn-secondary", this::addService);
+        Button add = FormLayout.button("Agregar", "btn-secondary", this::addService);
         HBox picker = new HBox(8, serviceBox, add);
         HBox.setHgrow(serviceBox, Priority.ALWAYS);
 
@@ -205,7 +205,7 @@ public class OrderNewController implements Initializable, NavigatorAware, Parame
         partQuantityField.setText("1");
         partQuantityField.setPrefColumnCount(3);
         partQuantityField.setMaxWidth(70);
-        Button add = FormLayout.button("+ Agregar repuesto", "btn-secondary", this::addPart);
+        Button add = FormLayout.button("Agregar", "btn-secondary", this::addPart);
         HBox picker = new HBox(8, partBox, partQuantityField, add);
         HBox.setHgrow(partBox, Priority.ALWAYS);
 
