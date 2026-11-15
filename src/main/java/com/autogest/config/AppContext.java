@@ -1,5 +1,8 @@
 package com.autogest.config;
 
+import com.autogest.dao.NotificationDao;
+import com.autogest.repository.NotificationRepository;
+import com.autogest.service.NotificationService;
 import com.autogest.dao.DiagnosisDao;
 import com.autogest.dao.OrderHistoryDao;
 import com.autogest.dao.OrderLineDao;
@@ -108,6 +111,11 @@ public final class AppContext {
     private final ServiceOrderRepository serviceOrderRepository;
     private final ServiceOrderService serviceOrderService;
 
+    // ===== Notifications (Dev 1) =====
+    private final NotificationDao notificationDao;
+    private final NotificationRepository notificationRepository;
+    private final NotificationService notificationService;
+
     private AppContext() {
         // ===== Users (Leader) =====
         this.databaseConnection = new DatabaseConnection();
@@ -160,6 +168,11 @@ public final class AppContext {
                 orderHistoryDao, diagnosisDao, vehicleRepository, customerRepository, userRepository,
                 serviceOfferingRepository, partRepository);
         this.serviceOrderService = new ServiceOrderService(serviceOrderRepository, vehicleService);
+
+        // ===== Notifications (Dev 1) =====
+        this.notificationDao = new NotificationDao(databaseConnection);
+        this.notificationRepository = new NotificationRepository(notificationDao, customerRepository);
+        this.notificationService = new NotificationService(notificationRepository, customerService);
 
     }
 
@@ -325,4 +338,16 @@ public final class AppContext {
     public ServiceOrderService getServiceOrderService() {
         return serviceOrderService;
     }
+
+    // ===== Notifications (Dev 1) =====
+
+    /**
+     * Devuelve el servicio de notificaciones a clientes.
+     *
+     * @return servicio de notificaciones compartido
+     */
+    public NotificationService getNotificationService() {
+        return notificationService;
+    }
+
 }
