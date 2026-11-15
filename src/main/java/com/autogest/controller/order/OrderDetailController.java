@@ -16,6 +16,8 @@ import com.autogest.controller.vehicle.VehicleLabels;
 import com.autogest.exception.AutoGestException;
 import com.autogest.model.Customer;
 import com.autogest.model.Diagnosis;
+import com.autogest.model.Invoice;
+import com.autogest.model.InvoiceStatus;
 import com.autogest.model.OrderHistory;
 import com.autogest.model.OrderLine;
 import com.autogest.model.OrderStatus;
@@ -26,6 +28,7 @@ import com.autogest.model.ServiceOffering;
 import com.autogest.model.ServiceOrder;
 import com.autogest.model.User;
 import com.autogest.model.Vehicle;
+import com.autogest.service.InvoiceService;
 import com.autogest.service.OrderWorkflowService;
 import com.autogest.util.Background;
 import com.autogest.util.Formatter;
@@ -61,9 +64,10 @@ import java.util.function.Supplier;
  *
  * <p>Las reglas viven en {@link OrderWorkflowService}; aquí solo se arman la
  * pantalla y los diálogos. Las acciones van en segundo plano y, al terminar,
- * la pantalla se vuelve a cargar desde la base de datos. «Generar factura» y
- * «Comunicación» del mockup llegan con los sprints de Facturación y
- * Notificaciones.</p>
+ * la pantalla se vuelve a cargar desde la base de datos. «Generar factura»
+ * (Sprint 5) aparece en las órdenes Listas o Entregadas sin factura vigente; si
+ * ya tienen una, se muestra «Ver factura» y la orden no se puede cancelar.
+ * «Comunicación» del mockup llega con el sprint de Notificaciones.</p>
  *
  * <p>Principles: GRASP Controller, SRP, DIP.</p>
  */
@@ -78,6 +82,8 @@ public class OrderDetailController implements NavigatorAware, ParameterizedContr
 
     private ViewNavigator navigator;
     private int orderId;
+    /** Factura de la orden (Sprint 5), o {@code null} si no tiene o no aplica. */
+    private Invoice invoice;
 
     @Override
     public void setNavigator(ViewNavigator navigator) {
@@ -90,9 +96,19 @@ public class OrderDetailController implements NavigatorAware, ParameterizedContr
         reload();
     }
 
+    /** Orden y su factura (o {@code null}), leídas juntas en segundo plano. */
+    private record Loaded(ServiceOrder order, Invoice invoice) {
+    }
+
     private void reload() {
-        Background.run(() -> AppContext.getInstance().getServiceOrderService().getDetail(orderId),
-                this::render,
+        Background.run(() -> {
+                    AppContext context = AppContext.getInstance();
+                    ServiceOrder order = context.getServiceOrderService().getDetail(orderId);
+                    Invoice invoice = InvoiceService.canInvoice(order.getStatus())
+                            ? context.getInvoiceService().findByOrder(orderId) : null;
+                    return new Loaded(order, invoice);
+                },
+                loaded -> render(loaded.order(), loaded.invoice()),
                 error -> {
                     ErrorDialog.show("No se pudo abrir la orden", error.getMessage());
                     if (navigator != null) {
@@ -101,8 +117,19 @@ public class OrderDetailController implements NavigatorAware, ParameterizedContr
                 });
     }
 
-    /** Arma la pantalla con la orden cargada (visible en el paquete para las pruebas de interfaz). */
+    /** Arma la pantalla con la orden cargada y sin factura (visible en el paquete para las pruebas de interfaz). */
     void render(ServiceOrder order) {
+        render(order, null);
+    }
+
+    /**
+     * Arma la pantalla con la orden cargada y su factura.
+     *
+     * @param order   orden completa
+     * @param invoice factura de la orden, o {@code null} si no tiene
+     */
+    void render(ServiceOrder order, Invoice invoice) {
+        this.invoice = invoice;
         GridPane columns = new GridPane();
         columns.setHgap(16);
         ColumnConstraints left = new ColumnConstraints();
@@ -143,11 +170,26 @@ public class OrderDetailController implements NavigatorAware, ParameterizedContr
         HBox.setHgrow(spacer, Priority.ALWAYS);
         HBox actions = new HBox(10);
         actions.setAlignment(Pos.CENTER_RIGHT);
-        if (order.canChangeTo(OrderStatus.CANCELLED)) {
+        boolean invoiced = invoice != null && invoice.getStatus() != InvoiceStatus.VOIDED;
+        // Con una factura vigente la orden ya no se cancela: primero hay que anular la factura.
+        if (order.canChangeTo(OrderStatus.CANCELLED) && !invoiced) {
             Button cancel = new Button("Cancelar orden");
             cancel.getStyleClass().add("btn-secondary");
             cancel.setOnAction(event -> cancelOrder(order));
             actions.getChildren().add(cancel);
+        }
+        if (invoiced) {
+            Button view = new Button("Ver factura " + invoice.getNumber());
+            view.getStyleClass().add("btn-secondary");
+            view.setOnAction(event -> navigator.navigateWithParameter(View.INVOICE_DETAIL, invoice.getId()));
+            actions.getChildren().add(view);
+        } else if (InvoiceService.canInvoice(order.getStatus()) && !order.getLines().isEmpty()) {
+            Button generate = new Button("Generar factura");
+            OrderStatus nextStep = OrderWorkflowService.nextStatus(order.getStatus());
+            // Entregada: es la acción principal; Lista: lo es «Entregar al cliente».
+            generate.getStyleClass().add(nextStep == null ? "btn-primary" : "btn-secondary");
+            generate.setOnAction(event -> navigator.navigateWithParameter(View.INVOICE_NEW, order.getId()));
+            actions.getChildren().add(generate);
         }
         OrderStatus next = OrderWorkflowService.nextStatus(order.getStatus());
         if (next != null) {
