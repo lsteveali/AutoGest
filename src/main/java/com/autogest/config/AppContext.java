@@ -61,6 +61,11 @@ public final class AppContext {
     // Nombres completos de clase: así no se tocan los imports, que modifican los AppContext.diff de Dev 1.
     private final com.autogest.service.BackupService backupService;
 
+    // ===== Seguimiento de órdenes (Líder, Sprint 4) =====
+    // Se crea al pedirlo por primera vez: depende de servicios que se arman al final del
+    // constructor, y así este bloque no toca las líneas que modifican los AppContext.diff de Dev 1.
+    private com.autogest.service.OrderWorkflowService orderWorkflowService;
+
     // ===== Customers (Dev 1) =====
     private final CustomerDao customerDao;
     private final CustomerRepository customerRepository;
@@ -204,6 +209,22 @@ public final class AppContext {
      */
     public com.autogest.service.BackupService getBackupService() {
         return backupService;
+    }
+
+    // ===== Seguimiento de órdenes (Líder, Sprint 4) =====
+
+    /**
+     * Devuelve el servicio de seguimiento de órdenes (estado, historial,
+     * diagnóstico, responsable, líneas y stock).
+     *
+     * @return servicio de seguimiento compartido
+     */
+    public synchronized com.autogest.service.OrderWorkflowService getOrderWorkflowService() {
+        if (orderWorkflowService == null) {
+            orderWorkflowService = new com.autogest.service.OrderWorkflowService(serviceOrderRepository,
+                    serviceOrderService, vehicleService, inventoryService, partService, userService);
+        }
+        return orderWorkflowService;
     }
 
     // ===== Customers (Dev 1) =====
