@@ -15,8 +15,8 @@
 | Proyecto | AutoGest — Sistema de gestión integral para talleres automotrices |
 | Materia | Programación de Computadores III (SS462) |
 | Repositorio | https://github.com/lsteveali/AutoGest.git |
-| Rama de trabajo actual | `develop` (Sprint 5 cerrado; la próxima rama del Líder se crea desde aquí) |
-| Sprint en curso | **Sprint 5 — Facturación (Líder): ✅ cerrado** (PR #16 fusionado el 15/11/2026) · Dev 1: backend de Notificaciones fusionado (PR #17) |
+| Rama de trabajo actual | `feature/notificaciones-eventos` (Sprint 6 — parte del Líder) |
+| Sprint en curso | **Sprint 6 — Notificaciones**: Dev 1 entregó backend (PR #17) e interfaz (PR #18) · Líder: plantillas, avisos automáticos, Inicio y campana (Sesión 23) |
 | Equipo | Líder: Leonarth Steve Ali Camargo · Dev 1: Sebastián Murgas Tejeda · Dev 2: **sin integrante vinculado** — el Líder asume todas sus responsabilidades (decisión 14/10/2026) |
 | Documento guía | `AutoGest_Guia_Lider` (V2.0) |
 
@@ -67,7 +67,7 @@
 | 3 | Servicios, Inventario y Repuestos (Líder: Dashboard v1) | ✅ Líder (PR #10 y #11) · Dev 1: Inventario, repuestos, proveedores y movimientos (PR #13) |
 | 4 | Órdenes de servicio (Dev 1: backend, lista y nueva orden · Líder: detalle, cambio de estado, historial y descuento de stock) | ✅ Dev 1 (PR #14) · Líder (PR #15, Sesión 21) |
 | 5 | Facturación (Líder: todo el módulo) | ✅ PR #16 fusionado en `develop` (`b858e80`, 15/11/2026): facturación, PDF, avisos al cliente e Inicio con órdenes y facturas (Sesión 22) |
-| 6 | Notificaciones | 🟡 Dev 1: backend fusionado (PR #17); falta su interfaz |
+| 6 | Notificaciones (Dev 1: backend e interfaz · Líder: plantillas y eventos) | 🟡 Dev 1 ✅ (PR #17 y #18) · Líder hecho en `feature/notificaciones-eventos` (Sesión 23), falta prueba manual y PR |
 | 7 | Reportes | ⬜ No iniciado |
 | 8 | Configuración (Dev 1: Datos del taller y Preferencias · Líder: pantalla general y el resto de secciones, incluidas Copias de seguridad) | 🟡 En curso — rama `feature/configuracion` |
 | 9 | Asistente AutoGest (Líder) | ⬜ No iniciado |
@@ -631,6 +631,28 @@ estaba incorporado; el otro era un WIP viejo de `login-usuarios`). Quedan solo
 - `InvoiceService` recibe el `NotificationService` (`AppContext.getInvoiceService()` se lo pasa) y avisa al cliente: «Factura disponible» al generar una factura pendiente, «Pago recibido» al pagarla (si se paga al generarla, solo este) y «Factura vencida» una sola vez, cuando `refreshOverdue` la pasa a vencida. Un aviso que falla no deshace la factura: sin correo queda «Fallida» (la reintenta Notificaciones) y un error inesperado se ignora.
 - `InvoiceServiceTest` usa el `NotificationService` real de Dev 1 sobre su `FakeNotificationRepository`: 6 pruebas nuevas (emitida, pagada, pago inmediato, vencida una sola vez, cliente sin correo, cliente inexistente). `mvn clean test` → **445 pruebas, 0 fallos**.
 - No se tocó ningún archivo de Dev 1.
+
+**Cierre del Sprint 5 (15/11/2026):** Dev 1 revisó y fusionó el PR #16 (`b858e80`); `develop` → 445 pruebas, 0 fallos. Rama `feature/facturacion` borrada (GitHub la remota, el Líder la local).
+
+### 16/11/2026 — Sesión 23 (Líder): Sprint 6 — plantillas, avisos automáticos, Inicio y campana
+
+**Contexto.** Dev 1 fusionó la interfaz de Notificaciones (**PR #18**: historial con indicadores y filtros, nueva notificación, detalle con envío y reintento, `NotificationLabels` y 3 pruebas). `develop` → 448 pruebas, 0 fallos. Rama `feature/notificaciones-eventos` desde `develop` (`96ff25e`). La guía no estaba a mano: el alcance de «Plantillas y eventos» se definió con el Líder (avisos automáticos con textos de plantilla, más la tarjeta del Inicio y la campana).
+
+**Revisión de la interfaz de Dev 1** (captura con datos reales, solo lecturas; **no se tocaron sus archivos**, se le pasan como comentarios):
+1. Las etiquetas de los filtros («Tipo», «Canal», «Estado») salen cortadas como «…» en 1280 px.
+2. La lista y sus acciones consultan Supabase en el hilo de la interfaz (sin `Background.run`).
+3. Las columnas de la tabla no tienen ancho mínimo (`addColumn(título, valor, ancho)`).
+
+**Hecho (Líder):**
+1. **`NotificationTemplate`** (nuevo, `service`): plantillas «Vehículo listo» (`SERVICE_UPDATE`) y «Recordatorio de mantenimiento» (`MAINTENANCE_REMINDER`) con campos `{cliente}`, `{vehiculo}`, `{placa}`, `{orden}`, `{fecha}` y `{taller}`. Un campo sin valor queda vacío (nunca con llaves) y un campo desconocido se rechaza.
+2. **`NotificationEventService`** (nuevo): usa el `NotificationService` de Dev 1 sin modificarlo.
+   - `notifyVehicleReady`: `OrderWorkflowService` lo dispara al pasar una orden a **Lista**; deja en el historial de la orden «Se avisó al cliente…» o «No se pudo avisar…». Un aviso que falla no deshace el cambio de estado.
+   - Recordatorios de mantenimiento: vehículos con mantenimiento vencido o por vencer (D-13), no dados de baja y con propietario, **una vez cada 30 días por vehículo** (se reconoce por la placa en el asunto). Se envían desde el Inicio con «Enviar recordatorios»; uno que falla no detiene los demás.
+3. **Inicio:** la tarjeta «Notificaciones» (antes «Disponible en el Sprint 6») muestra los 3 avisos más recientes con su estado, cuántos fallaron y cuántos vehículos necesitan recordatorio, con «Ver todas» y «Enviar recordatorios» solo para los roles con acceso a Notificaciones.
+4. **Campana de la Topbar:** abre Notificaciones (con los permisos del rol) y muestra un contador de avisos fallidos o pendientes, que se actualiza en segundo plano al cambiar de pantalla.
+5. **`AppContext`:** bloque «Avisos automáticos (Líder, Sprint 6)» junto a Facturación, con nombres completos y creado al pedirlo; `getOrderWorkflowService()` le pasa los avisos.
+6. **Pruebas:** `NotificationEventServiceTest` (12: plantillas, vehículo listo, recordatorios por fecha, inactivos, una vez por ventana, después de la ventana, dos vehículos del mismo cliente, cliente sin correo) y 2 en `OrderWorkflowServiceTest` (aviso al pasar a Lista una sola vez; sin correo el estado cambia igual). Todas con el `NotificationService` real de Dev 1. `mvn clean test` → **462 pruebas, 0 fallos**.
+7. **Captura del Inicio** con los datos reales (solo lecturas) y una sesión de administrador en memoria: contador en la campana, «Ver todas» y «3 vehículos necesitan recordatorio de mantenimiento». No se escribió en Supabase.
 ---
 
 ## 4. Decisiones y acuerdos
@@ -667,6 +689,9 @@ estaba incorporado; el otro era un WIP viejo de `login-usuarios`). Quedan solo
 | 14/11/2026 | **Los métodos de pago se guardan como códigos** (`CASH`, `CARD`, `TRANSFER`, `OTHER`) en el texto `payment_method`. | `Invoice` usa `String` mientras no exista `PaymentMethod`; los códigos coinciden con los nombres que tendría ese enum, así el cambio no requiere migrar datos. Los nombres en español viven en `InvoiceService.methodText` / `InvoiceLabels`. |
 | 14/11/2026 | **Solo se facturan órdenes Listas o Entregadas, con una factura vigente por orden;** al anular, la orden puede facturarse de nuevo y se reutiliza la misma fila. | Pedido del Líder (una orden tiene 0..1 factura) y restricción `UNIQUE (order_id)` de `invoices`. |
 | 14/11/2026 | **Generar, pagar y anular dejan constancia en el historial de la orden.** | `invoices` no guarda fechas de pago ni usuarios; así queda trazabilidad sin cambiar el esquema de Dev 2. |
+| 16/11/2026 | **Plantillas de aviso en el código** (`NotificationTemplate`) mientras no exista la configuración de Notificaciones. | Editarlas requiere guardarlas en `app_settings`, que llega con el `SettingsService` de Dev 1 (Sprint 8). Los eventos no cambian cuando eso pase: solo de dónde salen los textos. |
+| 16/11/2026 | **Los recordatorios de mantenimiento se envían con un botón en el Inicio**, una vez cada 30 días por vehículo. | Enviarlos solos al abrir la app escribiría en la base de datos sin que nadie lo pida; con el botón el taller decide cuándo. La ventana de 30 días evita repetirlos. |
+| 16/11/2026 | **El contador de la campana suma avisos fallidos y pendientes.** | Son los que necesitan atención: los fallidos se reintentan y los pendientes no han salido. Solo lo ven los roles con acceso a Notificaciones. |
 | 15/11/2026 | **PDF de la factura con Apache PDFBox 3.0.3** (dependencia nueva). | Licencia Apache, sin servicios externos, permite incrustar Roboto y probar el contenido leyendo el texto del PDF. Alternativas descartadas: imprimir desde JavaFX a «Microsoft Print to PDF» (depende del equipo y no se puede probar) y librerías con licencia AGPL. |
 | 14/11/2026 | **Las capturas de Facturación se toman fuera del repositorio y sin configuración de base de datos.** | La lista ejecuta el paso a vencidas (`UPDATE`) al cargar; así las capturas no escriben en Supabase. |
 
@@ -756,6 +781,12 @@ Verificación: `develop` → `mvn clean test` **108 pruebas, 0 fallos**
 - [ ] Decidir si `OrderWorkflowService` debe impedir cancelar una orden con factura vigente (hoy solo lo evita la pantalla).
 - [x] ~~Descargar la factura en PDF~~ — hecho (15/11/2026, `InvoicePdfService`).
 - [ ] Datos del taller en el encabezado del PDF cuando exista «Datos del taller» (Dev 1, Sprint 8).
+
+**Sprint 6 (Líder, `feature/notificaciones-eventos`):**
+- [x] Plantillas, aviso «vehículo listo», recordatorios de mantenimiento, tarjeta del Inicio y campana (Sesión 23).
+- [ ] Subir la rama y abrir el PR hacia `develop` después de la prueba manual del Líder.
+- [ ] Editar las plantillas desde Configuración de Notificaciones cuando exista el `SettingsService` de Dev 1 (Sprint 8); también el nombre del taller (`{taller}`).
+- [ ] Comentarios para Dev 1 sobre su pantalla de Notificaciones: etiquetas de filtros cortadas, consultas en el hilo de la interfaz y anchos mínimos de columnas (ver Sesión 23).
 
 **Barrido de interfaz pendiente (lo hará el Líder):** Inventario (filtros, nombres y estados cortados; «Volver» repetido en el detalle del repuesto; «Registrar entrada» debajo de «+ Nuevo repuesto») (Órdenes ya corregida en la Sesión 21).
 

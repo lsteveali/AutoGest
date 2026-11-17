@@ -10,6 +10,7 @@ import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
 /**
@@ -26,8 +27,11 @@ public class Topbar extends HBox {
     private final Label nameLabel = new Label();
     private final Label roleLabel = new Label();
 
+    private final Label notificationBadge = new Label();
+
     private Runnable onLogout;
     private Runnable onProfile;
+    private Runnable onNotifications;
 
     /** Crea la cabecera con el usuario provisional «Invitado». */
     public Topbar() {
@@ -40,6 +44,17 @@ public class Topbar extends HBox {
         Button notificationButton = new Button();
         notificationButton.setGraphic(IconSet.icon(IconSet.BELL));
         notificationButton.getStyleClass().add("icon-button");
+        notificationButton.setOnAction(event -> {
+            if (onNotifications != null) {
+                onNotifications.run();
+            }
+        });
+        // Contador sobre la campana: avisos que necesitan atención (fallidos o pendientes).
+        notificationBadge.getStyleClass().add("topbar-badge");
+        notificationBadge.setMouseTransparent(true);
+        notificationBadge.setVisible(false);
+        StackPane.setAlignment(notificationBadge, Pos.TOP_RIGHT);
+        StackPane bell = new StackPane(notificationButton, notificationBadge);
 
         avatarLabel.getStyleClass().add("topbar-avatar");
         nameLabel.getStyleClass().add("topbar-user-name");
@@ -69,7 +84,7 @@ public class Topbar extends HBox {
         userMenu.setOnMouseClicked(event ->
                 userContextMenu.show(userMenu, event.getScreenX(), event.getScreenY()));
 
-        getChildren().addAll(spacer, notificationButton, userMenu);
+        getChildren().addAll(spacer, bell, userMenu);
         setUser("Invitado", "Sin sesión");
     }
 
@@ -102,6 +117,25 @@ public class Topbar extends HBox {
         nameLabel.setText(fullName);
         this.roleLabel.setText(roleLabel);
         avatarLabel.setText(initialsOf(fullName));
+    }
+
+    /**
+     * Registra la acción de la campana (abrir Notificaciones).
+     *
+     * @param onNotifications acción a ejecutar al pulsar la campana
+     */
+    public void setOnNotifications(Runnable onNotifications) {
+        this.onNotifications = onNotifications;
+    }
+
+    /**
+     * Muestra sobre la campana cuántos avisos necesitan atención; 0 la oculta.
+     *
+     * @param count avisos fallidos o pendientes
+     */
+    public void setNotificationCount(int count) {
+        notificationBadge.setText(count > 99 ? "99+" : String.valueOf(count));
+        notificationBadge.setVisible(count > 0);
     }
 
     /** Calcula las iniciales (primera y última palabra) del nombre. */

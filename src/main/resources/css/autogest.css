@@ -1641,3 +1641,49 @@
 .kpi-card.kpi-link:hover {
     -fx-border-color: derive(-ag-primary, 55%);
 }
+
+/* --------------------------------------------------------------------------
+   Notificaciones en el Inicio y la campana (Sprint 6)
+   -------------------------------------------------------------------------- */
+
+/* Contador sobre la campana de la Topbar. */
+.topbar-badge {
+    -fx-background-color: -ag-danger;
+    -fx-background-radius: 9;
+    -fx-text-fill: #FFFFFF;
+    -fx-font-size: 10px;
+    -fx-font-weight: 700;
+    -fx-padding: 1 5;
+    -fx-min-width: 18;
+    -fx-alignment: center;
+    -fx-translate-x: 4;
+    -fx-translate-y: -2;
+}
+
+/* Últimos avisos en la tarjeta «Notificaciones» del Inicio. */
+.home-notification {
+    -fx-padding: 0 0 10 0;
+    -fx-border-color: transparent transparent -ag-border transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+.home-notification-title {
+    -fx-font-size: 13px;
+    -fx-text-fill: -ag-text;
+}
+
+.home-notification-alert {
+    -fx-text-fill: -ag-danger;
+}
+
+.home-reminders {
+    -fx-background-color: -ag-bg;
+    -fx-background-radius: 10;
+    -fx-padding: 12 14;
+}
+
+.home-reminders .card-note,
+.home-notification-alert {
+    -fx-text-alignment: left;
+    -fx-alignment: center-left;
+}

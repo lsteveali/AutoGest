@@ -2,6 +2,8 @@ package com.autogest.service;
 
 import com.autogest.exception.ValidationException;
 import com.autogest.model.Diagnosis;
+import com.autogest.model.Notification;
+import com.autogest.model.NotificationStatus;
 import com.autogest.model.OrderHistory;
 import com.autogest.model.OrderLine;
 import com.autogest.model.OrderStatus;
@@ -59,6 +61,7 @@ public class OrderWorkflowService {
     private final InventoryService inventoryService;
     private final PartService partService;
     private final UserService userService;
+    private NotificationEventService events;
 
     /**
      * @param repository       repositorio de órdenes
@@ -77,6 +80,19 @@ public class OrderWorkflowService {
         this.inventoryService = inventoryService;
         this.partService = partService;
         this.userService = userService;
+    }
+
+    /**
+     * Igual que el constructor anterior, más los avisos automáticos al cliente
+     * (Sprint 6): al pasar a Lista se le avisa que el vehículo está listo.
+     *
+     * @param events avisos automáticos ({@code null} = sin avisos)
+     */
+    public OrderWorkflowService(ServiceOrderRepository repository, ServiceOrderService orderService,
+                                VehicleService vehicleService, InventoryService inventoryService,
+                                PartService partService, UserService userService, NotificationEventService events) {
+        this(repository, orderService, vehicleService, inventoryService, partService, userService);
+        this.events = events;
     }
 
     // ---------- estado ----------
@@ -125,7 +141,34 @@ public class OrderWorkflowService {
         if (newStatus == OrderStatus.DELIVERED || newStatus == OrderStatus.CANCELLED) {
             releaseVehicle(order);
         }
+        if (newStatus == OrderStatus.READY) {
+            notifyVehicleReady(order, user);
+        }
         return order;
+    }
+
+    /**
+     * Avisa al cliente que el vehículo está listo y deja constancia en el
+     * historial. Un aviso que no sale no deshace el cambio de estado.
+     */
+    private void notifyVehicleReady(ServiceOrder order, User user) {
+        if (events == null) {
+            return;
+        }
+        String text;
+        try {
+            Notification sent = events.notifyVehicleReady(order);
+            text = sent.getStatus() == NotificationStatus.SENT
+                    ? "Se avisó al cliente que el vehículo está listo"
+                    : "No se pudo avisar al cliente que el vehículo está listo (revisa su correo en Notificaciones)";
+        } catch (RuntimeException e) {
+            text = "No se pudo avisar al cliente que el vehículo está listo";
+        }
+        try {
+            record(order, text, user);
+        } catch (RuntimeException ignored) {
+            // El historial del aviso es secundario: el cambio de estado ya se guardó.
+        }
     }
 
     /**

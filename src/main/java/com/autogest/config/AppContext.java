@@ -75,6 +75,10 @@ public final class AppContext {
     private final com.autogest.service.InvoicePdfService invoicePdfService =
             new com.autogest.service.InvoicePdfService();
 
+    // ===== Avisos automáticos (Líder, Sprint 6) =====
+    // Se crea al pedirlo: usa el NotificationService de Dev 1, que se arma al final del constructor.
+    private com.autogest.service.NotificationEventService notificationEventService;
+
     // ===== Customers (Dev 1) =====
     private final CustomerDao customerDao;
     private final CustomerRepository customerRepository;
@@ -241,7 +245,8 @@ public final class AppContext {
     public synchronized com.autogest.service.OrderWorkflowService getOrderWorkflowService() {
         if (orderWorkflowService == null) {
             orderWorkflowService = new com.autogest.service.OrderWorkflowService(serviceOrderRepository,
-                    serviceOrderService, vehicleService, inventoryService, partService, userService);
+                    serviceOrderService, vehicleService, inventoryService, partService, userService,
+                    getNotificationEventService());
         }
         return orderWorkflowService;
     }
@@ -270,6 +275,22 @@ public final class AppContext {
      */
     public com.autogest.service.InvoicePdfService getInvoicePdfService() {
         return invoicePdfService;
+    }
+
+    // ===== Avisos automáticos (Líder, Sprint 6) =====
+
+    /**
+     * Devuelve los avisos automáticos al cliente (vehículo listo y
+     * recordatorios de mantenimiento).
+     *
+     * @return servicio de avisos compartido
+     */
+    public synchronized com.autogest.service.NotificationEventService getNotificationEventService() {
+        if (notificationEventService == null) {
+            notificationEventService = new com.autogest.service.NotificationEventService(notificationService,
+                    vehicleService);
+        }
+        return notificationEventService;
     }
 
     // ===== Customers (Dev 1) =====

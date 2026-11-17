@@ -4,6 +4,9 @@ import com.autogest.exception.ValidationException;
 import com.autogest.model.Customer;
 import com.autogest.model.DocumentType;
 import com.autogest.model.FuelType;
+import com.autogest.model.Notification;
+import com.autogest.model.NotificationStatus;
+import com.autogest.model.NotificationType;
 import com.autogest.model.OrderHistory;
 import com.autogest.model.OrderLine;
 import com.autogest.model.OrderStatus;
@@ -46,6 +49,8 @@ class OrderWorkflowServiceTest {
     private User receptionist;
     private User mechanic;
     private Part filter;
+    private FakeNotificationRepository notifications;
+    private Customer owner;
 
     @BeforeEach
     void setUp() {
@@ -59,14 +64,19 @@ class OrderWorkflowServiceTest {
         UserService userService = new UserService(users);
         orders = new RecordingOrderRepository();
         orderService = new ServiceOrderService(orders, vehicleService);
+        notifications = new FakeNotificationRepository();
+        // Avisos automáticos (Sprint 6) con el NotificationService real de Dev 1.
+        NotificationEventService events = new NotificationEventService(
+                new NotificationService(notifications, new CustomerService(customers)), vehicleService);
         workflow = new OrderWorkflowService(orders, orderService, vehicleService, inventoryService,
-                partService, userService);
+                partService, userService, events);
 
-        Customer owner = new Customer();
+        owner = new Customer();
         owner.setDocumentType(DocumentType.CC);
         owner.setDocumentNumber("1234567890");
         owner.setFirstName("Juan");
         owner.setLastName("Pérez");
+        owner.setEmail("juan@correo.com");
         customers.create(owner);
         Vehicle v = new Vehicle();
         v.setOwner(owner);
@@ -274,6 +284,44 @@ class OrderWorkflowServiceTest {
     // ---------- ayudas ----------
 
     /** Crea una orden con una línea de repuesto de {@code partUnits} unidades (0 = sin repuestos). */
+    // ---------- aviso «vehículo listo» (Sprint 6) ----------
+
+    @Test
+    void readyOrderNotifiesTheCustomerOnce() {
+        ServiceOrder order = createOrder(0);
+        workflow.changeStatus(order.getId(), OrderStatus.DIAGNOSIS, receptionist);
+        workflow.changeStatus(order.getId(), OrderStatus.IN_REPAIR, receptionist);
+        assertTrue(notifications.findAll().isEmpty(), "Ningún aviso antes de Lista");
+
+        ServiceOrder ready = workflow.changeStatus(order.getId(), OrderStatus.READY, receptionist);
+
+        assertEquals(1, notifications.findAll().size());
+        Notification sent = notifications.findAll().get(0);
+        assertEquals(NotificationType.SERVICE_UPDATE, sent.getType());
+        assertEquals(NotificationStatus.SENT, sent.getStatus());
+        assertEquals("Tu Toyota Corolla (ABC123) está listo para entregar", sent.getSubject());
+        assertTrue(sent.getMessage().startsWith("Hola Juan, terminamos el servicio de tu Toyota Corolla"),
+                sent.getMessage());
+        assertTrue(historyTexts(ready).contains("Se avisó al cliente que el vehículo está listo"));
+
+        workflow.changeStatus(order.getId(), OrderStatus.DELIVERED, receptionist);
+        assertEquals(1, notifications.findAll().size(), "Entregar no envía otro aviso");
+    }
+
+    @Test
+    void readyWithoutCustomerEmailStillChangesStatus() {
+        owner.setEmail(null);
+        ServiceOrder order = createOrder(0);
+        workflow.changeStatus(order.getId(), OrderStatus.DIAGNOSIS, receptionist);
+        workflow.changeStatus(order.getId(), OrderStatus.IN_REPAIR, receptionist);
+
+        ServiceOrder ready = workflow.changeStatus(order.getId(), OrderStatus.READY, receptionist);
+
+        assertEquals(OrderStatus.READY, ready.getStatus());
+        assertEquals(NotificationStatus.FAILED, notifications.findAll().get(0).getStatus());
+        assertTrue(historyTexts(ready).stream().anyMatch(t -> t.startsWith("No se pudo avisar al cliente")));
+    }
+
     private ServiceOrder createOrder(int partUnits) {
         ServiceOrder order = new ServiceOrder();
         order.setVehicle(vehicle);
