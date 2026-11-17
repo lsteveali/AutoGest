@@ -653,6 +653,15 @@ estaba incorporado; el otro era un WIP viejo de `login-usuarios`). Quedan solo
 5. **`AppContext`:** bloque «Avisos automáticos (Líder, Sprint 6)» junto a Facturación, con nombres completos y creado al pedirlo; `getOrderWorkflowService()` le pasa los avisos.
 6. **Pruebas:** `NotificationEventServiceTest` (12: plantillas, vehículo listo, recordatorios por fecha, inactivos, una vez por ventana, después de la ventana, dos vehículos del mismo cliente, cliente sin correo) y 2 en `OrderWorkflowServiceTest` (aviso al pasar a Lista una sola vez; sin correo el estado cambia igual). Todas con el `NotificationService` real de Dev 1. `mvn clean test` → **462 pruebas, 0 fallos**.
 7. **Captura del Inicio** con los datos reales (solo lecturas) y una sesión de administrador en memoria: contador en la campana, «Ver todas» y «3 vehículos necesitan recordatorio de mantenimiento». No se escribió en Supabase.
+
+**Envío real de correos por Gmail (16/11/2026, pedido del Líder; rama `feature/correo-smtp`, sobre la Sesión 23):**
+- Hasta ahora el canal EMAIL era simulado: con correo del cliente quedaba «Enviada» sin salir del equipo (análisis de Dev 1: envío real «fuera del alcance»).
+- **`EmailSender`** (interfaz nueva) y **`SmtpEmailSender`** con **Angus Mail 2.0.3** (Jakarta Mail, dependencia nueva): SMTP con usuario y contraseña, STARTTLS y tiempo límite de 15 s. Pensado para Gmail con una **contraseña de aplicación**; firma con el nombre del taller y errores legibles («el usuario o la contraseña de aplicación no son válidos», «no hubo conexión…») sin exponer la cuenta.
+- **`EmailConfig`** arma el envío desde `application.local.properties` (claves `mail.username`, `mail.password`, `mail.from.name` y, opcionales, `mail.smtp.host/port/starttls` con los valores de Gmail por defecto). **Sin cuenta configurada, el correo se sigue simulando como antes**: la app funciona igual en el equipo de Dev 1 o del profesor. `application.example.properties` explica cómo crear la contraseña de aplicación. `DatabaseConnection.loadProperties` pasa a ser visible en el paquete `config` para reutilizar la lectura del archivo.
+- **`AppContext.getInstance()`** configura el envío al crear el contexto (método `configureEmail` del Líder), sin tocar el constructor ni los bloques de Dev 1.
+- **Cambio en un archivo de Dev 1, pedido por el Líder:** `NotificationService` recibe un `EmailSender` opcional (`setEmailSender`) y el caso EMAIL de `deliver` lo usa: si envía, «Enviada»; si falla (sin conexión, credenciales inválidas), «Fallida» para reintentar. Sin `EmailSender` el comportamiento es el mismo de antes. Se actualizó su Javadoc de `deliver`. **Sebastián: tenerlo en cuenta al actualizar tu rama;** sus 19 pruebas pasan sin cambios.
+- **Pruebas:** `SmtpEmailSenderTest` (5) contra **GreenMail 2.1.2** (servidor SMTP falso en memoria, solo pruebas: nadie recibe correos): asunto, destinatario, remitente y firma, espacios en la contraseña, contraseña inválida, servidor caído y datos faltantes. `NotificationEmailTest` (7): envío real con un `EmailSender` falso, error → Fallida, reintento cuando vuelve la conexión, simulado sin cuenta, cliente sin correo y lectura de la configuración. GreenMail traía JUnit 5.11: se excluyó en el `pom.xml` para usar el 5.12 del proyecto. `mvn clean test` → **474 pruebas, 0 fallos**.
+- **Ojo al activarlo:** desde ese momento cada factura, orden Lista o recordatorio le escribe de verdad al correo del cliente guardado en Supabase. Los clientes de ejemplo usan `@example.com` (no llega a nadie), pero los creados a mano pueden tener correos reales.
 ---
 
 ## 4. Decisiones y acuerdos
@@ -689,6 +698,7 @@ estaba incorporado; el otro era un WIP viejo de `login-usuarios`). Quedan solo
 | 14/11/2026 | **Los métodos de pago se guardan como códigos** (`CASH`, `CARD`, `TRANSFER`, `OTHER`) en el texto `payment_method`. | `Invoice` usa `String` mientras no exista `PaymentMethod`; los códigos coinciden con los nombres que tendría ese enum, así el cambio no requiere migrar datos. Los nombres en español viven en `InvoiceService.methodText` / `InvoiceLabels`. |
 | 14/11/2026 | **Solo se facturan órdenes Listas o Entregadas, con una factura vigente por orden;** al anular, la orden puede facturarse de nuevo y se reutiliza la misma fila. | Pedido del Líder (una orden tiene 0..1 factura) y restricción `UNIQUE (order_id)` de `invoices`. |
 | 14/11/2026 | **Generar, pagar y anular dejan constancia en el historial de la orden.** | `invoices` no guarda fechas de pago ni usuarios; así queda trazabilidad sin cambiar el esquema de Dev 2. |
+| 16/11/2026 | **Envío real de correos por SMTP de Gmail, opcional** (Angus Mail; credenciales en `application.local.properties`). | Gratis y suficiente para un taller (unos 500 correos al día). Sin cuenta configurada se simula como antes, así nadie depende de la cuenta del Líder para correr la app. Un servicio por API (Brevo, Resend) entrega mejor pero exige cuenta, llave y dominio verificado; WhatsApp exige la API de Meta Business. |
 | 16/11/2026 | **Plantillas de aviso en el código** (`NotificationTemplate`) mientras no exista la configuración de Notificaciones. | Editarlas requiere guardarlas en `app_settings`, que llega con el `SettingsService` de Dev 1 (Sprint 8). Los eventos no cambian cuando eso pase: solo de dónde salen los textos. |
 | 16/11/2026 | **Los recordatorios de mantenimiento se envían con un botón en el Inicio**, una vez cada 30 días por vehículo. | Enviarlos solos al abrir la app escribiría en la base de datos sin que nadie lo pida; con el botón el taller decide cuándo. La ventana de 30 días evita repetirlos. |
 | 16/11/2026 | **El contador de la campana suma avisos fallidos y pendientes.** | Son los que necesitan atención: los fallidos se reintentan y los pendientes no han salido. Solo lo ven los roles con acceso a Notificaciones. |
@@ -786,7 +796,13 @@ Verificación: `develop` → `mvn clean test` **108 pruebas, 0 fallos**
 - [x] Plantillas, aviso «vehículo listo», recordatorios de mantenimiento, tarjeta del Inicio y campana (Sesión 23).
 - [ ] Subir la rama y abrir el PR hacia `develop` después de la prueba manual del Líder.
 - [ ] Editar las plantillas desde Configuración de Notificaciones cuando exista el `SettingsService` de Dev 1 (Sprint 8); también el nombre del taller (`{taller}`).
-- [ ] Comentarios para Dev 1 sobre su pantalla de Notificaciones: etiquetas de filtros cortadas, consultas en el hilo de la interfaz y anchos mínimos de columnas (ver Sesión 23).
+- [ ] Comentarios para Dev 1 sobre su pantalla de Notificaciones: etiquetas de filtros cortadas, consultas en el hilo de la interfaz y anchos mínimos de columnas (ver Sesión 23). Con el correo real esto pesa más: «Nueva notificación», «Enviar ahora» y «Reintentar» esperan la respuesta de Gmail (1 a 3 s) con la ventana congelada.
+
+**Correo real (rama `feature/correo-smtp`):**
+- [x] Envío por SMTP de Gmail, opcional, con pruebas contra GreenMail (16/11/2026).
+- [ ] El Líder crea la contraseña de aplicación en la cuenta de Google del taller y la escribe en su `application.local.properties` (nunca en el chat ni en Git); probar primero con un cliente cuyo correo sea el propio.
+- [ ] Subir la rama y abrir su PR después del #19 (va encima de `feature/notificaciones-eventos`).
+- [ ] Adjuntar el PDF de la factura al aviso «Factura disponible».
 
 **Barrido de interfaz pendiente (lo hará el Líder):** Inventario (filtros, nombres y estados cortados; «Volver» repetido en el detalle del repuesto; «Registrar entrada» debajo de «+ Nuevo repuesto») (Órdenes ya corregida en la Sesión 21).
 
