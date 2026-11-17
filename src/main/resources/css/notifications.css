@@ -1,0 +1,22 @@
+/* ==========================================================================
+   AutoGest - Módulo Notificaciones (Sprint 6, Desarrollador 1)
+   Solo estilos propios del módulo; el resto viene de autogest.css.
+   ========================================================================== */
+
+.module-scroll,
+.module-scroll > .viewport {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.module-page {
+    -fx-padding: 0 4 24 0;
+}
+
+.module-page .page-title {
+    -fx-text-fill: -ag-text;
+}
+
+.module-page .filter-field {
+    -fx-min-width: 300;
+}
