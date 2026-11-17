@@ -64,6 +64,7 @@ public class MainController implements Initializable {
         refreshTopbar();
         topbar.setOnLogout(this::logout);
         topbar.setOnProfile(() -> open(View.SETTINGS_PROFILE));
+        topbar.setOnNotifications(() -> open(View.NOTIFICATIONS));
 
         // «Volver» y las migas de pan de cada pantalla (PageHeader) suben hasta aquí.
         contentArea.addEventHandler(NavigationEvent.BACK, event -> {
@@ -104,6 +105,27 @@ public class MainController implements Initializable {
         } else {
             topbar.setUser("Invitado", "Sin sesión");
         }
+        refreshNotificationCount();
+    }
+
+    /**
+     * Cuenta en segundo plano los avisos que necesitan atención (fallidos o
+     * pendientes) para el contador de la campana. Solo para los roles que
+     * pueden abrir Notificaciones; si falla la consulta, el contador se oculta.
+     */
+    private void refreshNotificationCount() {
+        if (!Permissions.canAccess(currentRole(), View.NOTIFICATIONS)) {
+            topbar.setNotificationCount(0);
+            return;
+        }
+        com.autogest.util.Background.run(() -> {
+                    com.autogest.service.NotificationService notifications =
+                            AppContext.getInstance().getNotificationService();
+                    return notifications.countByStatus(com.autogest.model.NotificationStatus.FAILED)
+                            + notifications.countByStatus(com.autogest.model.NotificationStatus.PENDING);
+                },
+                topbar::setNotificationCount,
+                error -> topbar.setNotificationCount(0));
     }
 
     /** Abre una pantalla comprobando antes los permisos del rol. */

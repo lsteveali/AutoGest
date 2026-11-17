@@ -13,7 +13,11 @@ import com.autogest.controller.components.PagedTable;
 import com.autogest.controller.components.StatusBadge;
 import com.autogest.controller.vehicle.VehicleLabels;
 import com.autogest.exception.AutoGestException;
+import com.autogest.controller.Permissions;
+import com.autogest.controller.notification.NotificationLabels;
 import com.autogest.model.InvoiceSummary;
+import com.autogest.model.Notification;
+import com.autogest.model.NotificationStatus;
 import com.autogest.model.OrderStatus;
 import com.autogest.model.User;
 import com.autogest.model.Vehicle;
@@ -47,12 +51,13 @@ import java.util.ResourceBundle;
 /**
  * Controlador del panel de inicio (Dashboard v1, mockup Dashboard). Muestra el
  * saludo, los indicadores globales del taller, el estado del parque
- * automotor, las alertas de inventario, los próximos mantenimientos y el
- * espacio reservado para notificaciones.
+ * automotor, las alertas de inventario, los próximos mantenimientos y las
+ * notificaciones.
  *
  * <p>Órdenes activas (y cuántas están listas para entregar) y la facturación
- * del mes llegaron con los sprints 4 y 5; sus tarjetas abren el módulo.
- * Notificaciones sigue como marcador hasta su sprint (D-14). Todo se lee en
+ * del mes llegaron con los sprints 4 y 5; sus tarjetas abren el módulo. La
+ * tarjeta «Notificaciones» (Sprint 6) muestra los últimos avisos, los que
+ * fallaron y permite enviar los recordatorios de mantenimiento. Todo se lee en
  * una sola tarea en segundo plano.</p>
  *
  * <p>Principles: GRASP Controller, Indirection, SRP, DIP, Low Coupling,
@@ -73,6 +78,7 @@ public class HomeController implements Initializable, NavigatorAware {
     private Label inventoryTotal;
     private Label inventoryLow;
     private Label inventoryOut;
+    private final VBox notificationsBody = new VBox(10);
 
     private ViewNavigator navigator;
 
@@ -286,31 +292,115 @@ public class HomeController implements Initializable, NavigatorAware {
         return table;
     }
 
+    /** Tarjeta «Notificaciones»: últimos avisos, fallidos y recordatorios de mantenimiento por enviar (Sprint 6). */
     private VBox buildNotificationsCard() {
         Label title = new Label("Notificaciones");
         title.getStyleClass().add("card-title");
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        HBox titleRow = new HBox(8, title, spacer);
+        titleRow.setAlignment(Pos.CENTER_LEFT);
+        if (canOpenNotifications()) {
+            javafx.scene.control.Button all = new javafx.scene.control.Button("Ver todas");
+            all.getStyleClass().add("breadcrumb-link");
+            all.setOnAction(event -> all.fireEvent(NavigationEvent.open(View.NOTIFICATIONS)));
+            titleRow.getChildren().add(all);
+        }
 
-        Label icon = new Label();
-        icon.setGraphic(IconSet.icon(IconSet.BELL));
-        icon.getStyleClass().add("stage-icon");
+        notificationsBody.getChildren().setAll(note("Cargando…"));
+        VBox.setVgrow(notificationsBody, Priority.ALWAYS);
 
-        Label empty = new Label("Sin notificaciones por ahora");
-        empty.getStyleClass().add("card-title");
-        empty.setAlignment(Pos.CENTER);
-
-        Label note = new Label("Disponible en el Sprint 6");
-        note.getStyleClass().add("card-note");
-        note.setAlignment(Pos.CENTER);
-        note.setWrapText(true);
-
-        VBox body = new VBox(8, icon, empty, note);
-        body.setAlignment(Pos.CENTER);
-        VBox.setVgrow(body, Priority.ALWAYS);
-
-        VBox card = new VBox(16, title, body);
+        VBox card = new VBox(14, titleRow, notificationsBody);
         card.getStyleClass().addAll("card", "side-card");
         card.setMinHeight(200);
         return card;
+    }
+
+    /** Llena la tarjeta de notificaciones con los datos cargados. */
+    private void showNotifications(DashboardData data) {
+        notificationsBody.getChildren().clear();
+        if (data.recentNotifications().isEmpty()) {
+            Label icon = new Label();
+            icon.setGraphic(IconSet.icon(IconSet.BELL));
+            icon.getStyleClass().add("stage-icon");
+            Label empty = new Label("Sin notificaciones por ahora");
+            empty.getStyleClass().add("card-title");
+            VBox box = new VBox(8, icon, empty, note("Los avisos de facturas, vehículos listos y "
+                    + "mantenimientos aparecerán aquí."));
+            box.setAlignment(Pos.CENTER);
+            notificationsBody.getChildren().add(box);
+        }
+        for (Notification notification : data.recentNotifications()) {
+            notificationsBody.getChildren().add(notificationRow(notification));
+        }
+        if (data.failedNotifications() > 0) {
+            Label failed = note(data.failedNotifications() + (data.failedNotifications() == 1
+                    ? " aviso no se pudo enviar." : " avisos no se pudieron enviar.")
+                    + " Revisa el correo del cliente y reintenta.");
+            failed.getStyleClass().add("home-notification-alert");
+            notificationsBody.getChildren().add(failed);
+        }
+        int reminders = data.pendingReminders();
+        if (reminders > 0) {
+            Label text = note(reminders + (reminders == 1 ? " vehículo necesita" : " vehículos necesitan")
+                    + " recordatorio de mantenimiento.");
+            VBox box = new VBox(8, text);
+            box.getStyleClass().add("home-reminders");
+            if (canOpenNotifications()) {
+                javafx.scene.control.Button send = new javafx.scene.control.Button("Enviar recordatorios");
+                send.getStyleClass().addAll("btn-secondary", "btn-small");
+                send.setOnAction(event -> sendReminders(send));
+                box.getChildren().add(send);
+            }
+            notificationsBody.getChildren().add(box);
+        }
+    }
+
+    /** Fila de una notificación: asunto, cliente y fecha, y su estado. */
+    private Node notificationRow(Notification notification) {
+        String subject = notification.getSubject() == null || notification.getSubject().isBlank()
+                ? NotificationLabels.typeText(notification.getType()) : notification.getSubject();
+        Label title = new Label(subject);
+        title.getStyleClass().add("home-notification-title");
+        title.setWrapText(true);
+        Label meta = new Label((notification.getCustomer() == null || notification.getCustomer().getFirstName() == null
+                ? "" : notification.getCustomer().getFullName() + " · ")
+                + Formatter.timestamp(notification.getScheduledDate()));
+        meta.getStyleClass().add("card-note");
+        VBox text = new VBox(2, title, meta);
+        HBox.setHgrow(text, Priority.ALWAYS);
+        Label badge = StatusBadge.of(NotificationLabels.statusText(notification.getStatus()),
+                NotificationLabels.statusType(notification.getStatus()));
+        badge.setMinWidth(Region.USE_PREF_SIZE);
+        HBox row = new HBox(10, text, badge);
+        row.setAlignment(Pos.TOP_LEFT);
+        row.getStyleClass().add("home-notification");
+        return row;
+    }
+
+    private void sendReminders(javafx.scene.control.Button button) {
+        button.setDisable(true);
+        Background.run(() -> AppContext.getInstance().getNotificationEventService()
+                        .sendMaintenanceReminders(LocalDate.now()),
+                sent -> reload(),
+                error -> {
+                    button.setDisable(false);
+                    ErrorDialog.show("No se pudieron enviar los recordatorios", error instanceof AutoGestException
+                            ? error.getMessage() : "Revisa la conexión e inténtalo de nuevo.");
+                });
+    }
+
+    private static Label note(String text) {
+        Label note = new Label(text);
+        note.getStyleClass().add("card-note");
+        note.setWrapText(true);
+        return note;
+    }
+
+    /** Solo los roles con acceso a Notificaciones ven «Ver todas» y «Enviar recordatorios». */
+    private static boolean canOpenNotifications() {
+        User user = Session.getCurrentUser();
+        return user != null && Permissions.canAccess(user.getRole(), View.NOTIFICATIONS);
     }
 
     // ---------- carga de datos ----------
@@ -318,8 +408,12 @@ public class HomeController implements Initializable, NavigatorAware {
     /** Datos del tablero, leídos juntos en segundo plano. */
     record DashboardData(int customers, int newCustomers, VehicleCounts vehicles, int inactiveVehicles,
                          int parts, int lowStock, int outOfStock, List<Vehicle> maintenance,
-                         int activeOrders, int readyOrders, InvoiceSummary monthBilling) {
+                         int activeOrders, int readyOrders, InvoiceSummary monthBilling,
+                         List<Notification> recentNotifications, int failedNotifications, int pendingReminders) {
     }
+
+    /** Avisos que se muestran en la tarjeta «Notificaciones». */
+    private static final int RECENT_NOTIFICATIONS = 3;
 
     /** Lee todos los indicadores fuera del hilo de la interfaz y los muestra al terminar. */
     private void reload() {
@@ -347,7 +441,10 @@ public class HomeController implements Initializable, NavigatorAware {
                 counts, Math.max(0, counts.total() - counts.active() - counts.inService()),
                 parts.countParts(), parts.countLowStock(), parts.countOutOfStock(), upcoming,
                 orders.countActive(), orders.countByStatus(OrderStatus.READY),
-                context.getInvoiceService().getMonthSummary(today));
+                context.getInvoiceService().getMonthSummary(today),
+                context.getNotificationService().findRecent(RECENT_NOTIFICATIONS),
+                context.getNotificationService().countByStatus(NotificationStatus.FAILED),
+                context.getNotificationEventService().pendingMaintenanceReminders(today).size());
     }
 
     /** Muestra los datos del tablero (visible en el paquete para las pruebas de interfaz). */
@@ -378,6 +475,7 @@ public class HomeController implements Initializable, NavigatorAware {
         inventoryLow.setText(String.valueOf(data.lowStock()));
         inventoryOut.setText(String.valueOf(data.outOfStock()));
         maintenanceTable.setData(data.maintenance());
+        showNotifications(data);
     }
 
     private void setStageCount(String id, int value) {
