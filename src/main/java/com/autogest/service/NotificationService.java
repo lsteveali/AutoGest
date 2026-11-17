@@ -44,6 +44,19 @@ public class NotificationService {
         this.customerService = customerService;
     }
 
+    // Envío real de correos (Líder, 16/11/2026). Sin EmailSender el canal EMAIL
+    // se comporta como antes (simulado): así funciona en equipos sin configuración.
+    private EmailSender emailSender;
+
+    /**
+     * Configura el envío real de correos (por ejemplo, SMTP de Gmail).
+     *
+     * @param emailSender envío de correos, o {@code null} para simularlo
+     */
+    public void setEmailSender(EmailSender emailSender) {
+        this.emailSender = emailSender;
+    }
+
     /**
      * Registra una notificación. Si la fecha es futura queda {@code SCHEDULED};
      * si no, {@code PENDING} con la fecha actual.
@@ -228,20 +241,29 @@ public class NotificationService {
     // ---------- canales (D-17) ----------
 
     /**
-     * Entrega la notificación según su canal. El envío real por SMTP o la API
-     * de WhatsApp está fuera del alcance: EMAIL se simula (requiere correo del
-     * cliente), SYSTEM se registra en la aplicación y WHATSAPP queda preparado
-     * pero sin integración, por eso falla.
+     * Entrega la notificación según su canal. EMAIL requiere correo del
+     * cliente; si hay un {@link EmailSender} configurado lo envía de verdad
+     * (SMTP) y, si no, lo simula. SYSTEM se registra en la aplicación y
+     * WHATSAPP queda preparado pero sin integración, por eso falla.
      */
     private void deliver(Notification notification) {
         Customer customer = notification.getCustomer();
         switch (notification.getChannel()) {
             case SYSTEM -> notification.markAsSent();
             case EMAIL -> {
-                if (customer != null && customer.getEmail() != null && !customer.getEmail().isBlank()) {
+                if (customer == null || customer.getEmail() == null || customer.getEmail().isBlank()) {
+                    notification.markAsFailed();
+                } else if (emailSender == null) {
                     notification.markAsSent();
                 } else {
-                    notification.markAsFailed();
+                    try {
+                        emailSender.send(customer.getEmail(), customer.getFullName(),
+                                notification.getSubject(), notification.getMessage());
+                        notification.markAsSent();
+                    } catch (RuntimeException e) {
+                        // Sin conexión o credenciales inválidas: queda Fallida y se reintenta.
+                        notification.markAsFailed();
+                    }
                 }
             }
             case WHATSAPP -> notification.markAsFailed();
