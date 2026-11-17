@@ -39,6 +39,8 @@ public enum View {
     PART_DETAIL("/fxml/inventory/part-detail.fxml", "Detalle del repuesto", "INVENTORY"),
     BILLING("/fxml/billing/billing.fxml", "Facturación", "BILLING"),
     NOTIFICATIONS("/fxml/notification/notifications.fxml", "Notificaciones", "NOTIFICATIONS"),
+    NOTIFICATION_NEW("/fxml/notification/notification-new.fxml", "Nueva notificación", "NOTIFICATIONS"),
+    NOTIFICATION_DETAIL("/fxml/notification/notification-detail.fxml", "Detalle de la notificación", "NOTIFICATIONS"),
     REPORTS("/fxml/report/reports.fxml", "Reportes", "REPORTS"),
     SETTINGS("/fxml/settings/settings.fxml", "Configuración", "SETTINGS"),
     USERS_ROLES("/fxml/user/users-roles.fxml", "Usuarios y roles", "SETTINGS"),
