@@ -662,6 +662,7 @@ estaba incorporado; el otro era un WIP viejo de `login-usuarios`). Quedan solo
 - **Cambio en un archivo de Dev 1, pedido por el Líder:** `NotificationService` recibe un `EmailSender` opcional (`setEmailSender`) y el caso EMAIL de `deliver` lo usa: si envía, «Enviada»; si falla (sin conexión, credenciales inválidas), «Fallida» para reintentar. Sin `EmailSender` el comportamiento es el mismo de antes. Se actualizó su Javadoc de `deliver`. **Sebastián: tenerlo en cuenta al actualizar tu rama;** sus 19 pruebas pasan sin cambios.
 - **Pruebas:** `SmtpEmailSenderTest` (5) contra **GreenMail 2.1.2** (servidor SMTP falso en memoria, solo pruebas: nadie recibe correos): asunto, destinatario, remitente y firma, espacios en la contraseña, contraseña inválida, servidor caído y datos faltantes. `NotificationEmailTest` (7): envío real con un `EmailSender` falso, error → Fallida, reintento cuando vuelve la conexión, simulado sin cuenta, cliente sin correo y lectura de la configuración. GreenMail traía JUnit 5.11: se excluyó en el `pom.xml` para usar el 5.12 del proyecto. `mvn clean test` → **474 pruebas, 0 fallos**.
 - **Ojo al activarlo:** desde ese momento cada factura, orden Lista o recordatorio le escribe de verdad al correo del cliente guardado en Supabase. Los clientes de ejemplo usan `@example.com` (no llega a nadie), pero los creados a mano pueden tener correos reales.
+- **Prueba manual del Líder (17/11/2026):** con la cuenta de Gmail configurada, el correo llegó a un buzón real.
 ---
 
 ## 4. Decisiones y acuerdos
@@ -800,8 +801,8 @@ Verificación: `develop` → `mvn clean test` **108 pruebas, 0 fallos**
 
 **Correo real (rama `feature/correo-smtp`):**
 - [x] Envío por SMTP de Gmail, opcional, con pruebas contra GreenMail (16/11/2026).
-- [ ] El Líder crea la contraseña de aplicación en la cuenta de Google del taller y la escribe en su `application.local.properties` (nunca en el chat ni en Git); probar primero con un cliente cuyo correo sea el propio.
-- [ ] Subir la rama y abrir su PR después del #19 (va encima de `feature/notificaciones-eventos`).
+- [x] ~~Configurar la cuenta de Gmail del taller y probar la entrega~~ — hecho por el Líder (17/11/2026): el correo llegó a un buzón real.
+- [ ] Fusionar el PR #20 (`feature/correo-smtp`) después de la revisión de Dev 1.
 - [ ] Adjuntar el PDF de la factura al aviso «Factura disponible».
 
 **Barrido de interfaz pendiente (lo hará el Líder):** Inventario (filtros, nombres y estados cortados; «Volver» repetido en el detalle del repuesto; «Registrar entrada» debajo de «+ Nuevo repuesto») (Órdenes ya corregida en la Sesión 21).
