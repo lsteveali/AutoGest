@@ -17,6 +17,9 @@ import com.autogest.model.ServiceOrder;
 import com.autogest.model.User;
 import com.autogest.model.Vehicle;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -144,6 +147,36 @@ public class ServiceOrderRepository {
 
     public int nextSequence() {
         return dao.nextSequence();
+    }
+
+    // ---------- consultas para Reportes (Sprint 7) ----------
+
+    public Map<OrderStatus, Integer> countGroupedByStatus() {
+        return dao.countGroupedByStatus();
+    }
+
+    public int countEnteredBetween(LocalDate from, LocalDate to) {
+        return dao.countEnteredBetween(from, to);
+    }
+
+    public Map<YearMonth, Integer> countByMonth(LocalDate from, LocalDate to) {
+        return dao.countByMonth(from, to);
+    }
+
+    public Map<String, Integer> findTopServices(LocalDate from, LocalDate to, int limit) {
+        return dao.findTopServices(from, to, limit);
+    }
+
+    public Map<String, Integer> findTopParts(LocalDate from, LocalDate to, int limit) {
+        return dao.findTopParts(from, to, limit);
+    }
+
+    public Map<String, Integer> countByResponsible(LocalDate from, LocalDate to) {
+        return dao.countByResponsible(from, to);
+    }
+
+    public BigDecimal sumEstimatedTotalBetween(LocalDate from, LocalDate to) {
+        return dao.sumEstimatedTotalBetween(from, to);
     }
 
     private List<ServiceOrder> resolveRows(List<ServiceOrder> orders) {
