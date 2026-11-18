@@ -87,8 +87,11 @@ public class DatabaseConnection {
         dataSource.close();
     }
 
-    /** Lee el archivo de configuración local o, si no existe, el del classpath. */
-    private static Properties loadProperties() {
+    /**
+     * Lee el archivo de configuración local o, si no existe, el del classpath.
+     * También lo usa {@link EmailConfig} para las claves {@code mail.*}.
+     */
+    static Properties loadProperties() {
         Path file = Paths.get(CONFIG_FILE);
         if (Files.isRegularFile(file)) {
             try (InputStream input = Files.newInputStream(file)) {

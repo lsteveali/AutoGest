@@ -21,6 +21,8 @@
         <hikaricp.version>6.3.3</hikaricp.version>
         <slf4j.version>2.0.17</slf4j.version>
         <pdfbox.version>3.0.3</pdfbox.version>
+        <angus-mail.version>2.0.3</angus-mail.version>
+        <greenmail.version>2.1.2</greenmail.version>
     </properties>
 
     <dependencies>
@@ -67,6 +69,28 @@
             <groupId>org.apache.pdfbox</groupId>
             <artifactId>pdfbox</artifactId>
             <version>${pdfbox.version}</version>
+        </dependency>
+
+        <!-- Envío de correos por SMTP (avisos al cliente, Gmail) -->
+        <dependency>
+            <groupId>org.eclipse.angus</groupId>
+            <artifactId>angus-mail</artifactId>
+            <version>${angus-mail.version}</version>
+        </dependency>
+
+        <!-- Servidor de correo falso en memoria (solo pruebas: nadie recibe correos) -->
+        <dependency>
+            <groupId>com.icegreen</groupId>
+            <artifactId>greenmail-junit5</artifactId>
+            <version>${greenmail.version}</version>
+            <scope>test</scope>
+            <!-- Trae JUnit 5.11 y choca con el 5.12 del proyecto: se usa el del proyecto. -->
+            <exclusions>
+                <exclusion>
+                    <groupId>org.junit.jupiter</groupId>
+                    <artifactId>junit-jupiter-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- JUnit 5 (pruebas) -->

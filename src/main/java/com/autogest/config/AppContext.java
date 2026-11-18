@@ -188,8 +188,19 @@ public final class AppContext {
     public static synchronized AppContext getInstance() {
         if (instance == null) {
             instance = new AppContext();
+            instance.configureEmail();
         }
         return instance;
+    }
+
+    /**
+     * Envío real de correos (Líder): si {@code application.local.properties}
+     * tiene una cuenta ({@code mail.*}), las notificaciones por correo se
+     * envían por SMTP; si no, se siguen simulando. Se hace aquí y no en el
+     * constructor para no tocar las líneas de los AppContext.diff de Dev 1.
+     */
+    private void configureEmail() {
+        notificationService.setEmailSender(EmailConfig.fromLocalFile());
     }
 
     /**
