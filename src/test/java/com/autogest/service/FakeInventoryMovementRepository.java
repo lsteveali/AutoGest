@@ -3,7 +3,12 @@ package com.autogest.service;
 import com.autogest.model.InventoryMovement;
 import com.autogest.repository.InventoryMovementRepository;
 
+import com.autogest.model.MovementType;
+
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.Map;
 import java.util.Comparator;
 import java.util.List;
 
@@ -40,6 +45,18 @@ class FakeInventoryMovementRepository extends InventoryMovementRepository {
     @Override
     public List<InventoryMovement> findRecent(int limit) {
         return newestFirst(movements).stream().limit(limit).toList();
+    }
+
+    @Override
+    public Map<MovementType, Integer> sumQuantityByType(LocalDate from, LocalDate to) {
+        Map<MovementType, Integer> result = new EnumMap<>(MovementType.class);
+        for (MovementType type : MovementType.values()) {
+            result.put(type, 0);
+        }
+        movements.stream()
+                .filter(m -> !m.getTimestamp().toLocalDate().isBefore(from) && !m.getTimestamp().toLocalDate().isAfter(to))
+                .forEach(m -> result.merge(m.getType(), m.getQuantity(), Integer::sum));
+        return result;
     }
 
     /** Todos los movimientos guardados, en orden de registro (para las aserciones). */
