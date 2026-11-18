@@ -14,6 +14,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.time.LocalDate;
+import java.util.EnumMap;
+import java.util.Map;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -116,6 +119,36 @@ public class InventoryMovementDao implements CrudOperations<InventoryMovement> {
     public List<InventoryMovement> findRecent(int limit) {
         return query("SELECT " + COLUMNS + " FROM inventory_movements ORDER BY timestamp DESC, id DESC LIMIT ?",
                 List.of(limit));
+    }
+
+    /**
+     * Suma las cantidades por tipo de movimiento entre dos fechas (incluidas).
+     * Apoyo para Reportes (Sprint 7).
+     *
+     * @param from fecha inicial
+     * @param to   fecha final
+     * @return cantidad total por tipo (los tipos sin movimientos quedan en 0)
+     */
+    public Map<MovementType, Integer> sumQuantityByType(LocalDate from, LocalDate to) {
+        String sql = "SELECT movement_type, COALESCE(SUM(quantity), 0) FROM inventory_movements"
+                + " WHERE timestamp >= ? AND timestamp < ? GROUP BY movement_type";
+        Map<MovementType, Integer> result = new EnumMap<>(MovementType.class);
+        for (MovementType type : MovementType.values()) {
+            result.put(type, 0);
+        }
+        try (Connection conn = connection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setTimestamp(1, Timestamp.valueOf(from.atStartOfDay()));
+            ps.setTimestamp(2, Timestamp.valueOf(to.plusDays(1).atStartOfDay()));
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    result.put(MovementType.valueOf(rs.getString(1)), rs.getInt(2));
+                }
+            }
+            return result;
+        } catch (SQLException e) {
+            throw new DataAccessException("No se pudieron resumir los movimientos de inventario.", e);
+        }
     }
 
     private void bind(PreparedStatement ps, InventoryMovement entity) throws SQLException {

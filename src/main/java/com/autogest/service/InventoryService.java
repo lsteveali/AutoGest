@@ -7,8 +7,10 @@ import com.autogest.model.Part;
 import com.autogest.model.User;
 import com.autogest.repository.InventoryMovementRepository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Casos de uso de los movimientos de inventario: entradas, salidas y ajustes
@@ -132,6 +134,19 @@ public class InventoryService {
             throw new ValidationException("La cantidad de movimientos debe estar entre 1 y 100");
         }
         return repository.findRecent(limit);
+    }
+
+    /**
+     * Resumen de movimientos del periodo: unidades que entraron, salieron y se
+     * ajustaron (apoyo para Reportes, Sprint 7).
+     *
+     * @param from fecha inicial (incluida)
+     * @param to   fecha final (incluida)
+     * @return unidades por tipo de movimiento
+     */
+    public Map<MovementType, Integer> summarizeMovements(LocalDate from, LocalDate to) {
+        ServiceOrderService.validatePeriod(from, to);
+        return repository.sumQuantityByType(from, to);
     }
 
     private InventoryMovement save(MovementType type, Part part, int quantity, String reason, User user) {
