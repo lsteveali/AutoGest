@@ -18,7 +18,10 @@ import java.sql.Timestamp;
 import java.sql.Types;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.BiConsumer;
 
 /**
  * Acceso SQL a la tabla {@code notifications}. El cliente se devuelve
@@ -154,6 +157,43 @@ public class NotificationDao implements CrudOperations<Notification> {
             }
         } catch (SQLException e) {
             throw new DataAccessException("No se pudieron contar las notificaciones.", e);
+        }
+    }
+
+    /**
+     * Notificaciones por canal (todos los canales, con 0 si no hay). Apoyo
+     * para Reportes (Sprint 7).
+     */
+    public Map<Channel, Integer> countGroupedByChannel() {
+        Map<Channel, Integer> result = new EnumMap<>(Channel.class);
+        for (Channel channel : Channel.values()) {
+            result.put(channel, 0);
+        }
+        grouped("SELECT channel, COUNT(*) FROM notifications GROUP BY channel",
+                (key, count) -> result.put(Channel.valueOf(key), count));
+        return result;
+    }
+
+    /** Notificaciones por estado (todos los estados, con 0 si no hay). */
+    public Map<NotificationStatus, Integer> countGroupedByStatus() {
+        Map<NotificationStatus, Integer> result = new EnumMap<>(NotificationStatus.class);
+        for (NotificationStatus status : NotificationStatus.values()) {
+            result.put(status, 0);
+        }
+        grouped("SELECT status, COUNT(*) FROM notifications GROUP BY status",
+                (key, count) -> result.put(NotificationStatus.valueOf(key), count));
+        return result;
+    }
+
+    private void grouped(String sql, BiConsumer<String, Integer> consumer) {
+        try (Connection conn = connection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                consumer.accept(rs.getString(1), rs.getInt(2));
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("No se pudo resumir las notificaciones.", e);
         }
     }
 
