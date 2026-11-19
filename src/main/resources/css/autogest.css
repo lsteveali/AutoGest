@@ -1245,6 +1245,29 @@
     -fx-text-fill: -ag-text;
 }
 
+/* Diálogo «Restaurar copia de seguridad»: aviso en tinte de error y datos de la copia. */
+.restore-warning {
+    -fx-background-color: -ag-danger-tint;
+    -fx-background-radius: 8;
+    -fx-padding: 12 14;
+    -fx-alignment: top-left;
+}
+
+.restore-warning-icon {
+    -fx-stroke: -ag-danger;
+    -fx-min-width: 24;
+}
+
+.restore-warning-text {
+    -fx-font-size: 14px;
+    -fx-text-fill: -ag-text;
+}
+
+.restore-details {
+    -fx-hgap: 16;
+    -fx-vgap: 6;
+}
+
 /* --------------------------------------------------------------------------
    Migas de pan clicables y «Volver» (PageHeader)
    Son botones (Tab + Enter) con aspecto de enlace: sin el alto mínimo de 40px

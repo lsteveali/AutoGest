@@ -75,6 +75,10 @@ public class MainController implements Initializable {
             open(event.getView());
             event.consume();
         });
+        contentArea.addEventHandler(NavigationEvent.END_SESSION, event -> {
+            event.consume();
+            endSession();
+        });
 
         assistantButton.setOnAction(event -> open(View.ASSISTANT));
         StackPane.setMargin(assistantButton, new Insets(0, 24, 24, 0));
@@ -145,6 +149,11 @@ public class MainController implements Initializable {
         if (!ConfirmDialog.confirm("Cerrar sesión", "¿Deseas cerrar la sesión actual?")) {
             return;
         }
+        endSession();
+    }
+
+    /** Cierra la sesión sin preguntar y vuelve al inicio de sesión. */
+    private void endSession() {
         AppContext.getInstance().getAuthenticationService().logout();
         if (onLogout != null) {
             onLogout.run();

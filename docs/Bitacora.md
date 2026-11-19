@@ -15,8 +15,8 @@
 | Proyecto | AutoGest — Sistema de gestión integral para talleres automotrices |
 | Materia | Programación de Computadores III (SS462) |
 | Repositorio | https://github.com/lsteveali/AutoGest.git |
-| Rama de trabajo actual | `develop` (paleta y Manrope fusionadas; la próxima rama del Líder se crea desde aquí) |
-| Sprint en curso | **Sprint 7 ✅ cerrado** (PR #21 y #22) · Nueva paleta y Manrope ✅ (PR #23) · siguientes: Sprint 8 (Configuración) y 9 (Asistente) |
+| Rama de trabajo actual | `feature/restaurar-copias` (desde `develop` en `2a00966`; en prueba del Líder, sin subir) |
+| Sprint en curso | **Sprint 8 (Configuración)** 🟡 · Sprint 7 ✅ cerrado (PR #21 y #22) · Paleta y Manrope ✅ (PR #23) · siguiente: Sprint 9 (Asistente) |
 | Equipo | Líder: Leonarth Steve Ali Camargo · Dev 1: Sebastián Murgas Tejeda · Dev 2: **sin integrante vinculado** — el Líder asume todas sus responsabilidades (decisión 14/10/2026) |
 | Documento guía | `AutoGest_Guia_Lider` (V2.0) |
 
@@ -69,7 +69,7 @@
 | 5 | Facturación (Líder: todo el módulo) | ✅ PR #16 fusionado en `develop` (`b858e80`, 15/11/2026): facturación, PDF, avisos al cliente e Inicio con órdenes y facturas (Sesión 22) |
 | 6 | Notificaciones (Dev 1: backend e interfaz · Líder: plantillas, eventos y correo real) | ✅ Dev 1 (PR #17 y #18) · Líder (PR #19 y #20) |
 | 7 | Reportes (Dev 1: consultas de apoyo · Líder: pantalla, indicadores y PDF) | ✅ Dev 1 (PR #21) · Líder (PR #22, `8338f73`, 19/11/2026) |
-| 8 | Configuración (Dev 1: Datos del taller y Preferencias · Líder: pantalla general y el resto de secciones, incluidas Copias de seguridad) | 🟡 En curso — rama `feature/configuracion` |
+| 8 | Configuración (Dev 1: Datos del taller y Preferencias · Líder: pantalla general y el resto de secciones, incluidas Copias de seguridad) | 🟡 En curso — Dev 1: `SettingsService`, Datos del taller y Preferencias · Líder: restaurar copias hecho en `feature/restaurar-copias` (Sesión 26); faltan Facturación y Notificaciones, que esperan el `SettingsService` |
 | 9 | Asistente AutoGest (Líder) | ⬜ No iniciado |
 
 > **Reasignación (14/10/2026):** las columnas de Dev 2 de la hoja de ruta
@@ -703,6 +703,31 @@ estaba incorporado; el otro era un WIP viejo de `login-usuarios`). Quedan solo
 - `mvn clean test` → **498 pruebas, 0 fallos**. Capturas de login, Inicio, Reportes, Órdenes, Clientes, Inventario, Configuración, Vehículos, Servicios, Usuarios y Facturación a 1280×720.
 
 **Pendiente:** el logo (engranaje azul) sigue siendo una imagen con sus colores originales en el login, el ícono de la ventana y los PDF; la barra lateral usa la versión plateada. Cambiarlo requiere nuevas imágenes del logo.
+
+### 19/11/2026 — Sesión 26 (Líder): restaurar una copia de seguridad
+
+**Contexto.** Sprint 8: Sebastián hace `SettingsService`, «Datos del taller» y «Preferencias». Mientras tanto el Líder toma la tarea que no depende de él: restaurar una copia desde AutoGest (pendiente de la Sesión 18). Rama `feature/restaurar-copias` desde `develop` (`2a00966`).
+
+**Hecho:**
+1. **`BackupRepository.read(nombre)`**: lee la copia completa y la valida antes de tocar la base. Solo acepta nombres de la carpeta de copias (sin rutas ni `..`), comprueba que cada tabla del manifiesto esté en el ZIP con la cantidad de registros anotada y convierte los CSV de vuelta (`fromCsv`): un campo vacío sin comillas es nulo y `""` es un texto vacío, igual que al escribir. Una copia dañada, incompleta o editada a mano se rechaza con un mensaje claro.
+2. **`BackupDao.restoreAllTables(tablas)`**, en **una sola transacción**:
+   - Lee del catálogo de PostgreSQL las columnas (tipo, identidad, calculadas, secuencia) y las llaves foráneas; si la copia trae una tabla o columna que la base no tiene, se rechaza sin cambiar nada.
+   - Bloquea las tablas (`LOCK TABLE … IN ACCESS EXCLUSIVE MODE`), las vacía de hijas a padres y las carga de padres a hijas (orden topológico de las llaves foráneas, `restoreOrder`).
+   - Conserva los ids de la copia (`OVERRIDING SYSTEM VALUE`, las tablas usan `GENERATED ALWAYS AS IDENTITY`), convierte cada texto al tipo de su columna con `CAST`, inserta por lotes de 500 y deja cada contador de ids después del mayor id cargado (`setval`).
+   - Si algo falla hace rollback: la base queda como estaba y el mensaje lo dice («No se restauró nada: …»).
+   - Las tablas de la base que la copia no trae (por ejemplo, una agregada después, como `app_settings`) no se tocan.
+3. **`BackupService.restoreBackup(nombre, confirmación)`**: exige la palabra `RESTAURAR`, lee y valida la copia y, **antes de restaurar, guarda una copia automática del estado actual** (queda en la lista aunque la restauración falle). Devuelve `RestoreResult` (modelo nuevo).
+4. **Pantalla Copias de seguridad:**
+   - Columna «Acciones» con «Restaurar» en cada copia. La nota de la tarjeta explica qué hace la restauración en lugar de remitir a Supabase.
+   - Diálogo de confirmación fuerte: aviso en tinte de error con la fecha a partir de la cual se pierden los datos, datos de la copia, la copia previa automática, y un campo donde hay que escribir «RESTAURAR»; el botón «Restaurar copia» se habilita solo entonces. El trabajo va en segundo plano y los errores salen en el mismo diálogo.
+   - Al terminar muestra el resumen y el nombre de la copia previa, y **cierra la sesión** (los usuarios y permisos pueden haber cambiado con los datos).
+   - Pulido con `/impeccable polish`: «Archivo» y «Fecha» ya no se cortan en la tabla y el campo de confirmación no muestra un texto gris que parecía escrito.
+5. **Componentes del Líder:** `FormDialog.setActionEnabledWhen(condición)` (habilita la acción principal solo si se cumple), `NavigationEvent.endSession()` (lo atiende `MainController`: cierra la sesión sin preguntar) e `IconSet.ALERT`.
+6. **Pruebas:** `BackupServiceTest` +6 (ida y vuelta con nulos, textos vacíos, comas, comillas y saltos de línea; copia previa; confirmación; nombres fuera de la carpeta; copias dañadas o incompletas; falla de la carga) y `BackupDaoTest` (6, nuevo: orden con el esquema real de AutoGest, ciclos, dependencias externas y mensajes de error). `mvn clean test` → **510 pruebas, 0 fallos**.
+7. **Verificación contra Supabase sin escribir:** un programa temporal (fuera del repositorio, ya descartado) guardó la foto actual en un ZIP temporal, la leyó con `read` y la restauró con `restoreInto` dentro de una transacción que **siempre hizo rollback**: las 14 tablas y 51 registros quedaron idénticos a los originales (unos 5 s). El ajuste de secuencias se omitió en ese ensayo porque `setval` no se deshace con rollback; su SQL se comprobó con `EXPLAIN` en una transacción de solo lectura. Capturas de la pantalla y del diálogo (vacío y con «RESTAURAR») sin base de datos; el diálogo se cerró con «Cancelar».
+
+**No se tocaron archivos de Dev 1.** No cambian `AppContext` ni `View`.
+
 ---
 
 ## 4. Decisiones y acuerdos
@@ -748,6 +773,8 @@ estaba incorporado; el otro era un WIP viejo de `login-usuarios`). Quedan solo
 | 16/11/2026 | **El contador de la campana suma avisos fallidos y pendientes.** | Son los que necesitan atención: los fallidos se reintentan y los pendientes no han salido. Solo lo ven los roles con acceso a Notificaciones. |
 | 15/11/2026 | **PDF de la factura con Apache PDFBox 3.0.3** (dependencia nueva). | Licencia Apache, sin servicios externos, permite incrustar Roboto y probar el contenido leyendo el texto del PDF. Alternativas descartadas: imprimir desde JavaFX a «Microsoft Print to PDF» (depende del equipo y no se puede probar) y librerías con licencia AGPL. |
 | 14/11/2026 | **Las capturas de Facturación se toman fuera del repositorio y sin configuración de base de datos.** | La lista ejecuta el paso a vencidas (`UPDATE`) al cargar; así las capturas no escriben en Supabase. |
+| 19/11/2026 | **Restaurar una copia reemplaza las tablas que trae la copia, en una transacción, y antes guarda una copia automática del estado actual.** Se confirma escribiendo «RESTAURAR» y al terminar se cierra la sesión. | Es la acción más destructiva de la app: la copia previa permite deshacerla, la palabra evita el clic accidental y cerrar la sesión evita seguir con un usuario o permisos que ya no existen. Las tablas que la copia no trae no se tocan, así una copia vieja no borra tablas nuevas como `app_settings`. |
+| 19/11/2026 | **La restauración conserva los ids de la copia** (`OVERRIDING SYSTEM VALUE`) y ajusta los contadores con `setval`. | Las llaves foráneas de la copia apuntan a esos ids; regenerarlos rompería las relaciones. `setval` no se deshace con rollback, por eso los ensayos contra Supabase lo omiten. |
 
 ---
 
@@ -864,7 +891,8 @@ Verificación: `develop` → `mvn clean test` **108 pruebas, 0 fallos**
 - [x] Perfil y cuenta: datos personales y cambio de contraseña; también desde «Mi perfil» en la Topbar (Sesión 17).
 - [x] Seguridad: política de contraseñas, permisos por rol y último acceso (Sesión 18).
 - [x] Copias de seguridad: crear y listar (Sesión 18).
-- [ ] Restaurar una copia desde AutoGest (vaciar y recargar las tablas en orden de dependencias, en una transacción).
+- [x] Restaurar una copia desde AutoGest: vaciar y recargar las tablas en orden de dependencias, en una transacción, con copia previa y confirmación fuerte (Sesión 26, rama `feature/restaurar-copias`).
+- [ ] Subir `feature/restaurar-copias` y abrir el PR hacia `develop` cuando el Líder termine de probarla.
 - [ ] Configuración de Facturación y de Notificaciones (guardan en `app_settings` de Dev 1: esperan su `SettingsService`).
 
 **Pendientes nuevos (14/10/2026):**

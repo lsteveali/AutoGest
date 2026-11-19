@@ -1,20 +1,27 @@
 package com.autogest.controller.settings;
 
 import com.autogest.config.AppContext;
+import com.autogest.controller.NavigationEvent;
+import com.autogest.controller.components.FormDialog;
 import com.autogest.controller.components.IconSet;
 import com.autogest.controller.components.PageHeader;
 import com.autogest.controller.components.PagedTable;
 import com.autogest.exception.AutoGestException;
 import com.autogest.model.BackupInfo;
+import com.autogest.model.RestoreResult;
 import com.autogest.service.BackupService;
 import com.autogest.util.Background;
 import com.autogest.util.Formatter;
+import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
@@ -31,7 +38,8 @@ import java.util.ResourceBundle;
 
 /**
  * Pantalla «Copias de seguridad» de Configuración (RF-32): crea una copia de
- * toda la base de datos en una carpeta local y lista las copias guardadas.
+ * toda la base de datos en una carpeta local, lista las copias guardadas y
+ * restaura una de ellas con confirmación fuerte.
  * Las reglas y el formato viven en {@code BackupService}; aquí solo se
  * dispara la acción y se muestra el resultado.
  *
@@ -123,19 +131,98 @@ public class BackupController implements Initializable {
 
     private VBox buildListCard() {
         table = new PagedTable<>(PAGE_SIZE);
-        table.addColumn("Archivo", BackupInfo::fileName);
-        table.addColumn("Fecha", info -> Formatter.timestamp(info.createdAt()));
+        table.addColumn("Archivo", BackupInfo::fileName, 250);
+        table.addColumn("Fecha", info -> Formatter.timestamp(info.createdAt()), 140);
         table.addColumn("Tablas", info -> String.valueOf(info.tables()));
         table.addColumn("Registros", info -> String.valueOf(info.rows()));
         table.addColumn("Tamaño", info -> sizeText(info.sizeBytes()));
+        table.addColumn("Acciones", this::restoreCell, 116);
         table.fitHeightToRows(44);
 
-        Label note = new Label("Para restaurar una copia, por ahora, se cargan sus CSV en la base de datos "
-                + "desde Supabase. La restauración desde AutoGest llegará en una próxima entrega.");
+        Label note = new Label("Restaurar una copia reemplaza toda la información actual por la de la copia. "
+                + "Antes de hacerlo, AutoGest guarda una copia del estado actual por si necesitas volver atrás.");
         note.setWrapText(true);
         note.getStyleClass().add("settings-note");
 
         return card("Copias guardadas", IconSet.FILE_TEXT, table, note);
+    }
+
+    private Node restoreCell(BackupInfo info) {
+        Button restore = new Button("Restaurar");
+        restore.getStyleClass().addAll("btn-secondary", "btn-small");
+        restore.setMinWidth(Region.USE_PREF_SIZE);
+        restore.setOnAction(event -> confirmRestore(info));
+        return restore;
+    }
+
+    // ---------- restaurar ----------
+
+    /**
+     * Pide una confirmación fuerte (escribir {@link BackupService#RESTORE_CONFIRMATION})
+     * y restaura la copia. Al terminar cierra la sesión: los usuarios y sus
+     * permisos pueden haber cambiado con los datos restaurados.
+     */
+    private void confirmRestore(BackupInfo info) {
+        Node alertIcon = IconSet.icon(IconSet.ALERT);
+        alertIcon.getStyleClass().add("restore-warning-icon");
+        Label warning = new Label("Se reemplazará toda la información actual de AutoGest por la de esta copia. "
+                + "Lo registrado después del " + Formatter.timestamp(info.createdAt()) + " se perderá.");
+        warning.setWrapText(true);
+        warning.getStyleClass().add("restore-warning-text");
+        HBox.setHgrow(warning, Priority.ALWAYS);
+        HBox warningBox = new HBox(12, alertIcon, warning);
+        warningBox.getStyleClass().add("restore-warning");
+
+        GridPane details = new GridPane();
+        details.getStyleClass().add("restore-details");
+        addDetail(details, 0, "Copia", info.fileName());
+        addDetail(details, 1, "Fecha", Formatter.timestamp(info.createdAt()));
+        addDetail(details, 2, "Contenido", info.tables() + " tablas · " + info.rows() + " registros");
+
+        Label steps = new Label("Antes de restaurar se guarda una copia del estado actual. Pide a los demás "
+                + "usuarios que cierren AutoGest; al terminar se cerrará tu sesión.");
+        steps.setWrapText(true);
+        steps.getStyleClass().add("settings-note");
+
+        Label confirmLabel = new Label("Para confirmar, escribe «" + BackupService.RESTORE_CONFIRMATION
+                + "» en mayúsculas");
+        confirmLabel.getStyleClass().add("field-label");
+        TextField confirmField = new TextField();
+        confirmField.getStyleClass().add("input");
+        confirmLabel.setLabelFor(confirmField);
+        VBox confirmBox = new VBox(6, confirmLabel, confirmField);
+
+        VBox content = new VBox(16, warningBox, details, steps, confirmBox);
+        RestoreResult[] result = new RestoreResult[1];
+        FormDialog dialog = new FormDialog("Restaurar copia de seguridad",
+                "Esta acción reemplaza los datos de todos los módulos.", content, "Restaurar copia",
+                () -> result[0] = service().restoreBackup(info.fileName(), confirmField.getText()));
+        dialog.setActionEnabledWhen(Bindings.createBooleanBinding(
+                () -> BackupService.RESTORE_CONFIRMATION.equals(confirmField.getText().trim()),
+                confirmField.textProperty()));
+        dialog.setOnShown(event -> confirmField.requestFocus());
+
+        if (!dialog.open()) {
+            return;
+        }
+        Alert done = new Alert(Alert.AlertType.INFORMATION);
+        done.setTitle("Copia restaurada");
+        done.setHeaderText(null);
+        done.setContentText("Se restauró la copia del " + Formatter.timestamp(info.createdAt()) + " ("
+                + result[0].tables() + " tablas, " + result[0].rows() + " registros).\n\n"
+                + "El estado anterior quedó guardado en " + result[0].safetyBackup().fileName() + ".\n\n"
+                + "Inicia sesión de nuevo para continuar.");
+        done.showAndWait();
+        root.fireEvent(NavigationEvent.endSession());
+    }
+
+    private static void addDetail(GridPane grid, int row, String name, String value) {
+        Label label = new Label(name);
+        label.getStyleClass().add("settings-info-label");
+        Label text = new Label(value);
+        text.getStyleClass().add("settings-info-value");
+        text.setWrapText(true);
+        grid.addRow(row, label, text);
     }
 
     private void reload() {

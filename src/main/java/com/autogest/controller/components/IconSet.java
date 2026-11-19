@@ -63,8 +63,10 @@ public final class IconSet {
     public static final String CLOUD_DOWNLOAD = "M8 17 L12 21 L16 17 M12 12 L12 21 M20.9 18.1 A5 5 0 0 0 18 9 L16.7 9 A8 8 0 1 0 4 16.3";
     /** Flecha hacia la derecha (abrir una sección). */
     public static final String ARROW_RIGHT = "M5 12 L19 12 M13 6 L19 12 L13 18";
+    /** Triángulo con «!» (advertencia antes de una acción que no se deshace). */
+    public static final String ALERT = "M10.3 3.9 L1.8 18 A2 2 0 0 0 3.5 21 L20.5 21 A2 2 0 0 0 22.2 18 L13.7 3.9 A2 2 0 0 0 10.3 3.9 Z M12 9 L12 13 M12 17 L12.01 17";
     /** Círculo con «i» (información del sistema). */
-    public static final String INFO = "M12 22 A10 10 0 1 1 12 2 A10 10 0 1 1 12 22 M12 16 L12 12 M12 8 L12.01 8";
+    public static final String INFO ="M12 22 A10 10 0 1 1 12 2 A10 10 0 1 1 12 22 M12 16 L12 12 M12 8 L12.01 8";
     public static final String MAIL = "M4 4 L20 4 A2 2 0 0 1 22 6 L22 18 A2 2 0 0 1 20 20 L4 20 A2 2 0 0 1 2 18 L2 6 A2 2 0 0 1 4 4 Z M22 6 L12 13 L2 6";
     public static final String LOCK = "M5 11 L19 11 A2 2 0 0 1 21 13 L21 20 A2 2 0 0 1 19 22 L5 22 A2 2 0 0 1 3 20 L3 13 A2 2 0 0 1 5 11 Z M7 11 L7 7 A5 5 0 0 1 17 7 L17 11";
     public static final String CALENDAR ="M3 5 A1 1 0 0 1 4 4 L20 4 A1 1 0 0 1 21 5 L21 19 A1 1 0 0 1 20 20 L4 20 A1 1 0 0 1 3 19 Z M3 9 L21 9 M8 2 L8 6 M16 2 L16 6";
