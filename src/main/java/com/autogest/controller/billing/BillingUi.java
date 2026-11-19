@@ -244,9 +244,6 @@ final class BillingUi {
         return dialog.open();
     }
 
-    /** Última carpeta donde se guardó un PDF (se propone de nuevo en la misma sesión). */
-    private static java.io.File lastPdfFolder;
-
     /**
      * Pide dónde guardar el PDF de la factura, lo genera en segundo plano y
      * ofrece abrirlo. {@code loader} trae la factura completa (con su orden);
@@ -257,52 +254,9 @@ final class BillingUi {
      * @param loader  carga la factura completa
      */
     static void downloadPdf(Window owner, Invoice invoice, java.util.function.Supplier<Invoice> loader) {
-        javafx.stage.FileChooser chooser = new javafx.stage.FileChooser();
-        chooser.setTitle("Guardar factura en PDF");
-        chooser.setInitialFileName(com.autogest.service.InvoicePdfService.fileName(invoice));
-        chooser.getExtensionFilters().add(new javafx.stage.FileChooser.ExtensionFilter("Documento PDF", "*.pdf"));
-        java.io.File folder = lastPdfFolder != null ? lastPdfFolder
-                : new java.io.File(System.getProperty("user.home"), "Documents");
-        if (folder.isDirectory()) {
-            chooser.setInitialDirectory(folder);
-        }
-        java.io.File chosen = chooser.showSaveDialog(owner);
-        if (chosen == null) {
-            return;
-        }
-        java.io.File file = chosen.getName().toLowerCase(java.util.Locale.ROOT).endsWith(".pdf")
-                ? chosen : new java.io.File(chosen.getParentFile(), chosen.getName() + ".pdf");
-        lastPdfFolder = file.getParentFile();
-        com.autogest.util.Background.run(() -> {
-            AppContext.getInstance().getInvoicePdfService().export(loader.get(), file.toPath());
-            return file;
-        }, saved -> {
-            if (ConfirmDialog.confirm("PDF guardado", "Se guardó «" + saved.getName() + "» en "
-                    + saved.getParent() + ". ¿Quieres abrirlo ahora?")) {
-                openFile(saved);
-            }
-        }, error -> com.autogest.controller.components.ErrorDialog.show("No se pudo generar el PDF",
-                error instanceof com.autogest.exception.AutoGestException ? error.getMessage()
-                        : "Inténtalo de nuevo."));
-    }
-
-    /** Abre el archivo con el programa predeterminado del sistema, fuera del hilo de la interfaz. */
-    private static void openFile(java.io.File file) {
-        com.autogest.util.Background.run(() -> {
-            if (!java.awt.Desktop.isDesktopSupported()
-                    || !java.awt.Desktop.getDesktop().isSupported(java.awt.Desktop.Action.OPEN)) {
-                throw new com.autogest.exception.AutoGestException(
-                        "Este equipo no permite abrir archivos desde AutoGest. Ábrelo desde " + file.getParent());
-            }
-            try {
-                java.awt.Desktop.getDesktop().open(file);
-            } catch (java.io.IOException e) {
-                throw new com.autogest.exception.AutoGestException(
-                        "No hay un programa para abrir PDF. El archivo está en " + file.getParent(), e);
-            }
-            return file;
-        }, opened -> { }, error -> com.autogest.controller.components.ErrorDialog.show("No se pudo abrir el PDF",
-                error.getMessage()));
+        com.autogest.controller.components.PdfExport.save(owner, "Guardar factura en PDF",
+                com.autogest.service.InvoicePdfService.fileName(invoice),
+                path -> AppContext.getInstance().getInvoicePdfService().export(loader.get(), path));
     }
 
     /** Pide confirmación para anular la factura. */
