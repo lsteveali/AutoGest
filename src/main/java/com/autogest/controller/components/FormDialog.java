@@ -2,6 +2,7 @@ package com.autogest.controller.components;
 
 import com.autogest.exception.AutoGestException;
 import com.autogest.util.Background;
+import javafx.beans.value.ObservableBooleanValue;
 import javafx.event.ActionEvent;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
@@ -31,6 +32,9 @@ public class FormDialog extends Dialog<Boolean> {
     private static final String STYLESHEET = "/css/autogest.css";
 
     private final Label error = new Label();
+    private Button primary;
+    private boolean running;
+    private ObservableBooleanValue actionReady;
 
     /**
      * @param title      título del diálogo
@@ -66,7 +70,7 @@ public class FormDialog extends Dialog<Boolean> {
 
         ButtonType actionType = new ButtonType(actionText, ButtonBar.ButtonData.OK_DONE);
         pane.getButtonTypes().addAll(ButtonType.CANCEL, actionType);
-        Button primary = (Button) pane.lookupButton(actionType);
+        primary = (Button) pane.lookupButton(actionType);
         primary.getStyleClass().add("btn-primary");
         Button cancel = (Button) pane.lookupButton(ButtonType.CANCEL);
         cancel.setText("Cancelar");
@@ -78,6 +82,7 @@ public class FormDialog extends Dialog<Boolean> {
 
         primary.addEventFilter(ActionEvent.ACTION, event -> {
             event.consume();
+            running = true;
             primary.setDisable(true);
             cancel.setDisable(true);
             error.setVisible(false);
@@ -88,7 +93,8 @@ public class FormDialog extends Dialog<Boolean> {
                         close();
                     },
                     failure -> {
-                        primary.setDisable(false);
+                        running = false;
+                        primary.setDisable(!isActionReady());
                         cancel.setDisable(false);
                         error.setText(failure instanceof AutoGestException && failure.getMessage() != null
                                 ? failure.getMessage()
@@ -99,6 +105,27 @@ public class FormDialog extends Dialog<Boolean> {
                     });
         });
         setResultConverter(button -> Boolean.FALSE);
+    }
+
+    /**
+     * Habilita el botón principal solo mientras se cumpla una condición (por
+     * ejemplo, haber escrito la palabra de confirmación de una acción que no
+     * se puede deshacer).
+     *
+     * @param ready condición para poder pulsar la acción
+     */
+    public void setActionEnabledWhen(ObservableBooleanValue ready) {
+        this.actionReady = ready;
+        primary.setDisable(!ready.get());
+        ready.addListener((observable, oldValue, newValue) -> {
+            if (!running) {
+                primary.setDisable(!newValue);
+            }
+        });
+    }
+
+    private boolean isActionReady() {
+        return actionReady == null || actionReady.get();
     }
 
     /**

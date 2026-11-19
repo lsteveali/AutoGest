@@ -20,6 +20,9 @@ public class NavigationEvent extends Event {
     public static final EventType<NavigationEvent> BACK = new EventType<>(ANY, "AUTOGEST_NAVIGATION_BACK");
     /** Ir a una sección concreta. */
     public static final EventType<NavigationEvent> OPEN = new EventType<>(ANY, "AUTOGEST_NAVIGATION_OPEN");
+    /** Cerrar la sesión sin preguntar (por ejemplo, tras restaurar una copia de seguridad). */
+    public static final EventType<NavigationEvent> END_SESSION =
+            new EventType<>(ANY, "AUTOGEST_NAVIGATION_END_SESSION");
 
     private final transient View view;
 
@@ -42,7 +45,16 @@ public class NavigationEvent extends Event {
         return new NavigationEvent(OPEN, view);
     }
 
-    /** Pantalla destino ({@code null} para «volver»). */
+    /**
+     * Evento para cerrar la sesión y volver al inicio de sesión. Se usa cuando
+     * los datos del usuario pueden haber cambiado por debajo, como al
+     * restaurar una copia de seguridad.
+     */
+    public static NavigationEvent endSession() {
+        return new NavigationEvent(END_SESSION, null);
+    }
+
+    /** Pantalla destino ({@code null} para «volver» y «cerrar sesión»). */
     public View getView() {
         return view;
     }
