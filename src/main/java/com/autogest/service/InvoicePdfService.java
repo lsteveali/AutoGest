@@ -47,14 +47,14 @@ import java.util.List;
  */
 public class InvoicePdfService {
 
-    private static final Color NAVY = new Color(0x10, 0x1E, 0x39);
-    private static final Color PRIMARY = new Color(0x2F, 0x6D, 0xB5);
-    private static final Color TEXT = new Color(0x1E, 0x2A, 0x3A);
-    private static final Color MUTED = new Color(0x64, 0x74, 0x8B);
-    private static final Color BORDER = new Color(0xDC, 0xE3, 0xEA);
-    private static final Color BAND = new Color(0xF0, 0xF4, 0xF7);
-    private static final Color DANGER = new Color(0xD6, 0x45, 0x45);
-    private static final Color SUCCESS = new Color(0x1E, 0x9E, 0x5A);
+    private static final Color ONYX = new Color(0x11, 0x11, 0x11);
+    private static final Color PRIMARY = new Color(0xAB, 0x00, 0x00);
+    private static final Color TEXT = new Color(0x11, 0x11, 0x11);
+    private static final Color MUTED = new Color(0x6B, 0x64, 0x55);
+    private static final Color BORDER = new Color(0xDA, 0xD4, 0xC5);
+    private static final Color BAND = new Color(0xF4, 0xF0, 0xE6);
+    private static final Color DANGER = new Color(0xAB, 0x00, 0x00);
+    private static final Color SUCCESS = new Color(0x1E, 0x8A, 0x4F);
     private static final Color WARNING = new Color(0xB7, 0x7E, 0x0B);
 
     private static final float MARGIN = 48;
@@ -168,12 +168,12 @@ public class InvoicePdfService {
             if (logo != null) {
                 cs.drawImage(logo, MARGIN, top - 34, 34, 34);
             }
-            text(bold, 20, NAVY, MARGIN + 44, top - 22, "AutoGest");
+            text(bold, 20, ONYX, MARGIN + 44, top - 22, "AutoGest");
             text(regular, 9, MUTED, MARGIN + 44, top - 35, "Gestión integral para talleres automotrices");
 
             float right = MARGIN + CONTENT_WIDTH;
             textRight(medium, 10, MUTED, right, top - 10, "FACTURA");
-            textRight(bold, 18, NAVY, right, top - 30, invoice.getNumber());
+            textRight(bold, 18, ONYX, right, top - 30, invoice.getNumber());
             String status = statusText(invoice.getStatus());
             textRight(medium, 10, statusColor(invoice.getStatus()), right, top - 45, status);
 

@@ -1,24 +1,45 @@
 /* ==========================================================================
    AutoGest - Sistema de diseño (Sprint 1, L4)
-   Valores medidos de los mockups y fijados por el Líder.
+   Paleta del Líder (19/11/2026): Onyx #111111, Porcelain #FFFFFC,
+   Khaki Beige #BEB7A4, Burnt Caramel #C65C00 e Inferno #AB0000.
    Ningún FXML ni clase Java usa colores fijos: todo viene de aquí.
    ========================================================================== */
 
 .root {
-    /* Colores */
-    -ag-navy: #101E39;
-    -ag-primary: #2F6DB5;
-    -ag-primary-hover: #275d9c;
-    -ag-bg: #F0F4F7;
-    -ag-card: #FFFFFF;
-    -ag-border: #DCE3EA;
-    -ag-text: #1E2A3A;
-    -ag-text-muted: #64748B;
-    -ag-success: #1E9E5A;
-    -ag-warning: #E0A31D;
-    -ag-info: #2F6DB5;
-    -ag-danger: #D64545;
-    -ag-neutral: #8A94A6;
+    /* Paleta base */
+    -ag-navy: #111111;              /* Onyx: barra lateral y superficies oscuras */
+    -ag-primary: #AB0000;           /* Inferno: botones principales, enlaces y foco */
+    -ag-primary-hover: #8C0000;
+    -ag-accent: #C65C00;            /* Burnt Caramel: ítem activo, íconos y gráficas */
+    -ag-accent-hover: #A84E00;
+    -ag-sand: #BEB7A4;              /* Khaki Beige: base de fondos y bordes */
+    -ag-card: #FFFFFC;              /* Porcelain: tarjetas, campos y tablas */
+    -ag-bg: #ECE8DE;                /* Khaki Beige aclarado: fondo de las pantallas */
+    -ag-border: #DAD4C5;
+    -ag-border-strong: #C6BEAA;
+    -ag-divider: #EEE9DE;
+
+    /* Estados de interacción (tintes cálidos sobre Porcelain) */
+    -ag-hover: #F4F0E6;
+    -ag-pressed: #EAE4D6;
+    -ag-surface-alt: #F8F5EE;
+    -ag-selected: #F7E4DE;
+
+    /* Texto */
+    -ag-text: #111111;
+    -ag-text-muted: #6B6455;
+    -ag-text-placeholder: #78715F;
+    -ag-text-disabled: #A39C8B;
+    -ag-avatar: #DDD6C5;
+    -ag-avatar-text: #5A5446;
+
+    /* Estados (reservados: no se usan como decoración) */
+    -ag-success: #1E8A4F;
+    -ag-warning: #D99A12;
+    -ag-info: #2F6A94;
+    -ag-danger: #AB0000;
+    -ag-danger-tint: #F6DCD6;
+    -ag-neutral: #8C8577;
 
     /* Tipografía */
     -fx-font-family: "Roboto", "Segoe UI", sans-serif;
@@ -86,7 +107,7 @@
 }
 
 .sidebar-item-active {
-    -fx-background-color: -ag-primary;
+    -fx-background-color: -ag-accent-hover;
 }
 
 .sidebar-item-active .label {
@@ -94,7 +115,7 @@
 }
 
 .sidebar-item-active:hover {
-    -fx-background-color: -ag-primary-hover;
+    -fx-background-color: derive(-ag-accent-hover, -10%);
 }
 
 /* Respuesta al clic: el ítem se oscurece un poco al presionarlo. */
@@ -103,7 +124,7 @@
 }
 
 .sidebar-item-active:pressed {
-    -fx-background-color: derive(-ag-primary, -18%);
+    -fx-background-color: derive(-ag-accent-hover, -18%);
 }
 
 /* Como en los mockups: sin franja blanca ni borde, sobre el mismo fondo del
@@ -141,7 +162,7 @@
     -fx-border-color: -ag-border;
     -fx-border-radius: 12;
     -fx-padding: 20;
-    -fx-effect: dropshadow(gaussian, rgba(16, 30, 57, 0.06), 12, 0, 0, 3);
+    -fx-effect: dropshadow(gaussian, rgba(17, 17, 17, 0.06), 12, 0, 0, 3);
 }
 
 .card-title {
@@ -173,7 +194,7 @@
    del Tab era invisible. Se dibuja con un efecto para no mover el contenido. */
 .button:focus-visible,
 .menu-button:focus-visible {
-    -fx-effect: dropshadow(three-pass-box, rgba(47, 109, 181, 0.55), 4, 0.9, 0, 0);
+    -fx-effect: dropshadow(three-pass-box, rgba(171, 0, 0, 0.55), 4, 0.9, 0, 0);
 }
 
 .btn-primary {
@@ -200,12 +221,12 @@
 }
 
 .btn-secondary:hover {
-    -fx-background-color: #F7FAFC;
-    -fx-border-color: #C9D3DE;
+    -fx-background-color: -ag-surface-alt;
+    -fx-border-color: -ag-border-strong;
 }
 
 .btn-secondary:pressed {
-    -fx-background-color: #EEF3F8;
+    -fx-background-color: -ag-hover;
 }
 
 .btn-danger {
@@ -215,11 +236,11 @@
 }
 
 .btn-danger:hover {
-    -fx-background-color: #b83a3a;
+    -fx-background-color: -ag-primary-hover;
 }
 
 .btn-danger:pressed {
-    -fx-background-color: #9e3030;
+    -fx-background-color: derive(-ag-danger, -30%);
 }
 
 /* --------------------------------------------------------------------------
@@ -235,20 +256,20 @@
     /* Misma altura que los desplegables y las fechas (40px). */
     -fx-min-height: 40;
     /* Texto de ejemplo legible (~4.6:1 sobre blanco) y selección con la marca. */
-    -fx-prompt-text-fill: #6B7789;
+    -fx-prompt-text-fill: -ag-text-placeholder;
     -fx-highlight-fill: derive(-ag-primary, 72%);
     -fx-highlight-text-fill: -ag-text;
 }
 
 .input:hover {
-    -fx-border-color: #C9D3DE;
+    -fx-border-color: -ag-border-strong;
 }
 
 /* Foco: borde primario + halo suave, sin cambiar el grosor del borde (no
    desplaza el texto). */
 .input:focused {
     -fx-border-color: -ag-primary;
-    -fx-effect: dropshadow(three-pass-box, rgba(47, 109, 181, 0.18), 6, 0.5, 0, 0);
+    -fx-effect: dropshadow(three-pass-box, rgba(171, 0, 0, 0.18), 6, 0.5, 0, 0);
 }
 
 /* --------------------------------------------------------------------------
@@ -312,7 +333,7 @@
     -fx-border-color: -ag-border;
     -fx-border-radius: 10;
     -fx-padding: 4;
-    -fx-effect: dropshadow(gaussian, rgba(16, 30, 57, 0.14), 18, 0, 0, 6);
+    -fx-effect: dropshadow(gaussian, rgba(17, 17, 17, 0.14), 18, 0, 0, 6);
 }
 
 .combo-box-popup > .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell,
@@ -327,12 +348,12 @@
 
 .combo-box-popup > .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell:filled:hover,
 .combo-box.input .combo-box-popup .list-view .list-cell:filled:hover {
-    -fx-background-color: #F1F5F9;
+    -fx-background-color: -ag-surface-alt;
 }
 
 .combo-box-popup > .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell:filled:selected,
 .combo-box.input .combo-box-popup .list-view .list-cell:filled:selected {
-    -fx-background-color: #E8F0FA;
+    -fx-background-color: -ag-selected;
     -fx-text-fill: -ag-primary;
     -fx-font-weight: 700;
 }
@@ -343,7 +364,7 @@
     -fx-background-radius: 10;
     -fx-border-color: -ag-border;
     -fx-border-radius: 10;
-    -fx-effect: dropshadow(gaussian, rgba(16, 30, 57, 0.14), 18, 0, 0, 6);
+    -fx-effect: dropshadow(gaussian, rgba(17, 17, 17, 0.14), 18, 0, 0, 6);
 }
 
 .date-picker-popup > .month-year-pane {
@@ -392,7 +413,7 @@
 }
 
 .badge-danger {
-    -fx-background-color: derive(-ag-danger, 84%);
+    -fx-background-color: -ag-danger-tint;
     -fx-text-fill: -ag-danger;
 }
 
@@ -417,7 +438,7 @@
 /* Radio concéntrico: la cabecera va dentro del borde de 1px de la tabla, así
    que su radio es 12 - 1 = 11 y no asoma una esquina clara sobre el borde. */
 .table-autogest .column-header-background {
-    -fx-background-color: #F7FAFC;
+    -fx-background-color: -ag-surface-alt;
     -fx-background-radius: 11 11 0 0;
 }
 
@@ -451,17 +472,17 @@
 
 .table-autogest .table-row-cell {
     -fx-background-color: transparent;
-    -fx-border-color: transparent transparent #EAF0F6 transparent;
+    -fx-border-color: transparent transparent -ag-divider transparent;
 }
 
 /* Las filas abren el detalle al hacer clic: el hover lo anuncia. */
 .table-autogest .table-row-cell:filled:hover {
-    -fx-background-color: #F5F8FB;
+    -fx-background-color: -ag-surface-alt;
     -fx-cursor: hand;
 }
 
 .table-autogest .table-row-cell:selected {
-    -fx-background-color: derive(-ag-info, 90%);
+    -fx-background-color: -ag-selected;
 }
 
 .table-autogest .table-row-cell .table-cell {
@@ -499,11 +520,11 @@
 .kpi-card {
     -fx-background-color: -ag-card;
     -fx-background-radius: 12;
-    -fx-border-color: -ag-border;
+    -fx-border-color: derive(-ag-accent, 62%);
     -fx-border-radius: 12;
     -fx-padding: 16 20;
     -fx-spacing: 4;
-    -fx-effect: dropshadow(gaussian, rgba(16, 30, 57, 0.05), 10, 0, 0, 2);
+    -fx-effect: dropshadow(gaussian, rgba(17, 17, 17, 0.05), 10, 0, 0, 2);
 }
 
 .kpi-title {
@@ -514,6 +535,7 @@
 .kpi-value {
     -fx-font-size: 28px;
     -fx-font-weight: 700;
+    -fx-text-fill: -ag-accent;
 }
 
 .kpi-detail {
@@ -563,7 +585,7 @@
    KpiCard (ícono)
    -------------------------------------------------------------------------- */
 .kpi-icon {
-    -fx-stroke: -ag-primary;
+    -fx-stroke: -ag-accent;
 }
 
 /* --------------------------------------------------------------------------
@@ -604,8 +626,8 @@
 }
 
 .page-btn:hover {
-    -fx-background-color: #F7FAFC;
-    -fx-border-color: #C9D3DE;
+    -fx-background-color: -ag-surface-alt;
+    -fx-border-color: -ag-border-strong;
 }
 
 .page-btn:disabled {
@@ -625,11 +647,11 @@
 }
 
 .icon-button:hover {
-    -fx-background-color: #EEF3F8;
+    -fx-background-color: -ag-hover;
 }
 
 .icon-button:pressed {
-    -fx-background-color: #E2E9F1;
+    -fx-background-color: -ag-pressed;
 }
 
 .topbar .icon-button .icon {
@@ -639,9 +661,9 @@
 }
 
 .topbar-avatar {
-    -fx-background-color: #D5DBE3;
+    -fx-background-color: -ag-avatar;
     -fx-background-radius: 999;
-    -fx-text-fill: #5B6573;
+    -fx-text-fill: -ag-avatar-text;
     -fx-font-weight: 500;
     -fx-font-size: 15px;
     -fx-min-width: 42;
@@ -664,23 +686,23 @@
    Botón flotante del Asistente
    -------------------------------------------------------------------------- */
 .assistant-button {
-    -fx-background-color: -ag-navy;
+    -fx-background-color: -ag-accent-hover;
     -fx-text-fill: #FFFFFF;
     -fx-font-weight: 700;
     -fx-background-radius: 999;
     -fx-padding: 12 20;
     -fx-cursor: hand;
-    -fx-effect: dropshadow(gaussian, rgba(16, 30, 57, 0.22), 16, 0, 0, 5);
+    -fx-effect: dropshadow(gaussian, rgba(17, 17, 17, 0.22), 16, 0, 0, 5);
 }
 
 .assistant-button:hover {
-    -fx-background-color: -ag-primary;
+    -fx-background-color: derive(-ag-accent-hover, -12%);
 }
 
 /* El hover cambia el fondo; el presionado lo baja (sombra más corta). */
 .assistant-button:pressed {
-    -fx-background-color: -ag-primary-hover;
-    -fx-effect: dropshadow(gaussian, rgba(16, 30, 57, 0.18), 8, 0, 0, 2);
+    -fx-background-color: derive(-ag-accent-hover, -22%);
+    -fx-effect: dropshadow(gaussian, rgba(17, 17, 17, 0.18), 8, 0, 0, 2);
 }
 
 .assistant-button .icon {
@@ -730,7 +752,7 @@
     -fx-border-radius: 16;
     -fx-padding: 36 36 32 36;
     -fx-spacing: 18;
-    -fx-effect: dropshadow(gaussian, rgba(16, 30, 57, 0.10), 18, 0, 0, 6);
+    -fx-effect: dropshadow(gaussian, rgba(17, 17, 17, 0.10), 18, 0, 0, 6);
 }
 
 .login-card-header {
@@ -768,12 +790,12 @@
 }
 
 .input-group:hover {
-    -fx-border-color: #C9D3DE;
+    -fx-border-color: -ag-border-strong;
 }
 
 .input-group:focus-within {
     -fx-border-color: -ag-primary;
-    -fx-effect: dropshadow(three-pass-box, rgba(47, 109, 181, 0.18), 6, 0.5, 0, 0);
+    -fx-effect: dropshadow(three-pass-box, rgba(171, 0, 0, 0.18), 6, 0.5, 0, 0);
 }
 
 .input-group:focus-within .icon {
@@ -826,7 +848,7 @@
 }
 
 .topbar-user:hover {
-    -fx-background-color: #EEF3F8;
+    -fx-background-color: -ag-hover;
 }
 
 .user-avatar {
@@ -921,7 +943,7 @@
 }
 
 .scroll-bar > .thumb {
-    -fx-background-color: #C9D3DE;
+    -fx-background-color: -ag-border-strong;
     -fx-background-radius: 999;
     -fx-background-insets: 2;
 }
@@ -952,7 +974,7 @@
 }
 
 .stage-icon {
-    -fx-background-color: rgba(47, 109, 181, 0.10);
+    -fx-background-color: rgba(198, 92, 0, 0.12);
     -fx-background-radius: 12;
     -fx-min-width: 44;
     -fx-min-height: 44;
@@ -961,7 +983,7 @@
 }
 
 .stage-icon .icon {
-    -fx-stroke: -ag-primary;
+    -fx-stroke: -ag-accent;
 }
 
 .stage-title {
@@ -1006,9 +1028,9 @@
 }
 
 .settings-avatar {
-    -fx-background-color: #D5DBE3;
+    -fx-background-color: -ag-avatar;
     -fx-background-radius: 999;
-    -fx-text-fill: #5B6573;
+    -fx-text-fill: -ag-avatar-text;
     -fx-font-size: 20px;
     -fx-font-weight: 500;
     -fx-min-width: 60;
@@ -1045,12 +1067,12 @@
     -fx-border-radius: 12;
     -fx-padding: 16 20;
     -fx-alignment: center-left;
-    -fx-effect: dropshadow(gaussian, rgba(16, 30, 57, 0.05), 10, 0, 0, 2);
+    -fx-effect: dropshadow(gaussian, rgba(17, 17, 17, 0.05), 10, 0, 0, 2);
 }
 
 .settings-card:hover {
-    -fx-border-color: #B9C7D8;
-    -fx-effect: dropshadow(gaussian, rgba(16, 30, 57, 0.10), 14, 0, 0, 4);
+    -fx-border-color: -ag-border-strong;
+    -fx-effect: dropshadow(gaussian, rgba(17, 17, 17, 0.10), 14, 0, 0, 4);
     -fx-cursor: hand;
 }
 
@@ -1061,7 +1083,7 @@
 /* Sección aún no disponible: legible pero claramente inactiva. */
 .settings-card:disabled {
     -fx-opacity: 1;
-    -fx-background-color: #F8FAFC;
+    -fx-background-color: -ag-surface-alt;
     -fx-effect: null;
 }
 
@@ -1076,7 +1098,7 @@
 }
 
 .settings-card:disabled .settings-card-icon {
-    -fx-background-color: #EEF2F6;
+    -fx-background-color: -ag-hover;
 }
 
 .settings-card:disabled .settings-card-icon .icon {
@@ -1084,7 +1106,7 @@
 }
 
 .settings-card-icon {
-    -fx-background-color: rgba(47, 109, 181, 0.10);
+    -fx-background-color: rgba(198, 92, 0, 0.12);
     -fx-background-radius: 10;
     -fx-min-width: 48;
     -fx-min-height: 48;
@@ -1093,7 +1115,7 @@
 }
 
 .settings-card-icon .icon {
-    -fx-stroke: -ag-primary;
+    -fx-stroke: -ag-accent;
 }
 
 .settings-card-title {
@@ -1116,7 +1138,7 @@
 }
 
 .settings-info-card .icon {
-    -fx-stroke: -ag-primary;
+    -fx-stroke: -ag-accent;
 }
 
 .settings-info-grid {
@@ -1155,7 +1177,7 @@
 .input.input-readonly,
 .input.input-readonly:hover,
 .input.input-readonly:focused {
-    -fx-background-color: #F1F5F9;
+    -fx-background-color: -ag-surface-alt;
     -fx-border-color: -ag-border;
     -fx-effect: null;
     -fx-text-fill: -ag-text-muted;
@@ -1176,7 +1198,7 @@
 
 /* Seguridad y Copias de seguridad (Sprint 8, Líder) */
 .security-card-icon {
-    -fx-stroke: -ag-primary;
+    -fx-stroke: -ag-accent;
 }
 
 .security-check {
@@ -1215,7 +1237,7 @@
 }
 
 .security-denied {
-    -fx-text-fill: #A6B0BF;
+    -fx-text-fill: -ag-text-disabled;
 }
 
 .backup-description {
@@ -1268,7 +1290,7 @@
 
 .breadcrumb-link:hover,
 .back-link:hover {
-    -fx-background-color: #E6ECF3;
+    -fx-background-color: -ag-hover;
 }
 
 .breadcrumb-link:hover {
@@ -1277,7 +1299,7 @@
 
 .breadcrumb-link:pressed,
 .back-link:pressed {
-    -fx-background-color: #DCE4EE;
+    -fx-background-color: -ag-pressed;
     -fx-scale-x: 1;
     -fx-scale-y: 1;
 }
@@ -1359,11 +1381,11 @@
 }
 
 .customer-vehicle-row:hover {
-    -fx-background-color: #F5F8FB;
+    -fx-background-color: -ag-surface-alt;
 }
 
 .customer-vehicle-row:focus-visible {
-    -fx-background-color: #EEF3F8;
+    -fx-background-color: -ag-hover;
     -fx-border-color: -ag-primary;
     -fx-border-radius: 10;
 }
@@ -1372,13 +1394,13 @@
 .vehicle-plate {
     -fx-background-color: #FFD43B;
     -fx-background-radius: 5;
-    -fx-border-color: #1E2A3A;
+    -fx-border-color: -ag-text;
     -fx-border-width: 1.5;
     -fx-border-radius: 5;
     -fx-padding: 4 10;
     -fx-font-size: 14px;
     -fx-font-weight: 700;
-    -fx-text-fill: #1E2A3A;
+    -fx-text-fill: -ag-text;
     /* Ancho fijo: así el modelo de cada fila arranca en la misma columna. */
     -fx-min-width: 96;
     -fx-alignment: center;
@@ -1408,7 +1430,7 @@
 
 .order-step {
     -fx-font-size: 14px;
-    -fx-text-fill: #8A94A6;
+    -fx-text-fill: -ag-neutral;
     -fx-padding: 4 10;
     -fx-background-radius: 999;
 }
@@ -1420,11 +1442,11 @@
 .order-step-current {
     -fx-text-fill: -ag-primary;
     -fx-font-weight: 700;
-    -fx-background-color: #E8F0FA;
+    -fx-background-color: -ag-selected;
 }
 
 .order-step-arrow {
-    -fx-stroke: #B9C3D0;
+    -fx-stroke: -ag-border-strong;
     -fx-scale-x: 0.7;
     -fx-scale-y: 0.7;
 }
@@ -1436,7 +1458,7 @@
 }
 
 .order-card-icon {
-    -fx-stroke: -ag-primary;
+    -fx-stroke: -ag-accent;
 }
 
 .order-strong {
@@ -1477,7 +1499,7 @@
     -fx-font-size: 14px;
     -fx-text-fill: -ag-text;
     -fx-padding: 8 0;
-    -fx-border-color: #EAF0F6 transparent transparent transparent;
+    -fx-border-color: -ag-divider transparent transparent transparent;
 }
 
 .order-lines-total {
@@ -1709,7 +1731,7 @@
 }
 
 .report-period:hover {
-    -fx-background-color: #EEF3F8;
+    -fx-background-color: -ag-hover;
 }
 
 .report-period:selected {
@@ -1744,7 +1766,7 @@
 }
 
 .report-bar-fill {
-    -fx-background-color: -ag-primary;
+    -fx-background-color: -ag-accent;
     -fx-background-radius: 4;
     -fx-min-height: 8;
     -fx-pref-height: 8;
@@ -1777,16 +1799,16 @@
 }
 
 .report-chart .default-color0.chart-series-area-line {
-    -fx-stroke: -ag-primary;
+    -fx-stroke: -ag-accent;
     -fx-stroke-width: 2px;
 }
 
 .report-chart .default-color0.chart-series-area-fill {
-    -fx-fill: rgba(47, 109, 181, 0.12);
+    -fx-fill: rgba(198, 92, 0, 0.14);
 }
 
 .report-chart .default-color0.chart-area-symbol {
-    -fx-background-color: -ag-primary, #FFFFFF;
+    -fx-background-color: -ag-accent, -ag-card;
     -fx-background-insets: 0, 2;
     -fx-background-radius: 5;
     -fx-padding: 4;
