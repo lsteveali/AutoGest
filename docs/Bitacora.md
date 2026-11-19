@@ -695,7 +695,11 @@ estaba incorporado; el otro era un WIP viejo de `login-usuarios`). Quedan solo
 - Con su permiso se descargaron del repositorio oficial **googlefonts/manrope** (`fonts/ttf`, licencia SIL OFL 1.1) `Manrope-Regular.ttf`, `Manrope-Medium.ttf` y `Manrope-Bold.ttf`, más `OFL-Manrope.txt`, en `resources/css/fonts/` (se verificó que fueran TTF válidos). `AutoGestApplication` las carga como antes a Roboto (Medium, Regular y Bold, en ese orden: JavaFX resuelve normal → Regular y negrita → Bold), y el CSS usa `"Manrope", "Segoe UI", sans-serif`. `PagedTable` mide el ancho de los títulos con Manrope. El README de las fuentes se actualizó.
 - **Los PDF siguen con Roboto**, a pedido del Líder; por eso los archivos de Roboto se conservan.
 - Manrope es un poco más ancha: se ajustaron anchos mínimos en **Usuarios y roles** («Inactivo» se cortaba) y **Vehículos** (vehículo y estados), y los filtros pasan a 240 px (búsqueda) y 136 px (listas) para que quepan los cuatro filtros de Vehículos.
-- **Quedan cortes en pantallas de Dev 1** (no se tocaron): Clientes (el distintivo «Activo») e Inventario (estados y etiquetas de los filtros, ya en el barrido pendiente). En Órdenes el menú «…» queda justo en el borde.
+- **Cortes en pantallas de Dev 1, corregidos a pedido del Líder** (archivos de Dev 1 tocados: `CustomerListController`, `InventoryController`, `OrdersController` e `inventory.css`; **Sebastián: tenerlo en cuenta al actualizar tu rama**):
+  - **Clientes:** el distintivo de estado ya no se encoge y los porcentajes de las columnas se reparten de nuevo (documento y teléfono completos; el correo cede espacio).
+  - **Inventario:** anchos mínimos para repuesto, código, categoría, proveedor, precio y estado; títulos más cortos («Mínimo», «Precio») y el filtro «Estado de stock» pasa a «Stock»; el buscador baja a 220 px. La tabla cabe con la columna Acciones visible; los nombres más largos se abrevian con «…».
+  - **Órdenes:** la columna del menú «…» pasa a 58 px (Ingreso y Entrega a 96, Responsable a 110 y Total a 90 para compensar).
+  - **`FilterBar`** (componente del Líder): las etiquetas de los filtros ya no se encogen a «…» en ninguna pantalla.
 - `mvn clean test` → **498 pruebas, 0 fallos**. Capturas de login, Inicio, Reportes, Órdenes, Clientes, Inventario, Configuración, Vehículos, Servicios, Usuarios y Facturación a 1280×720.
 
 **Pendiente:** el logo (engranaje azul) sigue siendo una imagen con sus colores originales en el login, el ícono de la ventana y los PDF; la barra lateral usa la versión plateada. Cambiarlo requiere nuevas imágenes del logo.
@@ -853,7 +857,7 @@ Verificación: `develop` → `mvn clean test` **108 pruebas, 0 fallos**
 - [ ] Subir la rama y abrir el PR hacia `develop` después de la prueba manual del Líder.
 - [ ] Logo con la nueva paleta (requiere nuevas imágenes).
 
-**Barrido de interfaz pendiente (lo hará el Líder):** Inventario (filtros, nombres y estados cortados; «Volver» repetido en el detalle del repuesto; «Registrar entrada» debajo de «+ Nuevo repuesto») (Órdenes ya corregida en la Sesión 21).
+**Barrido de interfaz pendiente (lo hará el Líder):** Inventario («Volver» repetido en el detalle del repuesto; «Registrar entrada» debajo de «+ Nuevo repuesto»). Filtros, nombres y estados cortados de la lista: corregidos en la Sesión 25. (Órdenes ya corregida en la Sesión 21.)
 
 **En curso (Líder, Sprint 8 — rama `feature/configuracion`):**
 - [x] Pantalla general de Configuración: tarjeta del usuario, secciones e información del sistema (Sesión 17).
