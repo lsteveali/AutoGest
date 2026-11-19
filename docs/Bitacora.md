@@ -31,7 +31,7 @@
 | L1 | `pom.xml` y estructura de paquetes | ✅ Hecho | Java 21, JavaFX 21.0.12, driver PostgreSQL, JUnit 5, Surefire, plugin JavaFX. Paquetes con `package-info`. |
 | L2 | Aplicación y shell | ✅ Hecho | `AutoGestApplication` (1280x720), `main.fxml` con Sidebar/Topbar/área central. |
 | L3 | Navegación | ✅ Hecho | `View`, `ViewNavigator`, `ParameterizedController` y pantallas marcadoras «En construcción». |
-| L4 | Sistema de diseño | ✅ Hecho | `autogest.css` + iconos lineales `IconSet` (D-15) + fuentes Roboto Regular/Medium/Bold con `Font.loadFont` (D-18, Sesión 7). |
+| L4 | Sistema de diseño | ✅ Hecho | `autogest.css` + iconos lineales `IconSet` (D-15) + fuentes Manrope Regular/Medium/Bold desde el 19/11/2026, antes Roboto, con `Font.loadFont` (D-18, Sesión 7). |
 | L5 | Componentes reutilizables | ✅ Hecho | `StatusBadge`, `KpiCard`, `PageHeader`, `FilterBar`, `PagedTable`, `ConfirmDialog`, `ErrorDialog`, `Sidebar`, `Topbar`, `AssistantButton` + pantalla demo. |
 | L6 | Utilidades y conexión de dependencias | ✅ Hecho | `util/Formatter` (+ pruebas) y esqueleto de `config/AppContext`. |
 | L7 | Documentación | ✅ Hecho | `docs/architecture.md`, `docs/analysis-presentation-base.md`, `docs/architecture-class-diagram.md`. |
@@ -691,6 +691,13 @@ estaba incorporado; el otro era un WIP viejo de `login-usuarios`). Quedan solo
 5. **Cambio en un archivo de Dev 1, por el cambio de paleta:** `customers.css` (una línea: el hover de `.customer-actions` usa `-ag-hover` en lugar de `#EEF3F8`). **Sebastián: tenerlo en cuenta al actualizar tu rama;** en adelante, usar los tokens `-ag-*` en lugar de colores fijos.
 6. **Verificación:** capturas de la ventana completa a 1280×720 (login, Inicio, Reportes, Órdenes, Clientes, Inventario y Configuración, solo lecturas) y de Facturación y el PDF con datos en memoria. `mvn clean test` → **498 pruebas, 0 fallos**.
 
+**Tipografía Manrope (pedido del Líder, misma sesión):**
+- Con su permiso se descargaron del repositorio oficial **googlefonts/manrope** (`fonts/ttf`, licencia SIL OFL 1.1) `Manrope-Regular.ttf`, `Manrope-Medium.ttf` y `Manrope-Bold.ttf`, más `OFL-Manrope.txt`, en `resources/css/fonts/` (se verificó que fueran TTF válidos). `AutoGestApplication` las carga como antes a Roboto (Medium, Regular y Bold, en ese orden: JavaFX resuelve normal → Regular y negrita → Bold), y el CSS usa `"Manrope", "Segoe UI", sans-serif`. `PagedTable` mide el ancho de los títulos con Manrope. El README de las fuentes se actualizó.
+- **Los PDF siguen con Roboto**, a pedido del Líder; por eso los archivos de Roboto se conservan.
+- Manrope es un poco más ancha: se ajustaron anchos mínimos en **Usuarios y roles** («Inactivo» se cortaba) y **Vehículos** (vehículo y estados), y los filtros pasan a 240 px (búsqueda) y 136 px (listas) para que quepan los cuatro filtros de Vehículos.
+- **Quedan cortes en pantallas de Dev 1** (no se tocaron): Clientes (el distintivo «Activo») e Inventario (estados y etiquetas de los filtros, ya en el barrido pendiente). En Órdenes el menú «…» queda justo en el borde.
+- `mvn clean test` → **498 pruebas, 0 fallos**. Capturas de login, Inicio, Reportes, Órdenes, Clientes, Inventario, Configuración, Vehículos, Servicios, Usuarios y Facturación a 1280×720.
+
 **Pendiente:** el logo (engranaje azul) sigue siendo una imagen con sus colores originales en el login, el ícono de la ventana y los PDF; la barra lateral usa la versión plateada. Cambiarlo requiere nuevas imágenes del logo.
 ---
 
@@ -728,6 +735,7 @@ estaba incorporado; el otro era un WIP viejo de `login-usuarios`). Quedan solo
 | 14/11/2026 | **Los métodos de pago se guardan como códigos** (`CASH`, `CARD`, `TRANSFER`, `OTHER`) en el texto `payment_method`. | `Invoice` usa `String` mientras no exista `PaymentMethod`; los códigos coinciden con los nombres que tendría ese enum, así el cambio no requiere migrar datos. Los nombres en español viven en `InvoiceService.methodText` / `InvoiceLabels`. |
 | 14/11/2026 | **Solo se facturan órdenes Listas o Entregadas, con una factura vigente por orden;** al anular, la orden puede facturarse de nuevo y se reutiliza la misma fila. | Pedido del Líder (una orden tiene 0..1 factura) y restricción `UNIQUE (order_id)` de `invoices`. |
 | 14/11/2026 | **Generar, pagar y anular dejan constancia en el historial de la orden.** | `invoices` no guarda fechas de pago ni usuarios; así queda trazabilidad sin cambiar el esquema de Dev 2. |
+| 19/11/2026 | **D-18 actualizada: la interfaz usa Manrope** (antes Roboto); los PDF de factura y reporte conservan Roboto. | Pedido del Líder junto con la nueva paleta. Manrope tiene licencia SIL OFL y se incluye en el proyecto, igual que Roboto. |
 | 19/11/2026 | **Paleta Onyx, Porcelain, Khaki Beige, Burnt Caramel e Inferno.** Inferno es la acción principal (botones, enlaces, foco) y Burnt Caramel el acento (ítem activo, íconos, gráficas); el blanco sobre caramelo usa `#A84E00`. | Pedido del Líder con imagen de referencia. Separar acción y acento mantiene el contraste AA: el blanco sobre `#C65C00` da 4,3:1 y no alcanza el 4,5:1 del texto normal. |
 | 18/11/2026 | **Los ingresos de Reportes salen de las facturas no anuladas, por fecha de emisión.** | `estimatedRevenueBetween` suma órdenes aunque no se hayan facturado. `invoices` no guarda la fecha de pago y agregarla exigiría cambiar el esquema. |
 | 16/11/2026 | **Envío real de correos por SMTP de Gmail, opcional** (Angus Mail; credenciales en `application.local.properties`). | Gratis y suficiente para un taller (unos 500 correos al día). Sin cuenta configurada se simula como antes, así nadie depende de la cuenta del Líder para correr la app. Un servicio por API (Brevo, Resend) entrega mejor pero exige cuenta, llave y dominio verificado; WhatsApp exige la API de Meta Business. |
