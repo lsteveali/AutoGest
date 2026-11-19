@@ -4,7 +4,19 @@ import com.autogest.model.OrderStatus;
 import com.autogest.model.ServiceOrder;
 import com.autogest.repository.ServiceOrderRepository;
 
+import com.autogest.model.OrderLine;
+import com.autogest.model.PartLine;
+import com.autogest.model.ServiceLine;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.TreeMap;
+import java.util.stream.Stream;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -98,6 +110,73 @@ class FakeServiceOrderRepository extends ServiceOrderRepository {
     @Override
     public int nextSequence() {
         return sequence + 1;
+    }
+
+    // ---------- consultas para Reportes (Sprint 7) ----------
+
+    @Override
+    public Map<OrderStatus, Integer> countGroupedByStatus() {
+        Map<OrderStatus, Integer> result = new EnumMap<>(OrderStatus.class);
+        for (OrderStatus status : OrderStatus.values()) {
+            result.put(status, countByStatus(status));
+        }
+        return result;
+    }
+
+    @Override
+    public int countEnteredBetween(LocalDate from, LocalDate to) {
+        return (int) between(from, to).count();
+    }
+
+    @Override
+    public Map<YearMonth, Integer> countByMonth(LocalDate from, LocalDate to) {
+        Map<YearMonth, Integer> result = new TreeMap<>();
+        between(from, to).forEach(o -> result.merge(YearMonth.from(o.getEntryDate()), 1, Integer::sum));
+        return new LinkedHashMap<>(result);
+    }
+
+    @Override
+    public Map<String, Integer> findTopServices(LocalDate from, LocalDate to, int limit) {
+        return top(from, to, limit, ServiceLine.class);
+    }
+
+    @Override
+    public Map<String, Integer> findTopParts(LocalDate from, LocalDate to, int limit) {
+        return top(from, to, limit, PartLine.class);
+    }
+
+    @Override
+    public Map<String, Integer> countByResponsible(LocalDate from, LocalDate to) {
+        Map<String, Integer> result = new LinkedHashMap<>();
+        between(from, to).forEach(o -> result.merge(
+                o.getResponsible() == null ? "Sin asignar" : o.getResponsible().getFullName(), 1, Integer::sum));
+        return result;
+    }
+
+    @Override
+    public BigDecimal sumEstimatedTotalBetween(LocalDate from, LocalDate to) {
+        return between(from, to).filter(o -> o.getStatus() != OrderStatus.CANCELLED)
+                .map(ServiceOrder::calculateSubtotal).reduce(BigDecimal.ZERO, BigDecimal::add)
+                .setScale(2, RoundingMode.HALF_UP);
+    }
+
+    private Stream<ServiceOrder> between(LocalDate from, LocalDate to) {
+        return orders.values().stream()
+                .filter(o -> !o.getEntryDate().isBefore(from) && !o.getEntryDate().isAfter(to));
+    }
+
+    private Map<String, Integer> top(LocalDate from, LocalDate to, int limit, Class<? extends OrderLine> kind) {
+        Map<String, Integer> totals = new HashMap<>();
+        between(from, to).filter(o -> o.getStatus() != OrderStatus.CANCELLED)
+                .flatMap(o -> o.getLines().stream())
+                .filter(kind::isInstance)
+                .forEach(line -> totals.merge(line.getDescription(), line.getQuantity(), Integer::sum));
+        Map<String, Integer> result = new LinkedHashMap<>();
+        totals.entrySet().stream()
+                .sorted(Map.Entry.<String, Integer>comparingByValue().reversed().thenComparing(Map.Entry.comparingByKey()))
+                .limit(limit)
+                .forEach(e -> result.put(e.getKey(), e.getValue()));
+        return result;
     }
 
     private static boolean isOpen(ServiceOrder order) {

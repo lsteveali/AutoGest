@@ -5,7 +5,11 @@ import com.autogest.model.InventoryMovement;
 import com.autogest.model.Part;
 import com.autogest.model.User;
 
+import com.autogest.model.MovementType;
+
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Organiza el acceso a los movimientos de inventario y completa sus
@@ -54,6 +58,11 @@ public class InventoryMovementRepository {
     /** Últimos {@code limit} movimientos del taller. */
     public List<InventoryMovement> findRecent(int limit) {
         return resolveAll(dao.findRecent(limit));
+    }
+
+    /** Suma de cantidades por tipo entre dos fechas (apoyo para Reportes). */
+    public Map<MovementType, Integer> sumQuantityByType(LocalDate from, LocalDate to) {
+        return dao.sumQuantityByType(from, to);
     }
 
     private List<InventoryMovement> resolveAll(List<InventoryMovement> movements) {

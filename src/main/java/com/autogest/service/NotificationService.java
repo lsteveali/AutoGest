@@ -11,6 +11,7 @@ import com.autogest.model.NotificationType;
 import com.autogest.model.ServiceOrder;
 import com.autogest.repository.NotificationRepository;
 import com.autogest.util.Formatter;
+import java.util.Map;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -188,6 +189,33 @@ public class NotificationService {
             throw new ValidationException("El estado es obligatorio");
         }
         return repository.countByStatus(status);
+    }
+
+    // ---------- consultas para Reportes (Sprint 7) ----------
+
+    /** Notificaciones por canal (todos los canales, con 0 si no hay). */
+    public Map<Channel, Integer> countByChannel() {
+        return repository.countGroupedByChannel();
+    }
+
+    /**
+     * Notificaciones por estado (todos los estados, con 0 si no hay).
+     *
+     * @return estado → cantidad
+     */
+    public Map<NotificationStatus, Integer> countGroupedByStatus() {
+        return repository.countGroupedByStatus();
+    }
+
+    /**
+     * Porcentaje de notificaciones entregadas sobre las que ya se intentaron
+     * (enviadas + fallidas), de 0 a 100. Si no hay intentos devuelve 0.
+     */
+    public int deliveryRate() {
+        Map<NotificationStatus, Integer> counts = repository.countGroupedByStatus();
+        int sent = counts.getOrDefault(NotificationStatus.SENT, 0);
+        int attempted = sent + counts.getOrDefault(NotificationStatus.FAILED, 0);
+        return attempted == 0 ? 0 : Math.round(sent * 100f / attempted);
     }
 
     // ---------- notificaciones de facturación (Sprint 5) ----------

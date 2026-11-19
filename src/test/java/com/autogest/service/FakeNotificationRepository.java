@@ -9,6 +9,7 @@ import com.autogest.repository.NotificationRepository;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.EnumMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -81,6 +82,24 @@ class FakeNotificationRepository extends NotificationRepository {
     @Override
     public int countByStatus(NotificationStatus status) {
         return (int) notifications.values().stream().filter(n -> n.getStatus() == status).count();
+    }
+
+    @Override
+    public Map<Channel, Integer> countGroupedByChannel() {
+        Map<Channel, Integer> result = new EnumMap<>(Channel.class);
+        for (Channel channel : Channel.values()) {
+            result.put(channel, (int) notifications.values().stream().filter(n -> n.getChannel() == channel).count());
+        }
+        return result;
+    }
+
+    @Override
+    public Map<NotificationStatus, Integer> countGroupedByStatus() {
+        Map<NotificationStatus, Integer> result = new EnumMap<>(NotificationStatus.class);
+        for (NotificationStatus status : NotificationStatus.values()) {
+            result.put(status, countByStatus(status));
+        }
+        return result;
     }
 
     private static List<Notification> newestFirst(List<Notification> list) {

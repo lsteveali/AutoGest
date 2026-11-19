@@ -16,8 +16,11 @@ import com.autogest.model.Vehicle;
 import com.autogest.model.VehicleStatus;
 import com.autogest.repository.ServiceOrderRepository;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Casos de uso de las órdenes de servicio del Desarrollador 1 (Sprint 4):
@@ -190,6 +193,81 @@ public class ServiceOrderService {
             throw new ValidationException("El estado es obligatorio");
         }
         return repository.countByStatus(status);
+    }
+
+    // ---------- consultas para Reportes (Sprint 7) ----------
+
+    /** Cantidad de órdenes por estado (todos los estados, con 0 si no hay). */
+    public Map<OrderStatus, Integer> countGroupedByStatus() {
+        return repository.countGroupedByStatus();
+    }
+
+    /** Órdenes que ingresaron en el periodo (fechas incluidas). */
+    public int countOrdersBetween(LocalDate from, LocalDate to) {
+        validatePeriod(from, to);
+        return repository.countEnteredBetween(from, to);
+    }
+
+    /** Órdenes ingresadas por mes en el periodo, en orden cronológico. */
+    public Map<YearMonth, Integer> countOrdersByMonth(LocalDate from, LocalDate to) {
+        validatePeriod(from, to);
+        return repository.countByMonth(from, to);
+    }
+
+    /**
+     * Servicios más solicitados del periodo.
+     *
+     * @param limit cuántos devolver (1 a 20)
+     * @return nombre → cantidad, de mayor a menor
+     */
+    public Map<String, Integer> findTopServices(LocalDate from, LocalDate to, int limit) {
+        validatePeriod(from, to);
+        validateLimit(limit);
+        return repository.findTopServices(from, to, limit);
+    }
+
+    /**
+     * Repuestos más usados en órdenes del periodo.
+     *
+     * @param limit cuántos devolver (1 a 20)
+     * @return nombre → unidades, de mayor a menor
+     */
+    public Map<String, Integer> findTopParts(LocalDate from, LocalDate to, int limit) {
+        validatePeriod(from, to);
+        validateLimit(limit);
+        return repository.findTopParts(from, to, limit);
+    }
+
+    /** Carga de trabajo: órdenes por mecánico en el periodo. */
+    public Map<String, Integer> countOrdersByMechanic(LocalDate from, LocalDate to) {
+        validatePeriod(from, to);
+        return repository.countByResponsible(from, to);
+    }
+
+    /** Valor estimado de las órdenes (no canceladas) del periodo. */
+    public BigDecimal estimatedRevenueBetween(LocalDate from, LocalDate to) {
+        validatePeriod(from, to);
+        return repository.sumEstimatedTotalBetween(from, to);
+    }
+
+    /**
+     * Valida un periodo de consulta.
+     *
+     * @throws ValidationException si falta una fecha o el inicio es posterior al fin
+     */
+    static void validatePeriod(LocalDate from, LocalDate to) {
+        if (from == null || to == null) {
+            throw new ValidationException("Selecciona la fecha inicial y la fecha final");
+        }
+        if (from.isAfter(to)) {
+            throw new ValidationException("La fecha inicial no puede ser posterior a la final");
+        }
+    }
+
+    private static void validateLimit(int limit) {
+        if (limit < 1 || limit > 20) {
+            throw new ValidationException("La cantidad de resultados debe estar entre 1 y 20");
+        }
     }
 
     /**

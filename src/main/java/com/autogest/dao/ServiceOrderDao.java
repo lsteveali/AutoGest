@@ -16,9 +16,15 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Acceso SQL a la tabla {@code service_orders} (cabecera de la orden). La
@@ -204,6 +210,126 @@ public class ServiceOrderDao implements CrudOperations<ServiceOrder> {
      */
     public int nextSequence() {
         return count("SELECT COALESCE(MAX(id), 0) + 1 FROM service_orders", List.of());
+    }
+
+    // ---------- consultas para Reportes (Sprint 7) ----------
+
+    /**
+     * Cantidad de órdenes por estado (todos los estados aparecen, con 0 si no hay).
+     */
+    public Map<OrderStatus, Integer> countGroupedByStatus() {
+        Map<OrderStatus, Integer> result = new EnumMap<>(OrderStatus.class);
+        for (OrderStatus status : OrderStatus.values()) {
+            result.put(status, 0);
+        }
+        String sql = "SELECT status, COUNT(*) FROM service_orders GROUP BY status";
+        for (Object[] row : rows(sql, List.of())) {
+            result.put(OrderStatus.valueOf((String) row[0]), ((Number) row[1]).intValue());
+        }
+        return result;
+    }
+
+    /** Órdenes que ingresaron entre dos fechas (incluidas). */
+    public int countEnteredBetween(LocalDate from, LocalDate to) {
+        return count("SELECT COUNT(*) FROM service_orders o WHERE o.entry_date BETWEEN ? AND ?",
+                List.of(Date.valueOf(from), Date.valueOf(to)));
+    }
+
+    /**
+     * Órdenes ingresadas por mes entre dos fechas, en orden cronológico.
+     */
+    public Map<YearMonth, Integer> countByMonth(LocalDate from, LocalDate to) {
+        String sql = "SELECT EXTRACT(YEAR FROM entry_date)::int, EXTRACT(MONTH FROM entry_date)::int, COUNT(*)"
+                + " FROM service_orders WHERE entry_date BETWEEN ? AND ? GROUP BY 1, 2 ORDER BY 1, 2";
+        Map<YearMonth, Integer> result = new LinkedHashMap<>();
+        for (Object[] row : rows(sql, List.of(Date.valueOf(from), Date.valueOf(to)))) {
+            result.put(YearMonth.of(((Number) row[0]).intValue(), ((Number) row[1]).intValue()),
+                    ((Number) row[2]).intValue());
+        }
+        return result;
+    }
+
+    /**
+     * Servicios más solicitados entre dos fechas (suma de cantidades, órdenes no canceladas).
+     *
+     * @return nombre del servicio → cantidad, de mayor a menor
+     */
+    public Map<String, Integer> findTopServices(LocalDate from, LocalDate to, int limit) {
+        String sql = "SELECT s.name, SUM(l.quantity) FROM order_lines l"
+                + " JOIN service_orders o ON o.id = l.order_id JOIN service_offerings s ON s.id = l.service_offering_id"
+                + " WHERE l.line_type = 'SERVICE' AND o.status <> 'CANCELLED' AND o.entry_date BETWEEN ? AND ?"
+                + " GROUP BY s.name ORDER BY 2 DESC, 1 LIMIT ?";
+        return namedCounts(sql, from, to, limit);
+    }
+
+    /**
+     * Repuestos más usados en órdenes entre dos fechas (órdenes no canceladas).
+     *
+     * @return nombre del repuesto → unidades, de mayor a menor
+     */
+    public Map<String, Integer> findTopParts(LocalDate from, LocalDate to, int limit) {
+        String sql = "SELECT p.name, SUM(l.quantity) FROM order_lines l"
+                + " JOIN service_orders o ON o.id = l.order_id JOIN parts p ON p.id = l.part_id"
+                + " WHERE l.line_type = 'PART' AND o.status <> 'CANCELLED' AND o.entry_date BETWEEN ? AND ?"
+                + " GROUP BY p.name ORDER BY 2 DESC, 1 LIMIT ?";
+        return namedCounts(sql, from, to, limit);
+    }
+
+    /**
+     * Órdenes por mecánico responsable entre dos fechas («Sin asignar» si no tiene).
+     */
+    public Map<String, Integer> countByResponsible(LocalDate from, LocalDate to) {
+        String sql = "SELECT COALESCE(u.first_name || ' ' || u.last_name, 'Sin asignar'), COUNT(*)"
+                + " FROM service_orders o LEFT JOIN users u ON u.id = o.responsible_id"
+                + " WHERE o.entry_date BETWEEN ? AND ? GROUP BY 1 ORDER BY 2 DESC, 1";
+        Map<String, Integer> result = new LinkedHashMap<>();
+        for (Object[] row : rows(sql, List.of(Date.valueOf(from), Date.valueOf(to)))) {
+            result.put((String) row[0], ((Number) row[1]).intValue());
+        }
+        return result;
+    }
+
+    /**
+     * Valor estimado (suma de cantidad × precio de las líneas) de las órdenes
+     * no canceladas que ingresaron entre dos fechas.
+     */
+    public BigDecimal sumEstimatedTotalBetween(LocalDate from, LocalDate to) {
+        String sql = "SELECT COALESCE(SUM(l.quantity * l.unit_price), 0) FROM order_lines l"
+                + " JOIN service_orders o ON o.id = l.order_id"
+                + " WHERE o.status <> 'CANCELLED' AND o.entry_date BETWEEN ? AND ?";
+        List<Object[]> result = rows(sql, List.of(Date.valueOf(from), Date.valueOf(to)));
+        BigDecimal total = result.isEmpty() ? BigDecimal.ZERO : (BigDecimal) result.get(0)[0];
+        return total.setScale(2, RoundingMode.HALF_UP);
+    }
+
+    private Map<String, Integer> namedCounts(String sql, LocalDate from, LocalDate to, int limit) {
+        Map<String, Integer> result = new LinkedHashMap<>();
+        for (Object[] row : rows(sql, List.of(Date.valueOf(from), Date.valueOf(to), limit))) {
+            result.put((String) row[0], ((Number) row[1]).intValue());
+        }
+        return result;
+    }
+
+    /** Ejecuta una consulta y devuelve cada fila como arreglo de columnas. */
+    private List<Object[]> rows(String sql, List<Object> params) {
+        try (Connection conn = connection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            bindParams(ps, params);
+            try (ResultSet rs = ps.executeQuery()) {
+                int columns = rs.getMetaData().getColumnCount();
+                List<Object[]> list = new ArrayList<>();
+                while (rs.next()) {
+                    Object[] row = new Object[columns];
+                    for (int i = 0; i < columns; i++) {
+                        row[i] = rs.getObject(i + 1);
+                    }
+                    list.add(row);
+                }
+                return list;
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("No se pudo generar la consulta de órdenes.", e);
+        }
     }
 
     // ---------- ayudas ----------

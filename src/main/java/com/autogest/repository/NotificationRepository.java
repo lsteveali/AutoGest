@@ -73,6 +73,16 @@ public class NotificationRepository {
         return dao.countByStatus(status);
     }
 
+    /** Notificaciones por canal (apoyo para Reportes). */
+    public Map<Channel, Integer> countGroupedByChannel() {
+        return dao.countGroupedByChannel();
+    }
+
+    /** Notificaciones por estado (apoyo para Reportes). */
+    public Map<NotificationStatus, Integer> countGroupedByStatus() {
+        return dao.countGroupedByStatus();
+    }
+
     private List<Notification> resolveAll(List<Notification> notifications) {
         Map<Integer, Customer> cache = new HashMap<>();
         for (Notification notification : notifications) {
