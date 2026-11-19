@@ -15,8 +15,8 @@
 | Proyecto | AutoGest — Sistema de gestión integral para talleres automotrices |
 | Materia | Programación de Computadores III (SS462) |
 | Repositorio | https://github.com/lsteveali/AutoGest.git |
-| Rama de trabajo actual | `feature/paleta-colores` (nueva paleta de la interfaz, Líder) |
-| Sprint en curso | **Sprint 7 ✅ cerrado** (PR #21 y #22) · Líder: nueva paleta de colores (Sesión 25) · siguientes: Sprint 8 (Configuración) y 9 (Asistente) |
+| Rama de trabajo actual | `develop` (paleta y Manrope fusionadas; la próxima rama del Líder se crea desde aquí) |
+| Sprint en curso | **Sprint 7 ✅ cerrado** (PR #21 y #22) · Nueva paleta y Manrope ✅ (PR #23) · siguientes: Sprint 8 (Configuración) y 9 (Asistente) |
 | Equipo | Líder: Leonarth Steve Ali Camargo · Dev 1: Sebastián Murgas Tejeda · Dev 2: **sin integrante vinculado** — el Líder asume todas sus responsabilidades (decisión 14/10/2026) |
 | Documento guía | `AutoGest_Guia_Lider` (V2.0) |
 
@@ -854,7 +854,7 @@ Verificación: `develop` → `mvn clean test` **108 pruebas, 0 fallos**
 
 **Paleta de colores (Líder, `feature/paleta-colores`):**
 - [x] Tokens, contraste, vitrina del login y PDF con la nueva paleta (Sesión 25).
-- [ ] Subir la rama y abrir el PR hacia `develop` después de la prueba manual del Líder.
+- [x] ~~Subir la rama y abrir el PR hacia `develop`~~ — PR #23 fusionado (`04832f2`, 19/11/2026).
 - [ ] Logo con la nueva paleta (requiere nuevas imágenes).
 
 **Barrido de interfaz pendiente (lo hará el Líder):** Inventario («Volver» repetido en el detalle del repuesto; «Registrar entrada» debajo de «+ Nuevo repuesto»). Filtros, nombres y estados cortados de la lista: corregidos en la Sesión 25. (Órdenes ya corregida en la Sesión 21.)
