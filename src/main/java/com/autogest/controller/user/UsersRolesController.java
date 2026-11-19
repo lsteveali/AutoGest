@@ -136,12 +136,18 @@ public class UsersRolesController implements Initializable {
 
     private PagedTable<User> buildTable() {
         PagedTable<User> pagedTable = new PagedTable<>(PAGE_SIZE);
-        pagedTable.addColumn("Usuario", this::userCell, 220);
-        pagedTable.addColumn("Correo", User::getEmail, 220);
-        pagedTable.addColumn("Rol", user -> UserLabels.roleText(user.getRole()), 130);
-        pagedTable.addColumn("Estado", user -> StatusBadge.of(
-                UserLabels.statusText(user.getStatus()), UserLabels.statusType(user.getStatus())));
-        pagedTable.addColumn("Último acceso", user -> lastAccessText(user));
+        // Anchos mínimos medidos con Manrope (más ancha que Roboto): «Inactivo» y la
+        // fecha del último acceso deben verse completos sin barra horizontal en 1280 px.
+        pagedTable.addColumn("Usuario", this::userCell, 200);
+        pagedTable.addColumn("Correo", User::getEmail, 210);
+        pagedTable.addColumn("Rol", user -> UserLabels.roleText(user.getRole()), 115);
+        pagedTable.addColumn("Estado", user -> {
+            javafx.scene.control.Label badge = StatusBadge.of(
+                    UserLabels.statusText(user.getStatus()), UserLabels.statusType(user.getStatus()));
+            badge.setMinWidth(javafx.scene.layout.Region.USE_PREF_SIZE);
+            return badge;
+        }, 105);
+        pagedTable.addColumn("Último acceso", user -> lastAccessText(user), 140);
         pagedTable.addColumn("Acciones", this::actionsCell);
         return pagedTable;
     }

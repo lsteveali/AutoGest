@@ -42,7 +42,7 @@
     -ag-neutral: #8C8577;
 
     /* Tipografía */
-    -fx-font-family: "Roboto", "Segoe UI", sans-serif;
+    -fx-font-family: "Manrope", "Segoe UI", sans-serif;
     -fx-font-size: 14px;
     -fx-text-fill: -ag-text;
     -fx-background-color: -ag-bg;
@@ -592,11 +592,11 @@
    FilterBar
    -------------------------------------------------------------------------- */
 .filter-field {
-    -fx-min-width: 260;
+    -fx-min-width: 240;
 }
 
 .filter-combo {
-    -fx-min-width: 150;
+    -fx-min-width: 136;
 }
 
 /* --------------------------------------------------------------------------
@@ -815,7 +815,7 @@
     -fx-font-size: 15px;
 }
 
-/* Roboto no trae el carácter ● de la máscara: JavaFX lo toma de otra fuente y
+/* Manrope no trae el carácter ● de la máscara: JavaFX lo toma de otra fuente y
    sale gigante. Con Segoe UI los puntos quedan del tamaño del texto. */
 .password-field {
     -fx-font-family: "Segoe UI", sans-serif;
