@@ -2,6 +2,7 @@ package com.autogest.repository;
 
 import com.autogest.dao.TableSnapshot;
 import com.autogest.exception.DataAccessException;
+import com.autogest.exception.ValidationException;
 import com.autogest.model.BackupInfo;
 
 import java.io.IOException;
@@ -20,6 +21,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Properties;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
@@ -33,6 +35,8 @@ import java.util.zip.ZipOutputStream;
  * nulo es un campo vacío sin comillas; un texto vacío es {@code ""}, para no
  * confundirlos al restaurar.</p>
  *
+ * <p>{@link #read(String)} hace el camino inverso para restaurar una copia.</p>
+ *
  * <p>Principles: Pure Fabrication, Protected Variations (el formato del
  * archivo solo vive aquí).</p>
  */
@@ -41,6 +45,8 @@ public class BackupRepository {
     static final String MANIFEST = "manifest.properties";
     private static final String PREFIX = "autogest-copia-";
     private static final String EXTENSION = ".zip";
+    private static final String TABLE_KEY = "table.";
+    private static final String ROWS_KEY = ".rows";
     private static final DateTimeFormatter FILE_STAMP = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss");
 
     private final Path directory;
@@ -77,7 +83,7 @@ public class BackupRepository {
                 manifest.setProperty("tables", String.valueOf(tables.size()));
                 manifest.setProperty("rows", String.valueOf(totalRows));
                 for (TableSnapshot table : tables) {
-                    manifest.setProperty("table." + table.name() + ".rows", String.valueOf(table.rows().size()));
+                    manifest.setProperty(TABLE_KEY + table.name() + ROWS_KEY, String.valueOf(table.rows().size()));
                     zip.putNextEntry(new ZipEntry(table.name() + ".csv"));
                     zip.write(toCsv(table).getBytes(StandardCharsets.UTF_8));
                     zip.closeEntry();
@@ -126,6 +132,82 @@ public class BackupRepository {
         return backups;
     }
 
+    /**
+     * Lee el contenido completo de una copia guardada en la carpeta. Comprueba
+     * que cada tabla del manifiesto esté en el ZIP con la cantidad de filas
+     * anotada, así una copia incompleta o editada a mano no se restaura.
+     *
+     * @param fileName nombre del archivo (sin carpeta), tal como lo da {@link #findAll()}
+     * @return las tablas de la copia, en el orden del manifiesto
+     * @throws ValidationException si el nombre no es una copia de la carpeta o el archivo no es válido
+     * @throws DataAccessException si no se puede leer el archivo
+     */
+    public List<TableSnapshot> read(String fileName) {
+        Path file = resolveBackup(fileName);
+        try (ZipFile zip = new ZipFile(file.toFile())) {
+            ZipEntry manifestEntry = zip.getEntry(MANIFEST);
+            if (manifestEntry == null) {
+                throw invalid(fileName, "no tiene manifiesto");
+            }
+            Properties manifest = new Properties();
+            try (InputStream input = zip.getInputStream(manifestEntry)) {
+                manifest.load(new InputStreamReader(input, StandardCharsets.UTF_8));
+            }
+            List<String> names = manifest.stringPropertyNames().stream()
+                    .filter(key -> key.startsWith(TABLE_KEY) && key.endsWith(ROWS_KEY))
+                    .map(key -> key.substring(TABLE_KEY.length(), key.length() - ROWS_KEY.length()))
+                    .sorted()
+                    .toList();
+            if (names.isEmpty() || names.size() != Integer.parseInt(manifest.getProperty("tables", "-1"))) {
+                throw invalid(fileName, "el manifiesto no coincide con sus tablas");
+            }
+            List<TableSnapshot> tables = new ArrayList<>(names.size());
+            for (String name : names) {
+                ZipEntry entry = zip.getEntry(name + ".csv");
+                if (entry == null) {
+                    throw invalid(fileName, "le falta la tabla " + name);
+                }
+                String csv;
+                try (InputStream input = zip.getInputStream(entry)) {
+                    csv = new String(input.readAllBytes(), StandardCharsets.UTF_8);
+                }
+                TableSnapshot table = fromCsv(name, csv);
+                long expected = Long.parseLong(manifest.getProperty(TABLE_KEY + name + ROWS_KEY));
+                if (table.rows().size() != expected) {
+                    throw invalid(fileName, "la tabla " + name + " tiene " + table.rows().size()
+                            + " registros y el manifiesto dice " + expected);
+                }
+                tables.add(table);
+            }
+            return tables;
+        } catch (ValidationException e) {
+            throw e;
+        } catch (ZipException e) {
+            throw invalid(fileName, "el archivo está dañado");
+        } catch (IOException e) {
+            throw new DataAccessException("No se pudo leer la copia " + fileName + ".", e);
+        } catch (RuntimeException e) {
+            throw invalid(fileName, "el archivo está dañado");
+        }
+    }
+
+    /** Ruta de una copia de la carpeta; rechaza nombres con rutas o que no son copias. */
+    private Path resolveBackup(String fileName) {
+        if (fileName == null || !fileName.startsWith(PREFIX) || !fileName.endsWith(EXTENSION)
+                || fileName.contains("/") || fileName.contains("\\") || fileName.contains("..")) {
+            throw new ValidationException("Elige una copia de la lista.");
+        }
+        Path file = directory.resolve(fileName);
+        if (!Files.isRegularFile(file)) {
+            throw new ValidationException("La copia " + fileName + " ya no está en la carpeta.");
+        }
+        return file;
+    }
+
+    private static ValidationException invalid(String fileName, String reason) {
+        return new ValidationException("La copia " + fileName + " no se puede restaurar: " + reason + ".");
+    }
+
     private static BackupInfo readInfo(Path file) {
         try (ZipFile zip = new ZipFile(file.toFile())) {
             ZipEntry entry = zip.getEntry(MANIFEST);
@@ -161,6 +243,90 @@ public class BackupRepository {
             appendRow(csv, row);
         }
         return csv.toString();
+    }
+
+    /**
+     * Convierte un CSV escrito por {@link #toCsv(TableSnapshot)} en una tabla:
+     * la primera fila son las columnas; un campo vacío sin comillas es nulo y
+     * {@code ""} es un texto vacío.
+     *
+     * @throws IllegalArgumentException si el CSV está mal formado
+     */
+    static TableSnapshot fromCsv(String name, String csv) {
+        List<List<String>> records = parseCsv(csv);
+        if (records.isEmpty()) {
+            throw new IllegalArgumentException("CSV sin encabezado: " + name);
+        }
+        List<String> columns = records.get(0);
+        if (columns.contains(null)) {
+            throw new IllegalArgumentException("Columna sin nombre en " + name);
+        }
+        List<List<String>> rows = records.subList(1, records.size());
+        for (List<String> row : rows) {
+            if (row.size() != columns.size()) {
+                throw new IllegalArgumentException("Fila con " + row.size() + " campos en " + name);
+            }
+        }
+        return new TableSnapshot(name, columns, rows);
+    }
+
+    /** Separa el CSV en registros; respeta comillas, comas y saltos de línea dentro de los campos. */
+    private static List<List<String>> parseCsv(String csv) {
+        List<List<String>> records = new ArrayList<>();
+        List<String> record = new ArrayList<>();
+        StringBuilder field = new StringBuilder();
+        boolean quoted = false;
+        boolean inQuotes = false;
+        int length = csv.length();
+        for (int i = 0; i < length; i++) {
+            char c = csv.charAt(i);
+            if (inQuotes) {
+                if (c != '"') {
+                    field.append(c);
+                } else if (i + 1 < length && csv.charAt(i + 1) == '"') {
+                    field.append('"');
+                    i++;
+                } else {
+                    inQuotes = false;
+                }
+            } else if (c == '"') {
+                if (quoted || field.length() > 0) {
+                    throw new IllegalArgumentException("Comilla fuera de lugar");
+                }
+                quoted = true;
+                inQuotes = true;
+            } else if (c == ',') {
+                record.add(fieldValue(field, quoted));
+                field.setLength(0);
+                quoted = false;
+            } else if (c == '\r' || c == '\n') {
+                record.add(fieldValue(field, quoted));
+                records.add(record);
+                record = new ArrayList<>();
+                field.setLength(0);
+                quoted = false;
+                if (c == '\r' && i + 1 < length && csv.charAt(i + 1) == '\n') {
+                    i++;
+                }
+            } else {
+                if (quoted) {
+                    throw new IllegalArgumentException("Texto después de las comillas de cierre");
+                }
+                field.append(c);
+            }
+        }
+        if (inQuotes) {
+            throw new IllegalArgumentException("Comillas sin cerrar");
+        }
+        if (field.length() > 0 || quoted || !record.isEmpty()) {
+            record.add(fieldValue(field, quoted));
+            records.add(record);
+        }
+        return records;
+    }
+
+    private static String fieldValue(StringBuilder field, boolean quoted) {
+        return field.length() == 0 && !quoted ? null : field.toString();
     }
 
     private static void appendRow(StringBuilder csv, List<String> values) {
