@@ -15,7 +15,7 @@
 | Proyecto | AutoGest — Sistema de gestión integral para talleres automotrices |
 | Materia | Programación de Computadores III (SS462) |
 | Repositorio | https://github.com/lsteveali/AutoGest.git |
-| Rama de trabajo actual | `feature/restaurar-copias` (desde `develop` en `2a00966`; en prueba del Líder, sin subir) |
+| Rama de trabajo actual | `develop` (restaurar copias fusionado, PR #24; la próxima rama del Líder se crea desde aquí) |
 | Sprint en curso | **Sprint 8 (Configuración)** 🟡 · Sprint 7 ✅ cerrado (PR #21 y #22) · Paleta y Manrope ✅ (PR #23) · siguiente: Sprint 9 (Asistente) |
 | Equipo | Líder: Leonarth Steve Ali Camargo · Dev 1: Sebastián Murgas Tejeda · Dev 2: **sin integrante vinculado** — el Líder asume todas sus responsabilidades (decisión 14/10/2026) |
 | Documento guía | `AutoGest_Guia_Lider` (V2.0) |
@@ -69,7 +69,7 @@
 | 5 | Facturación (Líder: todo el módulo) | ✅ PR #16 fusionado en `develop` (`b858e80`, 15/11/2026): facturación, PDF, avisos al cliente e Inicio con órdenes y facturas (Sesión 22) |
 | 6 | Notificaciones (Dev 1: backend e interfaz · Líder: plantillas, eventos y correo real) | ✅ Dev 1 (PR #17 y #18) · Líder (PR #19 y #20) |
 | 7 | Reportes (Dev 1: consultas de apoyo · Líder: pantalla, indicadores y PDF) | ✅ Dev 1 (PR #21) · Líder (PR #22, `8338f73`, 19/11/2026) |
-| 8 | Configuración (Dev 1: Datos del taller y Preferencias · Líder: pantalla general y el resto de secciones, incluidas Copias de seguridad) | 🟡 En curso — Dev 1: `SettingsService`, Datos del taller y Preferencias · Líder: restaurar copias hecho en `feature/restaurar-copias` (Sesión 26); faltan Facturación y Notificaciones, que esperan el `SettingsService` |
+| 8 | Configuración (Dev 1: Datos del taller y Preferencias · Líder: pantalla general y el resto de secciones, incluidas Copias de seguridad) | 🟡 En curso — Dev 1: `SettingsService`, Datos del taller y Preferencias · Líder: restaurar copias ✅ (PR #24, Sesión 26); faltan Facturación y Notificaciones, que esperan el `SettingsService` |
 | 9 | Asistente AutoGest (Líder) | ⬜ No iniciado |
 
 > **Reasignación (14/10/2026):** las columnas de Dev 2 de la hoja de ruta
@@ -728,6 +728,8 @@ estaba incorporado; el otro era un WIP viejo de `login-usuarios`). Quedan solo
 
 **No se tocaron archivos de Dev 1.** No cambian `AppContext` ni `View`.
 
+**Cierre:** el Líder probó la restauración y se abrió el PR #24 (`feature/restaurar-copias` → `develop`), con la sección «Para Dev 1». Fusionado el 19/11/2026 (`d8fd07a`).
+
 ---
 
 ## 4. Decisiones y acuerdos
@@ -892,7 +894,7 @@ Verificación: `develop` → `mvn clean test` **108 pruebas, 0 fallos**
 - [x] Seguridad: política de contraseñas, permisos por rol y último acceso (Sesión 18).
 - [x] Copias de seguridad: crear y listar (Sesión 18).
 - [x] Restaurar una copia desde AutoGest: vaciar y recargar las tablas en orden de dependencias, en una transacción, con copia previa y confirmación fuerte (Sesión 26, rama `feature/restaurar-copias`).
-- [ ] Subir `feature/restaurar-copias` y abrir el PR hacia `develop` cuando el Líder termine de probarla.
+- [x] ~~Subir `feature/restaurar-copias` y abrir el PR hacia `develop`~~ — PR #24 fusionado (`d8fd07a`, 19/11/2026).
 - [ ] Configuración de Facturación y de Notificaciones (guardan en `app_settings` de Dev 1: esperan su `SettingsService`).
 
 **Pendientes nuevos (14/10/2026):**
