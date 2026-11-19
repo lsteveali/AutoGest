@@ -79,6 +79,12 @@ public final class AppContext {
     // Se crea al pedirlo: usa el NotificationService de Dev 1, que se arma al final del constructor.
     private com.autogest.service.NotificationEventService notificationEventService;
 
+    // ===== Reportes (Líder, Sprint 7) =====
+    // Se crea al pedirlo: usa servicios que se arman al final del constructor.
+    private com.autogest.service.ReportService reportService;
+    private final com.autogest.service.ReportPdfService reportPdfService =
+            new com.autogest.service.ReportPdfService();
+
     // ===== Customers (Dev 1) =====
     private final CustomerDao customerDao;
     private final CustomerRepository customerRepository;
@@ -302,6 +308,31 @@ public final class AppContext {
                     vehicleService);
         }
         return notificationEventService;
+    }
+
+    // ===== Reportes (Líder, Sprint 7) =====
+
+    /**
+     * Devuelve el servicio que arma los reportes del taller.
+     *
+     * @return servicio de reportes compartido
+     */
+    public synchronized com.autogest.service.ReportService getReportService() {
+        if (reportService == null) {
+            reportService = new com.autogest.service.ReportService(
+                    new com.autogest.repository.ReportRepository(new com.autogest.dao.ReportDao(databaseConnection)),
+                    serviceOrderService, inventoryService, partService, notificationService);
+        }
+        return reportService;
+    }
+
+    /**
+     * Devuelve el generador del PDF de los reportes.
+     *
+     * @return generador de PDF compartido
+     */
+    public com.autogest.service.ReportPdfService getReportPdfService() {
+        return reportPdfService;
     }
 
     // ===== Customers (Dev 1) =====

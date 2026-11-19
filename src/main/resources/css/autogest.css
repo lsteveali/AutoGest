@@ -1687,3 +1687,107 @@
     -fx-text-alignment: left;
     -fx-alignment: center-left;
 }
+
+/* --------------------------------------------------------------------------
+   Reportes (Sprint 7)
+   -------------------------------------------------------------------------- */
+.report-period-bar {
+    -fx-background-color: -ag-card;
+    -fx-background-radius: 12;
+    -fx-border-color: -ag-border;
+    -fx-border-radius: 12;
+    -fx-padding: 12 16;
+}
+
+.report-period {
+    -fx-background-color: transparent;
+    -fx-background-radius: 999;
+    -fx-padding: 6 12;
+    -fx-font-size: 13px;
+    -fx-text-fill: -ag-text;
+    -fx-cursor: hand;
+}
+
+.report-period:hover {
+    -fx-background-color: #EEF3F8;
+}
+
+.report-period:selected {
+    -fx-background-color: -ag-primary;
+    -fx-text-fill: #FFFFFF;
+    -fx-font-weight: 700;
+}
+
+.report-stat-value {
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -ag-text;
+}
+
+/* Barras: un solo color, con el valor escrito al lado. */
+.report-bar-name {
+    -fx-font-size: 13px;
+    -fx-text-fill: -ag-text;
+}
+
+.report-bar-value {
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -ag-text;
+}
+
+.report-bar-track {
+    -fx-background-color: -ag-bg;
+    -fx-background-radius: 4;
+    -fx-min-height: 8;
+    -fx-pref-height: 8;
+}
+
+.report-bar-fill {
+    -fx-background-color: -ag-primary;
+    -fx-background-radius: 4;
+    -fx-min-height: 8;
+    -fx-pref-height: 8;
+    -fx-max-height: 8;
+}
+
+/* Gráfica de ingresos: línea de 2 px, relleno tenue y cuadrícula discreta. */
+.report-chart {
+    -fx-padding: 0;
+}
+
+.report-chart .chart-plot-background {
+    -fx-background-color: transparent;
+}
+
+.report-chart .chart-horizontal-grid-lines {
+    -fx-stroke: -ag-border;
+    -fx-stroke-dash-array: null;
+}
+
+.report-chart .chart-horizontal-zero-line,
+.report-chart .chart-vertical-zero-line {
+    -fx-stroke: transparent;
+}
+
+.report-chart .axis {
+    -fx-tick-label-fill: -ag-text-muted;
+    -fx-tick-label-font-size: 11px;
+    -fx-border-color: transparent;
+}
+
+.report-chart .default-color0.chart-series-area-line {
+    -fx-stroke: -ag-primary;
+    -fx-stroke-width: 2px;
+}
+
+.report-chart .default-color0.chart-series-area-fill {
+    -fx-fill: rgba(47, 109, 181, 0.12);
+}
+
+.report-chart .default-color0.chart-area-symbol {
+    -fx-background-color: -ag-primary, #FFFFFF;
+    -fx-background-insets: 0, 2;
+    -fx-background-radius: 5;
+    -fx-padding: 4;
+}
