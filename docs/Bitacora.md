@@ -4,7 +4,7 @@
 > termina una tarea se agrega/actualiza su estado y, cuando aporta, una entrada
 > en la sección «Bitácora cronológica».
 >
-> Última actualización: **14/11/2026** — Líder (Leonarth Steve Ali Camargo).
+> Última actualización: **18/11/2026** — Líder (Leonarth Steve Ali Camargo).
 
 ---
 
@@ -15,8 +15,8 @@
 | Proyecto | AutoGest — Sistema de gestión integral para talleres automotrices |
 | Materia | Programación de Computadores III (SS462) |
 | Repositorio | https://github.com/lsteveali/AutoGest.git |
-| Rama de trabajo actual | `feature/notificaciones-eventos` (Sprint 6 — parte del Líder) |
-| Sprint en curso | **Sprint 6 — Notificaciones**: Dev 1 entregó backend (PR #17) e interfaz (PR #18) · Líder: plantillas, avisos automáticos, Inicio y campana (Sesión 23) |
+| Rama de trabajo actual | `feature/reportes` (Sprint 7 — pantalla Reportes, Líder) |
+| Sprint en curso | **Sprint 7 — Reportes**: Dev 1 entregó las consultas de apoyo (PR #21) · Líder: pantalla, indicadores y PDF (Sesión 24) |
 | Equipo | Líder: Leonarth Steve Ali Camargo · Dev 1: Sebastián Murgas Tejeda · Dev 2: **sin integrante vinculado** — el Líder asume todas sus responsabilidades (decisión 14/10/2026) |
 | Documento guía | `AutoGest_Guia_Lider` (V2.0) |
 
@@ -67,8 +67,8 @@
 | 3 | Servicios, Inventario y Repuestos (Líder: Dashboard v1) | ✅ Líder (PR #10 y #11) · Dev 1: Inventario, repuestos, proveedores y movimientos (PR #13) |
 | 4 | Órdenes de servicio (Dev 1: backend, lista y nueva orden · Líder: detalle, cambio de estado, historial y descuento de stock) | ✅ Dev 1 (PR #14) · Líder (PR #15, Sesión 21) |
 | 5 | Facturación (Líder: todo el módulo) | ✅ PR #16 fusionado en `develop` (`b858e80`, 15/11/2026): facturación, PDF, avisos al cliente e Inicio con órdenes y facturas (Sesión 22) |
-| 6 | Notificaciones (Dev 1: backend e interfaz · Líder: plantillas y eventos) | 🟡 Dev 1 ✅ (PR #17 y #18) · Líder hecho en `feature/notificaciones-eventos` (Sesión 23), falta prueba manual y PR |
-| 7 | Reportes | ⬜ No iniciado |
+| 6 | Notificaciones (Dev 1: backend e interfaz · Líder: plantillas, eventos y correo real) | ✅ Dev 1 (PR #17 y #18) · Líder (PR #19 y #20) |
+| 7 | Reportes (Dev 1: consultas de apoyo · Líder: pantalla, indicadores y PDF) | 🟡 Dev 1 ✅ (PR #21) · Líder hecho en `feature/reportes` (Sesión 24), falta prueba manual y PR |
 | 8 | Configuración (Dev 1: Datos del taller y Preferencias · Líder: pantalla general y el resto de secciones, incluidas Copias de seguridad) | 🟡 En curso — rama `feature/configuracion` |
 | 9 | Asistente AutoGest (Líder) | ⬜ No iniciado |
 
@@ -663,6 +663,21 @@ estaba incorporado; el otro era un WIP viejo de `login-usuarios`). Quedan solo
 - **Pruebas:** `SmtpEmailSenderTest` (5) contra **GreenMail 2.1.2** (servidor SMTP falso en memoria, solo pruebas: nadie recibe correos): asunto, destinatario, remitente y firma, espacios en la contraseña, contraseña inválida, servidor caído y datos faltantes. `NotificationEmailTest` (7): envío real con un `EmailSender` falso, error → Fallida, reintento cuando vuelve la conexión, simulado sin cuenta, cliente sin correo y lectura de la configuración. GreenMail traía JUnit 5.11: se excluyó en el `pom.xml` para usar el 5.12 del proyecto. `mvn clean test` → **474 pruebas, 0 fallos**.
 - **Ojo al activarlo:** desde ese momento cada factura, orden Lista o recordatorio le escribe de verdad al correo del cliente guardado en Supabase. Los clientes de ejemplo usan `@example.com` (no llega a nadie), pero los creados a mano pueden tener correos reales.
 - **Prueba manual del Líder (17/11/2026):** con la cuenta de Gmail configurada, el correo llegó a un buzón real.
+
+### 18/11/2026 — Sesión 24 (Líder): Sprint 7 — pantalla Reportes
+
+**Contexto.** Se fusionaron el correo real (PR #20) y las consultas de apoyo de Dev 1 (**PR #21**, `docs/reports-queries.md`, sin pantallas). `develop` → 482 pruebas, 0 fallos. Rama `feature/reportes` desde `develop` (`396ef7f`). Mockup: Reportes V1.
+
+**Hecho:**
+1. **Backend:** `ReportDao` (solo lecturas) → `ReportRepository` → `ReportService`, con los registros de `ReportData`. Agrega lo que no cubren las consultas de Dev 1: ingresos, facturas, clientes atendidos, servicios realizados, facturación por estado, ingresos por día y por servicio, tiempo promedio de reparación y clientes recurrentes. Cada indicador se compara con el periodo anterior de igual duración.
+2. **Pantalla** (`ReportsController`, `ReportCharts`): periodos rápidos (este mes, hoy, esta semana, últimos 3 meses, este año) y fechas personalizadas; cuatro indicadores; línea de ingresos con el valor de cada punto al pasar el cursor (por día, o por mes si el periodo pasa de 62 días); inventario y facturación con enlace al módulo según el rol; estado de órdenes, rankings de servicios, repuestos y mecánicos; indicadores del taller y movimientos de inventario. Todo carga en segundo plano y un resultado viejo se descarta si se elige otro periodo.
+3. **Exportar PDF:** `ReportPdfService` (A4, PDFBox) con todos los valores por secciones. `PdfExport` (componente nuevo) reúne el flujo de guardar y abrir que antes estaba en `BillingUi`; la factura ahora lo reutiliza.
+4. **`AppContext`:** bloque «Reportes (Líder, Sprint 7)» junto a los del Líder, con nombres completos y creado al pedirlo.
+5. **Verificación:** `ReportServiceTest` (12) y `ReportPdfServiceTest` (4). Todas las consultas, incluidas las de Dev 1, se ejecutaron contra Supabase solo con lecturas. Capturas con datos reales y de ejemplo, también con un periodo de un día y a 1280 px. `mvn clean test` → **498 pruebas, 0 fallos**.
+
+**Diferencias con el mockup:** el estado de órdenes va en barras y no en dona (seis categorías se comparan mejor así, con un solo color y el valor escrito). «Reportes disponibles» se reemplaza por el PDF único y por las tarjetas de repuestos, mecánicos y movimientos.
+
+**Límites conocidos:** `invoices` no guarda la fecha de pago, así que los ingresos se cuentan por fecha de emisión. «Órdenes completadas» son las ingresadas en el periodo que ya están Listas o Entregadas, porque no hay fecha de entrega. El tiempo de reparación se calcula con el primer paso a Lista del historial; solo cuenta órdenes con esa entrada. El estado de órdenes es el actual, no el del periodo.
 ---
 
 ## 4. Decisiones y acuerdos
@@ -699,6 +714,7 @@ estaba incorporado; el otro era un WIP viejo de `login-usuarios`). Quedan solo
 | 14/11/2026 | **Los métodos de pago se guardan como códigos** (`CASH`, `CARD`, `TRANSFER`, `OTHER`) en el texto `payment_method`. | `Invoice` usa `String` mientras no exista `PaymentMethod`; los códigos coinciden con los nombres que tendría ese enum, así el cambio no requiere migrar datos. Los nombres en español viven en `InvoiceService.methodText` / `InvoiceLabels`. |
 | 14/11/2026 | **Solo se facturan órdenes Listas o Entregadas, con una factura vigente por orden;** al anular, la orden puede facturarse de nuevo y se reutiliza la misma fila. | Pedido del Líder (una orden tiene 0..1 factura) y restricción `UNIQUE (order_id)` de `invoices`. |
 | 14/11/2026 | **Generar, pagar y anular dejan constancia en el historial de la orden.** | `invoices` no guarda fechas de pago ni usuarios; así queda trazabilidad sin cambiar el esquema de Dev 2. |
+| 18/11/2026 | **Los ingresos de Reportes salen de las facturas no anuladas, por fecha de emisión.** | `estimatedRevenueBetween` suma órdenes aunque no se hayan facturado. `invoices` no guarda la fecha de pago y agregarla exigiría cambiar el esquema. |
 | 16/11/2026 | **Envío real de correos por SMTP de Gmail, opcional** (Angus Mail; credenciales en `application.local.properties`). | Gratis y suficiente para un taller (unos 500 correos al día). Sin cuenta configurada se simula como antes, así nadie depende de la cuenta del Líder para correr la app. Un servicio por API (Brevo, Resend) entrega mejor pero exige cuenta, llave y dominio verificado; WhatsApp exige la API de Meta Business. |
 | 16/11/2026 | **Plantillas de aviso en el código** (`NotificationTemplate`) mientras no exista la configuración de Notificaciones. | Editarlas requiere guardarlas en `app_settings`, que llega con el `SettingsService` de Dev 1 (Sprint 8). Los eventos no cambian cuando eso pase: solo de dónde salen los textos. |
 | 16/11/2026 | **Los recordatorios de mantenimiento se envían con un botón en el Inicio**, una vez cada 30 días por vehículo. | Enviarlos solos al abrir la app escribiría en la base de datos sin que nadie lo pida; con el botón el taller decide cuándo. La ventana de 30 días evita repetirlos. |
@@ -795,15 +811,19 @@ Verificación: `develop` → `mvn clean test` **108 pruebas, 0 fallos**
 
 **Sprint 6 (Líder, `feature/notificaciones-eventos`):**
 - [x] Plantillas, aviso «vehículo listo», recordatorios de mantenimiento, tarjeta del Inicio y campana (Sesión 23).
-- [ ] Subir la rama y abrir el PR hacia `develop` después de la prueba manual del Líder.
+- [x] ~~Subir la rama y abrir el PR hacia `develop`~~ — PR #19 fusionado (`eb15f59`, 17/11/2026).
 - [ ] Editar las plantillas desde Configuración de Notificaciones cuando exista el `SettingsService` de Dev 1 (Sprint 8); también el nombre del taller (`{taller}`).
 - [ ] Comentarios para Dev 1 sobre su pantalla de Notificaciones: etiquetas de filtros cortadas, consultas en el hilo de la interfaz y anchos mínimos de columnas (ver Sesión 23). Con el correo real esto pesa más: «Nueva notificación», «Enviar ahora» y «Reintentar» esperan la respuesta de Gmail (1 a 3 s) con la ventana congelada.
 
 **Correo real (rama `feature/correo-smtp`):**
 - [x] Envío por SMTP de Gmail, opcional, con pruebas contra GreenMail (16/11/2026).
 - [x] ~~Configurar la cuenta de Gmail del taller y probar la entrega~~ — hecho por el Líder (17/11/2026): el correo llegó a un buzón real.
-- [ ] Fusionar el PR #20 (`feature/correo-smtp`) después de la revisión de Dev 1.
+- [x] ~~Fusionar el PR #20 (`feature/correo-smtp`)~~ — fusionado el 18/11/2026.
 - [ ] Adjuntar el PDF de la factura al aviso «Factura disponible».
+
+**Sprint 7 (Líder, `feature/reportes`):**
+- [x] Pantalla Reportes, indicadores, gráficas y PDF (Sesión 24).
+- [ ] Subir la rama y abrir el PR hacia `develop` después de la prueba manual del Líder.
 
 **Barrido de interfaz pendiente (lo hará el Líder):** Inventario (filtros, nombres y estados cortados; «Volver» repetido en el detalle del repuesto; «Registrar entrada» debajo de «+ Nuevo repuesto») (Órdenes ya corregida en la Sesión 21).
 
