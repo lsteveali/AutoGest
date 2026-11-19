@@ -53,6 +53,8 @@ public class FilterBar extends HBox {
     public ComboBox<String> addCombo(String label, List<String> options, Consumer<String> onSelect) {
         Label filterLabel = new Label(label);
         filterLabel.getStyleClass().add("field-label");
+        // La etiqueta nunca se encoge a «…»: si falta espacio, cede el buscador.
+        filterLabel.setMinWidth(javafx.scene.layout.Region.USE_PREF_SIZE);
 
         ComboBox<String> combo = new ComboBox<>();
         combo.getItems().addAll(options);

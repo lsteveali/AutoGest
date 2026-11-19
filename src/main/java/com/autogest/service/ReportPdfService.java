@@ -35,11 +35,11 @@ import java.util.Map;
  */
 public class ReportPdfService {
 
-    private static final Color NAVY = new Color(0x10, 0x1E, 0x39);
-    private static final Color TEXT = new Color(0x1E, 0x2A, 0x3A);
-    private static final Color MUTED = new Color(0x64, 0x74, 0x8B);
-    private static final Color BORDER = new Color(0xDC, 0xE3, 0xEA);
-    private static final Color BAND = new Color(0xF0, 0xF4, 0xF7);
+    private static final Color ONYX = new Color(0x11, 0x11, 0x11);
+    private static final Color TEXT = new Color(0x11, 0x11, 0x11);
+    private static final Color MUTED = new Color(0x6B, 0x64, 0x55);
+    private static final Color BORDER = new Color(0xDA, 0xD4, 0xC5);
+    private static final Color BAND = new Color(0xF4, 0xF0, 0xE6);
 
     private static final float MARGIN = 48;
     private static final float WIDTH = PDRectangle.A4.getWidth() - 2 * MARGIN;
@@ -166,7 +166,7 @@ public class ReportPdfService {
                             MARGIN, TOP - 34, 34, 34);
                 }
             }
-            text(bold, 20, NAVY, MARGIN + 44, TOP - 22, "Reporte del taller");
+            text(bold, 20, ONYX, MARGIN + 44, TOP - 22, "Reporte del taller");
             text(regular, 10, MUTED, MARGIN + 44, TOP - 36,
                     "Periodo: " + Formatter.date(r.from()) + " a " + Formatter.date(r.to()));
             y = TOP - 58;
@@ -185,7 +185,7 @@ public class ReportPdfService {
             stream.setNonStrokingColor(BAND);
             stream.addRect(MARGIN, y - 18, WIDTH, 20);
             stream.fill();
-            text(bold, 10, NAVY, MARGIN + 8, y - 12, title);
+            text(bold, 10, ONYX, MARGIN + 8, y - 12, title);
             y -= 26;
             for (String[] row : shown) {
                 text(regular, 10, TEXT, MARGIN + 8, y - 11, row[0]);

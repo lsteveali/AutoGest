@@ -20,7 +20,7 @@
 }
 
 .module-page .filter-field {
-    -fx-min-width: 300;
+    -fx-min-width: 220;
 }
 
 /* Aviso amarillo de productos con stock bajo */

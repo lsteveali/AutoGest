@@ -150,16 +150,24 @@ public class VehiclesController implements Initializable, NavigatorAware {
         return options;
     }
 
+    /** Distintivo que nunca se corta («En servicio» es el más largo). */
+    private static Label badge(String text, StatusBadge.BadgeType type) {
+        Label badge = StatusBadge.of(text, type);
+        badge.setMinWidth(javafx.scene.layout.Region.USE_PREF_SIZE);
+        return badge;
+    }
+
     private PagedTable<Vehicle> buildTable() {
         PagedTable<Vehicle> pagedTable = new PagedTable<>(PAGE_SIZE);
-        pagedTable.addColumn("Vehículo", this::vehicleCell);
-        pagedTable.addColumn("Propietario", vehicle -> ownerText(vehicle));
-        pagedTable.addColumn("Año", Vehicle::getYear);
-        pagedTable.addColumn("Kilometraje", vehicle -> VehicleLabels.mileage(vehicle.getMileage()));
-        pagedTable.addColumn("Mantenimiento", vehicle -> StatusBadge.of(
-                VehicleLabels.maintenanceText(vehicle), VehicleLabels.maintenanceType(vehicle)));
-        pagedTable.addColumn("Estado", vehicle -> StatusBadge.of(
-                VehicleLabels.statusText(vehicle.getStatus()), VehicleLabels.statusType(vehicle.getStatus())));
+        // Anchos mínimos para que el vehículo, el propietario y los estados no se corten (Manrope).
+        pagedTable.addColumn("Vehículo", this::vehicleCell, 190);
+        pagedTable.addColumn("Propietario", vehicle -> ownerText(vehicle), 160);
+        pagedTable.addColumn("Año", Vehicle::getYear, 60);
+        pagedTable.addColumn("Kilometraje", vehicle -> VehicleLabels.mileage(vehicle.getMileage()), 100);
+        pagedTable.addColumn("Mantenimiento", vehicle -> badge(VehicleLabels.maintenanceText(vehicle),
+                VehicleLabels.maintenanceType(vehicle)), 120);
+        pagedTable.addColumn("Estado", vehicle -> badge(VehicleLabels.statusText(vehicle.getStatus()),
+                VehicleLabels.statusType(vehicle.getStatus())), 115);
         pagedTable.addColumn("Acciones", this::actionsCell);
         pagedTable.setOnSelect(vehicle -> open(View.VEHICLE_DETAIL, vehicle.getId()));
         return pagedTable;

@@ -65,7 +65,7 @@
 }
 
 .customer-actions:hover {
-    -fx-background-color: #EEF3F8;
+    -fx-background-color: -ag-hover;
 }
 
 .customer-actions > .arrow-button {

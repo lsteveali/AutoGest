@@ -56,11 +56,11 @@ public final class CarTurntable extends StackPane {
     /** Radio del disco central con la sombra de contacto. */
     private static final double DISC_RADIUS = 2.56;
 
-    private static final Color PLATFORM_TOP = Color.web("#FFFFFF");
-    private static final Color PLATFORM_EDGE = Color.web("#DCE3EA");
-    private static final Color PLATFORM_BASE = Color.web("#B9C7D8");
-    private static final Color ACCENT = Color.web("#2F6DB5");
-    private static final Color HALO = Color.web("#DCE6F2");
+    private static final Color PLATFORM_TOP = Color.web("#FFFFFC");
+    private static final Color PLATFORM_EDGE = Color.web("#DAD4C5");
+    private static final Color PLATFORM_BASE = Color.web("#BEB7A4");
+    private static final Color ACCENT = Color.web("#C65C00");
+    private static final Color HALO = Color.web("#EFE8DA");
 
     private Timeline timeline;
 
@@ -178,7 +178,7 @@ public final class CarTurntable extends StackPane {
         double[] axles = {1.18 * scale, -1.13 * scale};
         WritableImage texture = new WritableImage(size, size);
         PixelWriter writer = texture.getPixelWriter();
-        Color shade = Color.web("#76818F");
+        Color shade = Color.web("#7A7262");
         for (int j = 0; j < size; j++) {
             for (int i = 0; i < size; i++) {
                 double x = (i / (size - 1.0) * 2 - 1) * DISC_RADIUS;

@@ -4,7 +4,7 @@
 > termina una tarea se agrega/actualiza su estado y, cuando aporta, una entrada
 > en la sección «Bitácora cronológica».
 >
-> Última actualización: **18/11/2026** — Líder (Leonarth Steve Ali Camargo).
+> Última actualización: **19/11/2026** — Líder (Leonarth Steve Ali Camargo).
 
 ---
 
@@ -15,8 +15,8 @@
 | Proyecto | AutoGest — Sistema de gestión integral para talleres automotrices |
 | Materia | Programación de Computadores III (SS462) |
 | Repositorio | https://github.com/lsteveali/AutoGest.git |
-| Rama de trabajo actual | `feature/reportes` (Sprint 7 — pantalla Reportes, Líder) |
-| Sprint en curso | **Sprint 7 — Reportes**: Dev 1 entregó las consultas de apoyo (PR #21) · Líder: pantalla, indicadores y PDF (Sesión 24) |
+| Rama de trabajo actual | `feature/paleta-colores` (nueva paleta de la interfaz, Líder) |
+| Sprint en curso | **Sprint 7 ✅ cerrado** (PR #21 y #22) · Líder: nueva paleta de colores (Sesión 25) · siguientes: Sprint 8 (Configuración) y 9 (Asistente) |
 | Equipo | Líder: Leonarth Steve Ali Camargo · Dev 1: Sebastián Murgas Tejeda · Dev 2: **sin integrante vinculado** — el Líder asume todas sus responsabilidades (decisión 14/10/2026) |
 | Documento guía | `AutoGest_Guia_Lider` (V2.0) |
 
@@ -31,7 +31,7 @@
 | L1 | `pom.xml` y estructura de paquetes | ✅ Hecho | Java 21, JavaFX 21.0.12, driver PostgreSQL, JUnit 5, Surefire, plugin JavaFX. Paquetes con `package-info`. |
 | L2 | Aplicación y shell | ✅ Hecho | `AutoGestApplication` (1280x720), `main.fxml` con Sidebar/Topbar/área central. |
 | L3 | Navegación | ✅ Hecho | `View`, `ViewNavigator`, `ParameterizedController` y pantallas marcadoras «En construcción». |
-| L4 | Sistema de diseño | ✅ Hecho | `autogest.css` + iconos lineales `IconSet` (D-15) + fuentes Roboto Regular/Medium/Bold con `Font.loadFont` (D-18, Sesión 7). |
+| L4 | Sistema de diseño | ✅ Hecho | `autogest.css` + iconos lineales `IconSet` (D-15) + fuentes Manrope Regular/Medium/Bold desde el 19/11/2026, antes Roboto, con `Font.loadFont` (D-18, Sesión 7). |
 | L5 | Componentes reutilizables | ✅ Hecho | `StatusBadge`, `KpiCard`, `PageHeader`, `FilterBar`, `PagedTable`, `ConfirmDialog`, `ErrorDialog`, `Sidebar`, `Topbar`, `AssistantButton` + pantalla demo. |
 | L6 | Utilidades y conexión de dependencias | ✅ Hecho | `util/Formatter` (+ pruebas) y esqueleto de `config/AppContext`. |
 | L7 | Documentación | ✅ Hecho | `docs/architecture.md`, `docs/analysis-presentation-base.md`, `docs/architecture-class-diagram.md`. |
@@ -68,7 +68,7 @@
 | 4 | Órdenes de servicio (Dev 1: backend, lista y nueva orden · Líder: detalle, cambio de estado, historial y descuento de stock) | ✅ Dev 1 (PR #14) · Líder (PR #15, Sesión 21) |
 | 5 | Facturación (Líder: todo el módulo) | ✅ PR #16 fusionado en `develop` (`b858e80`, 15/11/2026): facturación, PDF, avisos al cliente e Inicio con órdenes y facturas (Sesión 22) |
 | 6 | Notificaciones (Dev 1: backend e interfaz · Líder: plantillas, eventos y correo real) | ✅ Dev 1 (PR #17 y #18) · Líder (PR #19 y #20) |
-| 7 | Reportes (Dev 1: consultas de apoyo · Líder: pantalla, indicadores y PDF) | 🟡 Dev 1 ✅ (PR #21) · Líder hecho en `feature/reportes` (Sesión 24), falta prueba manual y PR |
+| 7 | Reportes (Dev 1: consultas de apoyo · Líder: pantalla, indicadores y PDF) | ✅ Dev 1 (PR #21) · Líder (PR #22, `8338f73`, 19/11/2026) |
 | 8 | Configuración (Dev 1: Datos del taller y Preferencias · Líder: pantalla general y el resto de secciones, incluidas Copias de seguridad) | 🟡 En curso — rama `feature/configuracion` |
 | 9 | Asistente AutoGest (Líder) | ⬜ No iniciado |
 
@@ -678,6 +678,31 @@ estaba incorporado; el otro era un WIP viejo de `login-usuarios`). Quedan solo
 **Diferencias con el mockup:** el estado de órdenes va en barras y no en dona (seis categorías se comparan mejor así, con un solo color y el valor escrito). «Reportes disponibles» se reemplaza por el PDF único y por las tarjetas de repuestos, mecánicos y movimientos.
 
 **Límites conocidos:** `invoices` no guarda la fecha de pago, así que los ingresos se cuentan por fecha de emisión. «Órdenes completadas» son las ingresadas en el periodo que ya están Listas o Entregadas, porque no hay fecha de entrega. El tiempo de reparación se calcula con el primer paso a Lista del historial; solo cuenta órdenes con esa entrada. El estado de órdenes es el actual, no el del periodo.
+
+### 19/11/2026 — Sesión 25 (Líder): nueva paleta de colores
+
+**Contexto.** Dev 1 revisó y fusionó el PR #22: **Sprint 7 cerrado**. El Líder pidió cambiar la paleta de la interfaz (Onyx #111111, Porcelain #FFFFFC, Khaki Beige #BEB7A4, Burnt Caramel #C65C00 e Inferno #AB0000) con una imagen de referencia del Inicio. Rama `feature/paleta-colores` desde `develop` (`8338f73`).
+
+**Hecho:**
+1. **Tokens nuevos en `autogest.css`** (el sistema ya centralizaba los colores): Onyx para la barra lateral y el texto; Porcelain para tarjetas, campos y tablas; Khaki Beige aclarado (`#ECE8DE`) para el fondo y sus tonos para bordes, divisores, hover y presionado; **Inferno** para botones principales, enlaces, foco y selección; **Burnt Caramel** para el ítem activo, los íconos, los valores de los indicadores, las gráficas y el botón del Asistente. Se agregaron tokens que faltaban (`-ag-accent`, `-ag-hover`, `-ag-pressed`, `-ag-surface-alt`, `-ag-selected`, `-ag-divider`, `-ag-border-strong`, `-ag-text-placeholder`, `-ag-danger-tint`…) y los 40 colores fijos de la hoja pasaron a tokens.
+2. **Contraste (WCAG AA) calculado:** texto 18,9:1; texto secundario 5,9:1; blanco sobre Inferno 7,7:1; enlaces Inferno 7,7:1; «Vencida» 5,9:1. El blanco sobre Burnt Caramel daba 4,3:1, por eso el ítem activo y el Asistente usan el caramelo oscuro `#A84E00` (5,6:1); los valores de los indicadores en caramelo son texto grande (4,3:1 ≥ 3:1).
+3. **Estados:** el rojo de error es el mismo Inferno (sobre un tinte suave en los distintivos); éxito, aviso e información se ajustaron a tonos cálidos que conviven con la paleta.
+4. **Java:** la plataforma de la vitrina 3D del login (beige y aro caramelo) y los colores de los PDF de factura y reporte (Onyx, Inferno, beige). La camioneta conserva sus colores propios.
+5. **Cambio en un archivo de Dev 1, por el cambio de paleta:** `customers.css` (una línea: el hover de `.customer-actions` usa `-ag-hover` en lugar de `#EEF3F8`). **Sebastián: tenerlo en cuenta al actualizar tu rama;** en adelante, usar los tokens `-ag-*` en lugar de colores fijos.
+6. **Verificación:** capturas de la ventana completa a 1280×720 (login, Inicio, Reportes, Órdenes, Clientes, Inventario y Configuración, solo lecturas) y de Facturación y el PDF con datos en memoria. `mvn clean test` → **498 pruebas, 0 fallos**.
+
+**Tipografía Manrope (pedido del Líder, misma sesión):**
+- Con su permiso se descargaron del repositorio oficial **googlefonts/manrope** (`fonts/ttf`, licencia SIL OFL 1.1) `Manrope-Regular.ttf`, `Manrope-Medium.ttf` y `Manrope-Bold.ttf`, más `OFL-Manrope.txt`, en `resources/css/fonts/` (se verificó que fueran TTF válidos). `AutoGestApplication` las carga como antes a Roboto (Medium, Regular y Bold, en ese orden: JavaFX resuelve normal → Regular y negrita → Bold), y el CSS usa `"Manrope", "Segoe UI", sans-serif`. `PagedTable` mide el ancho de los títulos con Manrope. El README de las fuentes se actualizó.
+- **Los PDF siguen con Roboto**, a pedido del Líder; por eso los archivos de Roboto se conservan.
+- Manrope es un poco más ancha: se ajustaron anchos mínimos en **Usuarios y roles** («Inactivo» se cortaba) y **Vehículos** (vehículo y estados), y los filtros pasan a 240 px (búsqueda) y 136 px (listas) para que quepan los cuatro filtros de Vehículos.
+- **Cortes en pantallas de Dev 1, corregidos a pedido del Líder** (archivos de Dev 1 tocados: `CustomerListController`, `InventoryController`, `OrdersController` e `inventory.css`; **Sebastián: tenerlo en cuenta al actualizar tu rama**):
+  - **Clientes:** el distintivo de estado ya no se encoge y los porcentajes de las columnas se reparten de nuevo (documento y teléfono completos; el correo cede espacio).
+  - **Inventario:** anchos mínimos para repuesto, código, categoría, proveedor, precio y estado; títulos más cortos («Mínimo», «Precio») y el filtro «Estado de stock» pasa a «Stock»; el buscador baja a 220 px. La tabla cabe con la columna Acciones visible; los nombres más largos se abrevian con «…».
+  - **Órdenes:** la columna del menú «…» pasa a 58 px (Ingreso y Entrega a 96, Responsable a 110 y Total a 90 para compensar).
+  - **`FilterBar`** (componente del Líder): las etiquetas de los filtros ya no se encogen a «…» en ninguna pantalla.
+- `mvn clean test` → **498 pruebas, 0 fallos**. Capturas de login, Inicio, Reportes, Órdenes, Clientes, Inventario, Configuración, Vehículos, Servicios, Usuarios y Facturación a 1280×720.
+
+**Pendiente:** el logo (engranaje azul) sigue siendo una imagen con sus colores originales en el login, el ícono de la ventana y los PDF; la barra lateral usa la versión plateada. Cambiarlo requiere nuevas imágenes del logo.
 ---
 
 ## 4. Decisiones y acuerdos
@@ -714,6 +739,8 @@ estaba incorporado; el otro era un WIP viejo de `login-usuarios`). Quedan solo
 | 14/11/2026 | **Los métodos de pago se guardan como códigos** (`CASH`, `CARD`, `TRANSFER`, `OTHER`) en el texto `payment_method`. | `Invoice` usa `String` mientras no exista `PaymentMethod`; los códigos coinciden con los nombres que tendría ese enum, así el cambio no requiere migrar datos. Los nombres en español viven en `InvoiceService.methodText` / `InvoiceLabels`. |
 | 14/11/2026 | **Solo se facturan órdenes Listas o Entregadas, con una factura vigente por orden;** al anular, la orden puede facturarse de nuevo y se reutiliza la misma fila. | Pedido del Líder (una orden tiene 0..1 factura) y restricción `UNIQUE (order_id)` de `invoices`. |
 | 14/11/2026 | **Generar, pagar y anular dejan constancia en el historial de la orden.** | `invoices` no guarda fechas de pago ni usuarios; así queda trazabilidad sin cambiar el esquema de Dev 2. |
+| 19/11/2026 | **D-18 actualizada: la interfaz usa Manrope** (antes Roboto); los PDF de factura y reporte conservan Roboto. | Pedido del Líder junto con la nueva paleta. Manrope tiene licencia SIL OFL y se incluye en el proyecto, igual que Roboto. |
+| 19/11/2026 | **Paleta Onyx, Porcelain, Khaki Beige, Burnt Caramel e Inferno.** Inferno es la acción principal (botones, enlaces, foco) y Burnt Caramel el acento (ítem activo, íconos, gráficas); el blanco sobre caramelo usa `#A84E00`. | Pedido del Líder con imagen de referencia. Separar acción y acento mantiene el contraste AA: el blanco sobre `#C65C00` da 4,3:1 y no alcanza el 4,5:1 del texto normal. |
 | 18/11/2026 | **Los ingresos de Reportes salen de las facturas no anuladas, por fecha de emisión.** | `estimatedRevenueBetween` suma órdenes aunque no se hayan facturado. `invoices` no guarda la fecha de pago y agregarla exigiría cambiar el esquema. |
 | 16/11/2026 | **Envío real de correos por SMTP de Gmail, opcional** (Angus Mail; credenciales en `application.local.properties`). | Gratis y suficiente para un taller (unos 500 correos al día). Sin cuenta configurada se simula como antes, así nadie depende de la cuenta del Líder para correr la app. Un servicio por API (Brevo, Resend) entrega mejor pero exige cuenta, llave y dominio verificado; WhatsApp exige la API de Meta Business. |
 | 16/11/2026 | **Plantillas de aviso en el código** (`NotificationTemplate`) mientras no exista la configuración de Notificaciones. | Editarlas requiere guardarlas en `app_settings`, que llega con el `SettingsService` de Dev 1 (Sprint 8). Los eventos no cambian cuando eso pase: solo de dónde salen los textos. |
@@ -823,9 +850,14 @@ Verificación: `develop` → `mvn clean test` **108 pruebas, 0 fallos**
 
 **Sprint 7 (Líder, `feature/reportes`):**
 - [x] Pantalla Reportes, indicadores, gráficas y PDF (Sesión 24).
-- [ ] Subir la rama y abrir el PR hacia `develop` después de la prueba manual del Líder.
+- [x] ~~Subir la rama y abrir el PR hacia `develop`~~ — PR #22 fusionado (`8338f73`, 19/11/2026).
 
-**Barrido de interfaz pendiente (lo hará el Líder):** Inventario (filtros, nombres y estados cortados; «Volver» repetido en el detalle del repuesto; «Registrar entrada» debajo de «+ Nuevo repuesto») (Órdenes ya corregida en la Sesión 21).
+**Paleta de colores (Líder, `feature/paleta-colores`):**
+- [x] Tokens, contraste, vitrina del login y PDF con la nueva paleta (Sesión 25).
+- [ ] Subir la rama y abrir el PR hacia `develop` después de la prueba manual del Líder.
+- [ ] Logo con la nueva paleta (requiere nuevas imágenes).
+
+**Barrido de interfaz pendiente (lo hará el Líder):** Inventario («Volver» repetido en el detalle del repuesto; «Registrar entrada» debajo de «+ Nuevo repuesto»). Filtros, nombres y estados cortados de la lista: corregidos en la Sesión 25. (Órdenes ya corregida en la Sesión 21.)
 
 **En curso (Líder, Sprint 8 — rama `feature/configuracion`):**
 - [x] Pantalla general de Configuración: tarjeta del usuario, secciones e información del sistema (Sesión 17).

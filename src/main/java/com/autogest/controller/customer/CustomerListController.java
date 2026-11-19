@@ -58,7 +58,7 @@ public class CustomerListController implements Initializable, NavigatorAware {
      * Fracción del ancho de la tabla que ocupa cada columna, en el orden en que se agregan.
      * La última («Acciones») no se fija: ocupa el espacio que sobra.
      */
-    private static final double[] COLUMN_WIDTHS = {0.15, 0.14, 0.12, 0.22, 0.09, 0.10, 0.09};
+    private static final double[] COLUMN_WIDTHS = {0.17, 0.15, 0.13, 0.17, 0.07, 0.08, 0.11};
 
     @FXML
     private VBox root;
@@ -156,8 +156,12 @@ public class CustomerListController implements Initializable, NavigatorAware {
         pagedTable.addColumn("Vehículos",
                 customer -> String.valueOf(vehicleCounts.getOrDefault(customer.getId(), 0)));
         pagedTable.addColumn("Última visita", customer -> CustomerLabels.PLACEHOLDER);
-        pagedTable.addColumn("Estado", customer -> StatusBadge.of(
-                CustomerLabels.statusText(customer.getStatus()), CustomerLabels.statusType(customer.getStatus())));
+        pagedTable.addColumn("Estado", customer -> {
+            Label badge = StatusBadge.of(CustomerLabels.statusText(customer.getStatus()),
+                    CustomerLabels.statusType(customer.getStatus()));
+            badge.setMinWidth(javafx.scene.layout.Region.USE_PREF_SIZE);
+            return badge;
+        });
         pagedTable.addColumn("Acciones", this::actionsCell);
         applyColumnWidths(pagedTable);
         return pagedTable;

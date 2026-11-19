@@ -166,7 +166,7 @@ public class PagedTable<T> extends VBox {
 
     private static double headerWidth(String title) {
         Text measure = new Text(title);
-        measure.setFont(Font.font("Roboto", FontWeight.BOLD, 13));
+        measure.setFont(Font.font("Manrope", FontWeight.BOLD, 13));
         return Math.ceil(measure.getLayoutBounds().getWidth()) + HEADER_EXTRA;
     }
 
