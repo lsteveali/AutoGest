@@ -127,7 +127,7 @@ public class InventoryController implements Initializable, NavigatorAware {
             categoryFilter = value == null || InventoryLabels.ALL.equals(value) ? null : value;
             reload();
         });
-        statusCombo = bar.addCombo("Estado de stock", withAll(InventoryLabels.stockOptions()), value -> {
+        statusCombo = bar.addCombo("Stock", withAll(InventoryLabels.stockOptions()), value -> {
             statusFilter = InventoryLabels.stockFromText(value);
             reload();
         });
@@ -141,16 +141,21 @@ public class InventoryController implements Initializable, NavigatorAware {
 
     private PagedTable<Part> buildTable() {
         PagedTable<Part> pagedTable = new PagedTable<>(PAGE_SIZE);
-        pagedTable.addColumn("Repuesto", Part::getName);
-        pagedTable.addColumn("Código", Part::getCode);
-        pagedTable.addColumn("Categoría", part -> part.getCategory() == null ? "-" : part.getCategory());
+        // Anchos mínimos (Manrope) para que el repuesto, el proveedor y el estado no se corten.
+        pagedTable.addColumn("Repuesto", Part::getName, 150);
+        pagedTable.addColumn("Código", Part::getCode, 75);
+        pagedTable.addColumn("Categoría", part -> part.getCategory() == null ? "-" : part.getCategory(), 90);
         pagedTable.addColumn("Proveedor", part -> part.getSupplier() == null || part.getSupplier().getName() == null
-                ? "-" : part.getSupplier().getName());
+                ? "-" : part.getSupplier().getName(), 115);
         pagedTable.addColumn("Stock", Part::getCurrentStock);
-        pagedTable.addColumn("Stock mínimo", Part::getMinimumStock);
-        pagedTable.addColumn("Precio unitario", part -> Formatter.money(part.getUnitPrice()));
-        pagedTable.addColumn("Estado", part -> StatusBadge.of(
-                InventoryLabels.stockText(part.getStatus()), InventoryLabels.stockType(part.getStatus())));
+        pagedTable.addColumn("Mínimo", Part::getMinimumStock);
+        pagedTable.addColumn("Precio", part -> Formatter.money(part.getUnitPrice()), 90);
+        pagedTable.addColumn("Estado", part -> {
+            Label badge = StatusBadge.of(InventoryLabels.stockText(part.getStatus()),
+                    InventoryLabels.stockType(part.getStatus()));
+            badge.setMinWidth(javafx.scene.layout.Region.USE_PREF_SIZE);
+            return badge;
+        }, 105);
         pagedTable.addColumn("Acciones", this::actionsCell);
         pagedTable.setOnSelect(part -> open(View.PART_DETAIL, part.getId()));
         return pagedTable;

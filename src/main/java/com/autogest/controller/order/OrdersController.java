@@ -135,18 +135,18 @@ public class OrdersController implements Initializable, NavigatorAware {
         pagedTable.addColumn("Orden", OrderLabels::number);
         pagedTable.addColumn("Cliente", OrderLabels::customer, 130);
         pagedTable.addColumn("Vehículo", this::vehicleCell, 130);
-        pagedTable.addColumn("Ingreso", order -> Formatter.date(order.getEntryDate()), 100);
+        pagedTable.addColumn("Ingreso", order -> Formatter.date(order.getEntryDate()), 96);
         pagedTable.addColumn("Entrega", order -> order.getEstimatedDeliveryDate() == null
-                ? "-" : Formatter.date(order.getEstimatedDeliveryDate()), 100);
-        pagedTable.addColumn("Responsable", OrderLabels::responsible, 115);
+                ? "-" : Formatter.date(order.getEstimatedDeliveryDate()), 96);
+        pagedTable.addColumn("Responsable", OrderLabels::responsible, 110);
         pagedTable.addColumn("Estado", order -> {
             Label badge = StatusBadge.of(OrderLabels.statusText(order.getStatus()),
                     OrderLabels.statusType(order.getStatus()));
             badge.setMinWidth(Region.USE_PREF_SIZE);
             return badge;
         }, 140);
-        pagedTable.addColumn("Total", order -> Formatter.money(order.calculateTotal()), 95);
-        pagedTable.addColumn("", this::actionsCell, 50);
+        pagedTable.addColumn("Total", order -> Formatter.money(order.calculateTotal()), 90);
+        pagedTable.addColumn("", this::actionsCell, 58);
         pagedTable.setOnSelect(order -> openDetail(order.getId()));
         return pagedTable;
     }
