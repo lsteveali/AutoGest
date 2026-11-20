@@ -388,7 +388,7 @@ public class InvoicePdfService {
             totalRow(labelX, right, "Subtotal", Formatter.money(invoice.getSubtotal()));
             totalRow(labelX, right, "Descuento", invoice.getDiscount().signum() == 0
                     ? Formatter.money(BigDecimal.ZERO) : "-" + Formatter.money(invoice.getDiscount()));
-            totalRow(labelX, right, "IVA (" + taxRateText() + ")", Formatter.money(invoice.getTaxes()));
+            totalRow(labelX, right, "IVA (" + InvoiceService.taxRateText(invoice) + ")", Formatter.money(invoice.getTaxes()));
             line(labelX, y + 6, MARGIN + CONTENT_WIDTH, y + 6, BORDER, 1);
             y -= 12;
             text(bold, 13, TEXT, labelX, y, "Total");
@@ -606,9 +606,5 @@ public class InvoicePdfService {
             case PENDING -> WARNING;
             case OVERDUE, VOIDED -> DANGER;
         };
-    }
-
-    private static String taxRateText() {
-        return InvoiceService.TAX_RATE.movePointRight(2).stripTrailingZeros().toPlainString() + " %";
     }
 }

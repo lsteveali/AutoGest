@@ -185,7 +185,7 @@ final class BillingUi {
         addAmount(grid, 0, "Subtotal", Formatter.money(invoice.getSubtotal()), false);
         addAmount(grid, 1, "Descuento", invoice.getDiscount().signum() == 0 ? Formatter.money(BigDecimal.ZERO)
                 : "-" + Formatter.money(invoice.getDiscount()), false);
-        addAmount(grid, 2, "IVA (" + taxRateText() + ")", Formatter.money(invoice.getTaxes()), false);
+        addAmount(grid, 2, "IVA (" + InvoiceService.taxRateText(invoice) + ")", Formatter.money(invoice.getTaxes()), false);
         Region divider = new Region();
         divider.getStyleClass().add("order-costs-divider");
         grid.add(divider, 0, 3, 2, 1);
@@ -202,10 +202,6 @@ final class BillingUi {
         grid.add(value, 1, row);
     }
 
-    /** Tasa de IVA como porcentaje («0 %»). */
-    static String taxRateText() {
-        return InvoiceService.TAX_RATE.movePointRight(2).stripTrailingZeros().toPlainString() + " %";
-    }
 
     /**
      * Lee un valor en pesos escrito con o sin «$» y puntos de miles

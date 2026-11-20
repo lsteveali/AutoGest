@@ -255,6 +255,24 @@ public class InvoiceService {
     }
 
     /**
+     * Tasa de IVA con la que se emitió la factura, como texto («19 %»). Sale
+     * de sus propios importes (impuestos ÷ subtotal), así una factura vieja
+     * conserva su tasa aunque después cambie la configuración.
+     *
+     * @param invoice factura o borrador
+     * @return porcentaje sin ceros de más; «0 %» si no hay subtotal
+     */
+    public static String taxRateText(Invoice invoice) {
+        BigDecimal subtotal = invoice == null ? null : invoice.getSubtotal();
+        BigDecimal taxes = invoice == null ? null : invoice.getTaxes();
+        if (subtotal == null || taxes == null || subtotal.signum() == 0) {
+            return "0 %";
+        }
+        BigDecimal percent = taxes.multiply(BigDecimal.valueOf(100)).divide(subtotal, 2, RoundingMode.HALF_UP);
+        return percent.stripTrailingZeros().toPlainString().replace('.', ',') + " %";
+    }
+
+    /**
      * Número visible con el prefijo de Configuración: {@code FE-2026-001}.
      * El consecutivo es global; cambiar el prefijo no lo reinicia.
      *
