@@ -91,8 +91,37 @@ public enum NotificationTemplate {
             "Mensaje de {taller}",
             "Hola {cliente}, te escribimos desde {taller}. Si tienes alguna pregunta, responde a este correo.");
 
-    /** Nombre del taller mientras no exista «Datos del taller» en Configuración. */
+    /** Nombre del taller si «Datos del taller» no tiene uno (o no se pudo leer). */
     public static final String WORKSHOP_NAME = "AutoGest";
+
+    /**
+     * De dónde salen los textos editados en Configuración → Notificaciones y
+     * el nombre del taller. Cada método puede devolver {@code null} para usar
+     * el valor original.
+     */
+    public interface TextSource {
+
+        /** Asunto propio de la plantilla, o {@code null}. */
+        String subject(NotificationTemplate template);
+
+        /** Mensaje propio de la plantilla, o {@code null}. */
+        String message(NotificationTemplate template);
+
+        /** Nombre del taller para {@code {taller}}, o {@code null}. */
+        String workshopName();
+    }
+
+    private static volatile TextSource textSource;
+
+    /**
+     * Conecta los textos de Configuración (lo hace {@code AppContext} al
+     * arrancar). Con {@code null} se vuelve a los textos originales.
+     *
+     * @param source origen de los textos
+     */
+    public static void useTextSource(TextSource source) {
+        textSource = source;
+    }
 
     private static final Pattern FIELD = Pattern.compile("\\{([a-z]+)\\}");
 
@@ -122,24 +151,36 @@ public enum NotificationTemplate {
         return title;
     }
 
-    /** Asunto con sus campos sin completar. */
+    /** Asunto original, con sus campos sin completar. */
     public String getSubject() {
         return subject;
     }
 
-    /** Mensaje con sus campos sin completar. */
+    /** Mensaje original, con sus campos sin completar. */
     public String getMessage() {
         return message;
     }
 
-    /** Completa el asunto con los valores dados. */
-    public String subject(Map<String, String> values) {
-        return fill(subject, values);
+    /** Asunto vigente sin completar: el editado en Configuración o el original. */
+    public String currentSubject() {
+        String custom = ask(() -> textSource.subject(this));
+        return custom == null ? subject : custom;
     }
 
-    /** Completa el mensaje con los valores dados. */
+    /** Mensaje vigente sin completar: el editado en Configuración o el original. */
+    public String currentMessage() {
+        String custom = ask(() -> textSource.message(this));
+        return custom == null ? message : custom;
+    }
+
+    /** Completa el asunto vigente con los valores dados. */
+    public String subject(Map<String, String> values) {
+        return fillOrOriginal(currentSubject(), subject, values);
+    }
+
+    /** Completa el mensaje vigente con los valores dados. */
     public String message(Map<String, String> values) {
-        return fill(message, values);
+        return fillOrOriginal(currentMessage(), message, values);
     }
 
     /**
@@ -150,8 +191,34 @@ public enum NotificationTemplate {
      */
     public static Map<String, String> baseValues() {
         Map<String, String> values = new LinkedHashMap<>();
-        values.put("taller", WORKSHOP_NAME);
+        String workshop = ask(() -> textSource.workshopName());
+        values.put("taller", workshop == null ? WORKSHOP_NAME : workshop);
         return values;
+    }
+
+    /**
+     * Consulta el origen de los textos sin dejar que un error frene un aviso:
+     * si falla o no hay origen, se usa el valor original.
+     */
+    private static String ask(java.util.function.Supplier<String> question) {
+        if (textSource == null) {
+            return null;
+        }
+        try {
+            String value = question.get();
+            return value == null || value.isBlank() ? null : value;
+        } catch (RuntimeException e) {
+            return null;
+        }
+    }
+
+    /** Un texto editado que ya no se pueda completar no frena el aviso: se usa el original. */
+    private static String fillOrOriginal(String text, String original, Map<String, String> values) {
+        try {
+            return fill(text, values);
+        } catch (ValidationException e) {
+            return fill(original, values);
+        }
     }
 
     /**
