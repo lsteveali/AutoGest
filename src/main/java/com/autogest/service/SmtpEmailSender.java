@@ -2,18 +2,25 @@ package com.autogest.service;
 
 import com.autogest.exception.AutoGestException;
 import com.autogest.exception.ValidationException;
+import jakarta.activation.DataHandler;
 import jakarta.mail.Authenticator;
 import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
+import jakarta.mail.Part;
 import jakarta.mail.PasswordAuthentication;
 import jakarta.mail.Session;
 import jakarta.mail.Transport;
 import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeBodyPart;
 import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.internet.MimeMultipart;
+import jakarta.mail.internet.MimeUtility;
+import jakarta.mail.util.ByteArrayDataSource;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -72,6 +79,15 @@ public class SmtpEmailSender implements EmailSender {
 
     @Override
     public void send(String to, String toName, String subject, String body) {
+        send(to, toName, subject, body, List.of());
+    }
+
+    /**
+     * Envía el correo; con adjuntos arma un mensaje de varias partes (el texto
+     * y un archivo por adjunto).
+     */
+    @Override
+    public void send(String to, String toName, String subject, String body, List<EmailAttachment> attachments) {
         if (isBlank(to)) {
             throw new ValidationException("El cliente no tiene correo");
         }
@@ -82,7 +98,25 @@ public class SmtpEmailSender implements EmailSender {
                     ? new InternetAddress(to.trim(), true)
                     : new InternetAddress(to.trim(), toName.trim(), StandardCharsets.UTF_8.name()));
             message.setSubject(subject == null ? "" : subject, StandardCharsets.UTF_8.name());
-            message.setText(body == null ? "" : body + signature(), StandardCharsets.UTF_8.name());
+            String text = body == null ? "" : body + signature();
+            if (attachments == null || attachments.isEmpty()) {
+                message.setText(text, StandardCharsets.UTF_8.name());
+            } else {
+                MimeMultipart parts = new MimeMultipart();
+                MimeBodyPart textPart = new MimeBodyPart();
+                textPart.setText(text, StandardCharsets.UTF_8.name());
+                parts.addBodyPart(textPart);
+                for (EmailAttachment attachment : attachments) {
+                    MimeBodyPart filePart = new MimeBodyPart();
+                    filePart.setDataHandler(new DataHandler(
+                            new ByteArrayDataSource(attachment.content(), attachment.contentType())));
+                    filePart.setFileName(MimeUtility.encodeText(attachment.fileName(),
+                            StandardCharsets.UTF_8.name(), null));
+                    filePart.setDisposition(Part.ATTACHMENT);
+                    parts.addBodyPart(filePart);
+                }
+                message.setContent(parts);
+            }
             message.setSentDate(new Date());
             Transport.send(message);
         } catch (MessagingException | UnsupportedEncodingException e) {

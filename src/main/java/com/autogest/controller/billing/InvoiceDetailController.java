@@ -25,6 +25,8 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuButton;
+import javafx.scene.control.MenuItem;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -44,9 +46,9 @@ import java.util.List;
  * registra el pago o se anula.
  *
  * <p>El historial sale de las entradas del historial de la orden que
- * mencionan esta factura (generada, pagada, anulada). «Descargar PDF» guarda
- * la factura con {@code InvoicePdfService}; «Enviar al cliente» del mockup
- * queda para cuando exista el {@code NotificationService}.</p>
+ * mencionan esta factura (generada, pagada, anulada). «Descargar PDF» y
+ * «Descargar PNG» guardan la factura con {@code InvoicePdfService}; el cliente
+ * la recibe adjunta en los dos formatos con los avisos de Facturación.</p>
  *
  * <p>Principles: GRASP Controller, SRP, DIP.</p>
  */
@@ -125,12 +127,14 @@ public class InvoiceDetailController implements NavigatorAware, ParameterizedCon
         HBox.setHgrow(spacer, Priority.ALWAYS);
         HBox actions = new HBox(10);
         actions.setAlignment(Pos.CENTER_RIGHT);
-        Button pdf = new Button("Descargar PDF");
-        pdf.setGraphic(IconSet.icon(IconSet.CLOUD_DOWNLOAD));
-        pdf.getStyleClass().add("btn-secondary");
         // La factura de esta pantalla ya trae su orden completa.
+        MenuItem pdf = new MenuItem("PDF");
         pdf.setOnAction(event -> BillingUi.downloadPdf(window(), invoice, () -> invoice));
-        actions.getChildren().add(pdf);
+        MenuItem png = new MenuItem("Imagen PNG");
+        png.setOnAction(event -> BillingUi.downloadPng(window(), invoice, () -> invoice));
+        MenuButton download = new MenuButton("Descargar", IconSet.icon(IconSet.CLOUD_DOWNLOAD), pdf, png);
+        download.getStyleClass().add("btn-secondary");
+        actions.getChildren().add(download);
         if (InvoiceLabels.isOpen(invoice)) {
             Button cancel = new Button("Anular factura");
             cancel.getStyleClass().add("btn-secondary");
@@ -144,6 +148,9 @@ public class InvoiceDetailController implements NavigatorAware, ParameterizedCon
             });
             actions.getChildren().addAll(cancel, pay);
         }
+        // Los botones conservan su texto completo; si falta espacio, cede el título.
+        actions.getChildren().forEach(node -> ((Region) node).setMinWidth(Region.USE_PREF_SIZE));
+        actions.setMinWidth(Region.USE_PREF_SIZE);
 
         HBox row = new HBox(16, titles, spacer, actions);
         row.setAlignment(Pos.CENTER_LEFT);

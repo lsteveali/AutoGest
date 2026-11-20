@@ -99,6 +99,57 @@ class NotificationEmailTest {
         assertTrue(sent.isEmpty());
     }
 
+    // ---------- adjuntos ----------
+
+    @Test
+    void attachmentsFromTheProviderReachTheSender() {
+        List<String> files = new ArrayList<>();
+        service.setEmailSender(new EmailSender() {
+            @Override
+            public void send(String to, String toName, String subject, String body) {
+                files.add("sin adjuntos");
+            }
+
+            @Override
+            public void send(String to, String toName, String subject, String body,
+                             List<EmailAttachment> attachments) {
+                attachments.forEach(file -> files.add(file.fileName()));
+            }
+        });
+        service.setAttachmentProvider(notification -> notification.getType() == NotificationType.BILLING
+                ? List.of(new EmailAttachment("Factura.pdf", EmailAttachment.PDF, new byte[] {1}),
+                        new EmailAttachment("Factura.png", EmailAttachment.PNG, new byte[] {2}))
+                : List.of());
+        Notification billing = draft();
+        billing.setType(NotificationType.BILLING);
+
+        assertEquals(NotificationStatus.SENT, service.createAndSend(billing).getStatus());
+        assertEquals(NotificationStatus.SENT, service.createAndSend(draft()).getStatus());
+
+        assertEquals(List.of("Factura.pdf", "Factura.png"), files);
+    }
+
+    @Test
+    void senderWithoutAttachmentSupportFailsTheNotice() {
+        service.setEmailSender((to, name, subject, body) -> sent.add(subject));
+        service.setAttachmentProvider(notification ->
+                List.of(new EmailAttachment("Factura.pdf", EmailAttachment.PDF, new byte[] {1})));
+
+        assertEquals(NotificationStatus.FAILED, service.createAndSend(draft()).getStatus());
+        assertTrue(sent.isEmpty());
+    }
+
+    @Test
+    void attachmentErrorLeavesTheNoticeFailedForRetry() {
+        service.setEmailSender((to, name, subject, body) -> sent.add(subject));
+        service.setAttachmentProvider(notification -> {
+            throw new AutoGestException("sin conexión con la base de datos");
+        });
+
+        assertEquals(NotificationStatus.FAILED, service.createAndSend(draft()).getStatus());
+        assertTrue(sent.isEmpty());
+    }
+
     // ---------- configuración ----------
 
     @Test
