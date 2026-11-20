@@ -9,6 +9,7 @@ import com.autogest.controller.components.PageHeader;
 import com.autogest.exception.AutoGestException;
 import com.autogest.model.WorkshopProfile;
 import com.autogest.service.SettingsService;
+import com.autogest.util.AppPreferences;
 import com.autogest.util.Background;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -185,6 +186,9 @@ public class WorkshopDataController implements Initializable, NavigatorAware {
         Background.run(() -> service().updateWorkshopProfile(p),
                 saved -> {
                     setBusy(false);
+                    if (!AppPreferences.showSaveConfirmation()) {
+                        return;
+                    }
                     Alert alert = new Alert(Alert.AlertType.INFORMATION, "Los datos del taller se guardaron correctamente.");
                     alert.setHeaderText(null);
                     alert.setTitle("Datos del taller");

@@ -263,7 +263,11 @@ public class PreferencesController implements Initializable, NavigatorAware {
                 "No se pudieron restaurar las preferencias");
     }
 
+    /** Mensaje de resultado, si la preferencia «Mostrar mensajes de confirmación» está activa. */
     private static void info(String message) {
+        if (!AppPreferences.showSaveConfirmation()) {
+            return;
+        }
         Alert alert = new Alert(Alert.AlertType.INFORMATION, message);
         alert.setHeaderText(null);
         alert.setTitle("Preferencias del sistema");
