@@ -66,8 +66,10 @@ public class Sidebar extends VBox {
     /** Lado del espacio fijo de cada ícono: alinea los textos aunque los trazos midan distinto. */
     private static final double ICON_SLOT = 24;
 
-    /** Escudo del logo: su borde claro contrasta con el fondo Onyx de la barra. */
-    private static final String LOGO = "/images/logo-shield-64.png";
+    /** Logotipo completo con «AutoGest» en blanco, para el fondo Onyx de la barra. */
+    private static final String LOGO = "/images/logo-full-dark.png";
+    /** Ancho del logotipo en la barra (la imagen tiene el doble, para pantallas nítidas). */
+    private static final double LOGO_WIDTH = 180;
 
     private final Map<View, HBox> itemsByView = new LinkedHashMap<>();
     /** Título de cada sección con sus ítems, para ocultarlo si el rol no ve ninguno. */
@@ -79,18 +81,22 @@ public class Sidebar extends VBox {
     public Sidebar() {
         getStyleClass().add("sidebar");
 
-        Label title = new Label("AutoGest");
-        title.getStyleClass().add("app-title");
-        HBox brand = new HBox(10, title);
+        HBox brand = new HBox();
         brand.setAlignment(Pos.CENTER_LEFT);
         brand.getStyleClass().add("sidebar-brand");
         URL logo = Sidebar.class.getResource(LOGO);
         if (logo != null) {
             ImageView logoView = new ImageView(new Image(logo.toExternalForm()));
-            logoView.setFitHeight(32);
+            logoView.setFitWidth(LOGO_WIDTH);
             logoView.setPreserveRatio(true);
             logoView.setSmooth(true);
-            brand.getChildren().add(0, logoView);
+            logoView.setAccessibleText("AutoGest");
+            brand.getChildren().add(logoView);
+        } else {
+            // Sin la imagen, al menos el nombre.
+            Label title = new Label("AutoGest");
+            title.getStyleClass().add("app-title");
+            brand.getChildren().add(title);
         }
         getChildren().add(brand);
 
