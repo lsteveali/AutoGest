@@ -2,6 +2,7 @@ package com.autogest.service;
 
 import com.autogest.exception.NotFoundException;
 import com.autogest.exception.ValidationException;
+import com.autogest.model.BillingSettings;
 import com.autogest.model.Invoice;
 import com.autogest.model.InvoiceStatus;
 import com.autogest.model.InvoiceSummary;
@@ -21,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Supplier;
 
 /**
  * Facturación (Sprint 5, Líder): genera la factura de una orden, la consulta,
@@ -34,9 +36,10 @@ import java.util.Set;
  *       misma fila con un número nuevo (la tabla exige un {@code order_id}
  *       único).</li>
  *   <li>Los conceptos son las líneas de la orden; el subtotal sale de
- *       {@link ServiceOrder#calculateSubtotal()}. El IVA va en 0 %
- *       ({@link #TAX_RATE}, decisión D-05) hasta que exista la configuración
- *       de facturación.</li>
+ *       {@link ServiceOrder#calculateSubtotal()}. La tasa de IVA, el plazo
+ *       de pago, el prefijo de la numeración y los métodos de pago salen de
+ *       Configuración → Facturación ({@link #setSettings}); sin
+ *       configurar, IVA 0 %, 14 días, «FAC» y todos los métodos (D-05).</li>
  *   <li>El descuento es un valor sobre el total y no puede superar subtotal más
  *       impuestos ({@link Invoice#calculateTotal()}).</li>
  *   <li>Cada factura generada, pagada o anulada deja una entrada en el
@@ -55,19 +58,20 @@ import java.util.Set;
  */
 public class InvoiceService {
 
-    /** Tasa de IVA: 0 % hasta que Configuración la defina (D-05). */
+    /** Tasa de IVA de fábrica (0 %); la vigente sale de Configuración → Facturación (D-05). */
     public static final BigDecimal TAX_RATE = BigDecimal.ZERO;
 
-    /** Días de plazo de pago por defecto (mockup: emisión 02/10, vencimiento 16/10). */
-    public static final int DEFAULT_DUE_DAYS = 14;
+    /** Días de plazo de pago de fábrica; el vigente sale de Configuración → Facturación. */
+    public static final int DEFAULT_DUE_DAYS = BillingSettings.DEFAULT_DUE_DAYS;
 
-    /** Métodos de pago aceptados (se guardan con este código). */
-    public static final List<String> PAYMENT_METHODS = List.of("CASH", "CARD", "TRANSFER", "OTHER");
+    /** Todos los métodos de pago que conoce AutoGest (se guardan con este código). */
+    public static final List<String> PAYMENT_METHODS = BillingSettings.ALL_PAYMENT_METHODS;
 
     private final InvoiceRepository repository;
     private final ServiceOrderService orderService;
     private final ServiceOrderRepository orderRepository;
     private final NotificationService notificationService;
+    private Supplier<BillingSettings> settings = BillingSettings::defaults;
 
     /**
      * @param repository          facturas
@@ -81,6 +85,32 @@ public class InvoiceService {
         this.orderService = orderService;
         this.orderRepository = orderRepository;
         this.notificationService = notificationService;
+    }
+
+    /**
+     * Define de dónde sale la configuración de facturación (IVA, plazo,
+     * prefijo y métodos de pago). Sin llamarlo se usan los valores de fábrica.
+     *
+     * @param settings proveedor de la configuración vigente
+     */
+    public void setSettings(Supplier<BillingSettings> settings) {
+        this.settings = settings == null ? BillingSettings::defaults : settings;
+    }
+
+    /**
+     * @return configuración de facturación vigente
+     */
+    public BillingSettings settings() {
+        return settings.get();
+    }
+
+    /**
+     * Métodos de pago que acepta el taller, en orden.
+     *
+     * @return códigos habilitados en Configuración
+     */
+    public List<String> paymentMethods() {
+        return settings().getPaymentMethods();
     }
 
     // ---------- generar ----------
@@ -124,6 +154,24 @@ public class InvoiceService {
      * @throws ValidationException si el descuento es negativo o mayor que el total
      */
     public static Invoice buildDraft(ServiceOrder order, BigDecimal discount, LocalDate dueDate) {
+        return buildDraft(order, discount, dueDate, BillingSettings.defaults());
+    }
+
+    /**
+     * Como {@link #buildDraft(ServiceOrder, BigDecimal, LocalDate)}, con la
+     * configuración vigente (IVA y plazo de pago de Configuración).
+     *
+     * @param order    orden completa
+     * @param discount descuento ({@code null} = 0)
+     * @param dueDate  vencimiento ({@code null} = hoy + el plazo configurado)
+     * @return factura pendiente, sin número ni id
+     */
+    public Invoice draft(ServiceOrder order, BigDecimal discount, LocalDate dueDate) {
+        return buildDraft(order, discount, dueDate, settings());
+    }
+
+    private static Invoice buildDraft(ServiceOrder order, BigDecimal discount, LocalDate dueDate,
+                                      BillingSettings billing) {
         if (order == null) {
             throw new ValidationException("Selecciona la orden de servicio");
         }
@@ -131,10 +179,10 @@ public class InvoiceService {
         Invoice invoice = new Invoice();
         invoice.setOrder(order);
         invoice.setIssueDate(today);
-        invoice.setDueDate(dueDate == null ? today.plusDays(DEFAULT_DUE_DAYS) : dueDate);
+        invoice.setDueDate(dueDate == null ? today.plusDays(billing.getDueDays()) : dueDate);
         BigDecimal subtotal = order.calculateSubtotal();
         invoice.setSubtotal(subtotal);
-        invoice.setTaxes(subtotal.multiply(TAX_RATE).setScale(2, RoundingMode.HALF_UP));
+        invoice.setTaxes(subtotal.multiply(billing.getTaxRate()).setScale(2, RoundingMode.HALF_UP));
         invoice.setDiscount(discount == null ? BigDecimal.ZERO : discount);
         invoice.setTotal(invoice.calculateTotal());
         return invoice;
@@ -169,10 +217,11 @@ public class InvoiceService {
             throw new ValidationException("El vencimiento no puede ser anterior a hoy");
         }
 
-        Invoice invoice = buildDraft(order, discount, dueDate);
-        invoice.setNumber(formatNumber(LocalDate.now().getYear(), repository.nextSequence()));
+        BillingSettings billing = settings();
+        Invoice invoice = buildDraft(order, discount, dueDate, billing);
+        invoice.setNumber(formatNumber(billing.getNumberPrefix(), LocalDate.now().getYear(), repository.nextSequence()));
         if (paidWith != null) {
-            invoice.markAsPaid(requireMethod(paidWith));
+            invoice.markAsPaid(requireMethod(paidWith, billing));
         }
         if (existing == null) {
             repository.create(invoice);
@@ -202,7 +251,20 @@ public class InvoiceService {
      * @return número con el consecutivo de al menos tres cifras
      */
     public static String formatNumber(int year, int sequence) {
-        return String.format("FAC-%d-%03d", year, sequence);
+        return formatNumber(BillingSettings.DEFAULT_PREFIX, year, sequence);
+    }
+
+    /**
+     * Número visible con el prefijo de Configuración: {@code FE-2026-001}.
+     * El consecutivo es global; cambiar el prefijo no lo reinicia.
+     *
+     * @param prefix   prefijo de la numeración
+     * @param year     año de emisión
+     * @param sequence consecutivo
+     * @return número con el consecutivo de al menos tres cifras
+     */
+    public static String formatNumber(String prefix, int year, int sequence) {
+        return String.format("%s-%d-%03d", prefix, year, sequence);
     }
 
     // ---------- consultar ----------
@@ -304,7 +366,7 @@ public class InvoiceService {
     public Invoice markAsPaid(int id, String method, User user) {
         requireUser(user);
         Invoice invoice = requireInvoice(id);
-        invoice.markAsPaid(requireMethod(method));
+        invoice.markAsPaid(requireMethod(method, settings()));
         repository.update(invoice);
         record(invoice.getOrder().getId(), "Factura " + invoice.getNumber() + " pagada con "
                 + methodText(invoice.getPaymentMethod()), user);
@@ -359,12 +421,17 @@ public class InvoiceService {
         return invoice;
     }
 
-    private static String requireMethod(String method) {
+    /** El método debe existir y estar habilitado en Configuración → Facturación. */
+    private static String requireMethod(String method, BillingSettings billing) {
         if (method == null || method.isBlank()) {
             throw new ValidationException("El método de pago es obligatorio");
         }
         if (!PAYMENT_METHODS.contains(method)) {
             throw new ValidationException("Método de pago no válido");
+        }
+        if (!billing.getPaymentMethods().contains(method)) {
+            throw new ValidationException("El taller no acepta pagos con " + methodText(method).toLowerCase()
+                    + " (Configuración → Facturación)");
         }
         return method;
     }
