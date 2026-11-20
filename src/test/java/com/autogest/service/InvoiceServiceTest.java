@@ -88,6 +88,54 @@ class InvoiceServiceTest {
         assertEquals(invoice, invoices.findByOrder(order.getId()));
     }
 
+    // ---------- configuración de facturación ----------
+
+    @Test
+    void configuredTaxDueDaysAndPrefixAreUsed() {
+        service.setSettings(() -> billing("19", 30, "FE", List.of("CASH", "TRANSFER")));
+        ServiceOrder order = order(OrderStatus.READY, "100000");
+
+        Invoice invoice = service.createInvoice(order.getId(), null, null, null, receptionist);
+
+        assertEquals(new BigDecimal("19000.00"), invoice.getTaxes());
+        assertEquals(new BigDecimal("119000.00"), invoice.getTotal());
+        assertEquals(LocalDate.now().plusDays(30), invoice.getDueDate());
+        assertTrue(invoice.getNumber().matches("FE-\\d{4}-001"), invoice.getNumber());
+    }
+
+    @Test
+    void draftUsesTheConfiguredTax() {
+        service.setSettings(() -> billing("8.5", 7, "FAC", List.of("CASH")));
+
+        Invoice draft = service.draft(order(OrderStatus.READY, "200000"), null, null);
+
+        assertEquals(new BigDecimal("17000.00"), draft.getTaxes());
+        assertEquals(LocalDate.now().plusDays(7), draft.getDueDate());
+        assertTrue(invoices.findAll().isEmpty(), "El borrador no se guarda");
+    }
+
+    @Test
+    void disabledPaymentMethodIsRejected() {
+        service.setSettings(() -> billing("0", 14, "FAC", List.of("CASH")));
+        ServiceOrder order = order(OrderStatus.READY, "50000");
+
+        ValidationException error = assertThrows(ValidationException.class,
+                () -> service.createInvoice(order.getId(), null, null, "CARD", receptionist));
+        assertTrue(error.getMessage().contains("tarjeta"), error.getMessage());
+        Invoice pending = service.createInvoice(order.getId(), null, null, null, receptionist);
+        assertThrows(ValidationException.class, () -> service.markAsPaid(pending.getId(), "TRANSFER", receptionist));
+        assertEquals(List.of("CASH"), service.paymentMethods());
+        assertEquals(InvoiceStatus.PAID, service.markAsPaid(pending.getId(), "CASH", receptionist).getStatus());
+    }
+
+    @Test
+    void withoutSettingsTheFactoryValuesApply() {
+        service.setSettings(null);
+
+        assertEquals(InvoiceService.PAYMENT_METHODS, service.paymentMethods());
+        assertEquals("FAC", service.settings().getNumberPrefix());
+    }
+
     @Test
     void discountIsSubtractedFromTotal() {
         ServiceOrder order = order(OrderStatus.DELIVERED, "120000", "180000");
@@ -439,6 +487,16 @@ class InvoiceServiceTest {
     }
 
     // ---------- ayudas ----------
+
+    private static com.autogest.model.BillingSettings billing(String tax, int days, String prefix,
+                                                             List<String> methods) {
+        com.autogest.model.BillingSettings settings = new com.autogest.model.BillingSettings();
+        settings.setTaxPercent(new BigDecimal(tax));
+        settings.setDueDays(days);
+        settings.setNumberPrefix(prefix);
+        settings.setPaymentMethods(methods);
+        return settings;
+    }
 
     /** Orden guardada en el repositorio falso, con un servicio por cada precio. */
     private ServiceOrder order(OrderStatus status, String... prices) {
