@@ -813,7 +813,15 @@ estaba incorporado; el otro era un WIP viejo de `login-usuarios`). Quedan solo
 - **Recorte:** en la zona del escudo, el mismo método de antes. En la zona de las letras, todo lo que es fondo se vuelve transparente, incluidos los huecos de «o», «e» y «A». Los bordes se separan del color del fondo con transparencia parcial.
 - **`logo-full-light.png`** (letras negras, 843×260): el **login** lo muestra a 420 px de ancho, en lugar del escudo de 72 px y el título «AutoGest». Se quitaron los estilos `login-brand-logo` y `login-brand-title`.
 - **`logo-full-dark.png`** (letras blancas, 362×112): la **barra lateral** lo muestra a 180 px de ancho, en lugar del escudo y la etiqueta. Si faltara la imagen, vuelve a mostrar el texto «AutoGest».
-- El escudo solo (`logo-shield-*`) sigue en el ícono de la ventana y en los PDF.
+- El escudo solo (`logo-shield-*`) queda en el ícono de la ventana.
+
+**Segundo ajuste (pedido del Líder):** el logotipo completo también va donde aparecía el escudo junto al texto «AutoGest», y la frase del login se centra mejor.
+- **PDF de la factura** (y su PNG, que sale del mismo PDF): `logo-full-light.png` a 42 pt de alto con su proporción, en lugar del escudo de 34 pt y el texto «AutoGest». El subtítulo «Gestión integral para talleres automotrices» va debajo.
+- **PDF del reporte:** el mismo logotipo a la izquierda; «Reporte del taller» y el periodo pasan a la derecha, como «FACTURA» en la factura.
+- Si faltara la imagen, los dos PDF vuelven a escribir «AutoGest».
+- **Frase del login:** se mostraron tres variantes con capturas (centrada bajo todo el logotipo, centrada bajo las letras y sin frase). El Líder eligió **centrarla bajo las letras «AutoGest»**: un desplazamiento de 69 px, la distancia entre el centro de la imagen y el de las letras a 420 px de ancho.
+- No hay otros lugares con el logo junto al texto «AutoGest». El título de la ventana, «Bienvenido a AutoGest», el remitente del correo y los nombres internos son texto y se dejan igual. Los correos son de texto plano y no llevan logo.
+- Capturas del login, la factura (PNG) y la primera página del reporte, con datos en memoria. `mvn clean test` → **539 pruebas, 0 fallos**.
 - Capturas del login a 1280×720 y de la barra lateral; el menú completo cabe a 720 px de alto. `mvn clean test` → **539 pruebas, 0 fallos**.
 
 ---
