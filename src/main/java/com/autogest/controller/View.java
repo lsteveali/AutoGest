@@ -43,6 +43,8 @@ public enum View {
     NOTIFICATION_DETAIL("/fxml/notification/notification-detail.fxml", "Detalle de la notificación", "NOTIFICATIONS"),
     REPORTS("/fxml/report/reports.fxml", "Reportes", "REPORTS"),
     SETTINGS("/fxml/settings/settings.fxml", "Configuración", "SETTINGS"),
+    SETTINGS_WORKSHOP("/fxml/settings/workshop-data.fxml", "Datos del taller", "SETTINGS"),
+    SETTINGS_PREFERENCES("/fxml/settings/preferences.fxml", "Preferencias del sistema", "SETTINGS"),
     USERS_ROLES("/fxml/user/users-roles.fxml", "Usuarios y roles", "SETTINGS"),
     ASSISTANT("/fxml/assistant/assistant.fxml", "Asistente AutoGest", "ASSISTANT");
 
