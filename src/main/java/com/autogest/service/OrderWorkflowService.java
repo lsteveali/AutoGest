@@ -152,7 +152,8 @@ public class OrderWorkflowService {
      * historial. Un aviso que no sale no deshace el cambio de estado.
      */
     private void notifyVehicleReady(ServiceOrder order, User user) {
-        if (events == null) {
+        // Sin servicio de avisos, o con el aviso apagado en Configuración → Notificaciones.
+        if (events == null || !events.isVehicleReadyEnabled()) {
             return;
         }
         String text;
