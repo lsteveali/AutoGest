@@ -24,7 +24,7 @@
         <HBox styleClass="login-brand-logo" alignment="CENTER">
             <ImageView fitHeight="72" preserveRatio="true" smooth="true">
                 <image>
-                    <Image url="@../images/logo-gear-256.png" />
+                    <Image url="@../images/logo-shield-256.png" />
                 </image>
             </ImageView>
             <Label text="AutoGest" styleClass="login-brand-title" />

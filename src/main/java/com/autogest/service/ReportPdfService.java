@@ -160,7 +160,7 @@ public class ReportPdfService {
         }
 
         private void header(ReportData.Snapshot r) throws IOException {
-            try (InputStream in = ReportPdfService.class.getResourceAsStream("/images/logo-gear-64.png")) {
+            try (InputStream in = ReportPdfService.class.getResourceAsStream("/images/logo-shield-256.png")) {
                 if (in != null) {
                     stream.drawImage(PDImageXObject.createFromByteArray(document, in.readAllBytes(), "logo"),
                             MARGIN, TOP - 34, 34, 34);

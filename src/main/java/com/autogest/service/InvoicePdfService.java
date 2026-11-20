@@ -232,7 +232,7 @@ public class InvoicePdfService {
             this.regular = font(document, "Roboto-Regular.ttf");
             this.medium = font(document, "Roboto-Medium.ttf");
             this.bold = font(document, "Roboto-Bold.ttf");
-            this.logo = image(document, "/images/logo-gear-64.png");
+            this.logo = image(document, "/images/logo-shield-256.png");
         }
 
         void write() throws IOException {

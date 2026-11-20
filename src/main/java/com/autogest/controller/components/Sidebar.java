@@ -66,8 +66,8 @@ public class Sidebar extends VBox {
     /** Lado del espacio fijo de cada ícono: alinea los textos aunque los trazos midan distinto. */
     private static final double ICON_SLOT = 24;
 
-    /** Tuerca del logo en versión clara, para que contraste con el fondo navy. */
-    private static final String LOGO = "/images/logo-gear-light-64.png";
+    /** Escudo del logo: su borde claro contrasta con el fondo Onyx de la barra. */
+    private static final String LOGO = "/images/logo-shield-64.png";
 
     private final Map<View, HBox> itemsByView = new LinkedHashMap<>();
     /** Título de cada sección con sus ítems, para ocultarlo si el rol no ve ninguno. */
