@@ -15,7 +15,7 @@
 | Proyecto | AutoGest — Sistema de gestión integral para talleres automotrices |
 | Materia | Programación de Computadores III (SS462) |
 | Repositorio | https://github.com/lsteveali/AutoGest.git |
-| Rama de trabajo actual | `develop` (restaurar copias fusionado, PR #24; la próxima rama del Líder se crea desde aquí) |
+| Rama de trabajo actual | `feature/correos-factura` (desde `develop` en `4646992`; en prueba del Líder, sin subir) |
 | Sprint en curso | **Sprint 8 (Configuración)** 🟡 · Sprint 7 ✅ cerrado (PR #21 y #22) · Paleta y Manrope ✅ (PR #23) · siguiente: Sprint 9 (Asistente) |
 | Equipo | Líder: Leonarth Steve Ali Camargo · Dev 1: Sebastián Murgas Tejeda · Dev 2: **sin integrante vinculado** — el Líder asume todas sus responsabilidades (decisión 14/10/2026) |
 | Documento guía | `AutoGest_Guia_Lider` (V2.0) |
@@ -730,6 +730,45 @@ estaba incorporado; el otro era un WIP viejo de `login-usuarios`). Quedan solo
 
 **Cierre:** el Líder probó la restauración y se abrió el PR #24 (`feature/restaurar-copias` → `develop`), con la sección «Para Dev 1». Fusionado el 19/11/2026 (`d8fd07a`).
 
+### 19/11/2026 — Sesión 27 (Líder): factura en PNG, mensajes predeterminados y factura adjunta
+
+**Contexto.** Pedido del Líder: exportar las facturas en PNG, que los correos tengan un mensaje predeterminado según su tipo y que los de facturación lleven la factura adjunta en PDF y PNG. El Líder autorizó tocar dos archivos de Dev 1 (`NotificationService` y `NotificationNewController`) y que **todos los correos de Facturación** lleven los adjuntos. Rama `feature/correos-factura` desde `develop` (`4646992`).
+
+**Hecho:**
+1. **Factura en PNG:** `InvoicePdfService.renderPng` dibuja el mismo PDF con el `PDFRenderer` de PDFBox a 150 ppp (A4 = 1240 × 1753 px). Si la factura tiene varias páginas, quedan una debajo de otra. `exportPng` y `pngFileName` («Factura FAC-2026-001.png»). En pantalla:
+   - Detalle de la factura: el botón «Descargar PDF» pasa a un menú **«Descargar»** con «PDF» e «Imagen PNG». Con cuatro botones no cabían a 1280 px; los botones ya no se encogen, cede el título.
+   - Lista de Facturación: «Descargar PNG» en el menú «…» de cada factura.
+   - `PdfExport.savePng` reutiliza el flujo de guardar y abrir con los textos de imagen.
+2. **Correos con adjuntos:**
+   - `EmailAttachment` (nombre, tipo MIME y bytes).
+   - `EmailSender.send(…, adjuntos)`: método por defecto; si llegan adjuntos y el medio no los admite, falla en lugar de mandarlos sin avisar.
+   - `SmtpEmailSender` arma un mensaje de varias partes (texto + un archivo por adjunto, nombres en UTF-8); sin adjuntos sigue en texto plano.
+3. **Factura adjunta en PDF y PNG:**
+   - `EmailAttachmentProvider` (interfaz) e `InvoiceAttachmentProvider`: toda notificación de tipo **Facturación** con una orden que tenga factura vigente (no anulada) lleva la factura en los dos formatos. Así salen «Factura disponible», «Pago recibido», «Factura vencida» y las notificaciones de Facturación que se crean a mano; también al reintentar.
+   - Si la factura no se puede preparar (por ejemplo, sin conexión), la notificación queda Fallida para reintentarla.
+   - Se conecta en `AppContext.configureEmail()` (método del Líder), sin tocar los bloques de Dev 1.
+4. **Mensajes predeterminados (`NotificationTemplate`):**
+   - Campos nuevos: `{factura}`, `{total}` y `{vencimiento}`.
+   - Plantillas nuevas: `INVOICE_AVAILABLE`, `INVOICE_PAID` e `INVOICE_OVERDUE` (las usan los avisos automáticos de facturación), y `SERVICE_UPDATE`, `MAINTENANCE_INVITE`, `PROMOTION` y `GENERAL` para el formulario.
+   - `forManual(tipo, factura)` elige el texto: en Facturación depende del estado de la factura (pendiente, pagada o vencida).
+   - `valuesFor(cliente, orden, factura)` llena los campos; sin orden, «tu {vehiculo}» dice «tu vehículo».
+5. **Cambios en archivos de Dev 1 (autorizados por el Líder):**
+   - `NotificationService`: `setAttachmentProvider` y el envío de adjuntos en `deliver`. `buildInvoiceIssued/Paid/Overdue` ahora toman el texto de las plantillas del Líder (mismos asuntos que antes; las pruebas de Dev 1 siguen verdes). Se quitó el import de `Formatter`, que quedó sin uso.
+   - `NotificationNewController`: al elegir cliente, orden o tipo, el asunto y el mensaje se llenan con el texto predeterminado. No pisa lo que el usuario escribió; «Usar mensaje predeterminado» lo restablece. En Facturación busca en segundo plano la factura de la orden. Un aviso bajo el mensaje dice si se adjuntará la factura, si la orden no tiene una vigente o si el canal no es Correo.
+6. **Pruebas:**
+   - `InvoicePdfServiceTest` +3: tamaño del PNG, varias páginas y archivo.
+   - `SmtpEmailSenderTest` +2 con GreenMail: adjuntos con nombre, tipo y contenido; sin adjuntos el mensaje es texto plano.
+   - `NotificationTemplateTest` (6, nuevo): un texto por tipo, Facturación según el estado, campos de la factura, sin orden, y ningún texto con llaves ni espacios dobles.
+   - `InvoiceAttachmentProviderTest` (4, nuevo): factura pendiente, pagada, vencida y anulada, y avisos sin adjuntos.
+   - `NotificationEmailTest` +3: los adjuntos llegan al envío; un medio sin adjuntos o un error al prepararlos dejan el aviso Fallido.
+   - `mvn clean test` → **528 pruebas, 0 fallos**.
+7. **Verificación sin escribir ni enviar:**
+   - Imagen PNG de una factura en memoria.
+   - Detalle de la factura en memoria (sin el paso a vencidas).
+   - «Nueva notificación» con clientes y órdenes reales, solo lecturas: tipo General y tipo Facturación con una orden pagada. Mostró «Pago recibido de la factura FAC-2026-001» y el aviso de adjuntos. No se pulsó «Guardar» ni «Enviar».
+
+**Ojo al probar:** el correo real está activo. Una factura nueva, un pago o una notificación de Facturación envía el correo **con los dos adjuntos** al cliente.
+
 ---
 
 ## 4. Decisiones y acuerdos
@@ -777,6 +816,8 @@ estaba incorporado; el otro era un WIP viejo de `login-usuarios`). Quedan solo
 | 14/11/2026 | **Las capturas de Facturación se toman fuera del repositorio y sin configuración de base de datos.** | La lista ejecuta el paso a vencidas (`UPDATE`) al cargar; así las capturas no escriben en Supabase. |
 | 19/11/2026 | **Restaurar una copia reemplaza las tablas que trae la copia, en una transacción, y antes guarda una copia automática del estado actual.** Se confirma escribiendo «RESTAURAR» y al terminar se cierra la sesión. | Es la acción más destructiva de la app: la copia previa permite deshacerla, la palabra evita el clic accidental y cerrar la sesión evita seguir con un usuario o permisos que ya no existen. Las tablas que la copia no trae no se tocan, así una copia vieja no borra tablas nuevas como `app_settings`. |
 | 19/11/2026 | **La restauración conserva los ids de la copia** (`OVERRIDING SYSTEM VALUE`) y ajusta los contadores con `setval`. | Las llaves foráneas de la copia apuntan a esos ids; regenerarlos rompería las relaciones. `setval` no se deshace con rollback, por eso los ensayos contra Supabase lo omiten. |
+| 19/11/2026 | **Todo correo de Facturación con una orden que tenga factura vigente lleva la factura en PDF y PNG.** Los adjuntos se generan al enviar y no se guardan. | Decisión del Líder. Generarlos al enviar evita cambiar el esquema y hace que un reintento lleve la factura actualizada. El PNG se dibuja desde el mismo PDF, así nunca difieren. |
+| 19/11/2026 | **El formulario «Nueva notificación» propone un mensaje según el tipo** (plantillas del Líder) sin pisar lo que el usuario escribió. | Pedido del Líder. Se autorizó tocar `NotificationNewController` y `NotificationService` de Dev 1; se registra en la sección «Para Dev 1» del PR. |
 
 ---
 
@@ -868,14 +909,15 @@ Verificación: `develop` → `mvn clean test` **108 pruebas, 0 fallos**
 **Sprint 6 (Líder, `feature/notificaciones-eventos`):**
 - [x] Plantillas, aviso «vehículo listo», recordatorios de mantenimiento, tarjeta del Inicio y campana (Sesión 23).
 - [x] ~~Subir la rama y abrir el PR hacia `develop`~~ — PR #19 fusionado (`eb15f59`, 17/11/2026).
-- [ ] Editar las plantillas desde Configuración de Notificaciones cuando exista el `SettingsService` de Dev 1 (Sprint 8); también el nombre del taller (`{taller}`).
+- [ ] Editar las plantillas desde Configuración de Notificaciones cuando exista el `SettingsService` de Dev 1 (Sprint 8); también el nombre del taller (`{taller}`). Desde la Sesión 27 son nueve plantillas, incluidos los mensajes predeterminados de «Nueva notificación».
 - [ ] Comentarios para Dev 1 sobre su pantalla de Notificaciones: etiquetas de filtros cortadas, consultas en el hilo de la interfaz y anchos mínimos de columnas (ver Sesión 23). Con el correo real esto pesa más: «Nueva notificación», «Enviar ahora» y «Reintentar» esperan la respuesta de Gmail (1 a 3 s) con la ventana congelada.
 
 **Correo real (rama `feature/correo-smtp`):**
 - [x] Envío por SMTP de Gmail, opcional, con pruebas contra GreenMail (16/11/2026).
 - [x] ~~Configurar la cuenta de Gmail del taller y probar la entrega~~ — hecho por el Líder (17/11/2026): el correo llegó a un buzón real.
 - [x] ~~Fusionar el PR #20 (`feature/correo-smtp`)~~ — fusionado el 18/11/2026.
-- [ ] Adjuntar el PDF de la factura al aviso «Factura disponible».
+- [x] ~~Adjuntar el PDF de la factura al aviso «Factura disponible»~~ — todos los correos de Facturación llevan la factura en PDF y PNG (Sesión 27, `feature/correos-factura`).
+- [ ] Subir `feature/correos-factura` y abrir el PR hacia `develop` cuando el Líder termine de probarla.
 
 **Sprint 7 (Líder, `feature/reportes`):**
 - [x] Pantalla Reportes, indicadores, gráficas y PDF (Sesión 24).
