@@ -1,5 +1,6 @@
 package com.autogest.controller.components;
 
+import com.autogest.util.AppPreferences;
 import javafx.collections.ListChangeListener;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -62,12 +63,15 @@ public class PagedTable<T> extends VBox {
     private Consumer<T> onSelect;
 
     /**
-     * Crea una tabla paginada.
+     * Crea una tabla paginada. Las listas de {@value AppPreferences#DEFAULT_PAGE_SIZE}
+     * filas (las de cada módulo) usan los «Registros por página» de las
+     * Preferencias del sistema; las tablas pequeñas (5 u 8 filas dentro de un
+     * detalle) conservan su tamaño.
      *
      * @param pageSize cantidad de filas por página (por ejemplo 10)
      */
     public PagedTable(int pageSize) {
-        this.pageSize = pageSize;
+        this.pageSize = pageSize == AppPreferences.DEFAULT_PAGE_SIZE ? AppPreferences.pageSize() : pageSize;
         getStyleClass().add("paged-table");
 
         table.getStyleClass().add("table-autogest");
