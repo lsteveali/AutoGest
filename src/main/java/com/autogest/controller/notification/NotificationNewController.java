@@ -13,18 +13,28 @@ import com.autogest.exception.ValidationException;
 import com.autogest.model.Channel;
 import com.autogest.model.Customer;
 import com.autogest.model.CustomerStatus;
+import com.autogest.model.Invoice;
+import com.autogest.model.InvoiceStatus;
 import com.autogest.model.Notification;
 import com.autogest.model.NotificationType;
 import com.autogest.model.ServiceOrder;
 import com.autogest.service.NotificationService;
+import com.autogest.service.NotificationTemplate;
+import com.autogest.util.Background;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
+import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
 import java.net.URL;
@@ -33,6 +43,8 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 /**
@@ -40,6 +52,10 @@ import java.util.ResourceBundle;
  * cliente (y opcionalmente una de sus órdenes), tipo, canal, asunto, mensaje y
  * fecha de programación. «Guardar» la deja pendiente o programada; «Enviar
  * ahora» la envía por su canal. Si recibe el id de un cliente lo preselecciona.
+ *
+ * <p>Al elegir el tipo, el asunto y el mensaje se llenan con el texto
+ * predeterminado de {@code NotificationTemplate} (Líder); en Facturación, con
+ * los datos de la factura de la orden, que va adjunta en PDF y PNG.</p>
  *
  * <p>Principles: GRASP Controller, SRP, DIP, Low Coupling.</p>
  */
@@ -58,6 +74,11 @@ public class NotificationNewController implements Initializable, NavigatorAware,
     private DatePicker datePicker;
     private TextField timeField;
     private int pendingCustomerId;
+    private Label presetHint;
+    private String presetSubject;
+    private String presetMessage;
+    private Invoice presetInvoice;
+    private int presetRequest;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -89,6 +110,7 @@ public class NotificationNewController implements Initializable, NavigatorAware,
                 + (order.getVehicle() == null || order.getVehicle().getMake() == null ? ""
                 : order.getVehicle().getMake() + " " + order.getVehicle().getModel()));
         customerBox.valueProperty().addListener((obs, old, customer) -> loadOrders(customer));
+        orderBox.valueProperty().addListener((obs, old, order) -> refreshPreset(false));
         GridPane grid = FormLayout.grid(2);
         FormLayout.row(grid, 0, FormLayout.labeled("Cliente *", customerBox),
                 FormLayout.labeled("Orden relacionada", orderBox));
@@ -108,7 +130,106 @@ public class NotificationNewController implements Initializable, NavigatorAware,
         FormLayout.row(grid, 0, FormLayout.labeled("Tipo *", typeBox), FormLayout.labeled("Canal *", channelBox));
         FormLayout.fullRow(grid, 1, FormLayout.labeled("Asunto", subjectField));
         FormLayout.fullRow(grid, 2, FormLayout.labeled("Mensaje *", messageArea));
+        FormLayout.fullRow(grid, 3, buildPresetRow());
+        typeBox.valueProperty().addListener((obs, old, type) -> refreshPreset(false));
+        channelBox.valueProperty().addListener((obs, old, channel) -> updatePresetHint());
+        updatePresetHint();
         return FormLayout.card("Contenido", grid);
+    }
+
+    // ---------- mensaje predeterminado por tipo (Líder) ----------
+
+    /**
+     * Fila bajo el mensaje: aviso de adjuntos (Facturación) y «Usar mensaje
+     * predeterminado», que vuelve al texto del tipo si se editó.
+     */
+    private HBox buildPresetRow() {
+        presetHint = new Label();
+        presetHint.setWrapText(true);
+        presetHint.getStyleClass().add("settings-note");
+        HBox.setHgrow(presetHint, Priority.ALWAYS);
+        presetHint.setMaxWidth(Double.MAX_VALUE);
+        Button reset = new Button("Usar mensaje predeterminado");
+        reset.getStyleClass().addAll("btn-secondary", "btn-small");
+        reset.setMinWidth(Region.USE_PREF_SIZE);
+        reset.setOnAction(event -> refreshPreset(true));
+        HBox row = new HBox(12, presetHint, reset);
+        row.setAlignment(Pos.CENTER_LEFT);
+        return row;
+    }
+
+    /**
+     * Llena asunto y mensaje con el texto predeterminado del tipo, completado
+     * con el cliente, la orden y (en Facturación) la factura de la orden. No
+     * pisa lo que el usuario haya escrito, salvo que lo pida ({@code force}).
+     */
+    private void refreshPreset(boolean force) {
+        Customer customer = customerBox.getValue();
+        ServiceOrder order = orderBox.getValue();
+        NotificationType type = NotificationLabels.typeFromText(typeBox.getValue());
+        int request = ++presetRequest;
+        if (type != NotificationType.BILLING || order == null) {
+            presetInvoice = null;
+            applyPreset(customer, order, type, null, force);
+            return;
+        }
+        Background.run(() -> Optional.ofNullable(
+                        AppContext.getInstance().getInvoiceService().findByOrder(order.getId())),
+                invoice -> {
+                    if (request == presetRequest) {
+                        presetInvoice = invoice.filter(found -> found.getStatus() != InvoiceStatus.VOIDED)
+                                .orElse(null);
+                        applyPreset(customer, order, type, presetInvoice, force);
+                    }
+                },
+                error -> {
+                    if (request == presetRequest) {
+                        presetInvoice = null;
+                        applyPreset(customer, order, type, null, force);
+                    }
+                });
+    }
+
+    private void applyPreset(Customer customer, ServiceOrder order, NotificationType type, Invoice invoice,
+                             boolean force) {
+        updatePresetHint();
+        if (customer == null) {
+            return;
+        }
+        boolean untouched = presetUntouched(subjectField.getText(), presetSubject)
+                && presetUntouched(messageArea.getText(), presetMessage);
+        if (!force && !untouched) {
+            return;
+        }
+        NotificationTemplate template = NotificationTemplate.forManual(type, invoice);
+        Map<String, String> values = NotificationTemplate.valuesFor(customer, order, invoice);
+        presetSubject = template.subject(values);
+        presetMessage = template.message(values);
+        subjectField.setText(presetSubject);
+        messageArea.setText(presetMessage);
+    }
+
+    /** El campo sigue como lo dejó el texto predeterminado (o vacío). */
+    private static boolean presetUntouched(String current, String preset) {
+        return current == null || current.isBlank() || current.equals(preset);
+    }
+
+    /** Explica si el correo llevará la factura adjunta. */
+    private void updatePresetHint() {
+        NotificationType type = NotificationLabels.typeFromText(typeBox.getValue());
+        String text;
+        if (type != NotificationType.BILLING) {
+            text = "El asunto y el mensaje cambian según el tipo; puedes editarlos antes de enviar.";
+        } else if (NotificationLabels.channelFromText(channelBox.getValue()) != Channel.EMAIL) {
+            text = "La factura en PDF y PNG solo se adjunta cuando el canal es Correo.";
+        } else if (orderBox.getValue() == null) {
+            text = "Elige la orden facturada: el correo llevará la factura adjunta en PDF y PNG.";
+        } else if (presetInvoice == null) {
+            text = "Esta orden no tiene una factura vigente: el correo saldrá sin adjuntos.";
+        } else {
+            text = "Se adjuntará la factura " + presetInvoice.getNumber() + " en PDF y PNG.";
+        }
+        presetHint.setText(text);
     }
 
     private VBox buildScheduleCard() {
@@ -184,6 +305,7 @@ public class NotificationNewController implements Initializable, NavigatorAware,
     private void loadOrders(Customer customer) {
         orderBox.setValue(null);
         orderBox.getItems().clear();
+        refreshPreset(false);
         if (customer == null) {
             return;
         }
