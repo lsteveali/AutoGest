@@ -15,7 +15,7 @@
 | Proyecto | AutoGest — Sistema de gestión integral para talleres automotrices |
 | Materia | Programación de Computadores III (SS462) |
 | Repositorio | https://github.com/lsteveali/AutoGest.git |
-| Rama de trabajo actual | `develop` (PR #25 y #26 fusionados; la próxima rama del Líder se crea desde aquí) |
+| Rama de trabajo actual | `feature/logo-nuevo` (desde `develop` en `5b7d50d`; en prueba del Líder, sin subir) |
 | Sprint en curso | **Sprint 8 (Configuración)** 🟡 · Sprint 7 ✅ cerrado (PR #21 y #22) · Paleta y Manrope ✅ (PR #23) · siguiente: Sprint 9 (Asistente) |
 | Equipo | Líder: Leonarth Steve Ali Camargo · Dev 1: Sebastián Murgas Tejeda · Dev 2: **sin integrante vinculado** — el Líder asume todas sus responsabilidades (decisión 14/10/2026) |
 | Documento guía | `AutoGest_Guia_Lider` (V2.0) |
@@ -792,6 +792,38 @@ estaba incorporado; el otro era un WIP viejo de `login-usuarios`). Quedan solo
 - En Datos del taller algunos campos usan como texto de ayuda el mismo valor de ejemplo, como «AutoGest Taller Automotriz» en «Nombre comercial», y parecen ya llenos. Algunos valores largos se cortan.
 - Las dos pantallas leen y guardan en el hilo de la interfaz (sin `Background.run`); con Supabase la ventana se congela uno o dos segundos.
 
+### 20/11/2026 — Sesión 29 (Líder): logo nuevo (escudo con bulldog)
+
+**Contexto.** El Líder entregó dos versiones del logo nuevo: el escudo con el bulldog y las rayas naranja y roja, que encaja con la paleta Onyx, Khaki, Burnt Caramel e Inferno, y la misma imagen con la palabra «AutoGest». Las dos traen un fondo de fibra de carbono. Rama `feature/logo-nuevo` desde `develop` (`5b7d50d`).
+
+**Hecho:**
+1. **Escudo sin fondo.** No hay herramientas de imagen en el equipo, así que se recortó con un programa Java temporal fuera del repositorio:
+   - Relleno desde los bordes sobre los píxeles oscuros y grises de la fibra de carbono.
+   - Antes, el contorno claro y las rayas de color se engrosan 7 px para cerrar las rendijas por donde el relleno se colaba al escudo. Los paneles internos son tan oscuros como el fondo (luminancia ~15).
+   - El borde se suaviza con transparencia parcial.
+   - Se revisó sobre blanco, Onyx, Khaki y Porcelain a 256 y 512 px.
+2. **Archivos:** `logo-shield-32.png`, `logo-shield-64.png` y `logo-shield-256.png`, cuadrados con fondo transparente y el escudo centrado. El código existente dibuja el logo en cuadros, así que no cambian medidas. Se eliminaron los cuatro `logo-gear-*.png`.
+3. **Dónde aparece:**
+   - Ícono de la ventana y de la barra de tareas (32, 64 y 256).
+   - Login y barra lateral: primero el escudo junto al título; luego el logotipo completo (ver «Ajuste» abajo).
+   - PDF de la factura y del reporte: pasan del archivo de 64 al de 256, para que se vea nítido al imprimir.
+4. **Verificación:** capturas del login a 1280×720, la barra lateral y la factura como imagen, sin base de datos. `mvn clean test` → **539 pruebas, 0 fallos**.
+
+**Ajuste pedido por el Líder (misma sesión):** en el login no le gustó el escudo pequeño junto al título. Entregó en PNG el logotipo completo, escudo y «AutoGest» a un lado, en dos versiones: letras negras sobre blanco y letras blancas sobre fibra de carbono.
+- **Recorte:** en la zona del escudo, el mismo método de antes. En la zona de las letras, todo lo que es fondo se vuelve transparente, incluidos los huecos de «o», «e» y «A». Los bordes se separan del color del fondo con transparencia parcial.
+- **`logo-full-light.png`** (letras negras, 843×260): el **login** lo muestra a 420 px de ancho, en lugar del escudo de 72 px y el título «AutoGest». Se quitaron los estilos `login-brand-logo` y `login-brand-title`.
+- **`logo-full-dark.png`** (letras blancas, 362×112): la **barra lateral** lo muestra a 180 px de ancho, en lugar del escudo y la etiqueta. Si faltara la imagen, vuelve a mostrar el texto «AutoGest».
+- El escudo solo (`logo-shield-*`) queda en el ícono de la ventana.
+
+**Segundo ajuste (pedido del Líder):** el logotipo completo también va donde aparecía el escudo junto al texto «AutoGest», y la frase del login se centra mejor.
+- **PDF de la factura** (y su PNG, que sale del mismo PDF): `logo-full-light.png` a 42 pt de alto con su proporción, en lugar del escudo de 34 pt y el texto «AutoGest». El subtítulo «Gestión integral para talleres automotrices» va debajo.
+- **PDF del reporte:** el mismo logotipo a la izquierda; «Reporte del taller» y el periodo pasan a la derecha, como «FACTURA» en la factura.
+- Si faltara la imagen, los dos PDF vuelven a escribir «AutoGest».
+- **Frase del login:** se mostraron tres variantes con capturas (centrada bajo todo el logotipo, centrada bajo las letras y sin frase). El Líder eligió **centrarla bajo las letras «AutoGest»**: un desplazamiento de 69 px, la distancia entre el centro de la imagen y el de las letras a 420 px de ancho.
+- No hay otros lugares con el logo junto al texto «AutoGest». El título de la ventana, «Bienvenido a AutoGest», el remitente del correo y los nombres internos son texto y se dejan igual. Los correos son de texto plano y no llevan logo.
+- Capturas del login, la factura (PNG) y la primera página del reporte, con datos en memoria. `mvn clean test` → **539 pruebas, 0 fallos**.
+- Capturas del login a 1280×720 y de la barra lateral; el menú completo cabe a 720 px de alto. `mvn clean test` → **539 pruebas, 0 fallos**.
+
 ---
 
 ## 4. Decisiones y acuerdos
@@ -840,6 +872,7 @@ estaba incorporado; el otro era un WIP viejo de `login-usuarios`). Quedan solo
 | 19/11/2026 | **Restaurar una copia reemplaza las tablas que trae la copia, en una transacción, y antes guarda una copia automática del estado actual.** Se confirma escribiendo «RESTAURAR» y al terminar se cierra la sesión. | Es la acción más destructiva de la app: la copia previa permite deshacerla, la palabra evita el clic accidental y cerrar la sesión evita seguir con un usuario o permisos que ya no existen. Las tablas que la copia no trae no se tocan, así una copia vieja no borra tablas nuevas como `app_settings`. |
 | 19/11/2026 | **La restauración conserva los ids de la copia** (`OVERRIDING SYSTEM VALUE`) y ajusta los contadores con `setval`. | Las llaves foráneas de la copia apuntan a esos ids; regenerarlos rompería las relaciones. `setval` no se deshace con rollback, por eso los ensayos contra Supabase lo omiten. |
 | 19/11/2026 | **Todo correo de Facturación con una orden que tenga factura vigente lleva la factura en PDF y PNG.** Los adjuntos se generan al enviar y no se guardan. | Decisión del Líder. Generarlos al enviar evita cambiar el esquema y hace que un reintento lleve la factura actualizada. El PNG se dibuja desde el mismo PDF, así nunca difieren. |
+| 20/11/2026 | **Logo nuevo: escudo con bulldog** (entregado por el Líder). El login y la barra lateral usan el **logotipo completo** (letras negras en el login, blancas en la barra); el ícono de la ventana y los PDF usan el escudo solo. | Reemplaza la tuerca azul, que no combinaba con la paleta nueva. El Líder prefirió el logotipo completo y más grande en lugar del escudo junto a un título de texto. El escudo se guarda en cuadros transparentes para no cambiar el código que dibuja los íconos y los PDF. |
 | 19/11/2026 | **El formulario «Nueva notificación» propone un mensaje según el tipo** (plantillas del Líder) sin pisar lo que el usuario escribió. | Pedido del Líder. Se autorizó tocar `NotificationNewController` y `NotificationService` de Dev 1; se registra en la sección «Para Dev 1» del PR. |
 
 ---
@@ -949,7 +982,9 @@ Verificación: `develop` → `mvn clean test` **108 pruebas, 0 fallos**
 **Paleta de colores (Líder, `feature/paleta-colores`):**
 - [x] Tokens, contraste, vitrina del login y PDF con la nueva paleta (Sesión 25).
 - [x] ~~Subir la rama y abrir el PR hacia `develop`~~ — PR #23 fusionado (`04832f2`, 19/11/2026).
-- [ ] Logo con la nueva paleta (requiere nuevas imágenes).
+- [x] ~~Logo con la nueva paleta~~ — escudo con bulldog en la ventana, el login, la barra lateral y los PDF (Sesión 29, `feature/logo-nuevo`).
+- [x] ~~Logotipo completo (escudo y «AutoGest») en el login y la barra lateral~~ — hecho (Sesión 29).
+- [ ] Subir `feature/logo-nuevo` y abrir el PR hacia `develop` cuando el Líder termine de probarla.
 
 **Barrido de interfaz pendiente (lo hará el Líder):** Inventario («Volver» repetido en el detalle del repuesto; «Registrar entrada» debajo de «+ Nuevo repuesto»). Filtros, nombres y estados cortados de la lista: corregidos en la Sesión 25. (Órdenes ya corregida en la Sesión 21.)
 

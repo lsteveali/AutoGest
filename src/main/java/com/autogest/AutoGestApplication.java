@@ -50,11 +50,11 @@ public class AutoGestApplication extends Application {
             "/css/fonts/Manrope-Bold.ttf"
     };
 
-    /** Tuerca del logo en varios tamaños para la ventana y la barra de tareas. */
+    /** Escudo del logo en varios tamaños para la ventana y la barra de tareas. */
     private static final String[] APP_ICONS = {
-            "/images/logo-gear-32.png",
-            "/images/logo-gear-64.png",
-            "/images/logo-gear-256.png"
+            "/images/logo-shield-32.png",
+            "/images/logo-shield-64.png",
+            "/images/logo-shield-256.png"
     };
 
     private Stage stage;

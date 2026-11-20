@@ -44,6 +44,8 @@ public class ReportPdfService {
     private static final float MARGIN = 48;
     private static final float WIDTH = PDRectangle.A4.getWidth() - 2 * MARGIN;
     private static final float TOP = PDRectangle.A4.getHeight() - MARGIN;
+    /** Alto del logotipo en el encabezado, en puntos (igual que en la factura). */
+    private static final float LOGO_HEIGHT = 42;
     private static final float BOTTOM = MARGIN + 34;
     private static final float ROW_HEIGHT = 19;
 
@@ -160,16 +162,20 @@ public class ReportPdfService {
         }
 
         private void header(ReportData.Snapshot r) throws IOException {
-            try (InputStream in = ReportPdfService.class.getResourceAsStream("/images/logo-gear-64.png")) {
+            // Logotipo completo a la izquierda; título y periodo a la derecha, como en la factura.
+            try (InputStream in = ReportPdfService.class.getResourceAsStream(InvoicePdfService.LOGO)) {
                 if (in != null) {
-                    stream.drawImage(PDImageXObject.createFromByteArray(document, in.readAllBytes(), "logo"),
-                            MARGIN, TOP - 34, 34, 34);
+                    PDImageXObject logo = PDImageXObject.createFromByteArray(document, in.readAllBytes(), "logo");
+                    float width = LOGO_HEIGHT * logo.getWidth() / logo.getHeight();
+                    stream.drawImage(logo, MARGIN, TOP - LOGO_HEIGHT, width, LOGO_HEIGHT);
+                } else {
+                    text(bold, 20, ONYX, MARGIN, TOP - 22, "AutoGest");
                 }
             }
-            text(bold, 20, ONYX, MARGIN + 44, TOP - 22, "Reporte del taller");
-            text(regular, 10, MUTED, MARGIN + 44, TOP - 36,
+            textRight(bold, 18, ONYX, MARGIN + WIDTH, TOP - 18, "Reporte del taller");
+            textRight(regular, 10, MUTED, MARGIN + WIDTH, TOP - 34,
                     "Periodo: " + Formatter.date(r.from()) + " a " + Formatter.date(r.to()));
-            y = TOP - 58;
+            y = TOP - LOGO_HEIGHT - 16;
             line(y);
             y -= 22;
         }

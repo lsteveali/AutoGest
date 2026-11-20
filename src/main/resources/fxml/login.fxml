@@ -21,15 +21,16 @@
       styleClass="login-root">
 
     <VBox styleClass="login-brand" alignment="CENTER" HBox.hgrow="ALWAYS">
-        <HBox styleClass="login-brand-logo" alignment="CENTER">
-            <ImageView fitHeight="72" preserveRatio="true" smooth="true">
-                <image>
-                    <Image url="@../images/logo-gear-256.png" />
-                </image>
-            </ImageView>
-            <Label text="AutoGest" styleClass="login-brand-title" />
-        </HBox>
-        <Label text="“Gestión inteligente para tu taller.”" styleClass="login-brand-slogan" wrapText="true" />
+        <!-- Logotipo completo (escudo y «AutoGest» en negro, para el fondo claro). -->
+        <ImageView fitWidth="420" preserveRatio="true" smooth="true" accessibleText="AutoGest">
+            <image>
+                <Image url="@../images/logo-full-light.png" />
+            </image>
+        </ImageView>
+        <!-- Centrada bajo las letras «AutoGest» y no bajo todo el logotipo: a 420 px de
+             ancho, el centro de las letras está 69 px a la derecha del centro de la imagen. -->
+        <Label text="“Gestión inteligente para tu taller.”" styleClass="login-brand-slogan" wrapText="true"
+               translateX="69" />
         <!-- Vitrina 3D del carro sobre la plataforma giratoria (la agrega el controlador). -->
         <StackPane fx:id="carStage" />
     </VBox>

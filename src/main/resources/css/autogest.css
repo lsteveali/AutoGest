@@ -723,23 +723,13 @@
     -fx-background-color: -ag-bg;
 }
 
-/* Panel de marca claro, como el mockup Login V2: logo (tuerca) + nombre +
-   eslogan + ilustración del carro. */
+/* Panel de marca claro, como el mockup Login V2: logotipo completo (escudo y
+   «AutoGest») + eslogan + ilustración del carro. */
 .login-brand {
     -fx-background-color: -ag-bg;
     -fx-padding: 40 48;
     -fx-spacing: 12;
     -fx-min-width: 460;
-}
-
-.login-brand-logo {
-    -fx-spacing: 14;
-}
-
-.login-brand-title {
-    -fx-text-fill: -ag-navy;
-    -fx-font-size: 44px;
-    -fx-font-weight: 700;
 }
 
 .login-brand-slogan {

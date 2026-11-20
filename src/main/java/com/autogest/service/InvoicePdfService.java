@@ -69,6 +69,11 @@ public class InvoicePdfService {
     /** Resolución de la imagen PNG: nítida en pantalla y en el celular sin pesar demasiado. */
     static final int PNG_DPI = 150;
 
+    /** Logotipo completo con las letras en negro, para el papel blanco. */
+    static final String LOGO = "/images/logo-full-light.png";
+    /** Alto del logotipo en el encabezado, en puntos. */
+    private static final float LOGO_HEIGHT = 42;
+
     private static final float MARGIN = 48;
     private static final float PAGE_WIDTH = PDRectangle.A4.getWidth();
     private static final float PAGE_HEIGHT = PDRectangle.A4.getHeight();
@@ -232,7 +237,7 @@ public class InvoicePdfService {
             this.regular = font(document, "Roboto-Regular.ttf");
             this.medium = font(document, "Roboto-Medium.ttf");
             this.bold = font(document, "Roboto-Bold.ttf");
-            this.logo = image(document, "/images/logo-gear-64.png");
+            this.logo = image(document, LOGO);
         }
 
         void write() throws IOException {
@@ -253,10 +258,13 @@ public class InvoicePdfService {
         private void header() throws IOException {
             float top = PAGE_HEIGHT - MARGIN;
             if (logo != null) {
-                cs.drawImage(logo, MARGIN, top - 34, 34, 34);
+                // Logotipo completo (escudo y «AutoGest»), conservando su proporción.
+                float width = LOGO_HEIGHT * logo.getWidth() / logo.getHeight();
+                cs.drawImage(logo, MARGIN, top - LOGO_HEIGHT, width, LOGO_HEIGHT);
+            } else {
+                text(bold, 20, ONYX, MARGIN, top - 22, "AutoGest");
             }
-            text(bold, 20, ONYX, MARGIN + 44, top - 22, "AutoGest");
-            text(regular, 9, MUTED, MARGIN + 44, top - 35, "Gestión integral para talleres automotrices");
+            text(regular, 9, MUTED, MARGIN, top - LOGO_HEIGHT - 12, "Gestión integral para talleres automotrices");
 
             float right = MARGIN + CONTENT_WIDTH;
             textRight(medium, 10, MUTED, right, top - 10, "FACTURA");
@@ -264,7 +272,7 @@ public class InvoicePdfService {
             String status = statusText(invoice.getStatus());
             textRight(medium, 10, statusColor(invoice.getStatus()), right, top - 45, status);
 
-            y = top - 62;
+            y = top - LOGO_HEIGHT - 24;
             line(MARGIN, y, MARGIN + CONTENT_WIDTH, y, BORDER, 1);
             if (invoice.getStatus() == InvoiceStatus.VOIDED) {
                 y -= 26;
