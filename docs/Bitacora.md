@@ -805,12 +805,16 @@ estaba incorporado; el otro era un WIP viejo de `login-usuarios`). Quedan solo
 2. **Archivos:** `logo-shield-32.png`, `logo-shield-64.png` y `logo-shield-256.png`, cuadrados con fondo transparente y el escudo centrado. El código existente dibuja el logo en cuadros, así que no cambian medidas. Se eliminaron los cuatro `logo-gear-*.png`.
 3. **Dónde aparece:**
    - Ícono de la ventana y de la barra de tareas (32, 64 y 256).
-   - Login (256 a 72 px de alto).
-   - Barra lateral (64 a 32 px; el borde claro contrasta con Onyx; antes usaba la tuerca «light»).
+   - Login y barra lateral: primero el escudo junto al título; luego el logotipo completo (ver «Ajuste» abajo).
    - PDF de la factura y del reporte: pasan del archivo de 64 al de 256, para que se vea nítido al imprimir.
 4. **Verificación:** capturas del login a 1280×720, la barra lateral y la factura como imagen, sin base de datos. `mvn clean test` → **539 pruebas, 0 fallos**.
 
-**Pendiente:** el logo con la palabra «AutoGest» llegó en WebP, que Java no lee sin una librería extra. Cuando el Líder lo envíe en PNG puede reemplazar el escudo y el título «AutoGest» en el login.
+**Ajuste pedido por el Líder (misma sesión):** en el login no le gustó el escudo pequeño junto al título. Entregó en PNG el logotipo completo, escudo y «AutoGest» a un lado, en dos versiones: letras negras sobre blanco y letras blancas sobre fibra de carbono.
+- **Recorte:** en la zona del escudo, el mismo método de antes. En la zona de las letras, todo lo que es fondo se vuelve transparente, incluidos los huecos de «o», «e» y «A». Los bordes se separan del color del fondo con transparencia parcial.
+- **`logo-full-light.png`** (letras negras, 843×260): el **login** lo muestra a 420 px de ancho, en lugar del escudo de 72 px y el título «AutoGest». Se quitaron los estilos `login-brand-logo` y `login-brand-title`.
+- **`logo-full-dark.png`** (letras blancas, 362×112): la **barra lateral** lo muestra a 180 px de ancho, en lugar del escudo y la etiqueta. Si faltara la imagen, vuelve a mostrar el texto «AutoGest».
+- El escudo solo (`logo-shield-*`) sigue en el ícono de la ventana y en los PDF.
+- Capturas del login a 1280×720 y de la barra lateral; el menú completo cabe a 720 px de alto. `mvn clean test` → **539 pruebas, 0 fallos**.
 
 ---
 
@@ -860,7 +864,7 @@ estaba incorporado; el otro era un WIP viejo de `login-usuarios`). Quedan solo
 | 19/11/2026 | **Restaurar una copia reemplaza las tablas que trae la copia, en una transacción, y antes guarda una copia automática del estado actual.** Se confirma escribiendo «RESTAURAR» y al terminar se cierra la sesión. | Es la acción más destructiva de la app: la copia previa permite deshacerla, la palabra evita el clic accidental y cerrar la sesión evita seguir con un usuario o permisos que ya no existen. Las tablas que la copia no trae no se tocan, así una copia vieja no borra tablas nuevas como `app_settings`. |
 | 19/11/2026 | **La restauración conserva los ids de la copia** (`OVERRIDING SYSTEM VALUE`) y ajusta los contadores con `setval`. | Las llaves foráneas de la copia apuntan a esos ids; regenerarlos rompería las relaciones. `setval` no se deshace con rollback, por eso los ensayos contra Supabase lo omiten. |
 | 19/11/2026 | **Todo correo de Facturación con una orden que tenga factura vigente lleva la factura en PDF y PNG.** Los adjuntos se generan al enviar y no se guardan. | Decisión del Líder. Generarlos al enviar evita cambiar el esquema y hace que un reintento lleve la factura actualizada. El PNG se dibuja desde el mismo PDF, así nunca difieren. |
-| 20/11/2026 | **Logo nuevo: escudo con bulldog** (entregado por el Líder), con fondo transparente, en la ventana, el login, la barra lateral y los PDF. | Reemplaza la tuerca azul, que no combinaba con la paleta nueva. Se guarda en cuadros transparentes para no cambiar el código que lo dibuja. |
+| 20/11/2026 | **Logo nuevo: escudo con bulldog** (entregado por el Líder). El login y la barra lateral usan el **logotipo completo** (letras negras en el login, blancas en la barra); el ícono de la ventana y los PDF usan el escudo solo. | Reemplaza la tuerca azul, que no combinaba con la paleta nueva. El Líder prefirió el logotipo completo y más grande en lugar del escudo junto a un título de texto. El escudo se guarda en cuadros transparentes para no cambiar el código que dibuja los íconos y los PDF. |
 | 19/11/2026 | **El formulario «Nueva notificación» propone un mensaje según el tipo** (plantillas del Líder) sin pisar lo que el usuario escribió. | Pedido del Líder. Se autorizó tocar `NotificationNewController` y `NotificationService` de Dev 1; se registra en la sección «Para Dev 1» del PR. |
 
 ---
@@ -971,7 +975,7 @@ Verificación: `develop` → `mvn clean test` **108 pruebas, 0 fallos**
 - [x] Tokens, contraste, vitrina del login y PDF con la nueva paleta (Sesión 25).
 - [x] ~~Subir la rama y abrir el PR hacia `develop`~~ — PR #23 fusionado (`04832f2`, 19/11/2026).
 - [x] ~~Logo con la nueva paleta~~ — escudo con bulldog en la ventana, el login, la barra lateral y los PDF (Sesión 29, `feature/logo-nuevo`).
-- [ ] Logo con la palabra «AutoGest» en el login: falta recibirlo en PNG (llegó en WebP).
+- [x] ~~Logotipo completo (escudo y «AutoGest») en el login y la barra lateral~~ — hecho (Sesión 29).
 - [ ] Subir `feature/logo-nuevo` y abrir el PR hacia `develop` cuando el Líder termine de probarla.
 
 **Barrido de interfaz pendiente (lo hará el Líder):** Inventario («Volver» repetido en el detalle del repuesto; «Registrar entrada» debajo de «+ Nuevo repuesto»). Filtros, nombres y estados cortados de la lista: corregidos en la Sesión 25. (Órdenes ya corregida en la Sesión 21.)
