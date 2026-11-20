@@ -202,11 +202,15 @@ public final class AppContext {
     /**
      * Envío real de correos (Líder): si {@code application.local.properties}
      * tiene una cuenta ({@code mail.*}), las notificaciones por correo se
-     * envían por SMTP; si no, se siguen simulando. Se hace aquí y no en el
+     * envían por SMTP, con la factura adjunta en los de Facturación; si no,
+     * se siguen simulando. Se hace aquí y no en el
      * constructor para no tocar las líneas de los AppContext.diff de Dev 1.
      */
     private void configureEmail() {
         notificationService.setEmailSender(EmailConfig.fromLocalFile());
+        // Los correos de Facturación llevan la factura en PDF y PNG.
+        notificationService.setAttachmentProvider(new com.autogest.service.InvoiceAttachmentProvider(
+                this::getInvoiceService, invoicePdfService));
     }
 
     /**

@@ -10,7 +10,6 @@ import com.autogest.model.NotificationStatus;
 import com.autogest.model.NotificationType;
 import com.autogest.model.ServiceOrder;
 import com.autogest.repository.NotificationRepository;
-import com.autogest.util.Formatter;
 import java.util.Map;
 
 import java.time.LocalDateTime;
@@ -56,6 +55,19 @@ public class NotificationService {
      */
     public void setEmailSender(EmailSender emailSender) {
         this.emailSender = emailSender;
+    }
+
+    /** Adjuntos de los correos (Líder): la factura en los avisos de Facturación. */
+    private EmailAttachmentProvider attachmentProvider;
+
+    /**
+     * Define qué archivos acompañan cada correo. Sin proveedor, los correos
+     * salen sin adjuntos.
+     *
+     * @param attachmentProvider proveedor de adjuntos, o {@code null}
+     */
+    public void setAttachmentProvider(EmailAttachmentProvider attachmentProvider) {
+        this.attachmentProvider = attachmentProvider;
     }
 
     /**
@@ -227,28 +239,17 @@ public class NotificationService {
      * @return notificación de tipo {@code BILLING} por correo
      */
     public Notification buildInvoiceIssued(Invoice invoice) {
-        Customer customer = requireInvoiceCustomer(invoice);
-        String due = invoice.getDueDate() == null ? "" : " Fecha de vencimiento: " + Formatter.date(invoice.getDueDate()) + ".";
-        return invoiceNotification(invoice, "Factura " + invoice.getNumber() + " disponible",
-                "Hola " + customer.getFirstName() + ", tu factura " + invoice.getNumber() + " por "
-                        + Formatter.money(invoice.getTotal()) + orderText(invoice) + " ya está disponible." + due);
+        return invoiceNotification(invoice, NotificationTemplate.INVOICE_AVAILABLE);
     }
 
     /** Prepara (sin guardar) la notificación «Pago recibido». */
     public Notification buildInvoicePaid(Invoice invoice) {
-        Customer customer = requireInvoiceCustomer(invoice);
-        return invoiceNotification(invoice, "Pago recibido de la factura " + invoice.getNumber(),
-                "Hola " + customer.getFirstName() + ", recibimos el pago de la factura " + invoice.getNumber()
-                        + " por " + Formatter.money(invoice.getTotal()) + ". ¡Gracias por confiar en nosotros!");
+        return invoiceNotification(invoice, NotificationTemplate.INVOICE_PAID);
     }
 
     /** Prepara (sin guardar) la notificación «Factura vencida». */
     public Notification buildInvoiceOverdue(Invoice invoice) {
-        Customer customer = requireInvoiceCustomer(invoice);
-        return invoiceNotification(invoice, "Factura " + invoice.getNumber() + " vencida",
-                "Hola " + customer.getFirstName() + ", la factura " + invoice.getNumber() + " por "
-                        + Formatter.money(invoice.getTotal()) + " venció el "
-                        + Formatter.date(invoice.getDueDate()) + ". Por favor comunícate con el taller.");
+        return invoiceNotification(invoice, NotificationTemplate.INVOICE_OVERDUE);
     }
 
     /** Crea y envía «Factura disponible» (la llama Facturación al emitir). */
@@ -285,8 +286,10 @@ public class NotificationService {
                     notification.markAsSent();
                 } else {
                     try {
+                        List<EmailAttachment> attachments = attachmentProvider == null
+                                ? List.of() : attachmentProvider.attachmentsFor(notification);
                         emailSender.send(customer.getEmail(), customer.getFullName(),
-                                notification.getSubject(), notification.getMessage());
+                                notification.getSubject(), notification.getMessage(), attachments);
                         notification.markAsSent();
                     } catch (RuntimeException e) {
                         // Sin conexión o credenciales inválidas: queda Fallida y se reintenta.
@@ -338,20 +341,18 @@ public class NotificationService {
         return invoice.getOrder().getVehicle().getOwner();
     }
 
-    private Notification invoiceNotification(Invoice invoice, String subject, String message) {
+    /** Aviso de facturación con el texto de la plantilla (Líder); la factura va adjunta al enviarlo. */
+    private Notification invoiceNotification(Invoice invoice, NotificationTemplate template) {
+        Customer customer = requireInvoiceCustomer(invoice);
         ServiceOrder order = invoice.getOrder();
+        Map<String, String> values = NotificationTemplate.valuesFor(customer, order, invoice);
         Notification notification = new Notification();
         notification.setType(NotificationType.BILLING);
         notification.setChannel(Channel.EMAIL);
-        notification.setCustomer(order.getVehicle().getOwner());
+        notification.setCustomer(customer);
         notification.setOrder(order);
-        notification.setSubject(subject);
-        notification.setMessage(message);
+        notification.setSubject(template.subject(values));
+        notification.setMessage(template.message(values));
         return notification;
-    }
-
-    private static String orderText(Invoice invoice) {
-        String number = invoice.getOrder().getNumber();
-        return number == null ? "" : " de la orden #" + number;
     }
 }
