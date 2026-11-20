@@ -49,18 +49,18 @@ public class WorkshopDataController implements Initializable, NavigatorAware {
     private final TextField nit = FormLayout.textField("Con dígito de verificación");
     private final TextField phone = FormLayout.textField("Fijo o celular");
     private final TextField email = FormLayout.textField("Correo para facturas y avisos");
-    private final TextField website = FormLayout.textField("Dirección de la página (opcional)");
+    private final TextField website = FormLayout.textField("Opcional");
     private final ComboBox<String> workshopType = FormLayout.combo("Tipo de taller");
     private final TextField commercialName = FormLayout.textField("Como lo conocen los clientes (opcional)");
     private final TextArea description = FormLayout.textArea("Qué servicios ofrece el taller (opcional)", 4);
     private final TextField address = FormLayout.textField("Calle, carrera y número");
-    private final TextField whatsapp = FormLayout.textField("Número con indicativo (opcional)");
+    private final TextField whatsapp = FormLayout.textField("Opcional");
     private final TextField city = FormLayout.textField("Ciudad");
     private final TextField postalCode = FormLayout.textField("Opcional");
     private final TextField department = FormLayout.textField("Departamento");
     private final ComboBox<String> country = FormLayout.combo("País");
     private final TextField mainEmail = FormLayout.textField("Si es distinto del correo general (opcional)");
-    private final TextField mainPhone = FormLayout.textField("Si es distinto del teléfono general (opcional)");
+    private final TextField mainPhone = FormLayout.textField("Opcional");
     private final TextArea businessHours = FormLayout.textArea("Días y horas de atención (opcional)", 3);
 
     @Override
@@ -98,7 +98,8 @@ public class WorkshopDataController implements Initializable, NavigatorAware {
         FormLayout.fullRow(grid, 0, FormLayout.labeled("Nombre del taller *", name));
         FormLayout.row(grid, 1, FormLayout.labeled("NIT *", nit), FormLayout.labeled("Teléfono", phone));
         FormLayout.fullRow(grid, 2, FormLayout.labeled("Correo electrónico *", email));
-        FormLayout.row(grid, 3, FormLayout.labeled("Sitio web", website), FormLayout.labeled("Tipo de taller", workshopType));
+        FormLayout.fullRow(grid, 3, FormLayout.labeled("Tipo de taller", workshopType));
+        FormLayout.fullRow(grid, 4, FormLayout.labeled("Sitio web", website));
         return FormLayout.card("Información general", grid);
     }
 
