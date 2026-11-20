@@ -49,6 +49,14 @@ class InvoiceAttachmentProviderTest {
     }
 
     @Test
+    void attachmentsTurnedOffInSettingsGoEmpty() {
+        FakeInvoiceService service = new FakeInvoiceService(invoice(InvoiceStatus.PENDING));
+        InvoiceAttachmentProvider off = new InvoiceAttachmentProvider(() -> service, new InvoicePdfService(), () -> false);
+
+        assertTrue(off.attachmentsFor(notice(NotificationType.BILLING, ORDER_ID)).isEmpty());
+    }
+
+    @Test
     void otherNoticesGoWithoutAttachments() {
         InvoiceAttachmentProvider provider = provider(invoice(InvoiceStatus.PENDING));
 
