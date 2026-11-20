@@ -129,6 +129,19 @@ class InvoiceServiceTest {
     }
 
     @Test
+    void taxRateTextComesFromTheInvoiceItself() {
+        service.setSettings(() -> billing("19", 14, "FAC", List.of("CASH")));
+        Invoice invoice = service.createInvoice(order(OrderStatus.READY, "100000").getId(), null, null, null,
+                receptionist);
+        service.setSettings(() -> billing("5", 14, "FAC", List.of("CASH")));
+
+        assertEquals("19 %", InvoiceService.taxRateText(invoice), "La tasa cambió, la factura no");
+        service.setSettings(() -> billing("8.5", 14, "FAC", List.of("CASH")));
+        assertEquals("8,5 %", InvoiceService.taxRateText(service.draft(order(OrderStatus.READY, "200000"), null, null)));
+        assertEquals("0 %", InvoiceService.taxRateText(new Invoice()));
+    }
+
+    @Test
     void withoutSettingsTheFactoryValuesApply() {
         service.setSettings(null);
 
