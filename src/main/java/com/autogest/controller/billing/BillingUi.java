@@ -232,7 +232,7 @@ final class BillingUi {
      */
     static boolean pay(Window owner, Invoice invoice) {
         ComboBox<String> method = FormLayout.combo("Selecciona el método");
-        method.getItems().setAll(InvoiceLabels.methodOptions());
+        method.getItems().setAll(InvoiceLabels.methodOptions(service().paymentMethods()));
         VBox content = new VBox(12, FormLayout.labeled("Método de pago *", method));
         FormDialog dialog = new FormDialog("Registrar pago", "Factura " + invoice.getNumber() + " por "
                 + Formatter.money(invoice.getTotal()) + ". Quedará como pagada.", content, "Registrar pago",
