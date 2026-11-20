@@ -9,6 +9,8 @@ import com.autogest.controller.components.Topbar;
 import com.autogest.controller.user.UserLabels;
 import com.autogest.model.Role;
 import com.autogest.model.User;
+import com.autogest.util.AppPreferences;
+import com.autogest.util.Background;
 import com.autogest.util.Session;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -79,6 +81,11 @@ public class MainController implements Initializable {
             event.consume();
             endSession();
         });
+
+        // Preferencias del sistema de esta sesión (registros por página, confirmaciones,
+        // cierre por inactividad). Si no se pueden leer, siguen las de fábrica.
+        Background.run(() -> AppContext.getInstance().getSettingsService().getPreferences(),
+                AppPreferences::update, error -> { });
 
         assistantButton.setOnAction(event -> open(View.ASSISTANT));
         StackPane.setMargin(assistantButton, new Insets(0, 24, 24, 0));

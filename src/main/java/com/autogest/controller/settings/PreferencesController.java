@@ -10,6 +10,7 @@ import com.autogest.controller.components.PageHeader;
 import com.autogest.exception.AutoGestException;
 import com.autogest.model.SystemPreferences;
 import com.autogest.service.SettingsService;
+import com.autogest.util.AppPreferences;
 import com.autogest.util.Background;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -240,7 +241,11 @@ public class PreferencesController implements Initializable, NavigatorAware {
         p.setShowExtraTableInfo(extraTableInfo.isSelected());
         p.setAutoLogout(autoLogout.isSelected());
         run(() -> service().updatePreferences(p),
-                saved -> info("Las preferencias se guardaron correctamente."),
+                saved -> {
+                    // Desde ya rigen en esta sesión (listas, confirmaciones, inactividad).
+                    AppPreferences.update(saved);
+                    info("Las preferencias se guardaron correctamente.");
+                },
                 "No se pudieron guardar las preferencias");
     }
 
@@ -252,6 +257,7 @@ public class PreferencesController implements Initializable, NavigatorAware {
         run(() -> service().restoreDefaultPreferences(),
                 restored -> {
                     show(restored);
+                    AppPreferences.update(restored);
                     info("Se restauraron las preferencias predeterminadas.");
                 },
                 "No se pudieron restaurar las preferencias");
