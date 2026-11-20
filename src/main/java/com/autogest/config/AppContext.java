@@ -1,5 +1,8 @@
 package com.autogest.config;
 
+import com.autogest.dao.SettingsDao;
+import com.autogest.repository.SettingsRepository;
+import com.autogest.service.SettingsService;
 import com.autogest.dao.NotificationDao;
 import com.autogest.repository.NotificationRepository;
 import com.autogest.service.NotificationService;
@@ -126,6 +129,11 @@ public final class AppContext {
     private final NotificationRepository notificationRepository;
     private final NotificationService notificationService;
 
+    // ===== Settings: datos del taller y preferencias (Dev 1) =====
+    private final SettingsDao settingsDao;
+    private final SettingsRepository settingsRepository;
+    private final SettingsService settingsService;
+
     private AppContext() {
         // ===== Users (Leader) =====
         this.databaseConnection = new DatabaseConnection();
@@ -183,6 +191,11 @@ public final class AppContext {
         this.notificationDao = new NotificationDao(databaseConnection);
         this.notificationRepository = new NotificationRepository(notificationDao, customerRepository);
         this.notificationService = new NotificationService(notificationRepository, customerService);
+
+        // ===== Settings: datos del taller y preferencias (Dev 1) =====
+        this.settingsDao = new SettingsDao(databaseConnection);
+        this.settingsRepository = new SettingsRepository(settingsDao);
+        this.settingsService = new SettingsService(settingsRepository);
 
     }
 
@@ -415,6 +428,17 @@ public final class AppContext {
      */
     public NotificationService getNotificationService() {
         return notificationService;
+    }
+
+    // ===== Settings (Dev 1) =====
+
+    /**
+     * Devuelve el servicio de configuración (datos del taller y preferencias).
+     *
+     * @return servicio de configuración compartido
+     */
+    public SettingsService getSettingsService() {
+        return settingsService;
     }
 
 }
