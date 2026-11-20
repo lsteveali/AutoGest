@@ -142,6 +142,18 @@ class InvoiceServiceTest {
     }
 
     @Test
+    void billingNoticesTurnedOffSendNothing() {
+        service.setNoticesEnabled(() -> false);
+        ServiceOrder order = order(OrderStatus.READY, "100000");
+
+        Invoice invoice = service.createInvoice(order.getId(), null, null, null, receptionist);
+        service.markAsPaid(invoice.getId(), "CASH", receptionist);
+
+        assertTrue(notifications.findAll().isEmpty(), "Con los avisos apagados no se envía nada");
+        assertEquals(InvoiceStatus.PAID, invoices.findById(invoice.getId()).getStatus());
+    }
+
+    @Test
     void withoutSettingsTheFactoryValuesApply() {
         service.setSettings(null);
 
