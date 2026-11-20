@@ -1,5 +1,6 @@
 package com.autogest.controller.components;
 
+import com.autogest.util.AppPreferences;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
@@ -34,5 +35,18 @@ public final class ConfirmDialog {
         alert.getButtonTypes().setAll(accept, cancel);
 
         return alert.showAndWait().filter(accept::equals).isPresent();
+    }
+
+    /**
+     * Confirmación para eliminar un registro: respeta la preferencia «Confirmar
+     * antes de eliminar registros». Si está apagada, no pregunta y devuelve
+     * {@code true}.
+     *
+     * @param title   título de la ventana
+     * @param message mensaje explicativo (en español)
+     * @return {@code true} si se puede eliminar
+     */
+    public static boolean confirmDelete(String title, String message) {
+        return !AppPreferences.confirmBeforeDelete() || confirm(title, message);
     }
 }
