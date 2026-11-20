@@ -1242,6 +1242,15 @@
     -fx-text-fill: -ag-text;
 }
 
+/* Configuración de facturación: ejemplo que se actualiza mientras se escribe. */
+.billing-settings-example {
+    -fx-font-size: 13px;
+    -fx-text-fill: -ag-text;
+    -fx-background-color: -ag-surface-alt;
+    -fx-background-radius: 8;
+    -fx-padding: 10 12;
+}
+
 /* Diálogo «Restaurar copia de seguridad»: aviso en tinte de error y datos de la copia. */
 .restore-warning {
     -fx-background-color: -ag-danger-tint;
