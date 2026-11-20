@@ -18,6 +18,9 @@ import org.apache.pdfbox.text.PDFTextStripper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.file.Files;
@@ -34,6 +37,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * su texto con PDFBox para comprobar el contenido.
  */
 class InvoicePdfServiceTest {
+
+    /** Alto en píxeles de una página A4 a 150 ppp (PDFBox redondea hacia abajo). */
+    private static final int A4_PNG_HEIGHT = 1753;
 
     private final InvoicePdfService service = new InvoicePdfService();
 
@@ -106,6 +112,46 @@ class InvoicePdfServiceTest {
         assertTrue(new String(Files.readAllBytes(target), 0, 5).startsWith("%PDF"));
     }
 
+    // ---------- PNG ----------
+
+    @Test
+    void pngIsAnA4PageAt150Dpi() throws IOException {
+        byte[] png = service.renderPng(invoice(InvoiceStatus.PENDING, 4));
+
+        BufferedImage image = ImageIO.read(new ByteArrayInputStream(png));
+        // A4 (595 × 842 pt) a 150 ppp.
+        assertEquals(1240, image.getWidth());
+        assertEquals(A4_PNG_HEIGHT, image.getHeight());
+        // El encabezado de la factura no es una página en blanco.
+        assertTrue(hasDarkPixels(image), "La imagen tiene contenido");
+    }
+
+    @Test
+    void longInvoicePngStacksAllPages() throws IOException {
+        Invoice invoice = invoice(InvoiceStatus.PENDING, 60);
+        int pages;
+        try (PDDocument document = Loader.loadPDF(service.render(invoice))) {
+            pages = document.getNumberOfPages();
+        }
+
+        BufferedImage image = ImageIO.read(new ByteArrayInputStream(service.renderPng(invoice)));
+
+        assertEquals(A4_PNG_HEIGHT * pages, image.getHeight());
+    }
+
+    @Test
+    void exportPngWritesTheFile(@TempDir Path folder) throws IOException {
+        Invoice invoice = invoice(InvoiceStatus.PAID, 2);
+        Path target = folder.resolve(InvoicePdfService.pngFileName(invoice));
+
+        service.exportPng(invoice, target);
+
+        assertEquals("Factura FAC-2026-001.png", target.getFileName().toString());
+        byte[] bytes = Files.readAllBytes(target);
+        assertEquals((byte) 0x89, bytes[0]);
+        assertEquals("PNG", new String(bytes, 1, 3));
+    }
+
     @Test
     void invoiceWithoutOrderIsRejected() {
         Invoice invoice = new Invoice();
@@ -116,14 +162,28 @@ class InvoicePdfServiceTest {
 
     // ---------- ayudas ----------
 
+    private static boolean hasDarkPixels(BufferedImage image) {
+        for (int y = 0; y < image.getHeight(); y += 4) {
+            for (int x = 0; x < image.getWidth(); x += 4) {
+                if ((image.getRGB(x, y) & 0xFF) < 100) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     private static String text(byte[] pdf) throws IOException {
         try (PDDocument document = Loader.loadPDF(pdf)) {
             return new PDFTextStripper().getText(document);
         }
     }
 
-    /** Factura con descuento de $10.000 y {@code lines} conceptos (los dos primeros suman $480.000 si son 4). */
-    private static Invoice invoice(InvoiceStatus status, int lines) {
+    /**
+     * Factura con descuento de $10.000 y {@code lines} conceptos (los dos
+     * primeros suman $480.000 si son 4). La usan también las pruebas de los adjuntos.
+     */
+    static Invoice invoice(InvoiceStatus status, int lines) {
         Customer owner = new Customer();
         owner.setFirstName("Carlos");
         owner.setLastName("Rodríguez");

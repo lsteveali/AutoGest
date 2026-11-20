@@ -229,6 +229,13 @@
     -fx-background-color: -ag-hover;
 }
 
+/* Menú con aspecto de botón secundario («Descargar» en el detalle de la
+   factura): mismo alto que los botones vecinos. */
+.menu-button.btn-secondary {
+    -fx-min-height: 40;
+    -fx-padding: 0 4 0 6;
+}
+
 .btn-danger {
     -fx-background-color: -ag-danger;
     -fx-text-fill: #FFFFFF;

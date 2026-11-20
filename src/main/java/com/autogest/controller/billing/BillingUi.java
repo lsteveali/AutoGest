@@ -259,6 +259,20 @@ final class BillingUi {
                 path -> AppContext.getInstance().getInvoicePdfService().export(loader.get(), path));
     }
 
+    /**
+     * Igual que {@link #downloadPdf}, pero guarda la factura como imagen PNG
+     * (cómoda para enviarla por chat o verla en el celular).
+     *
+     * @param owner   ventana dueña de los diálogos
+     * @param invoice factura (para el nombre del archivo)
+     * @param loader  carga la factura completa
+     */
+    static void downloadPng(Window owner, Invoice invoice, java.util.function.Supplier<Invoice> loader) {
+        com.autogest.controller.components.PdfExport.savePng(owner, "Guardar factura como imagen",
+                com.autogest.service.InvoicePdfService.pngFileName(invoice),
+                path -> AppContext.getInstance().getInvoicePdfService().exportPng(loader.get(), path));
+    }
+
     /** Pide confirmación para anular la factura. */
     static boolean confirmVoid(Invoice invoice) {
         return ConfirmDialog.confirm("Anular factura", "La factura " + invoice.getNumber()

@@ -10,6 +10,7 @@ import com.autogest.model.PartLine;
 import com.autogest.model.ServiceOrder;
 import com.autogest.model.Vehicle;
 import com.autogest.util.Formatter;
+import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDDocumentInformation;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -18,8 +19,13 @@ import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType0Font;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
+import org.apache.pdfbox.rendering.ImageType;
+import org.apache.pdfbox.rendering.PDFRenderer;
 
+import javax.imageio.ImageIO;
 import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -43,6 +49,9 @@ import java.util.List;
  * <p>Los datos del taller (nombre, NIT, dirección) se agregarán cuando exista
  * «Datos del taller» en Configuración (Dev 1, Sprint 8).</p>
  *
+ * <p>También entrega la factura como imagen PNG ({@link #renderPng(Invoice)}),
+ * dibujada a partir del mismo PDF.</p>
+ *
  * <p>Principles: Pure Fabrication, SRP, High Cohesion.</p>
  */
 public class InvoicePdfService {
@@ -56,6 +65,9 @@ public class InvoicePdfService {
     private static final Color DANGER = new Color(0xAB, 0x00, 0x00);
     private static final Color SUCCESS = new Color(0x1E, 0x8A, 0x4F);
     private static final Color WARNING = new Color(0xB7, 0x7E, 0x0B);
+
+    /** Resolución de la imagen PNG: nítida en pantalla y en el celular sin pesar demasiado. */
+    static final int PNG_DPI = 150;
 
     private static final float MARGIN = 48;
     private static final float PAGE_WIDTH = PDRectangle.A4.getWidth();
@@ -90,14 +102,89 @@ public class InvoicePdfService {
     }
 
     /**
+     * Genera la imagen PNG de la factura y la guarda en el archivo indicado.
+     *
+     * @param invoice factura con su orden completa
+     * @param target  archivo de destino (se reemplaza si existe)
+     * @throws AutoGestException si no se puede generar o escribir el archivo
+     */
+    public void exportPng(Invoice invoice, Path target) {
+        byte[] png = renderPng(invoice);
+        try {
+            Files.write(target, png);
+        } catch (IOException e) {
+            throw new AutoGestException("No se pudo guardar la imagen en " + target.getFileName()
+                    + ". Revisa que el archivo no esté abierto en otro programa.", e);
+        }
+    }
+
+    /**
      * Nombre de archivo sugerido: {@code Factura FAC-2026-001.pdf}.
      *
      * @param invoice factura
      * @return nombre sin caracteres que Windows no permite
      */
     public static String fileName(Invoice invoice) {
+        return baseName(invoice) + ".pdf";
+    }
+
+    /**
+     * Nombre de la imagen sugerido: {@code Factura FAC-2026-001.png}.
+     *
+     * @param invoice factura
+     * @return nombre sin caracteres que Windows no permite
+     */
+    public static String pngFileName(Invoice invoice) {
+        return baseName(invoice) + ".png";
+    }
+
+    private static String baseName(Invoice invoice) {
         String number = invoice.getNumber() == null ? "sin-numero" : invoice.getNumber();
-        return "Factura " + number.replaceAll("[\\\\/:*?\"<>|]", "-") + ".pdf";
+        return "Factura " + number.replaceAll("[\\\\/:*?\"<>|]", "-");
+    }
+
+    /**
+     * Genera la factura como imagen PNG: dibuja el mismo PDF a {@value #PNG_DPI}
+     * ppp, así la imagen y el PDF siempre coinciden. Si la factura ocupa varias
+     * páginas, quedan una debajo de otra en una sola imagen.
+     *
+     * @param invoice factura con su orden completa
+     * @return bytes del PNG
+     * @throws ValidationException si la factura no tiene número u orden
+     * @throws AutoGestException   si falla la generación
+     */
+    public byte[] renderPng(Invoice invoice) {
+        byte[] pdf = render(invoice);
+        try (PDDocument document = Loader.loadPDF(pdf)) {
+            PDFRenderer renderer = new PDFRenderer(document);
+            List<BufferedImage> pages = new ArrayList<>();
+            int width = 0;
+            int height = 0;
+            for (int i = 0; i < document.getNumberOfPages(); i++) {
+                BufferedImage page = renderer.renderImageWithDPI(i, PNG_DPI, ImageType.RGB);
+                pages.add(page);
+                width = Math.max(width, page.getWidth());
+                height += page.getHeight();
+            }
+            BufferedImage image = pages.size() == 1 ? pages.get(0)
+                    : new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+            if (pages.size() > 1) {
+                Graphics2D graphics = image.createGraphics();
+                graphics.setColor(Color.WHITE);
+                graphics.fillRect(0, 0, width, height);
+                int y = 0;
+                for (BufferedImage page : pages) {
+                    graphics.drawImage(page, 0, y, null);
+                    y += page.getHeight();
+                }
+                graphics.dispose();
+            }
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            ImageIO.write(image, "png", out);
+            return out.toByteArray();
+        } catch (IOException e) {
+            throw new AutoGestException("No se pudo generar la imagen de la factura.", e);
+        }
     }
 
     /**
