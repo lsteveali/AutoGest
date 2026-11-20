@@ -43,23 +43,25 @@ public class WorkshopDataController implements Initializable, NavigatorAware {
     private Button cancelButton;
     private Button saveButton;
 
-    private final TextField name = FormLayout.textField("AutoGest Taller Automotriz");
-    private final TextField nit = FormLayout.textField("901.456.789-1");
-    private final TextField phone = FormLayout.textField("605 555 1234");
-    private final TextField email = FormLayout.textField("contacto@autogest.com");
-    private final TextField website = FormLayout.textField("www.autogest.com");
+    // Los textos de ayuda describen qué escribir; antes repetían valores de ejemplo
+    // («AutoGest Taller Automotriz») y en gris parecían datos ya guardados.
+    private final TextField name = FormLayout.textField("Razón social del taller");
+    private final TextField nit = FormLayout.textField("Con dígito de verificación");
+    private final TextField phone = FormLayout.textField("Fijo o celular");
+    private final TextField email = FormLayout.textField("Correo para facturas y avisos");
+    private final TextField website = FormLayout.textField("Dirección de la página (opcional)");
     private final ComboBox<String> workshopType = FormLayout.combo("Tipo de taller");
-    private final TextField commercialName = FormLayout.textField("AutoGest Taller Automotriz");
-    private final TextArea description = FormLayout.textArea("Servicio especializado en mantenimiento...", 4);
-    private final TextField address = FormLayout.textField("Carrera 15 # 25-40");
-    private final TextField whatsapp = FormLayout.textField("+57 300 123 4567");
-    private final TextField city = FormLayout.textField("Valledupar");
-    private final TextField postalCode = FormLayout.textField("200001");
-    private final TextField department = FormLayout.textField("Cesar");
+    private final TextField commercialName = FormLayout.textField("Como lo conocen los clientes (opcional)");
+    private final TextArea description = FormLayout.textArea("Qué servicios ofrece el taller (opcional)", 4);
+    private final TextField address = FormLayout.textField("Calle, carrera y número");
+    private final TextField whatsapp = FormLayout.textField("Número con indicativo (opcional)");
+    private final TextField city = FormLayout.textField("Ciudad");
+    private final TextField postalCode = FormLayout.textField("Opcional");
+    private final TextField department = FormLayout.textField("Departamento");
     private final ComboBox<String> country = FormLayout.combo("País");
-    private final TextField mainEmail = FormLayout.textField("contacto@autogest.com");
-    private final TextField mainPhone = FormLayout.textField("605 555 1234");
-    private final TextArea businessHours = FormLayout.textArea("Lunes - Viernes: 8:00 AM - 6:00 PM", 3);
+    private final TextField mainEmail = FormLayout.textField("Si es distinto del correo general (opcional)");
+    private final TextField mainPhone = FormLayout.textField("Si es distinto del teléfono general (opcional)");
+    private final TextArea businessHours = FormLayout.textArea("Días y horas de atención (opcional)", 3);
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -91,10 +93,12 @@ public class WorkshopDataController implements Initializable, NavigatorAware {
     }
 
     private VBox generalCard() {
+        // Nombre y correo a todo el ancho: son los valores más largos y en media columna se cortaban.
         GridPane grid = FormLayout.grid(2);
-        FormLayout.row(grid, 0, FormLayout.labeled("Nombre del taller *", name), FormLayout.labeled("NIT *", nit));
-        FormLayout.row(grid, 1, FormLayout.labeled("Teléfono", phone), FormLayout.labeled("Correo electrónico *", email));
-        FormLayout.row(grid, 2, FormLayout.labeled("Sitio web", website), FormLayout.labeled("Tipo de taller", workshopType));
+        FormLayout.fullRow(grid, 0, FormLayout.labeled("Nombre del taller *", name));
+        FormLayout.row(grid, 1, FormLayout.labeled("NIT *", nit), FormLayout.labeled("Teléfono", phone));
+        FormLayout.fullRow(grid, 2, FormLayout.labeled("Correo electrónico *", email));
+        FormLayout.row(grid, 3, FormLayout.labeled("Sitio web", website), FormLayout.labeled("Tipo de taller", workshopType));
         return FormLayout.card("Información general", grid);
     }
 
@@ -107,17 +111,18 @@ public class WorkshopDataController implements Initializable, NavigatorAware {
 
     private VBox locationCard() {
         GridPane grid = FormLayout.grid(2);
-        FormLayout.row(grid, 0, FormLayout.labeled("Dirección", address), FormLayout.labeled("WhatsApp", whatsapp));
-        FormLayout.row(grid, 1, FormLayout.labeled("Ciudad", city), FormLayout.labeled("Código postal", postalCode));
-        FormLayout.row(grid, 2, FormLayout.labeled("Departamento", department), FormLayout.labeled("País", country));
+        FormLayout.fullRow(grid, 0, FormLayout.labeled("Dirección", address));
+        FormLayout.row(grid, 1, FormLayout.labeled("Ciudad", city), FormLayout.labeled("Departamento", department));
+        FormLayout.row(grid, 2, FormLayout.labeled("País", country), FormLayout.labeled("Código postal", postalCode));
+        FormLayout.row(grid, 3, FormLayout.labeled("WhatsApp", whatsapp));
         return FormLayout.card("Ubicación", grid);
     }
 
     private VBox contactCard() {
         GridPane grid = FormLayout.grid(2);
-        FormLayout.row(grid, 0, FormLayout.labeled("Correo principal", mainEmail),
-                FormLayout.labeled("Teléfono principal", mainPhone));
-        FormLayout.fullRow(grid, 1, FormLayout.labeled("Horario de atención", businessHours));
+        FormLayout.fullRow(grid, 0, FormLayout.labeled("Correo principal", mainEmail));
+        FormLayout.row(grid, 1, FormLayout.labeled("Teléfono principal", mainPhone));
+        FormLayout.fullRow(grid, 2, FormLayout.labeled("Horario de atención", businessHours));
         return FormLayout.card("Información de contacto", grid);
     }
 
