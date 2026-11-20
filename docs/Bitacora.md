@@ -15,7 +15,7 @@
 | Proyecto | AutoGest — Sistema de gestión integral para talleres automotrices |
 | Materia | Programación de Computadores III (SS462) |
 | Repositorio | https://github.com/lsteveali/AutoGest.git |
-| Rama de trabajo actual | `feature/logo-nuevo` (desde `develop` en `5b7d50d`; en prueba del Líder, sin subir) |
+| Rama de trabajo actual | `feature/configuracion-sistema` (desde `develop` en `691280b`; en prueba del Líder, sin subir) |
 | Sprint en curso | **Sprint 8 (Configuración)** 🟡 · Sprint 7 ✅ cerrado (PR #21 y #22) · Paleta y Manrope ✅ (PR #23) · siguiente: Sprint 9 (Asistente) |
 | Equipo | Líder: Leonarth Steve Ali Camargo · Dev 1: Sebastián Murgas Tejeda · Dev 2: **sin integrante vinculado** — el Líder asume todas sus responsabilidades (decisión 14/10/2026) |
 | Documento guía | `AutoGest_Guia_Lider` (V2.0) |
@@ -69,7 +69,7 @@
 | 5 | Facturación (Líder: todo el módulo) | ✅ PR #16 fusionado en `develop` (`b858e80`, 15/11/2026): facturación, PDF, avisos al cliente e Inicio con órdenes y facturas (Sesión 22) |
 | 6 | Notificaciones (Dev 1: backend e interfaz · Líder: plantillas, eventos y correo real) | ✅ Dev 1 (PR #17 y #18) · Líder (PR #19 y #20) |
 | 7 | Reportes (Dev 1: consultas de apoyo · Líder: pantalla, indicadores y PDF) | ✅ Dev 1 (PR #21) · Líder (PR #22, `8338f73`, 19/11/2026) |
-| 8 | Configuración (Dev 1: Datos del taller y Preferencias · Líder: pantalla general y el resto de secciones, incluidas Copias de seguridad) | 🟡 En curso — Dev 1: `SettingsService`, Datos del taller y Preferencias ✅ (PR #26, tabla `app_settings` creada el 20/11/2026) · Líder: restaurar copias ✅ (PR #24, Sesión 26); faltan Configuración de Facturación y de Notificaciones (ya desbloqueadas) |
+| 8 | Configuración (Dev 1: Datos del taller y Preferencias · Líder: pantalla general y el resto de secciones, incluidas Copias de seguridad) | 🟡 En curso — Dev 1: `SettingsService`, Datos del taller y Preferencias ✅ (PR #26, tabla `app_settings` creada el 20/11/2026) · Líder: restaurar copias ✅ (PR #24, Sesión 26); Configuración de Facturación y de Notificaciones hechas en `feature/configuracion-sistema` (Sesión 30, en prueba) |
 | 9 | Asistente AutoGest (Líder) | ⬜ No iniciado |
 
 > **Reasignación (14/10/2026):** las columnas de Dev 2 de la hoja de ruta
@@ -822,6 +822,60 @@ estaba incorporado; el otro era un WIP viejo de `login-usuarios`). Quedan solo
 - **Frase del login:** se mostraron tres variantes con capturas (centrada bajo todo el logotipo, centrada bajo las letras y sin frase). El Líder eligió **centrarla bajo las letras «AutoGest»**: un desplazamiento de 69 px, la distancia entre el centro de la imagen y el de las letras a 420 px de ancho.
 - No hay otros lugares con el logo junto al texto «AutoGest». El título de la ventana, «Bienvenido a AutoGest», el remitente del correo y los nombres internos son texto y se dejan igual. Los correos son de texto plano y no llevan logo.
 - Capturas del login, la factura (PNG) y la primera página del reporte, con datos en memoria. `mvn clean test` → **539 pruebas, 0 fallos**.
+
+**Cierre:** PR #27 (`feature/logo-nuevo` → `develop`), con la sección «Para Dev 1»; fusionado el 20/11/2026 (`691280b`).
+
+### 20/11/2026 — Sesión 30 (Líder): Configuración de Facturación y de Notificaciones
+
+**Contexto.** Con el `SettingsService` de Dev 1 en `develop` (PR #26) y la tabla `app_settings` en Supabase, quedaba lo último de Configuración: las secciones **Facturación** y **Notificaciones** (las dos tarjetas seguían en «Próximamente») y llevar los datos del taller a los documentos y correos. El Líder pidió todo en **un solo PR, con muchos commits pequeños**. Rama `feature/configuracion-sistema` desde `develop` (`691280b`).
+
+**Hecho — Facturación:**
+1. **`BillingSettings`** (modelo), **`BillingSettingsRepository`** (claves `billing.*` en `app_settings`, sobre el `SettingsDao` de Dev 1 sin cambiarlo) y **`BillingSettingsService`**:
+   - Valida el IVA (0 a 100 %, hasta dos decimales), el plazo (0 a 180 días), el prefijo (1 a 6 letras o números), al menos un método de pago y una nota de hasta 300 caracteres.
+   - Guarda una copia en memoria, porque la pantalla de nueva factura la consulta mientras se escribe.
+   - Un valor dañado o una lectura fallida vuelven a los valores de fábrica, así la facturación nunca se frena por la configuración.
+2. **`InvoiceService`** toma de la configuración la tasa de IVA, el plazo de pago, el prefijo de la numeración (`FE-2026-001`) y los métodos aceptados. Pagar con un método apagado se rechaza. Sin configuración siguen los valores de siempre: 0 %, 14 días, «FAC» y todos los métodos.
+3. **La etiqueta «IVA (x %)»** del detalle, el resumen y el PDF sale de los importes de cada factura: una factura vieja conserva su tasa aunque cambie la configuración.
+4. **PDF de la factura** (y su PNG):
+   - Bajo el logotipo, los datos del taller: nombre; NIT y dirección; teléfono y correo.
+   - Al final, la **nota** configurada.
+   - Sin datos del taller, o si no se pueden leer, queda el eslogan.
+5. **PDF del reporte:** nombre y NIT del taller bajo el periodo.
+6. **Pantalla Configuración → Facturación** (`BillingSettingsController`, `billing-settings.fxml`, `View.SETTINGS_BILLING`):
+   - IVA, plazo, prefijo, métodos de pago y nota con contador.
+   - Un ejemplo que se actualiza mientras se escribe («una factura de $100.000 emitida hoy lleva…») y cómo quedará la numeración.
+   - Guardar y «Restaurar valores de fábrica», en segundo plano.
+   - Nueva factura y «Registrar pago» ofrecen solo los métodos habilitados y proponen el plazo configurado.
+
+**Hecho — Notificaciones:**
+1. **`NotificationSettings`** (modelo), **`NotificationSettingsRepository`** (claves `notifications.*`) y **`NotificationSettingsService`**:
+   - Tres interruptores: aviso «vehículo listo», avisos de facturación y adjuntar la factura.
+   - Asunto y mensaje propios por plantilla. Se valida que el mensaje no quede vacío, el largo y que no haya campos inexistentes como `{clinete}`. Un texto igual al original no se guarda.
+   - Vista previa con datos de ejemplo.
+2. **`NotificationTemplate.useTextSource`:** las plantillas toman los textos editados y el **nombre del taller** para `{taller}` desde «Datos del taller» (se vuelve a leer cada minuto). Si algo falla, usan el texto original y «AutoGest». Un texto editado que ya no se pueda completar no frena el aviso: sale el original.
+3. **Interruptores aplicados:**
+   - `OrderWorkflowService` no avisa «vehículo listo» si está apagado, y no deja constancia de un aviso que no se envió.
+   - `InvoiceService` no envía «Factura disponible», «Pago recibido» ni «Factura vencida».
+   - `InvoiceAttachmentProvider` no adjunta la factura.
+4. **Pantalla Configuración → Notificaciones** (`NotificationSettingsController`, `notification-settings.fxml`, `View.SETTINGS_NOTIFICATIONS`):
+   - Los tres avisos.
+   - La lista de las nueve plantillas, con «· editada» en las que tienen texto propio.
+   - El editor de asunto y mensaje, con «Usar el texto original», dónde se usa cada plantilla, los campos para insertar con un clic y la vista previa. Un campo mal escrito se avisa en rojo.
+   - Guardar y «Restaurar valores de fábrica».
+5. **`SettingsForm`:** piezas comunes de los dos formularios (tarjeta con ícono, campo con ayuda, mensaje y botones).
+6. **`AppContext`** (bloques del Líder, nombres completos de clase, sin tocar imports ni finales): crea al pedirlos `getBillingSettingsService()` y `getNotificationSettingsService()` sobre el `settingsDao` de Dev 1. En `configureSettings()` conecta las plantillas, los PDF y los interruptores.
+
+**Pruebas** (sobre `MemorySettingsDao`, un `app_settings` en memoria):
+- `BillingSettingsServiceTest` (6) y `NotificationSettingsServiceTest` (11), nuevos.
+- `InvoiceServiceTest` +6: IVA, plazo y prefijo configurados, borrador, método apagado, tasa de una factura emitida, avisos apagados y valores de fábrica.
+- `InvoicePdfServiceTest` +3 (datos del taller, eslogan si falla, nota), `ReportPdfServiceTest` +1, `OrderWorkflowServiceTest` +1 e `InvoiceAttachmentProviderTest` +1.
+- `mvn clean test` → **568 pruebas, 0 fallos** (539 + 29).
+
+**Verificación sin escribir en Supabase:** capturas de Configuración (las ocho tarjetas activas), Facturación, Notificaciones (plantilla editada y campo mal escrito) y de una factura PNG con datos del taller, IVA 19 %, prefijo FE y nota, todas con datos en memoria.
+
+**No se tocaron archivos de Dev 1.** Se usan su `SettingsDao`, su `SettingsService` y el campo `settingsDao` de `AppContext` tal como están.
+
+**Pendiente:** las Preferencias del sistema (Dev 1) siguen sin efecto en la app; ver los hallazgos de la Sesión 28.
 - Capturas del login a 1280×720 y de la barra lateral; el menú completo cabe a 720 px de alto. `mvn clean test` → **539 pruebas, 0 fallos**.
 
 ---
@@ -872,6 +926,9 @@ estaba incorporado; el otro era un WIP viejo de `login-usuarios`). Quedan solo
 | 19/11/2026 | **Restaurar una copia reemplaza las tablas que trae la copia, en una transacción, y antes guarda una copia automática del estado actual.** Se confirma escribiendo «RESTAURAR» y al terminar se cierra la sesión. | Es la acción más destructiva de la app: la copia previa permite deshacerla, la palabra evita el clic accidental y cerrar la sesión evita seguir con un usuario o permisos que ya no existen. Las tablas que la copia no trae no se tocan, así una copia vieja no borra tablas nuevas como `app_settings`. |
 | 19/11/2026 | **La restauración conserva los ids de la copia** (`OVERRIDING SYSTEM VALUE`) y ajusta los contadores con `setval`. | Las llaves foráneas de la copia apuntan a esos ids; regenerarlos rompería las relaciones. `setval` no se deshace con rollback, por eso los ensayos contra Supabase lo omiten. |
 | 19/11/2026 | **Todo correo de Facturación con una orden que tenga factura vigente lleva la factura en PDF y PNG.** Los adjuntos se generan al enviar y no se guardan. | Decisión del Líder. Generarlos al enviar evita cambiar el esquema y hace que un reintento lleve la factura actualizada. El PNG se dibuja desde el mismo PDF, así nunca difieren. |
+| 20/11/2026 | **La configuración de Facturación y de Notificaciones se guarda en `app_settings`** (claves `billing.*` y `notifications.*`) con repositorios del Líder sobre el `SettingsDao` de Dev 1. | No cambia el esquema ni los archivos de Dev 1. Si la configuración falta o no se puede leer, se usan los valores de fábrica: facturar y avisar nunca se frenan por la configuración. |
+| 20/11/2026 | **La tasa de IVA que se muestra sale de cada factura** (impuestos ÷ subtotal), no de la configuración vigente. | Una factura ya emitida debe seguir mostrando la tasa con la que se cobró. |
+| 20/11/2026 | **Las plantillas leen sus textos de un origen configurable** (`NotificationTemplate.useTextSource`). | Los avisos automáticos, los de facturación de Dev 1 y «Nueva notificación» siguen llamando a las mismas plantillas: los textos editados llegan a todos sin tocar esos archivos. |
 | 20/11/2026 | **Logo nuevo: escudo con bulldog** (entregado por el Líder). El login y la barra lateral usan el **logotipo completo** (letras negras en el login, blancas en la barra); el ícono de la ventana y los PDF usan el escudo solo. | Reemplaza la tuerca azul, que no combinaba con la paleta nueva. El Líder prefirió el logotipo completo y más grande en lugar del escudo junto a un título de texto. El escudo se guarda en cuadros transparentes para no cambiar el código que dibuja los íconos y los PDF. |
 | 19/11/2026 | **El formulario «Nueva notificación» propone un mensaje según el tipo** (plantillas del Líder) sin pisar lo que el usuario escribió. | Pedido del Líder. Se autorizó tocar `NotificationNewController` y `NotificationService` de Dev 1; se registra en la sección «Para Dev 1» del PR. |
 
@@ -956,16 +1013,16 @@ Verificación: `develop` → `mvn clean test` **108 pruebas, 0 fallos**
 - [x] ~~Subir la rama y abrir el PR hacia `develop`~~ — PR #16 fusionado (`b858e80`, 15/11/2026).
 - [x] ~~**Avisos al cliente**~~ — conectados el 15/11/2026 tras el PR #17 de Dev 1 (ver §3, Sesión 22).
 - [x] ~~Volver a abrir el PR de `feature/facturacion`~~ — reabierto, revisado por Dev 1 y fusionado; `develop` → **445 pruebas, 0 fallos**.
-- [ ] Tasa de IVA y plazo de pago desde Configuración de Facturación (el `SettingsService` de Dev 1 ya está en `develop`, PR #26).
+- [x] ~~Tasa de IVA y plazo de pago desde Configuración de Facturación~~ — también prefijo, métodos de pago y nota (Sesión 30).
 - [ ] «Ver facturas» en el menú del detalle del cliente (`CustomerDetailController`, archivo de Dev 1) sigue desactivado: habilitarlo solo si el Líder lo pide.
 - [ ] Decidir si `OrderWorkflowService` debe impedir cancelar una orden con factura vigente (hoy solo lo evita la pantalla).
 - [x] ~~Descargar la factura en PDF~~ — hecho (15/11/2026, `InvoicePdfService`).
-- [ ] Datos del taller en el encabezado del PDF y en `{taller}` de los correos (ya existe «Datos del taller», PR #26).
+- [x] ~~Datos del taller en el encabezado del PDF y en `{taller}` de los correos~~ — factura, reporte y plantillas (Sesión 30).
 
 **Sprint 6 (Líder, `feature/notificaciones-eventos`):**
 - [x] Plantillas, aviso «vehículo listo», recordatorios de mantenimiento, tarjeta del Inicio y campana (Sesión 23).
 - [x] ~~Subir la rama y abrir el PR hacia `develop`~~ — PR #19 fusionado (`eb15f59`, 17/11/2026).
-- [ ] Editar las plantillas desde Configuración de Notificaciones (desbloqueado: `SettingsService` en `develop`, PR #26). Desde la Sesión 27 son nueve plantillas, incluidos los mensajes predeterminados de «Nueva notificación».
+- [x] ~~Editar las plantillas desde Configuración de Notificaciones~~ — las nueve, con vista previa e interruptores de los avisos (Sesión 30).
 - [ ] Comentarios para Dev 1 sobre su pantalla de Notificaciones: etiquetas de filtros cortadas, consultas en el hilo de la interfaz y anchos mínimos de columnas (ver Sesión 23). Con el correo real esto pesa más: «Nueva notificación», «Enviar ahora» y «Reintentar» esperan la respuesta de Gmail (1 a 3 s) con la ventana congelada.
 
 **Correo real (rama `feature/correo-smtp`):**
@@ -984,7 +1041,7 @@ Verificación: `develop` → `mvn clean test` **108 pruebas, 0 fallos**
 - [x] ~~Subir la rama y abrir el PR hacia `develop`~~ — PR #23 fusionado (`04832f2`, 19/11/2026).
 - [x] ~~Logo con la nueva paleta~~ — escudo con bulldog en la ventana, el login, la barra lateral y los PDF (Sesión 29, `feature/logo-nuevo`).
 - [x] ~~Logotipo completo (escudo y «AutoGest») en el login y la barra lateral~~ — hecho (Sesión 29).
-- [ ] Subir `feature/logo-nuevo` y abrir el PR hacia `develop` cuando el Líder termine de probarla.
+- [x] ~~Subir `feature/logo-nuevo` y abrir el PR hacia `develop`~~ — PR #27 fusionado (`691280b`, 20/11/2026).
 
 **Barrido de interfaz pendiente (lo hará el Líder):** Inventario («Volver» repetido en el detalle del repuesto; «Registrar entrada» debajo de «+ Nuevo repuesto»). Filtros, nombres y estados cortados de la lista: corregidos en la Sesión 25. (Órdenes ya corregida en la Sesión 21.)
 
@@ -995,7 +1052,8 @@ Verificación: `develop` → `mvn clean test` **108 pruebas, 0 fallos**
 - [x] Copias de seguridad: crear y listar (Sesión 18).
 - [x] Restaurar una copia desde AutoGest: vaciar y recargar las tablas en orden de dependencias, en una transacción, con copia previa y confirmación fuerte (Sesión 26, rama `feature/restaurar-copias`).
 - [x] ~~Subir `feature/restaurar-copias` y abrir el PR hacia `develop`~~ — PR #24 fusionado (`d8fd07a`, 19/11/2026).
-- [ ] Configuración de Facturación y de Notificaciones (guardan en `app_settings`). **Desbloqueadas:** el `SettingsService` de Dev 1 está en `develop` (PR #26) y la tabla existe en Supabase desde el 20/11/2026.
+- [x] ~~Configuración de Facturación y de Notificaciones~~ — hechas en `feature/configuracion-sistema` (Sesión 30). Con esto, todas las secciones de Configuración están activas.
+- [ ] Subir `feature/configuracion-sistema` y abrir el PR hacia `develop` cuando el Líder termine de probarla.
 - [x] ~~Datos del taller y Preferencias del sistema (Dev 1)~~ — PR #26 fusionado (`a5b5f04`, 20/11/2026); `sprint8-settings.sql` ejecutado en Supabase el mismo día.
 - [ ] Dev 1: prueba manual de Datos del taller y Preferencias (lista de su PR #26), ahora que existe la tabla.
 - [ ] Dev 1: hallazgos de la revisión del PR #26 (Sesión 28): preferencias sin efecto en la app, textos cortados en Preferencias, textos de ayuda iguales a los valores en Datos del taller y lecturas en el hilo de la interfaz.
