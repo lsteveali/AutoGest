@@ -52,6 +52,8 @@ class OrderWorkflowServiceTest {
     private FakeNotificationRepository notifications;
     private Customer owner;
 
+    private NotificationEventService events;
+
     @BeforeEach
     void setUp() {
         FakeCustomerRepository customers = new FakeCustomerRepository();
@@ -66,7 +68,7 @@ class OrderWorkflowServiceTest {
         orderService = new ServiceOrderService(orders, vehicleService);
         notifications = new FakeNotificationRepository();
         // Avisos automáticos (Sprint 6) con el NotificationService real de Dev 1.
-        NotificationEventService events = new NotificationEventService(
+        events = new NotificationEventService(
                 new NotificationService(notifications, new CustomerService(customers)), vehicleService);
         workflow = new OrderWorkflowService(orders, orderService, vehicleService, inventoryService,
                 partService, userService, events);
@@ -320,6 +322,22 @@ class OrderWorkflowServiceTest {
         assertEquals(OrderStatus.READY, ready.getStatus());
         assertEquals(NotificationStatus.FAILED, notifications.findAll().get(0).getStatus());
         assertTrue(historyTexts(ready).stream().anyMatch(t -> t.startsWith("No se pudo avisar al cliente")));
+    }
+
+    @Test
+    void readyWithTheNoticeTurnedOffSendsNothing() {
+        com.autogest.model.NotificationSettings off = com.autogest.model.NotificationSettings.defaults();
+        off.setVehicleReadyEnabled(false);
+        events.setSettings(() -> off);
+        ServiceOrder order = createOrder(0);
+        workflow.changeStatus(order.getId(), OrderStatus.DIAGNOSIS, receptionist);
+        workflow.changeStatus(order.getId(), OrderStatus.IN_REPAIR, receptionist);
+
+        ServiceOrder ready = workflow.changeStatus(order.getId(), OrderStatus.READY, receptionist);
+
+        assertEquals(OrderStatus.READY, ready.getStatus());
+        assertTrue(notifications.findAll().isEmpty(), "Con el aviso apagado no se envía nada");
+        assertTrue(historyTexts(ready).stream().noneMatch(t -> t.contains("avis")), historyTexts(ready).toString());
     }
 
     private ServiceOrder createOrder(int partUnits) {
