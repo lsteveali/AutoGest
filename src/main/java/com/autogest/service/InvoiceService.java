@@ -97,6 +97,26 @@ public class InvoiceService {
         this.settings = settings == null ? BillingSettings::defaults : settings;
     }
 
+    private java.util.function.BooleanSupplier noticesEnabled = () -> true;
+
+    /**
+     * Define si se envían los avisos de facturación (Configuración →
+     * Notificaciones). Sin llamarlo, se envían.
+     *
+     * @param enabled consulta del interruptor
+     */
+    public void setNoticesEnabled(java.util.function.BooleanSupplier enabled) {
+        this.noticesEnabled = enabled == null ? () -> true : enabled;
+    }
+
+    private boolean noticesEnabled() {
+        try {
+            return noticesEnabled.getAsBoolean();
+        } catch (RuntimeException e) {
+            return true;
+        }
+    }
+
     /**
      * @return configuración de facturación vigente
      */
@@ -460,7 +480,7 @@ public class InvoiceService {
      * propaga. Una notificación sin correo queda «Fallida» en Notificaciones.
      */
     private void notifyCustomer(java.util.function.Supplier<?> send) {
-        if (notificationService == null) {
+        if (notificationService == null || !noticesEnabled()) {
             return;
         }
         try {
