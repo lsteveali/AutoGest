@@ -9,10 +9,12 @@ import com.autogest.controller.components.PageHeader;
 import com.autogest.exception.AutoGestException;
 import com.autogest.model.WorkshopProfile;
 import com.autogest.service.SettingsService;
+import com.autogest.util.Background;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -38,6 +40,8 @@ public class WorkshopDataController implements Initializable, NavigatorAware {
     private VBox root;
 
     private ViewNavigator navigator;
+    private Button cancelButton;
+    private Button saveButton;
 
     private final TextField name = FormLayout.textField("AutoGest Taller Automotriz");
     private final TextField nit = FormLayout.textField("901.456.789-1");
@@ -75,9 +79,9 @@ public class WorkshopDataController implements Initializable, NavigatorAware {
         left.setMaxWidth(Double.MAX_VALUE);
         right.setMaxWidth(Double.MAX_VALUE);
 
-        root.getChildren().addAll(header, columns, FormLayout.actions(
-                FormLayout.button("Cancelar", "btn-secondary", this::load),
-                FormLayout.button("Guardar cambios", "btn-primary", this::save)));
+        cancelButton = FormLayout.button("Cancelar", "btn-secondary", this::load);
+        saveButton = FormLayout.button("Guardar cambios", "btn-primary", this::save);
+        root.getChildren().addAll(header, columns, FormLayout.actions(cancelButton, saveButton));
         Platform.runLater(this::load);
     }
 
@@ -117,30 +121,39 @@ public class WorkshopDataController implements Initializable, NavigatorAware {
         return FormLayout.card("Información de contacto", grid);
     }
 
-    /** Carga (o recarga, con «Cancelar») los datos guardados. */
+    /** Carga (o recarga, con «Cancelar») los datos guardados, en segundo plano. */
     private void load() {
-        try {
-            WorkshopProfile p = service().getWorkshopProfile();
-            name.setText(FormLayout.orEmpty(p.getName()));
-            nit.setText(FormLayout.orEmpty(p.getNit()));
-            phone.setText(FormLayout.orEmpty(p.getPhone()));
-            email.setText(FormLayout.orEmpty(p.getEmail()));
-            website.setText(FormLayout.orEmpty(p.getWebsite()));
-            workshopType.setValue(p.getWorkshopType());
-            commercialName.setText(FormLayout.orEmpty(p.getCommercialName()));
-            description.setText(FormLayout.orEmpty(p.getDescription()));
-            address.setText(FormLayout.orEmpty(p.getAddress()));
-            whatsapp.setText(FormLayout.orEmpty(p.getWhatsapp()));
-            city.setText(FormLayout.orEmpty(p.getCity()));
-            postalCode.setText(FormLayout.orEmpty(p.getPostalCode()));
-            department.setText(FormLayout.orEmpty(p.getDepartment()));
-            country.setValue(p.getCountry());
-            mainEmail.setText(FormLayout.orEmpty(p.getMainEmail()));
-            mainPhone.setText(FormLayout.orEmpty(p.getMainPhone()));
-            businessHours.setText(FormLayout.orEmpty(p.getBusinessHours()));
-        } catch (AutoGestException e) {
-            ErrorDialog.show("No se pudieron cargar los datos del taller", e.getMessage());
-        }
+        setBusy(true);
+        Background.run(() -> service().getWorkshopProfile(),
+                profile -> {
+                    show(profile);
+                    setBusy(false);
+                },
+                error -> {
+                    setBusy(false);
+                    ErrorDialog.show("No se pudieron cargar los datos del taller", errorText(error));
+                });
+    }
+
+    /** Pasa los datos del taller al formulario. */
+    private void show(WorkshopProfile p) {
+        name.setText(FormLayout.orEmpty(p.getName()));
+        nit.setText(FormLayout.orEmpty(p.getNit()));
+        phone.setText(FormLayout.orEmpty(p.getPhone()));
+        email.setText(FormLayout.orEmpty(p.getEmail()));
+        website.setText(FormLayout.orEmpty(p.getWebsite()));
+        workshopType.setValue(p.getWorkshopType());
+        commercialName.setText(FormLayout.orEmpty(p.getCommercialName()));
+        description.setText(FormLayout.orEmpty(p.getDescription()));
+        address.setText(FormLayout.orEmpty(p.getAddress()));
+        whatsapp.setText(FormLayout.orEmpty(p.getWhatsapp()));
+        city.setText(FormLayout.orEmpty(p.getCity()));
+        postalCode.setText(FormLayout.orEmpty(p.getPostalCode()));
+        department.setText(FormLayout.orEmpty(p.getDepartment()));
+        country.setValue(p.getCountry());
+        mainEmail.setText(FormLayout.orEmpty(p.getMainEmail()));
+        mainPhone.setText(FormLayout.orEmpty(p.getMainPhone()));
+        businessHours.setText(FormLayout.orEmpty(p.getBusinessHours()));
     }
 
     private void save() {
@@ -162,15 +175,30 @@ public class WorkshopDataController implements Initializable, NavigatorAware {
         p.setMainEmail(FormLayout.text(mainEmail));
         p.setMainPhone(FormLayout.text(mainPhone));
         p.setBusinessHours(FormLayout.text(businessHours));
-        try {
-            service().updateWorkshopProfile(p);
-            Alert saved = new Alert(Alert.AlertType.INFORMATION, "Los datos del taller se guardaron correctamente.");
-            saved.setHeaderText(null);
-            saved.setTitle("Datos del taller");
-            saved.showAndWait();
-        } catch (AutoGestException e) {
-            ErrorDialog.show("No se pudieron guardar los datos del taller", e.getMessage());
-        }
+        setBusy(true);
+        Background.run(() -> service().updateWorkshopProfile(p),
+                saved -> {
+                    setBusy(false);
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION, "Los datos del taller se guardaron correctamente.");
+                    alert.setHeaderText(null);
+                    alert.setTitle("Datos del taller");
+                    alert.showAndWait();
+                },
+                error -> {
+                    setBusy(false);
+                    ErrorDialog.show("No se pudieron guardar los datos del taller", errorText(error));
+                });
+    }
+
+    /** Mientras lee o guarda, los botones quedan desactivados (la ventana sigue respondiendo). */
+    private void setBusy(boolean busy) {
+        cancelButton.setDisable(busy);
+        saveButton.setDisable(busy);
+    }
+
+    private static String errorText(RuntimeException error) {
+        return error instanceof AutoGestException && error.getMessage() != null
+                ? error.getMessage() : "Revisa la conexión e inténtalo de nuevo.";
     }
 
     private SettingsService service() {
