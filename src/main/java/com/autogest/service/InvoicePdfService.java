@@ -2,6 +2,7 @@ package com.autogest.service;
 
 import com.autogest.exception.AutoGestException;
 import com.autogest.exception.ValidationException;
+import com.autogest.model.BillingSettings;
 import com.autogest.model.Customer;
 import com.autogest.model.Invoice;
 import com.autogest.model.InvoiceStatus;
@@ -9,6 +10,7 @@ import com.autogest.model.OrderLine;
 import com.autogest.model.PartLine;
 import com.autogest.model.ServiceOrder;
 import com.autogest.model.Vehicle;
+import com.autogest.model.WorkshopProfile;
 import com.autogest.util.Formatter;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -35,6 +37,7 @@ import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 /**
  * Genera el PDF de una factura (tamaño carta A4): encabezado con el logo y el
@@ -205,7 +208,7 @@ public class InvoicePdfService {
             throw new ValidationException("La factura no tiene los datos necesarios para el PDF");
         }
         try (PDDocument document = new PDDocument()) {
-            Writer writer = new Writer(document, invoice);
+            Writer writer = new Writer(document, invoice, workshopLines(), invoiceNote());
             writer.write();
             PDDocumentInformation info = document.getDocumentInformation();
             info.setTitle("Factura " + invoice.getNumber());
@@ -218,11 +221,81 @@ public class InvoicePdfService {
         }
     }
 
+    /**
+     * Datos del taller (Configuración → Datos del taller, de Dev 1) y
+     * configuración de facturación. Sin definirlos, el encabezado lleva el
+     * eslogan y la factura no lleva nota.
+     *
+     * @param workshop datos del taller
+     * @param billing  configuración de facturación (de ahí sale la nota)
+     */
+    public void setDocumentSources(Supplier<WorkshopProfile> workshop, Supplier<BillingSettings> billing) {
+        this.workshop = workshop;
+        this.billing = billing;
+    }
+
+    private Supplier<WorkshopProfile> workshop;
+    private Supplier<BillingSettings> billing;
+
+    /**
+     * Líneas del taller bajo el logotipo: nombre; NIT y dirección; teléfono y
+     * correo. Vacía si no hay datos del taller o no se pudieron leer.
+     */
+    List<String> workshopLines() {
+        WorkshopProfile profile;
+        try {
+            profile = workshop == null ? null : workshop.get();
+        } catch (RuntimeException e) {
+            profile = null;
+        }
+        if (profile == null || profile.getDisplayName() == null || profile.getDisplayName().isBlank()) {
+            return List.of();
+        }
+        List<String> lines = new ArrayList<>();
+        lines.add(profile.getDisplayName());
+        lines.add(join(" · ", prefixed("NIT ", profile.getNit()),
+                join(", ", profile.getAddress(), profile.getCity())));
+        lines.add(join(" · ", prefixed("Tel. ", first(profile.getMainPhone(), profile.getPhone())),
+                first(profile.getMainEmail(), profile.getEmail())));
+        lines.removeIf(String::isBlank);
+        return lines;
+    }
+
+    /** Nota configurada para las facturas, o {@code null}. */
+    String invoiceNote() {
+        try {
+            BillingSettings settings = billing == null ? null : billing.get();
+            return settings == null ? null : settings.getInvoiceNote();
+        } catch (RuntimeException e) {
+            return null;
+        }
+    }
+
+    private static String prefixed(String prefix, String value) {
+        return value == null || value.isBlank() ? null : prefix + value.trim();
+    }
+
+    private static String first(String preferred, String fallback) {
+        return preferred != null && !preferred.isBlank() ? preferred : fallback;
+    }
+
+    private static String join(String separator, String... parts) {
+        List<String> present = new ArrayList<>();
+        for (String part : parts) {
+            if (part != null && !part.isBlank()) {
+                present.add(part.trim());
+            }
+        }
+        return String.join(separator, present);
+    }
+
     /** Escribe una factura en un documento; guarda la página y la posición actuales. */
     private static final class Writer {
 
         private final PDDocument document;
         private final Invoice invoice;
+        private final List<String> workshopLines;
+        private final String note;
         private final PDFont regular;
         private final PDFont medium;
         private final PDFont bold;
@@ -231,9 +304,11 @@ public class InvoicePdfService {
         private PDPageContentStream cs;
         private float y;
 
-        Writer(PDDocument document, Invoice invoice) throws IOException {
+        Writer(PDDocument document, Invoice invoice, List<String> workshopLines, String note) throws IOException {
             this.document = document;
             this.invoice = invoice;
+            this.workshopLines = workshopLines;
+            this.note = note;
             this.regular = font(document, "Roboto-Regular.ttf");
             this.medium = font(document, "Roboto-Medium.ttf");
             this.bold = font(document, "Roboto-Bold.ttf");
@@ -247,6 +322,7 @@ public class InvoicePdfService {
             concepts();
             totals();
             payment();
+            note();
             for (PDPageContentStream stream : streams) {
                 stream.close();
             }
@@ -264,7 +340,18 @@ public class InvoicePdfService {
             } else {
                 text(bold, 20, ONYX, MARGIN, top - 22, "AutoGest");
             }
-            text(regular, 9, MUTED, MARGIN, top - LOGO_HEIGHT - 12, "Gestión integral para talleres automotrices");
+            // Debajo, los datos del taller; sin ellos, el eslogan.
+            float lineY = top - LOGO_HEIGHT - 12;
+            if (workshopLines.isEmpty()) {
+                text(regular, 9, MUTED, MARGIN, lineY, "Gestión integral para talleres automotrices");
+            } else {
+                for (int i = 0; i < workshopLines.size(); i++) {
+                    String value = fit(i == 0 ? medium : regular, 9, workshopLines.get(i), CONTENT_WIDTH / 2);
+                    text(i == 0 ? medium : regular, 9, i == 0 ? TEXT : MUTED, MARGIN, lineY, value);
+                    lineY -= 12;
+                }
+                lineY += 12;
+            }
 
             float right = MARGIN + CONTENT_WIDTH;
             textRight(medium, 10, MUTED, right, top - 10, "FACTURA");
@@ -272,7 +359,7 @@ public class InvoicePdfService {
             String status = statusText(invoice.getStatus());
             textRight(medium, 10, statusColor(invoice.getStatus()), right, top - 45, status);
 
-            y = top - LOGO_HEIGHT - 24;
+            y = lineY - 12;
             line(MARGIN, y, MARGIN + CONTENT_WIDTH, y, BORDER, 1);
             if (invoice.getStatus() == InvoiceStatus.VOIDED) {
                 y -= 26;
@@ -424,6 +511,27 @@ public class InvoicePdfService {
             text(medium, 10.5f, statusColor(invoice.getStatus()), MARGIN + 14, y - 33,
                     fit(medium, 10.5f, detail, CONTENT_WIDTH - 28));
             y -= boxHeight + 16;
+        }
+
+        /** Nota de Configuración → Facturación (condiciones, cuenta para transferencias…). */
+        private void note() throws IOException {
+            if (note == null || note.isBlank()) {
+                return;
+            }
+            List<String> lines = new ArrayList<>();
+            for (String paragraph : note.split("\\R")) {
+                lines.addAll(wrap(regular, 9, paragraph, CONTENT_WIDTH));
+            }
+            if (y - 16 - lines.size() * 12 < FOOTER_LIMIT) {
+                newPage();
+                y = PAGE_HEIGHT - MARGIN;
+            }
+            text(medium, 9, MUTED, MARGIN, y, "NOTA");
+            y -= 14;
+            for (String line : lines) {
+                text(regular, 9, TEXT, MARGIN, y, line);
+                y -= 12;
+            }
         }
 
         private void footers() throws IOException {
