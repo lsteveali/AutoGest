@@ -4,7 +4,7 @@
 > termina una tarea se agrega/actualiza su estado y, cuando aporta, una entrada
 > en la sección «Bitácora cronológica».
 >
-> Última actualización: **19/11/2026** — Líder (Leonarth Steve Ali Camargo).
+> Última actualización: **20/11/2026** — Líder (Leonarth Steve Ali Camargo).
 
 ---
 
@@ -15,7 +15,7 @@
 | Proyecto | AutoGest — Sistema de gestión integral para talleres automotrices |
 | Materia | Programación de Computadores III (SS462) |
 | Repositorio | https://github.com/lsteveali/AutoGest.git |
-| Rama de trabajo actual | `feature/correos-factura` (desde `develop` en `4646992`; en prueba del Líder, sin subir) |
+| Rama de trabajo actual | `develop` (PR #25 y #26 fusionados; la próxima rama del Líder se crea desde aquí) |
 | Sprint en curso | **Sprint 8 (Configuración)** 🟡 · Sprint 7 ✅ cerrado (PR #21 y #22) · Paleta y Manrope ✅ (PR #23) · siguiente: Sprint 9 (Asistente) |
 | Equipo | Líder: Leonarth Steve Ali Camargo · Dev 1: Sebastián Murgas Tejeda · Dev 2: **sin integrante vinculado** — el Líder asume todas sus responsabilidades (decisión 14/10/2026) |
 | Documento guía | `AutoGest_Guia_Lider` (V2.0) |
@@ -69,7 +69,7 @@
 | 5 | Facturación (Líder: todo el módulo) | ✅ PR #16 fusionado en `develop` (`b858e80`, 15/11/2026): facturación, PDF, avisos al cliente e Inicio con órdenes y facturas (Sesión 22) |
 | 6 | Notificaciones (Dev 1: backend e interfaz · Líder: plantillas, eventos y correo real) | ✅ Dev 1 (PR #17 y #18) · Líder (PR #19 y #20) |
 | 7 | Reportes (Dev 1: consultas de apoyo · Líder: pantalla, indicadores y PDF) | ✅ Dev 1 (PR #21) · Líder (PR #22, `8338f73`, 19/11/2026) |
-| 8 | Configuración (Dev 1: Datos del taller y Preferencias · Líder: pantalla general y el resto de secciones, incluidas Copias de seguridad) | 🟡 En curso — Dev 1: `SettingsService`, Datos del taller y Preferencias · Líder: restaurar copias ✅ (PR #24, Sesión 26); faltan Facturación y Notificaciones, que esperan el `SettingsService` |
+| 8 | Configuración (Dev 1: Datos del taller y Preferencias · Líder: pantalla general y el resto de secciones, incluidas Copias de seguridad) | 🟡 En curso — Dev 1: `SettingsService`, Datos del taller y Preferencias ✅ (PR #26, tabla `app_settings` creada el 20/11/2026) · Líder: restaurar copias ✅ (PR #24, Sesión 26); faltan Configuración de Facturación y de Notificaciones (ya desbloqueadas) |
 | 9 | Asistente AutoGest (Líder) | ⬜ No iniciado |
 
 > **Reasignación (14/10/2026):** las columnas de Dev 2 de la hoja de ruta
@@ -769,6 +769,29 @@ estaba incorporado; el otro era un WIP viejo de `login-usuarios`). Quedan solo
 
 **Ojo al probar:** el correo real está activo. Una factura nueva, un pago o una notificación de Facturación envía el correo **con los dos adjuntos** al cliente.
 
+**Cierre:** el Líder probó la rama y se abrió el PR #25 (`feature/correos-factura` → `develop`), con la sección «Para Dev 1» sobre `NotificationService` y `NotificationNewController`. Fusionado el 19/11/2026 (`109f24b`).
+
+### 20/11/2026 — Sesión 28 (Líder): revisión del PR #26 de Dev 1 y tabla `app_settings`
+
+**Contexto.** Sebastián abrió el PR #26 (`feature/configuracion-taller`): `WorkshopProfile`, `SystemPreferences`, `SettingsDao/Repository/Service`, las pantallas «Datos del taller» y «Preferencias del sistema», `settings.css`, el script `docs/database/sprint8-settings.sql`, `SettingsServiceTest` y `SettingsLabelsTest`. Pidió al Líder ejecutar el script en Supabase, porque él no tiene acceso al editor SQL.
+
+**Revisión (se fusionó en `develop` mientras se revisaba, `a5b5f04`):**
+1. **Pruebas:** la rama incluía el `develop` vigente (con el PR #25); `mvn clean test` → **539 pruebas, 0 fallos**.
+2. **Bien:** el guardado va en una sola transacción (`ON CONFLICT … DO UPDATE`); el formato clave/valor queda escondido en el repositorio; el servicio valida nombre, NIT, correo, registros por página e inactividad. Los bloques en `AppContext` y `View` respetan lo acordado. Las tarjetas de Configuración del Líder se activan solas porque ya existen la `View` y el FXML.
+3. **Copias de seguridad:** `app_settings` entra sola en las copias, porque se descubre en el catálogo. Restaurar una copia anterior, que no la trae, no la toca.
+4. **Capturas** de las dos pantallas a 1280 px con un DAO en memoria, sin tocar la base de datos.
+
+**Tabla `app_settings` creada (con autorización del Líder):** se ejecutó `sprint8-settings.sql` sin cambios, en una transacción, desde un programa temporal fuera del repositorio:
+- La tabla quedó con RLS activo y los 7 datos de ejemplo del taller (nombre, NIT, correo, teléfono, ciudad, departamento y país).
+- Se comprobó con `SettingsService`: el taller está completo y las preferencias, aún sin guardar, salen con sus valores por defecto.
+- Dev 1 ya puede hacer la prueba manual pendiente de su PR.
+
+**Hallazgos para Dev 1 (archivos suyos; no se tocaron):**
+- Las preferencias se guardan pero **nada en la app las usa todavía** (registros por página, cierre de sesión por inactividad, formatos, idioma, moneda…). Hay que conectarlas o indicar en la pantalla que aún no tienen efecto.
+- En Preferencias se cortan textos de la columna derecha a 1280 px: «Registros por pá…», «Orden predeter…», «Mostrar información adicional…» y «Cerrar sesión automáticament…».
+- En Datos del taller algunos campos usan como texto de ayuda el mismo valor de ejemplo, como «AutoGest Taller Automotriz» en «Nombre comercial», y parecen ya llenos. Algunos valores largos se cortan.
+- Las dos pantallas leen y guardan en el hilo de la interfaz (sin `Background.run`); con Supabase la ventana se congela uno o dos segundos.
+
 ---
 
 ## 4. Decisiones y acuerdos
@@ -900,16 +923,16 @@ Verificación: `develop` → `mvn clean test` **108 pruebas, 0 fallos**
 - [x] ~~Subir la rama y abrir el PR hacia `develop`~~ — PR #16 fusionado (`b858e80`, 15/11/2026).
 - [x] ~~**Avisos al cliente**~~ — conectados el 15/11/2026 tras el PR #17 de Dev 1 (ver §3, Sesión 22).
 - [x] ~~Volver a abrir el PR de `feature/facturacion`~~ — reabierto, revisado por Dev 1 y fusionado; `develop` → **445 pruebas, 0 fallos**.
-- [ ] Tasa de IVA y plazo de pago desde Configuración de Facturación cuando exista el `SettingsService` de Dev 1 (Sprint 8).
+- [ ] Tasa de IVA y plazo de pago desde Configuración de Facturación (el `SettingsService` de Dev 1 ya está en `develop`, PR #26).
 - [ ] «Ver facturas» en el menú del detalle del cliente (`CustomerDetailController`, archivo de Dev 1) sigue desactivado: habilitarlo solo si el Líder lo pide.
 - [ ] Decidir si `OrderWorkflowService` debe impedir cancelar una orden con factura vigente (hoy solo lo evita la pantalla).
 - [x] ~~Descargar la factura en PDF~~ — hecho (15/11/2026, `InvoicePdfService`).
-- [ ] Datos del taller en el encabezado del PDF cuando exista «Datos del taller» (Dev 1, Sprint 8).
+- [ ] Datos del taller en el encabezado del PDF y en `{taller}` de los correos (ya existe «Datos del taller», PR #26).
 
 **Sprint 6 (Líder, `feature/notificaciones-eventos`):**
 - [x] Plantillas, aviso «vehículo listo», recordatorios de mantenimiento, tarjeta del Inicio y campana (Sesión 23).
 - [x] ~~Subir la rama y abrir el PR hacia `develop`~~ — PR #19 fusionado (`eb15f59`, 17/11/2026).
-- [ ] Editar las plantillas desde Configuración de Notificaciones cuando exista el `SettingsService` de Dev 1 (Sprint 8); también el nombre del taller (`{taller}`). Desde la Sesión 27 son nueve plantillas, incluidos los mensajes predeterminados de «Nueva notificación».
+- [ ] Editar las plantillas desde Configuración de Notificaciones (desbloqueado: `SettingsService` en `develop`, PR #26). Desde la Sesión 27 son nueve plantillas, incluidos los mensajes predeterminados de «Nueva notificación».
 - [ ] Comentarios para Dev 1 sobre su pantalla de Notificaciones: etiquetas de filtros cortadas, consultas en el hilo de la interfaz y anchos mínimos de columnas (ver Sesión 23). Con el correo real esto pesa más: «Nueva notificación», «Enviar ahora» y «Reintentar» esperan la respuesta de Gmail (1 a 3 s) con la ventana congelada.
 
 **Correo real (rama `feature/correo-smtp`):**
@@ -917,7 +940,7 @@ Verificación: `develop` → `mvn clean test` **108 pruebas, 0 fallos**
 - [x] ~~Configurar la cuenta de Gmail del taller y probar la entrega~~ — hecho por el Líder (17/11/2026): el correo llegó a un buzón real.
 - [x] ~~Fusionar el PR #20 (`feature/correo-smtp`)~~ — fusionado el 18/11/2026.
 - [x] ~~Adjuntar el PDF de la factura al aviso «Factura disponible»~~ — todos los correos de Facturación llevan la factura en PDF y PNG (Sesión 27, `feature/correos-factura`).
-- [ ] Subir `feature/correos-factura` y abrir el PR hacia `develop` cuando el Líder termine de probarla.
+- [x] ~~Subir `feature/correos-factura` y abrir el PR hacia `develop`~~ — PR #25 fusionado (`109f24b`, 19/11/2026).
 
 **Sprint 7 (Líder, `feature/reportes`):**
 - [x] Pantalla Reportes, indicadores, gráficas y PDF (Sesión 24).
@@ -937,7 +960,10 @@ Verificación: `develop` → `mvn clean test` **108 pruebas, 0 fallos**
 - [x] Copias de seguridad: crear y listar (Sesión 18).
 - [x] Restaurar una copia desde AutoGest: vaciar y recargar las tablas en orden de dependencias, en una transacción, con copia previa y confirmación fuerte (Sesión 26, rama `feature/restaurar-copias`).
 - [x] ~~Subir `feature/restaurar-copias` y abrir el PR hacia `develop`~~ — PR #24 fusionado (`d8fd07a`, 19/11/2026).
-- [ ] Configuración de Facturación y de Notificaciones (guardan en `app_settings` de Dev 1: esperan su `SettingsService`).
+- [ ] Configuración de Facturación y de Notificaciones (guardan en `app_settings`). **Desbloqueadas:** el `SettingsService` de Dev 1 está en `develop` (PR #26) y la tabla existe en Supabase desde el 20/11/2026.
+- [x] ~~Datos del taller y Preferencias del sistema (Dev 1)~~ — PR #26 fusionado (`a5b5f04`, 20/11/2026); `sprint8-settings.sql` ejecutado en Supabase el mismo día.
+- [ ] Dev 1: prueba manual de Datos del taller y Preferencias (lista de su PR #26), ahora que existe la tabla.
+- [ ] Dev 1: hallazgos de la revisión del PR #26 (Sesión 28): preferencias sin efecto en la app, textos cortados en Preferencias, textos de ayuda iguales a los valores en Datos del taller y lecturas en el hilo de la interfaz.
 
 **Pendientes nuevos (14/10/2026):**
 - [x] ~~Confirmar el estado del PR del backend de Clientes~~ — resuelto: PR **#5** (backend) y **#8** (interfaz completa) fusionados en `develop`; siguen pendientes de revisión de Sebastián los PRs del Líder.
