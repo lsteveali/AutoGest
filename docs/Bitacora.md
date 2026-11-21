@@ -4,7 +4,7 @@
 > termina una tarea se agrega/actualiza su estado y, cuando aporta, una entrada
 > en la sección «Bitácora cronológica».
 >
-> Última actualización: **20/11/2026** — Líder (Leonarth Steve Ali Camargo).
+> Última actualización: **21/11/2026** — Líder (Leonarth Steve Ali Camargo).
 
 ---
 
@@ -70,7 +70,7 @@
 | 6 | Notificaciones (Dev 1: backend e interfaz · Líder: plantillas, eventos y correo real) | ✅ Dev 1 (PR #17 y #18) · Líder (PR #19 y #20) |
 | 7 | Reportes (Dev 1: consultas de apoyo · Líder: pantalla, indicadores y PDF) | ✅ Dev 1 (PR #21) · Líder (PR #22, `8338f73`, 19/11/2026) |
 | 8 | Configuración (Dev 1: Datos del taller y Preferencias · Líder: pantalla general y el resto de secciones, incluidas Copias de seguridad) | ✅ Cerrado (20/11/2026) — Dev 1: `SettingsService`, Datos del taller y Preferencias (PR #26, tabla `app_settings` creada el 20/11/2026) · Líder: restaurar copias (PR #24, Sesión 26), Configuración de Facturación y de Notificaciones (PR #28, Sesión 30) y hallazgos de Dev 1 (PR #29, Sesión 31) |
-| 9 | Asistente AutoGest (Líder) | ⬜ No iniciado |
+| 9 | Asistente AutoGest (Líder) | 🟡 En `feature/asistente` (Sesión 33): panel, motor local, navegación con filtros y formularios precargados, y motor con IA opcional. Falta la prueba manual del Líder y el PR |
 
 > **Reasignación (14/10/2026):** las columnas de Dev 2 de la hoja de ruta
 > (Vehículos, Inventario y Repuestos, detalle de la orden e integración de stock,
@@ -938,6 +938,66 @@ Rama `refactor/catalogos-modelo` desde `develop` (`b3f0f02`).
 **Archivos de Dev 1 tocados (pedido del Líder):** todo el paquete `model` que usa los enums y casi todas sus pantallas, servicios y pruebas; solo cambian los imports. Si Sebastián tiene `.diff` pendientes, chocarán en las líneas de `import`: hay que cambiar `com.autogest.model.X` por `com.autogest.model.Catalogs.X`.
 - Capturas del login a 1280×720 y de la barra lateral; el menú completo cabe a 720 px de alto. `mvn clean test` → **539 pruebas, 0 fallos**.
 
+### 21/11/2026 — Sesión 33 (Líder): Sprint 9, Asistente AutoGest
+
+**Contexto.** Se inicia el Sprint 9. El Líder eligió:
+- **Motor «Híbrido»:** reglas locales que funcionan siempre, y Claude si hay una llave configurada.
+- **Alcance «Consultar y ayudar a crear»**, con esta definición: el Asistente navega entre los módulos, abre pantallas, aplica filtros y precarga formularios con la navegación existente de JavaFX, **sin guardar nada sin confirmación del usuario y respetando los permisos de cada rol**.
+
+Rama `feature/asistente` desde `develop` (`fb793e9`).
+
+**Hecho:**
+1. **Intención y catálogo** (`service/assistant`):
+   - `AssistantIntent` tiene seis tipos: abrir, filtrar, abrir un registro, crear, ayuda y no entendido.
+   - `AssistantCatalog` reúne los módulos que el rol puede abrir, con sus palabras, sus filtros (con las opciones tal como se ven en pantalla) y los campos de su formulario.
+2. **Motor local** (`LocalAssistantInterpreter`): reglas en español, sin tildes ni mayúsculas. Reconoce:
+   - Módulos y estados en singular y plural.
+   - Verbos de crear.
+   - Placas, con o sin guion.
+   - Números de orden y de factura.
+   - Nombres de clientes y mensajes entre comillas.
+3. **Resolutor** (`AssistantResolver`): convierte la intención en acciones.
+   - Busca el registro: la placa, la orden o la factura abre su detalle. Si no lo encuentra, abre la lista con la búsqueda.
+   - **«Nueva orden para DEF-456»** precarga el vehículo y su propietario.
+     - Si el propietario está inactivo, lo explica y ofrece abrir su ficha.
+     - Si la placa no existe, ofrece registrar el vehículo.
+   - **Factura de una orden:** abre la nueva factura con esa orden.
+   - **Aviso a un cliente:** precarga el tipo, el asunto predeterminado del tipo y el mensaje.
+   - **Quita toda acción a una pantalla que el rol no puede abrir**, aunque la haya propuesto un motor.
+4. **Búsquedas de solo lectura** (`ServiceAssistantLookup`) sobre los servicios existentes.
+5. **Interfaz:**
+   - `AssistantPanel`: panel de 400 px sobre el contenido, con burbujas, ejemplos y botones de acción. Se abre con el botón flotante o desde la barra lateral, y se cierra con `Esc`.
+   - `AssistantFormFiller` aplica la búsqueda, los filtros y los campos **por su etiqueta visible**, sin tocar los controladores de cada pantalla.
+   - `ViewNavigator.navigate(View, Integer, Consumer<Parent>)` avisa cuando la pantalla terminó de cargar.
+6. **Motor con IA opcional** (`ClaudeAssistantEngine`):
+   - Usa el SDK oficial de Anthropic (`anthropic-java` 3.3.0) con el modelo `claude-opus-5-5`, salida JSON con esquema fijo y esfuerzo bajo.
+   - **Solo envía lo que escribe el usuario y el catálogo del rol; nunca datos de la base.**
+   - La respuesta se revisa contra el catálogo: se descartan los filtros u opciones inventados y los módulos que el rol no ve.
+   - La llave va en `application.local.properties` (`assistant.anthropic.api-key`, documentada en el archivo de ejemplo). **Sin llave, o si la IA falla o se niega, responde el motor local** con una nota.
+7. **Verificación** con el shell real y datos reales, **solo lecturas** (sin pulsar «Guardar» ni abrir Facturación), con estos pedidos:
+   - «órdenes en reparación».
+   - «repuestos con stock bajo».
+   - «nueva orden para DEF-456».
+   - GHI-101, cuyo propietario está inactivo.
+   - «abre el vehículo MMX-352».
+   - Aviso de promoción con mensaje.
+   - «clientes inactivos».
+
+   Errores corregidos durante la verificación:
+   - Los filtros no se aplicaban dentro del `ScrollPane`.
+   - Las placas con guion no se encontraban.
+   - La nota del panel se cortaba.
+   - El asunto del aviso quedaba vacío.
+8. **Pruebas nuevas:**
+   - `LocalAssistantInterpreterTest` (13).
+   - `AssistantServiceTest` (4).
+   - `AssistantResolverTest` (12).
+   - `ClaudeAssistantEngineTest` (7) y `AssistantConfigTest` (2). Estas no llaman a la API.
+
+   `mvn clean test` → **611 pruebas, 0 fallos** (573 + 38).
+
+**Archivos de Dev 1 tocados:** ninguno. Del Líder: `MainController`, `ViewNavigator`, `AppContext` (bloque del Líder), `autogest.css` y `pom.xml`.
+
 ---
 
 ## 4. Decisiones y acuerdos
@@ -993,6 +1053,10 @@ Rama `refactor/catalogos-modelo` desde `develop` (`b3f0f02`).
 | 20/11/2026 | **La tasa de IVA que se muestra sale de cada factura** (impuestos ÷ subtotal), no de la configuración vigente. | Una factura ya emitida debe seguir mostrando la tasa con la que se cobró. |
 | 20/11/2026 | **Las plantillas leen sus textos de un origen configurable** (`NotificationTemplate.useTextSource`). | Los avisos automáticos, los de facturación de Dev 1 y «Nueva notificación» siguen llamando a las mismas plantillas: los textos editados llegan a todos sin tocar esos archivos. |
 | 20/11/2026 | **Logo nuevo: escudo con bulldog** (entregado por el Líder). El login y la barra lateral usan el **logotipo completo** (letras negras en el login, blancas en la barra); el ícono de la ventana y los PDF usan el escudo solo. | Reemplaza la tuerca azul, que no combinaba con la paleta nueva. El Líder prefirió el logotipo completo y más grande en lugar del escudo junto a un título de texto. El escudo se guarda en cuadros transparentes para no cambiar el código que dibuja los íconos y los PDF. |
+| 21/11/2026 | **El Asistente se abre como un panel sobre el contenido**, no como una pantalla. | Así el usuario ve a la vez el panel y la pantalla que el Asistente abre, filtra o precarga. |
+| 21/11/2026 | **El Asistente precarga los formularios por la etiqueta visible de cada campo** (`AssistantFormFiller`), sin métodos nuevos en los controladores. | Funciona igual en las pantallas de Dev 1 sin tocarlas. Si una etiqueta cambia, el campo solo deja de precargarse; nada se rompe. |
+| 21/11/2026 | **El Asistente nunca guarda:** abre, filtra y precarga, y el usuario pulsa «Guardar». Los permisos se revisan dos veces: el catálogo solo tiene los módulos del rol y cada acción pasa por `Permissions` antes de navegar. | Pedido del Líder: nada cambia sin confirmación y se respetan los roles. Un motor con IA tampoco puede saltarse los permisos. |
+| 21/11/2026 | **Motor con IA opcional con Claude (`claude-opus-5-5`), con las reglas locales de respaldo.** Solo se envía el texto del usuario y el catálogo del rol. | Sin llave, sin internet o si la IA falla, el Asistente sigue funcionando. No se envían datos de clientes a un servicio externo, y cada consulta tiene costo. |
 | 19/11/2026 | **El formulario «Nueva notificación» propone un mensaje según el tipo** (plantillas del Líder) sin pisar lo que el usuario escribió. | Pedido del Líder. Se autorizó tocar `NotificationNewController` y `NotificationService` de Dev 1; se registra en la sección «Para Dev 1» del PR. |
 
 ---
@@ -1126,6 +1190,11 @@ Verificación: `develop` → `mvn clean test` **108 pruebas, 0 fallos**
 **Catálogos del modelo (Líder, `refactor/catalogos-modelo`):**
 - [x] Los 16 enums agrupados en `model/Catalogs.java` (Sesión 32).
 - [x] ~~Subir la rama y abrir el PR hacia `develop`~~ — PR #30 fusionado (`3d86180`, 20/11/2026); el cambio de imports quedó explicado a Dev 1 en el PR.
+
+**En curso (Líder, Sprint 9 — rama `feature/asistente`):**
+- [x] Panel, motor local, navegación con filtros, formularios precargados y motor con IA opcional (Sesión 33).
+- [ ] Subir la rama y abrir el PR hacia `develop` cuando el Líder termine su prueba manual.
+- [ ] Opcional: probar el motor con IA con una llave real (cada consulta tiene costo).
 
 **Pendientes nuevos (14/10/2026):**
 - [x] ~~Confirmar el estado del PR del backend de Clientes~~ — resuelto: PR **#5** (backend) y **#8** (interfaz completa) fusionados en `develop`; siguen pendientes de revisión de Sebastián los PRs del Líder.
