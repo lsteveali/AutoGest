@@ -123,10 +123,12 @@ public class AssistantPanel extends VBox {
         send.disableProperty().bind(input.textProperty().isEmpty());
         Label note = new Label("No guarda nada: los formularios quedan listos para que tú confirmes.");
         note.setWrapText(true);
+        note.setMinHeight(Region.USE_PREF_SIZE);
         note.getStyleClass().add("assistant-footnote");
         HBox row = new HBox(8, input, send);
         row.setAlignment(Pos.CENTER);
         VBox box = new VBox(6, row, note);
+        box.setMinHeight(Region.USE_PREF_SIZE);
         box.getStyleClass().add("assistant-input-row");
         return box;
     }
