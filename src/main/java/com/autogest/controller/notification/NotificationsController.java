@@ -156,7 +156,7 @@ public class NotificationsController implements Initializable, NavigatorAware {
     }
 
     private void delete(Notification notification) {
-        if (ConfirmDialog.confirm("Eliminar notificación", "¿Deseas eliminar «" + title(notification) + "»?")) {
+        if (ConfirmDialog.confirmDelete("Eliminar notificación", "¿Deseas eliminar «" + title(notification) + "»?")) {
             run(() -> service().deleteNotification(notification.getId()));
         }
     }

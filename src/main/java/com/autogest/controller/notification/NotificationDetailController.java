@@ -109,7 +109,7 @@ public class NotificationDetailController implements Initializable, Parameterize
     }
 
     private void delete() {
-        if (!ConfirmDialog.confirm("Eliminar notificación", "¿Deseas eliminar esta notificación?")) {
+        if (!ConfirmDialog.confirmDelete("Eliminar notificación", "¿Deseas eliminar esta notificación?")) {
             return;
         }
         try {

@@ -10,10 +10,13 @@ import com.autogest.controller.components.PageHeader;
 import com.autogest.exception.AutoGestException;
 import com.autogest.model.SystemPreferences;
 import com.autogest.service.SettingsService;
+import com.autogest.util.AppPreferences;
+import com.autogest.util.Background;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.layout.GridPane;
@@ -38,6 +41,9 @@ public class PreferencesController implements Initializable, NavigatorAware {
     private VBox root;
 
     private ViewNavigator navigator;
+    private Button restoreButton;
+    private Button cancelButton;
+    private Button saveButton;
 
     private final ComboBox<String> language = FormLayout.combo("Idioma");
     private final ComboBox<String> country = FormLayout.combo("País");
@@ -84,11 +90,13 @@ public class PreferencesController implements Initializable, NavigatorAware {
         HBox.setHgrow(right, Priority.ALWAYS);
         left.setMaxWidth(Double.MAX_VALUE);
         right.setMaxWidth(Double.MAX_VALUE);
+        // La columna derecha no baja de 300 px: sus títulos y casillas caben completos.
+        right.setMinWidth(300);
 
-        root.getChildren().addAll(header, columns, FormLayout.actions(
-                FormLayout.button("Restaurar valores predeterminados", "btn-secondary", this::restoreDefaults),
-                FormLayout.button("Cancelar", "btn-secondary", this::load),
-                FormLayout.button("Guardar cambios", "btn-primary", this::save)));
+        restoreButton = FormLayout.button("Restaurar valores predeterminados", "btn-secondary", this::restoreDefaults);
+        cancelButton = FormLayout.button("Cancelar", "btn-secondary", this::load);
+        saveButton = FormLayout.button("Guardar cambios", "btn-primary", this::save);
+        root.getChildren().addAll(header, columns, FormLayout.actions(restoreButton, cancelButton, saveButton));
         Platform.runLater(this::load);
     }
 
@@ -97,40 +105,98 @@ public class PreferencesController implements Initializable, NavigatorAware {
         this.navigator = navigator;
     }
 
+    // Las opciones que AutoGest todavía no aplica quedan desactivadas con la
+    // nota «Próximamente»: la pantalla no promete algo que no pasa (hallazgo de
+    // la revisión del PR #26). Se aplican: registros por página, confirmar antes
+    // de eliminar, mensajes después de guardar y cierre de sesión por inactividad.
+
     private VBox regionCard() {
-        GridPane grid = FormLayout.grid(3);
-        FormLayout.row(grid, 0, FormLayout.labeled("Idioma", language), FormLayout.labeled("País", country),
-                FormLayout.labeled("Mostrar barra lateral", sidebarMode));
+        // Dos columnas: en tres se cortaban la zona horaria y la moneda.
+        GridPane grid = FormLayout.grid(2);
+        FormLayout.row(grid, 0, FormLayout.labeled("Idioma", language), FormLayout.labeled("País", country));
         FormLayout.row(grid, 1, FormLayout.labeled("Zona horaria", timeZone), FormLayout.labeled("Moneda", currency));
         FormLayout.row(grid, 2, FormLayout.labeled("Formato de fecha", dateFormat),
-                FormLayout.labeled("Formato de hora", timeFormat),
-                FormLayout.labeled("Separador decimal", decimalSeparator));
-        return FormLayout.card("Región y formato", grid);
+                FormLayout.labeled("Formato de hora", timeFormat));
+        FormLayout.row(grid, 3, FormLayout.labeled("Separador decimal", decimalSeparator),
+                FormLayout.labeled("Mostrar barra lateral", sidebarMode));
+        disable(language, country, sidebarMode, timeZone, currency, dateFormat, timeFormat, decimalSeparator);
+        return FormLayout.card("Región y formato", grid,
+                comingSoon("Próximamente. Por ahora AutoGest usa español y el formato de Colombia: pesos, "
+                        + "DD/MM/AAAA, 24 horas y coma decimal; la barra lateral va expandida."));
     }
 
     private VBox behaviourCard() {
+        disable(openLastModule, contextHelp, recentFilters);
         return FormLayout.card("Comportamiento del sistema",
-                confirmDelete, saveConfirmation, openLastModule, contextHelp, recentFilters);
+                wrap(confirmDelete), wrap(saveConfirmation), wrap(openLastModule), wrap(contextHelp),
+                wrap(recentFilters),
+                comingSoon("Las tres últimas opciones llegarán próximamente."));
     }
 
     private VBox tablesCard() {
-        GridPane grid = FormLayout.grid(2);
-        FormLayout.row(grid, 0, FormLayout.labeled("Registros por página", pageSize),
-                FormLayout.labeled("Orden predeterminado", defaultSort));
-        return FormLayout.card("Tablas y listados", grid, extraTableInfo);
+        // Una columna: en media columna los títulos se cortaban («Registros por pá…»).
+        GridPane grid = FormLayout.grid(1);
+        FormLayout.row(grid, 0, FormLayout.labeled("Registros por página", pageSize));
+        FormLayout.row(grid, 1, FormLayout.labeled("Orden predeterminado", defaultSort));
+        disable(defaultSort, extraTableInfo);
+        return FormLayout.card("Tablas y listados", grid, wrap(extraTableInfo),
+                comingSoon("Registros por página se aplica a las listas al volver a abrirlas. "
+                        + "El orden y la información adicional llegarán próximamente."));
     }
 
     private VBox sessionCard() {
-        return FormLayout.card("Configuración general", autoLogout,
+        return FormLayout.card("Sesión", wrap(autoLogout),
                 FormLayout.labeled("Tiempo de inactividad", inactivity));
     }
 
-    private void load() {
-        try {
-            show(service().getPreferences());
-        } catch (AutoGestException e) {
-            ErrorDialog.show("No se pudieron cargar las preferencias", e.getMessage());
+    private static void disable(javafx.scene.Node... nodes) {
+        for (javafx.scene.Node node : nodes) {
+            node.setDisable(true);
         }
+    }
+
+    /** Las casillas largas pasan a dos líneas en vez de cortarse con «…». */
+    private static CheckBox wrap(CheckBox box) {
+        box.setWrapText(true);
+        box.setMaxWidth(Double.MAX_VALUE);
+        return box;
+    }
+
+    private static javafx.scene.control.Label comingSoon(String text) {
+        javafx.scene.control.Label note = new javafx.scene.control.Label(text);
+        note.setWrapText(true);
+        note.getStyleClass().add("settings-note");
+        return note;
+    }
+
+    /** Carga (o recarga, con «Cancelar») las preferencias guardadas, en segundo plano. */
+    private void load() {
+        run(() -> service().getPreferences(), this::show, "No se pudieron cargar las preferencias");
+    }
+
+    /**
+     * Ejecuta una lectura o escritura en segundo plano con los botones
+     * desactivados; al terminar muestra el resultado o el error.
+     */
+    private void run(java.util.function.Supplier<SystemPreferences> work,
+                     java.util.function.Consumer<SystemPreferences> done, String errorTitle) {
+        setBusy(true);
+        Background.run(work::get,
+                result -> {
+                    setBusy(false);
+                    done.accept(result);
+                },
+                error -> {
+                    setBusy(false);
+                    ErrorDialog.show(errorTitle, error instanceof AutoGestException && error.getMessage() != null
+                            ? error.getMessage() : "Revisa la conexión e inténtalo de nuevo.");
+                });
+    }
+
+    private void setBusy(boolean busy) {
+        restoreButton.setDisable(busy);
+        cancelButton.setDisable(busy);
+        saveButton.setDisable(busy);
     }
 
     private void show(SystemPreferences p) {
@@ -174,12 +240,13 @@ public class PreferencesController implements Initializable, NavigatorAware {
         p.setSaveRecentFilters(recentFilters.isSelected());
         p.setShowExtraTableInfo(extraTableInfo.isSelected());
         p.setAutoLogout(autoLogout.isSelected());
-        try {
-            service().updatePreferences(p);
-            info("Las preferencias se guardaron correctamente.");
-        } catch (AutoGestException e) {
-            ErrorDialog.show("No se pudieron guardar las preferencias", e.getMessage());
-        }
+        run(() -> service().updatePreferences(p),
+                saved -> {
+                    // Desde ya rigen en esta sesión (listas, confirmaciones, inactividad).
+                    AppPreferences.update(saved);
+                    info("Las preferencias se guardaron correctamente.");
+                },
+                "No se pudieron guardar las preferencias");
     }
 
     private void restoreDefaults() {
@@ -187,15 +254,20 @@ public class PreferencesController implements Initializable, NavigatorAware {
                 "¿Deseas volver a las preferencias de fábrica?")) {
             return;
         }
-        try {
-            show(service().restoreDefaultPreferences());
-            info("Se restauraron las preferencias predeterminadas.");
-        } catch (AutoGestException e) {
-            ErrorDialog.show("No se pudieron restaurar las preferencias", e.getMessage());
-        }
+        run(() -> service().restoreDefaultPreferences(),
+                restored -> {
+                    show(restored);
+                    AppPreferences.update(restored);
+                    info("Se restauraron las preferencias predeterminadas.");
+                },
+                "No se pudieron restaurar las preferencias");
     }
 
+    /** Mensaje de resultado, si la preferencia «Mostrar mensajes de confirmación» está activa. */
     private static void info(String message) {
+        if (!AppPreferences.showSaveConfirmation()) {
+            return;
+        }
         Alert alert = new Alert(Alert.AlertType.INFORMATION, message);
         alert.setHeaderText(null);
         alert.setTitle("Preferencias del sistema");

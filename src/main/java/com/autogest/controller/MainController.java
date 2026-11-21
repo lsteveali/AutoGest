@@ -9,8 +9,11 @@ import com.autogest.controller.components.Topbar;
 import com.autogest.controller.user.UserLabels;
 import com.autogest.model.Role;
 import com.autogest.model.User;
+import com.autogest.util.AppPreferences;
+import com.autogest.util.Background;
 import com.autogest.util.Session;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.scene.layout.StackPane;
@@ -46,6 +49,8 @@ public class MainController implements Initializable {
 
     private ViewNavigator navigator;
     private Runnable onLogout;
+    /** Cierre de sesión por inactividad, según las Preferencias del sistema. */
+    private final InactivityTimer inactivity = new InactivityTimer(this::endSessionForInactivity);
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -79,6 +84,13 @@ public class MainController implements Initializable {
             event.consume();
             endSession();
         });
+
+        // Preferencias del sistema de esta sesión (registros por página, confirmaciones,
+        // cierre por inactividad). Si no se pueden leer, siguen las de fábrica.
+        Background.run(() -> AppContext.getInstance().getSettingsService().getPreferences(),
+                AppPreferences::update, error -> { });
+        // Se enciende cuando la ventana ya existe (después de initialize).
+        javafx.application.Platform.runLater(inactivity::start);
 
         assistantButton.setOnAction(event -> open(View.ASSISTANT));
         StackPane.setMargin(assistantButton, new Insets(0, 24, 24, 0));
@@ -154,10 +166,22 @@ public class MainController implements Initializable {
 
     /** Cierra la sesión sin preguntar y vuelve al inicio de sesión. */
     private void endSession() {
+        inactivity.stop();
         AppContext.getInstance().getAuthenticationService().logout();
         if (onLogout != null) {
             onLogout.run();
         }
+    }
+
+    /** Cierre por inactividad (preferencia del sistema): cierra la sesión y lo explica. */
+    private void endSessionForInactivity() {
+        endSession();
+        Alert alert = new Alert(Alert.AlertType.INFORMATION,
+                "Por seguridad se cerró la sesión después de " + AppPreferences.inactivityMinutes()
+                        + " minutos sin actividad. Inicia sesión de nuevo para continuar.");
+        alert.setHeaderText(null);
+        alert.setTitle("Sesión cerrada");
+        alert.show();
     }
 
     /** Rol del usuario en sesión, o {@code null} si no hay sesión abierta. */
