@@ -1,6 +1,7 @@
 package com.autogest.controller.assistant;
 
 import com.autogest.config.AppContext;
+import com.autogest.model.Catalogs.CustomerStatus;
 import com.autogest.model.Customer;
 import com.autogest.model.Invoice;
 import com.autogest.model.ServiceOrder;
@@ -26,6 +27,14 @@ public class ServiceAssistantLookup implements AssistantLookup {
     @Override
     public Optional<Integer> ownerOfPlate(String plate) {
         return vehicle(plate).map(Vehicle::getOwner).filter(owner -> owner.getId() > 0).map(Customer::getId);
+    }
+
+    @Override
+    public boolean ownerIsActive(String plate) {
+        return ownerOfPlate(plate)
+                .map(id -> AppContext.getInstance().getCustomerService().getDetail(id).getStatus()
+                        == CustomerStatus.ACTIVE)
+                .orElse(true);
     }
 
     @Override
@@ -56,7 +65,9 @@ public class ServiceAssistantLookup implements AssistantLookup {
 
     private static Optional<Vehicle> vehicle(String plate) {
         String wanted = plateKey(plate);
-        return AppContext.getInstance().getVehicleService().searchVehicles(plate, null, null).stream()
+        // Se busca por las letras: la base puede guardar «GHI-101» y el usuario escribir «GHI101».
+        String letters = wanted.length() >= 3 ? wanted.substring(0, 3) : wanted;
+        return AppContext.getInstance().getVehicleService().searchVehicles(letters, null, null).stream()
                 .filter(vehicle -> plateKey(vehicle.getLicensePlate()).equals(wanted))
                 .findFirst();
     }

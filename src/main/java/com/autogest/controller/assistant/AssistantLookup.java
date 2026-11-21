@@ -23,6 +23,14 @@ public interface AssistantLookup {
     /** Id del propietario del vehículo con esa placa. */
     Optional<Integer> ownerOfPlate(String plate);
 
+    /**
+     * Si el propietario del vehículo está activo. «Nueva orden» solo ofrece
+     * clientes activos, así que con uno inactivo no se puede preseleccionar.
+     */
+    default boolean ownerIsActive(String plate) {
+        return true;
+    }
+
     /** Id de la orden con ese número («45» y «0045» son la misma). */
     Optional<Integer> orderByNumber(String number);
 

@@ -155,6 +155,15 @@ public class AssistantResolver {
                 String plate = data.get(LocalAssistantInterpreter.FIELD_PLATE);
                 if (plate != null) {
                     Optional<Integer> vehicle = lookup.vehicleByPlate(plate);
+                    if (vehicle.isPresent() && !lookup.ownerIsActive(plate)) {
+                        // «Nueva orden» solo ofrece clientes activos: se explica en vez de abrirla vacía.
+                        Optional<Integer> owner = lookup.ownerOfPlate(plate);
+                        List<AssistantAction> customer = owner.map(id -> List.of(AssistantAction.record(
+                                "Abrir el propietario de " + plate, View.CUSTOMER_DETAIL, id))).orElse(List.of());
+                        return new Plan("El propietario del vehículo " + plate + " está inactivo, y las órdenes "
+                                + "nuevas solo admiten clientes activos. Actívalo en su ficha y vuelve a pedírmelo.",
+                                customer);
+                    }
                     if (vehicle.isPresent()) {
                         parameter = vehicle.get();
                         message.append(" con el vehículo ").append(plate);

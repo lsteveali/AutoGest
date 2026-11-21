@@ -116,6 +116,49 @@ class AssistantResolverTest {
     }
 
     @Test
+    void newOrderForAVehicleOfAnInactiveCustomerExplainsWhy() {
+        AssistantLookup inactiveOwner = new AssistantLookup() {
+            @Override
+            public Optional<Integer> vehicleByPlate(String plate) {
+                return Optional.of(7);
+            }
+
+            @Override
+            public Optional<Integer> ownerOfPlate(String plate) {
+                return Optional.of(3);
+            }
+
+            @Override
+            public boolean ownerIsActive(String plate) {
+                return false;
+            }
+
+            @Override
+            public Optional<Integer> orderByNumber(String number) {
+                return Optional.empty();
+            }
+
+            @Override
+            public Optional<Integer> invoiceByNumber(String number) {
+                return Optional.empty();
+            }
+
+            @Override
+            public List<Match> customersByName(String name) {
+                return List.of();
+            }
+        };
+        AssistantIntent intent = interpreter.interpret("nueva orden para ABC123",
+                AssistantDestinations.catalogFor(Role.ADMINISTRATOR));
+
+        Plan plan = new AssistantResolver(inactiveOwner).resolve(intent, Role.ADMINISTRATOR);
+
+        assertTrue(plan.message().contains("está inactivo"), plan.message());
+        assertEquals(View.CUSTOMER_DETAIL, plan.actions().get(0).view());
+        assertEquals(3, plan.actions().get(0).parameter());
+    }
+
+    @Test
     void invoiceForAnOrderNumberOpensTheNewInvoice() {
         AssistantAction action = ask("facturar la orden 0045", Role.ADMINISTRATOR).actions().get(0);
 
