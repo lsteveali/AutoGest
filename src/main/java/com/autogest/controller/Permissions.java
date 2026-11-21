@@ -1,6 +1,6 @@
 package com.autogest.controller;
 
-import com.autogest.model.Role;
+import com.autogest.model.Catalogs.Role;
 
 /**
  * Matriz de acceso por rol (decisión D-11). Decide si un rol puede abrir una

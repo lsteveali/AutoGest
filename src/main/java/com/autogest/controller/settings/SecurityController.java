@@ -8,7 +8,7 @@ import com.autogest.controller.components.PageHeader;
 import com.autogest.controller.components.PagedTable;
 import com.autogest.controller.components.StatusBadge;
 import com.autogest.controller.user.UserLabels;
-import com.autogest.model.Role;
+import com.autogest.model.Catalogs.Role;
 import com.autogest.model.User;
 import com.autogest.service.UserService;
 import com.autogest.util.Background;

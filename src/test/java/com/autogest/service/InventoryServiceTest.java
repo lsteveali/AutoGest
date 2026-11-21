@@ -9,7 +9,7 @@ import com.autogest.exception.ValidationException;
 import com.autogest.model.InventoryMovement;
 import com.autogest.model.MovementType;
 import com.autogest.model.Part;
-import com.autogest.model.Role;
+import com.autogest.model.Catalogs.Role;
 import com.autogest.model.StockStatus;
 import com.autogest.model.Supplier;
 import com.autogest.model.User;

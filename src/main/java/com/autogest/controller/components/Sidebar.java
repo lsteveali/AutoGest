@@ -2,7 +2,7 @@ package com.autogest.controller.components;
 
 import com.autogest.controller.Permissions;
 import com.autogest.controller.View;
-import com.autogest.model.Role;
+import com.autogest.model.Catalogs.Role;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;

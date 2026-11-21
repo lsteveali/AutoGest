@@ -1,5 +1,7 @@
 package com.autogest.model;
 
+import com.autogest.model.Catalogs.UserStatus;
+import com.autogest.model.Catalogs.Role;
 import com.autogest.util.PasswordHasher;
 import java.time.LocalDateTime;
 

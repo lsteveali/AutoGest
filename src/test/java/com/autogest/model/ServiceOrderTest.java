@@ -1,5 +1,6 @@
 package com.autogest.model;
 
+import com.autogest.model.Catalogs.Role;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;

@@ -1,6 +1,6 @@
 package com.autogest.util;
 
-import com.autogest.model.Role;
+import com.autogest.model.Catalogs.Role;
 import com.autogest.model.User;
 
 /**

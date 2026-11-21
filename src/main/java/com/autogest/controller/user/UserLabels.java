@@ -1,9 +1,9 @@
 package com.autogest.controller.user;
 
 import com.autogest.controller.components.StatusBadge;
-import com.autogest.model.Role;
+import com.autogest.model.Catalogs.Role;
 import com.autogest.model.User;
-import com.autogest.model.UserStatus;
+import com.autogest.model.Catalogs.UserStatus;
 
 /**
  * Traduce los valores del dominio de usuarios a texto en español para las

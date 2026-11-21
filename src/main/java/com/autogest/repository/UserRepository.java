@@ -1,9 +1,9 @@
 package com.autogest.repository;
 
 import com.autogest.dao.UserDao;
-import com.autogest.model.Role;
+import com.autogest.model.Catalogs.Role;
 import com.autogest.model.User;
-import com.autogest.model.UserStatus;
+import com.autogest.model.Catalogs.UserStatus;
 
 import java.util.List;
 
