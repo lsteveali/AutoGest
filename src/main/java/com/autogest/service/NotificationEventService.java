@@ -7,7 +7,7 @@ import com.autogest.model.Notification;
 import com.autogest.model.NotificationType;
 import com.autogest.model.ServiceOrder;
 import com.autogest.model.Vehicle;
-import com.autogest.model.VehicleStatus;
+import com.autogest.model.Catalogs.VehicleStatus;
 import com.autogest.util.Formatter;
 
 import java.time.LocalDate;

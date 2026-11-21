@@ -3,8 +3,8 @@ package com.autogest.repository;
 import com.autogest.dao.VehicleDao;
 import com.autogest.model.Vehicle;
 import com.autogest.model.VehicleCounts;
-import com.autogest.model.VehicleStatus;
-import com.autogest.model.VehicleType;
+import com.autogest.model.Catalogs.VehicleStatus;
+import com.autogest.model.Catalogs.VehicleType;
 
 import java.time.LocalDate;
 import java.util.List;

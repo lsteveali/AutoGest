@@ -104,4 +104,86 @@ public final class Catalogs {
         PASSPORT
     }
 
+
+    // ===== Vehículos =====
+
+    /**
+     * Estado guardado de un vehículo. El aviso de mantenimiento próximo NO es un estado: se calcula con {@code Vehicle.isMaintenanceDue} (decisión D-13).
+     *
+     * <p>Se guarda en la base de datos como texto con el {@code name()} de la
+     * constante. El texto que ve el usuario en pantalla (en español) no vive en el
+     * modelo.</p>
+     *
+     * <p>Principles: High Cohesion.</p>
+     */
+    public enum VehicleStatus {
+
+        /** Vehículo disponible, sin orden activa. */
+        ACTIVE,
+        /** Vehículo con una orden de servicio en curso. */
+        IN_SERVICE,
+        /** Vehículo dado de baja. */
+        INACTIVE
+    }
+
+    /**
+     * Clase de vehículo. Valores iniciales (decisión D-13).
+     *
+     * <p>Se guarda en la base de datos como texto con el {@code name()} de la
+     * constante. El texto que ve el usuario en pantalla (en español) no vive en el
+     * modelo.</p>
+     *
+     * <p>Principles: High Cohesion, Protected Variations.</p>
+     */
+    public enum VehicleType {
+
+        /** Automóvil. */
+        CAR,
+        /** Camioneta o furgón. */
+        VAN,
+        /** Motocicleta. */
+        MOTORCYCLE,
+        /** Otro tipo. */
+        OTHER
+    }
+
+    /**
+     * Tipo de combustible de un vehículo. Valores iniciales, ampliables (decisión D-06).
+     *
+     * <p>Se guarda en la base de datos como texto con el {@code name()} de la
+     * constante. El texto que ve el usuario en pantalla (en español) no vive en el
+     * modelo.</p>
+     *
+     * <p>Principles: High Cohesion, Protected Variations.</p>
+     */
+    public enum FuelType {
+
+        /** Gasolina. */
+        GASOLINE,
+        /** Diésel. */
+        DIESEL,
+        /** Híbrido. */
+        HYBRID,
+        /** Eléctrico. */
+        ELECTRIC,
+        /** Gas. */
+        GAS
+    }
+    /**
+     * Tipo de transmisión de un vehículo (decisión D-13).
+     *
+     * <p>Se guarda en la base de datos como texto con el {@code name()} de la
+     * constante. El texto que ve el usuario en pantalla (en español) no vive en el
+     * modelo.</p>
+     *
+     * <p>Principles: High Cohesion.</p>
+     */
+    public enum Transmission {
+
+        /** Manual. */
+        MANUAL,
+        /** Automática. */
+        AUTOMATIC
+    }
+
 }

@@ -7,7 +7,7 @@ import com.autogest.exception.ValidationException;
 import com.autogest.model.Channel;
 import com.autogest.model.Customer;
 import com.autogest.model.Catalogs.DocumentType;
-import com.autogest.model.FuelType;
+import com.autogest.model.Catalogs.FuelType;
 import com.autogest.model.MovementType;
 import com.autogest.model.Notification;
 import com.autogest.model.NotificationStatus;

@@ -1,5 +1,7 @@
 package com.autogest.model;
 
+import com.autogest.model.Catalogs.VehicleStatus;
+
 /**
  * Indicadores de la pantalla de vehículos, calculados en una sola consulta.
  *

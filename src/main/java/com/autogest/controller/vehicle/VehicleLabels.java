@@ -1,11 +1,11 @@
 package com.autogest.controller.vehicle;
 
 import com.autogest.controller.components.StatusBadge;
-import com.autogest.model.FuelType;
-import com.autogest.model.Transmission;
+import com.autogest.model.Catalogs.FuelType;
+import com.autogest.model.Catalogs.Transmission;
 import com.autogest.model.Vehicle;
-import com.autogest.model.VehicleStatus;
-import com.autogest.model.VehicleType;
+import com.autogest.model.Catalogs.VehicleStatus;
+import com.autogest.model.Catalogs.VehicleType;
 import com.autogest.util.Formatter;
 
 import java.text.DecimalFormat;

@@ -6,8 +6,8 @@ import com.autogest.model.Customer;
 import com.autogest.model.Catalogs.CustomerStatus;
 import com.autogest.model.Vehicle;
 import com.autogest.model.VehicleCounts;
-import com.autogest.model.VehicleStatus;
-import com.autogest.model.VehicleType;
+import com.autogest.model.Catalogs.VehicleStatus;
+import com.autogest.model.Catalogs.VehicleType;
 import com.autogest.repository.CustomerRepository;
 import com.autogest.repository.VehicleRepository;
 

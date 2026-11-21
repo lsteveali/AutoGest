@@ -14,7 +14,7 @@ import com.autogest.model.ServiceOffering;
 import com.autogest.model.ServiceOrder;
 import com.autogest.model.User;
 import com.autogest.model.Catalogs.UserStatus;
-import com.autogest.model.VehicleStatus;
+import com.autogest.model.Catalogs.VehicleStatus;
 import com.autogest.repository.ServiceOrderRepository;
 
 import java.time.LocalDate;

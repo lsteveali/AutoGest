@@ -3,12 +3,12 @@ package com.autogest.dao;
 import com.autogest.config.DatabaseConnection;
 import com.autogest.exception.DataAccessException;
 import com.autogest.model.Customer;
-import com.autogest.model.FuelType;
-import com.autogest.model.Transmission;
+import com.autogest.model.Catalogs.FuelType;
+import com.autogest.model.Catalogs.Transmission;
 import com.autogest.model.Vehicle;
 import com.autogest.model.VehicleCounts;
-import com.autogest.model.VehicleStatus;
-import com.autogest.model.VehicleType;
+import com.autogest.model.Catalogs.VehicleStatus;
+import com.autogest.model.Catalogs.VehicleType;
 
 import java.sql.Connection;
 import java.sql.Date;

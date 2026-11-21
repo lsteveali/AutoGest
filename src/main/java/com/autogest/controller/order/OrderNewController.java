@@ -24,7 +24,7 @@ import com.autogest.model.ServiceOfferingStatus;
 import com.autogest.model.ServiceOrder;
 import com.autogest.model.User;
 import com.autogest.model.Vehicle;
-import com.autogest.model.VehicleStatus;
+import com.autogest.model.Catalogs.VehicleStatus;
 import com.autogest.service.ServiceOrderService;
 import com.autogest.util.Formatter;
 import com.autogest.util.Session;
