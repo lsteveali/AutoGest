@@ -2,7 +2,7 @@ package com.autogest.repository;
 
 import com.autogest.dao.InvoiceDao;
 import com.autogest.model.Invoice;
-import com.autogest.model.InvoiceStatus;
+import com.autogest.model.Catalogs.InvoiceStatus;
 import com.autogest.model.InvoiceSummary;
 
 import java.time.LocalDate;

@@ -4,7 +4,7 @@ import com.autogest.exception.NotFoundException;
 import com.autogest.exception.ValidationException;
 import com.autogest.model.Customer;
 import com.autogest.model.Invoice;
-import com.autogest.model.InvoiceStatus;
+import com.autogest.model.Catalogs.InvoiceStatus;
 import com.autogest.model.InvoiceSummary;
 import com.autogest.model.Notification;
 import com.autogest.model.NotificationStatus;

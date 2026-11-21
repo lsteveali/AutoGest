@@ -4,7 +4,7 @@ import com.autogest.exception.NotFoundException;
 import com.autogest.exception.ValidationException;
 import com.autogest.model.BillingSettings;
 import com.autogest.model.Invoice;
-import com.autogest.model.InvoiceStatus;
+import com.autogest.model.Catalogs.InvoiceStatus;
 import com.autogest.model.InvoiceSummary;
 import com.autogest.model.OrderHistory;
 import com.autogest.model.Catalogs.OrderStatus;

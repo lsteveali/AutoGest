@@ -13,7 +13,7 @@ import com.autogest.controller.order.OrderLabels;
 import com.autogest.exception.AutoGestException;
 import com.autogest.model.Customer;
 import com.autogest.model.Invoice;
-import com.autogest.model.InvoiceStatus;
+import com.autogest.model.Catalogs.InvoiceStatus;
 import com.autogest.model.OrderHistory;
 import com.autogest.model.ServiceOrder;
 import com.autogest.model.Vehicle;
