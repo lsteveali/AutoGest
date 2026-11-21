@@ -1,6 +1,6 @@
 package com.autogest.config;
 
-import com.autogest.service.assistant.ClaudeAssistantEngine;
+import com.autogest.service.assistant.GroqAssistantEngine;
 import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
@@ -21,10 +21,10 @@ class AssistantConfigTest {
     }
 
     @Test
-    void withKeyTheClaudeEngineIsUsed() {
+    void withKeyTheGroqEngineIsUsed() {
         Properties properties = new Properties();
-        properties.setProperty(AssistantConfig.API_KEY, "sk-ant-prueba");
+        properties.setProperty(AssistantConfig.API_KEY, "gsk_prueba");
 
-        assertInstanceOf(ClaudeAssistantEngine.class, AssistantConfig.fromProperties(properties));
+        assertInstanceOf(GroqAssistantEngine.class, AssistantConfig.fromProperties(properties));
     }
 }
