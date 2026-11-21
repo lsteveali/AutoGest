@@ -15,7 +15,7 @@
 | Proyecto | AutoGest — Sistema de gestión integral para talleres automotrices |
 | Materia | Programación de Computadores III (SS462) |
 | Repositorio | https://github.com/lsteveali/AutoGest.git |
-| Rama de trabajo actual | `refactor/catalogos-modelo` (desde `develop` en `b3f0f02`; en prueba del Líder, sin subir) |
+| Rama de trabajo actual | `develop` (catálogos del modelo fusionados, PR #30; la próxima rama del Líder se crea desde aquí) |
 | Sprint en curso | **Sprint 8 ✅ cerrado** (PR #24 a #29) · Sprint 7 ✅ (PR #21 y #22) · Paleta, Manrope y logo ✅ (PR #23 y #27) · siguiente: Sprint 9 (Asistente) |
 | Equipo | Líder: Leonarth Steve Ali Camargo · Dev 1: Sebastián Murgas Tejeda · Dev 2: **sin integrante vinculado** — el Líder asume todas sus responsabilidades (decisión 14/10/2026) |
 | Documento guía | `AutoGest_Guia_Lider` (V2.0) |
@@ -933,6 +933,8 @@ Rama `refactor/catalogos-modelo` desde `develop` (`b3f0f02`).
 5. **Siete commits**, uno por módulo, hechos con un script temporal fuera del repositorio. En cada paso se agregaron los enums del módulo, se cambiaron sus imports, se borraron los archivos viejos y se compiló **desde cero** (`mvn clean test-compile`) antes del commit. Los diffs son solo líneas de `import`.
 6. `mvn clean test` → **573 pruebas, 0 fallos**, el mismo número de antes.
 
+**Cierre:** se subió la rama y se abrió el PR #30 (`refactor/catalogos-modelo` → `develop`), con la sección «Para Dev 1» sobre el cambio de imports. Fusionado el 20/11/2026 (`3d86180`).
+
 **Archivos de Dev 1 tocados (pedido del Líder):** todo el paquete `model` que usa los enums y casi todas sus pantallas, servicios y pruebas; solo cambian los imports. Si Sebastián tiene `.diff` pendientes, chocarán en las líneas de `import`: hay que cambiar `com.autogest.model.X` por `com.autogest.model.Catalogs.X`.
 - Capturas del login a 1280×720 y de la barra lateral; el menú completo cabe a 720 px de alto. `mvn clean test` → **539 pruebas, 0 fallos**.
 
@@ -1123,7 +1125,7 @@ Verificación: `develop` → `mvn clean test` **108 pruebas, 0 fallos**
 
 **Catálogos del modelo (Líder, `refactor/catalogos-modelo`):**
 - [x] Los 16 enums agrupados en `model/Catalogs.java` (Sesión 32).
-- [ ] Subir la rama y abrir el PR hacia `develop` cuando el Líder termine de probarla; avisar a Dev 1 del cambio de imports.
+- [x] ~~Subir la rama y abrir el PR hacia `develop`~~ — PR #30 fusionado (`3d86180`, 20/11/2026); el cambio de imports quedó explicado a Dev 1 en el PR.
 
 **Pendientes nuevos (14/10/2026):**
 - [x] ~~Confirmar el estado del PR del backend de Clientes~~ — resuelto: PR **#5** (backend) y **#8** (interfaz completa) fusionados en `develop`; siguen pendientes de revisión de Sebastián los PRs del Líder.
