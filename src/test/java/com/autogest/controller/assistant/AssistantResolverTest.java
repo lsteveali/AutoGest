@@ -175,6 +175,9 @@ class AssistantResolverTest {
         assertEquals(3, action.parameter());
         assertEquals("20 % en aceite", action.fields().get("Mensaje"));
         assertTrue(action.fields().containsKey("Tipo"));
+        assertEquals("Una promoción para ti en AutoGest", action.fields().get("Asunto"));
+        assertEquals(List.of("Tipo", "Asunto", "Mensaje"), List.copyOf(action.fields().keySet()),
+                "El tipo va primero: el formulario propone su texto al cambiarlo");
     }
 
     @Test

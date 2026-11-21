@@ -4,8 +4,11 @@ import com.autogest.controller.Permissions;
 import com.autogest.controller.View;
 import com.autogest.controller.assistant.AssistantAction.Plan;
 import com.autogest.controller.assistant.AssistantDestinations.Entry;
+import com.autogest.controller.notification.NotificationLabels;
+import com.autogest.model.Catalogs.NotificationType;
 import com.autogest.model.Catalogs.Role;
 import com.autogest.service.assistant.AssistantIntent;
+import com.autogest.service.NotificationTemplate;
 import com.autogest.service.assistant.LocalAssistantInterpreter;
 
 import java.util.ArrayList;
@@ -199,6 +202,11 @@ public class AssistantResolver {
                 copy(data, fields, "Tipo");
                 copy(data, fields, "Canal");
                 if (data.containsKey(LocalAssistantInterpreter.FIELD_MESSAGE)) {
+                    // Con un mensaje propio, el formulario no propone asunto: va el predeterminado del tipo.
+                    NotificationType type = data.containsKey("Tipo")
+                            ? NotificationLabels.typeFromText(data.get("Tipo")) : NotificationType.GENERAL;
+                    fields.put("Asunto", NotificationTemplate.forManual(type, null)
+                            .subject(NotificationTemplate.valuesFor(null, null, null)));
                     fields.put("Mensaje", data.get(LocalAssistantInterpreter.FIELD_MESSAGE));
                 }
             }
