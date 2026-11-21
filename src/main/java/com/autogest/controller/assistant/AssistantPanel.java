@@ -89,7 +89,7 @@ public class AssistantPanel extends VBox {
         icon.getStyleClass().add("assistant-header-icon");
         Label title = new Label("Asistente AutoGest");
         title.getStyleClass().add("assistant-title");
-        engine.setText(service.aiEnabled() ? "Con IA (Claude)" : "Reglas locales, sin internet");
+        engine.setText(service.aiEnabled() ? "Con IA (" + service.aiName() + ")" : "Reglas locales, sin internet");
         engine.getStyleClass().add("assistant-engine");
         VBox titles = new VBox(2, title, engine);
 

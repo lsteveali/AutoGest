@@ -22,6 +22,11 @@ public class AssistantService {
          * @throws RuntimeException si no se pudo consultar o la respuesta no sirve
          */
         AssistantIntent interpret(String text, AssistantCatalog catalog);
+
+        /** Nombre que se muestra en el panel («Con IA (Groq)»). */
+        default String name() {
+            return "IA";
+        }
     }
 
     /**
@@ -47,6 +52,11 @@ public class AssistantService {
     /** {@code true} si hay un motor con IA configurado. */
     public boolean aiEnabled() {
         return ai != null;
+    }
+
+    /** Nombre del motor con IA, o {@code null} si no hay. */
+    public String aiName() {
+        return ai == null ? null : ai.name();
     }
 
     /**
