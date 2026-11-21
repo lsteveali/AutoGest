@@ -1,5 +1,8 @@
 package com.autogest.model;
 
+import com.autogest.model.Catalogs.NotificationType;
+import com.autogest.model.Catalogs.NotificationStatus;
+import com.autogest.model.Catalogs.Channel;
 import com.autogest.exception.ValidationException;
 import java.time.LocalDateTime;
 

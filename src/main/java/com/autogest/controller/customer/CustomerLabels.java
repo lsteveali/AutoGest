@@ -2,8 +2,8 @@ package com.autogest.controller.customer;
 
 import com.autogest.controller.components.StatusBadge;
 import com.autogest.model.Customer;
-import com.autogest.model.CustomerStatus;
-import com.autogest.model.DocumentType;
+import com.autogest.model.Catalogs.CustomerStatus;
+import com.autogest.model.Catalogs.DocumentType;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;

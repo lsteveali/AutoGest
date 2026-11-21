@@ -4,8 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import com.autogest.controller.components.StatusBadge;
-import com.autogest.model.MovementType;
-import com.autogest.model.StockStatus;
+import com.autogest.model.Catalogs.MovementType;
+import com.autogest.model.Catalogs.StockStatus;
 import org.junit.jupiter.api.Test;
 
 /**

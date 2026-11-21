@@ -4,7 +4,7 @@ import com.autogest.config.AppContext;
 import com.autogest.controller.components.PageHeader;
 import com.autogest.controller.user.UserLabels;
 import com.autogest.exception.AutoGestException;
-import com.autogest.model.Role;
+import com.autogest.model.Catalogs.Role;
 import com.autogest.model.User;
 import com.autogest.service.UserService;
 import com.autogest.util.Background;

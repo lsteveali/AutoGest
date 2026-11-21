@@ -3,8 +3,8 @@ package com.autogest.service;
 import com.autogest.exception.NotFoundException;
 import com.autogest.exception.ValidationException;
 import com.autogest.model.Customer;
-import com.autogest.model.CustomerStatus;
-import com.autogest.model.DocumentType;
+import com.autogest.model.Catalogs.CustomerStatus;
+import com.autogest.model.Catalogs.DocumentType;
 import com.autogest.repository.CustomerRepository;
 
 import java.time.LocalDate;

@@ -1,6 +1,6 @@
 package com.autogest.controller;
 
-import com.autogest.model.Role;
+import com.autogest.model.Catalogs.Role;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;

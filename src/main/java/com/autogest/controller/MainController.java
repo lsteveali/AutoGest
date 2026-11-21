@@ -7,7 +7,7 @@ import com.autogest.controller.components.ErrorDialog;
 import com.autogest.controller.components.Sidebar;
 import com.autogest.controller.components.Topbar;
 import com.autogest.controller.user.UserLabels;
-import com.autogest.model.Role;
+import com.autogest.model.Catalogs.Role;
 import com.autogest.model.User;
 import com.autogest.util.AppPreferences;
 import com.autogest.util.Background;
@@ -137,8 +137,8 @@ public class MainController implements Initializable {
         com.autogest.util.Background.run(() -> {
                     com.autogest.service.NotificationService notifications =
                             AppContext.getInstance().getNotificationService();
-                    return notifications.countByStatus(com.autogest.model.NotificationStatus.FAILED)
-                            + notifications.countByStatus(com.autogest.model.NotificationStatus.PENDING);
+                    return notifications.countByStatus(com.autogest.model.Catalogs.NotificationStatus.FAILED)
+                            + notifications.countByStatus(com.autogest.model.Catalogs.NotificationStatus.PENDING);
                 },
                 topbar::setNotificationCount,
                 error -> topbar.setNotificationCount(0));

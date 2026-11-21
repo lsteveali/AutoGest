@@ -1,5 +1,6 @@
 package com.autogest.model;
 
+import com.autogest.model.Catalogs.MovementType;
 import java.time.LocalDateTime;
 
 /**

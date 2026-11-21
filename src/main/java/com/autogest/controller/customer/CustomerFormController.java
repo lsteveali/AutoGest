@@ -11,7 +11,7 @@ import com.autogest.exception.AutoGestException;
 import com.autogest.exception.NotFoundException;
 import com.autogest.exception.ValidationException;
 import com.autogest.model.Customer;
-import com.autogest.model.DocumentType;
+import com.autogest.model.Catalogs.DocumentType;
 import com.autogest.service.CustomerService;
 import javafx.application.Platform;
 import javafx.fxml.FXML;

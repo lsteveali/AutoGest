@@ -91,7 +91,7 @@ public class VehicleDetailController implements Initializable, ParameterizedCont
     private HBox buildActions() {
         Button deactivate = new Button("Dar de baja");
         deactivate.getStyleClass().add("btn-danger");
-        deactivate.setDisable(vehicle.getStatus() == com.autogest.model.VehicleStatus.INACTIVE);
+        deactivate.setDisable(vehicle.getStatus() == com.autogest.model.Catalogs.VehicleStatus.INACTIVE);
         deactivate.setOnAction(event -> deactivate());
 
         Region spacer = new Region();

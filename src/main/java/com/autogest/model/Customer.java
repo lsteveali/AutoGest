@@ -1,5 +1,7 @@
 package com.autogest.model;
 
+import com.autogest.model.Catalogs.DocumentType;
+import com.autogest.model.Catalogs.CustomerStatus;
 import java.time.LocalDate;
 
 /**

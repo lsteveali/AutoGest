@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import com.autogest.controller.components.StatusBadge;
 import com.autogest.model.Customer;
-import com.autogest.model.OrderStatus;
+import com.autogest.model.Catalogs.OrderStatus;
 import com.autogest.model.ServiceOrder;
 import com.autogest.model.Vehicle;
 import org.junit.jupiter.api.Test;

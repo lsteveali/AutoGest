@@ -1,5 +1,9 @@
 package com.autogest.model;
 
+import com.autogest.model.Catalogs.Transmission;
+import com.autogest.model.Catalogs.FuelType;
+import com.autogest.model.Catalogs.VehicleType;
+import com.autogest.model.Catalogs.VehicleStatus;
 import com.autogest.exception.ValidationException;
 import java.time.LocalDate;
 

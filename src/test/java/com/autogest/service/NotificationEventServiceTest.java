@@ -2,14 +2,14 @@ package com.autogest.service;
 
 import com.autogest.exception.ValidationException;
 import com.autogest.model.Customer;
-import com.autogest.model.DocumentType;
-import com.autogest.model.FuelType;
+import com.autogest.model.Catalogs.DocumentType;
+import com.autogest.model.Catalogs.FuelType;
 import com.autogest.model.Notification;
-import com.autogest.model.NotificationStatus;
-import com.autogest.model.NotificationType;
+import com.autogest.model.Catalogs.NotificationStatus;
+import com.autogest.model.Catalogs.NotificationType;
 import com.autogest.model.ServiceOrder;
 import com.autogest.model.Vehicle;
-import com.autogest.model.VehicleStatus;
+import com.autogest.model.Catalogs.VehicleStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

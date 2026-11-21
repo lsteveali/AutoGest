@@ -1,5 +1,6 @@
 package com.autogest.model;
 
+import com.autogest.model.Catalogs.OrderStatus;
 import com.autogest.exception.ValidationException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;

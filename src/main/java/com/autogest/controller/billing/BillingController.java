@@ -12,7 +12,7 @@ import com.autogest.controller.components.PagedTable;
 import com.autogest.controller.components.StatusBadge;
 import com.autogest.exception.AutoGestException;
 import com.autogest.model.Invoice;
-import com.autogest.model.InvoiceStatus;
+import com.autogest.model.Catalogs.InvoiceStatus;
 import com.autogest.model.InvoiceSummary;
 import com.autogest.service.InvoiceService;
 import com.autogest.util.Background;

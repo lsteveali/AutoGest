@@ -2,7 +2,7 @@ package com.autogest.service;
 
 import com.autogest.exception.ValidationException;
 import com.autogest.model.InventoryMovement;
-import com.autogest.model.MovementType;
+import com.autogest.model.Catalogs.MovementType;
 import com.autogest.model.Part;
 import com.autogest.model.User;
 import com.autogest.repository.InventoryMovementRepository;

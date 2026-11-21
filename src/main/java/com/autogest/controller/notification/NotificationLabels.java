@@ -1,9 +1,9 @@
 package com.autogest.controller.notification;
 
 import com.autogest.controller.components.StatusBadge;
-import com.autogest.model.Channel;
-import com.autogest.model.NotificationStatus;
-import com.autogest.model.NotificationType;
+import com.autogest.model.Catalogs.Channel;
+import com.autogest.model.Catalogs.NotificationStatus;
+import com.autogest.model.Catalogs.NotificationType;
 
 import java.util.Arrays;
 import java.util.List;

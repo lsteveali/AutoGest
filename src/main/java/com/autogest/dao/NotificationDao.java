@@ -2,11 +2,11 @@ package com.autogest.dao;
 
 import com.autogest.config.DatabaseConnection;
 import com.autogest.exception.DataAccessException;
-import com.autogest.model.Channel;
+import com.autogest.model.Catalogs.Channel;
 import com.autogest.model.Customer;
 import com.autogest.model.Notification;
-import com.autogest.model.NotificationStatus;
-import com.autogest.model.NotificationType;
+import com.autogest.model.Catalogs.NotificationStatus;
+import com.autogest.model.Catalogs.NotificationType;
 import com.autogest.model.ServiceOrder;
 
 import java.sql.Connection;

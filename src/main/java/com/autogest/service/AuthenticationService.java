@@ -2,7 +2,7 @@ package com.autogest.service;
 
 import com.autogest.exception.ValidationException;
 import com.autogest.model.User;
-import com.autogest.model.UserStatus;
+import com.autogest.model.Catalogs.UserStatus;
 import com.autogest.repository.UserRepository;
 import com.autogest.util.Session;
 

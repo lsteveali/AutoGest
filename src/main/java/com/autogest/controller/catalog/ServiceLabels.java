@@ -1,7 +1,7 @@
 package com.autogest.controller.catalog;
 
 import com.autogest.controller.components.StatusBadge;
-import com.autogest.model.ServiceOfferingStatus;
+import com.autogest.model.Catalogs.ServiceOfferingStatus;
 import com.autogest.util.Formatter;
 
 import java.math.BigDecimal;

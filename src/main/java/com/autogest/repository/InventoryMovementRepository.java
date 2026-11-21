@@ -5,7 +5,7 @@ import com.autogest.model.InventoryMovement;
 import com.autogest.model.Part;
 import com.autogest.model.User;
 
-import com.autogest.model.MovementType;
+import com.autogest.model.Catalogs.MovementType;
 
 import java.time.LocalDate;
 import java.util.List;

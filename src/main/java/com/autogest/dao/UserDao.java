@@ -2,9 +2,9 @@ package com.autogest.dao;
 
 import com.autogest.config.DatabaseConnection;
 import com.autogest.exception.DataAccessException;
-import com.autogest.model.Role;
+import com.autogest.model.Catalogs.Role;
 import com.autogest.model.User;
-import com.autogest.model.UserStatus;
+import com.autogest.model.Catalogs.UserStatus;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

@@ -1,7 +1,7 @@
 package com.autogest.controller.order;
 
 import com.autogest.controller.components.StatusBadge;
-import com.autogest.model.OrderStatus;
+import com.autogest.model.Catalogs.OrderStatus;
 import com.autogest.model.ServiceOrder;
 import com.autogest.model.User;
 import com.autogest.model.Vehicle;

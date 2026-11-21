@@ -3,7 +3,7 @@ package com.autogest.dao;
 import com.autogest.config.DatabaseConnection;
 import com.autogest.exception.DataAccessException;
 import com.autogest.model.Part;
-import com.autogest.model.StockStatus;
+import com.autogest.model.Catalogs.StockStatus;
 import com.autogest.model.Supplier;
 
 import java.math.BigDecimal;

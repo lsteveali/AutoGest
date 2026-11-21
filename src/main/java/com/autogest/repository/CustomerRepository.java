@@ -2,7 +2,7 @@ package com.autogest.repository;
 
 import com.autogest.dao.CustomerDao;
 import com.autogest.model.Customer;
-import com.autogest.model.CustomerStatus;
+import com.autogest.model.Catalogs.CustomerStatus;
 
 import java.time.LocalDate;
 import java.util.List;

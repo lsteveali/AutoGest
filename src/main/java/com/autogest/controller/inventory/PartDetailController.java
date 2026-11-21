@@ -12,7 +12,7 @@ import com.autogest.controller.components.PagedTable;
 import com.autogest.controller.components.StatusBadge;
 import com.autogest.exception.AutoGestException;
 import com.autogest.model.InventoryMovement;
-import com.autogest.model.MovementType;
+import com.autogest.model.Catalogs.MovementType;
 import com.autogest.model.Part;
 import com.autogest.service.InventoryService;
 import com.autogest.util.Formatter;

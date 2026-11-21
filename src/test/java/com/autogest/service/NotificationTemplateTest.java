@@ -3,8 +3,8 @@ package com.autogest.service;
 import com.autogest.exception.ValidationException;
 import com.autogest.model.Customer;
 import com.autogest.model.Invoice;
-import com.autogest.model.InvoiceStatus;
-import com.autogest.model.NotificationType;
+import com.autogest.model.Catalogs.InvoiceStatus;
+import com.autogest.model.Catalogs.NotificationType;
 import com.autogest.model.ServiceOrder;
 import org.junit.jupiter.api.Test;
 

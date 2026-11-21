@@ -3,7 +3,7 @@ package com.autogest.controller.billing;
 import com.autogest.controller.components.StatusBadge;
 import com.autogest.model.Customer;
 import com.autogest.model.Invoice;
-import com.autogest.model.InvoiceStatus;
+import com.autogest.model.Catalogs.InvoiceStatus;
 import com.autogest.model.ServiceOrder;
 import com.autogest.model.Vehicle;
 import com.autogest.service.InvoiceService;
