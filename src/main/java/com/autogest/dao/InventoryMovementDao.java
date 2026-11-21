@@ -3,7 +3,7 @@ package com.autogest.dao;
 import com.autogest.config.DatabaseConnection;
 import com.autogest.exception.DataAccessException;
 import com.autogest.model.InventoryMovement;
-import com.autogest.model.MovementType;
+import com.autogest.model.Catalogs.MovementType;
 import com.autogest.model.Part;
 import com.autogest.model.User;
 

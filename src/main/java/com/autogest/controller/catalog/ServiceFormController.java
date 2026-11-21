@@ -8,7 +8,7 @@ import com.autogest.controller.components.PageHeader;
 import com.autogest.exception.AutoGestException;
 import com.autogest.exception.ValidationException;
 import com.autogest.model.ServiceOffering;
-import com.autogest.model.ServiceOfferingStatus;
+import com.autogest.model.Catalogs.ServiceOfferingStatus;
 import com.autogest.service.ServiceOfferingService;
 import javafx.application.Platform;
 import javafx.fxml.Initializable;

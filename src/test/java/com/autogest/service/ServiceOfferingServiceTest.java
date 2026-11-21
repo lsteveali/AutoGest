@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.autogest.exception.NotFoundException;
 import com.autogest.exception.ValidationException;
 import com.autogest.model.ServiceOffering;
-import com.autogest.model.ServiceOfferingStatus;
+import com.autogest.model.Catalogs.ServiceOfferingStatus;
 import java.math.BigDecimal;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;

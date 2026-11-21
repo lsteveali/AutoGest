@@ -2,7 +2,7 @@ package com.autogest.repository;
 
 import com.autogest.dao.PartDao;
 import com.autogest.model.Part;
-import com.autogest.model.StockStatus;
+import com.autogest.model.Catalogs.StockStatus;
 import com.autogest.model.Supplier;
 
 import java.util.List;

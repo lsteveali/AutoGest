@@ -13,7 +13,7 @@ import com.autogest.controller.components.StatusBadge;
 import com.autogest.exception.AutoGestException;
 import com.autogest.model.Part;
 import com.autogest.model.ServiceOffering;
-import com.autogest.model.ServiceOfferingStatus;
+import com.autogest.model.Catalogs.ServiceOfferingStatus;
 import com.autogest.service.ServiceOfferingService;
 import com.autogest.util.Formatter;
 import javafx.fxml.FXML;

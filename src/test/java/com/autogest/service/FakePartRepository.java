@@ -1,7 +1,7 @@
 package com.autogest.service;
 
 import com.autogest.model.Part;
-import com.autogest.model.StockStatus;
+import com.autogest.model.Catalogs.StockStatus;
 import com.autogest.repository.PartRepository;
 
 import java.util.ArrayList;

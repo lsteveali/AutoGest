@@ -2,7 +2,7 @@ package com.autogest.repository;
 
 import com.autogest.dao.ServiceOfferingDao;
 import com.autogest.model.ServiceOffering;
-import com.autogest.model.ServiceOfferingStatus;
+import com.autogest.model.Catalogs.ServiceOfferingStatus;
 
 import java.util.List;
 

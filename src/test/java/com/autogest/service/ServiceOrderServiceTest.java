@@ -15,7 +15,7 @@ import com.autogest.model.PartLine;
 import com.autogest.model.Catalogs.Role;
 import com.autogest.model.ServiceLine;
 import com.autogest.model.ServiceOffering;
-import com.autogest.model.ServiceOfferingStatus;
+import com.autogest.model.Catalogs.ServiceOfferingStatus;
 import com.autogest.model.ServiceOrder;
 import com.autogest.model.User;
 import com.autogest.model.Catalogs.UserStatus;

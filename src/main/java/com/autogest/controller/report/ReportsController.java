@@ -14,7 +14,7 @@ import com.autogest.controller.inventory.InventoryLabels;
 import com.autogest.controller.order.OrderLabels;
 import com.autogest.exception.AutoGestException;
 import com.autogest.exception.ValidationException;
-import com.autogest.model.MovementType;
+import com.autogest.model.Catalogs.MovementType;
 import com.autogest.model.OrderStatus;
 import com.autogest.model.ReportData;
 import com.autogest.model.User;

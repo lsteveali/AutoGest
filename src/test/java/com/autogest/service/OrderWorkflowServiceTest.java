@@ -13,7 +13,7 @@ import com.autogest.model.OrderStatus;
 import com.autogest.model.Part;
 import com.autogest.model.Catalogs.Role;
 import com.autogest.model.ServiceOffering;
-import com.autogest.model.ServiceOfferingStatus;
+import com.autogest.model.Catalogs.ServiceOfferingStatus;
 import com.autogest.model.ServiceOrder;
 import com.autogest.model.User;
 import com.autogest.model.Catalogs.UserStatus;

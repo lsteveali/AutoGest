@@ -1,6 +1,6 @@
 package com.autogest.service;
 
-import com.autogest.model.MovementType;
+import com.autogest.model.Catalogs.MovementType;
 import com.autogest.model.OrderStatus;
 import com.autogest.model.ReportData;
 import org.apache.pdfbox.Loader;

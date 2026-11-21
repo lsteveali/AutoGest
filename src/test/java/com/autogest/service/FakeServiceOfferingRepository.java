@@ -1,7 +1,7 @@
 package com.autogest.service;
 
 import com.autogest.model.ServiceOffering;
-import com.autogest.model.ServiceOfferingStatus;
+import com.autogest.model.Catalogs.ServiceOfferingStatus;
 import com.autogest.repository.ServiceOfferingRepository;
 
 import java.util.ArrayList;

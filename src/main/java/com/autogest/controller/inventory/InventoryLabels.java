@@ -1,8 +1,8 @@
 package com.autogest.controller.inventory;
 
 import com.autogest.controller.components.StatusBadge;
-import com.autogest.model.MovementType;
-import com.autogest.model.StockStatus;
+import com.autogest.model.Catalogs.MovementType;
+import com.autogest.model.Catalogs.StockStatus;
 
 import java.util.List;
 

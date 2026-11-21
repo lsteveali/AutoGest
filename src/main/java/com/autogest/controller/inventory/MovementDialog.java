@@ -3,7 +3,7 @@ package com.autogest.controller.inventory;
 import com.autogest.controller.components.ErrorDialog;
 import com.autogest.controller.components.FormLayout;
 import com.autogest.exception.ValidationException;
-import com.autogest.model.MovementType;
+import com.autogest.model.Catalogs.MovementType;
 import com.autogest.model.Part;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
