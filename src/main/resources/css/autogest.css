@@ -1251,6 +1251,116 @@
     -fx-padding: 10 12;
 }
 
+/* --------------------------------------------------------------------------
+   Asistente AutoGest (Sprint 9): panel de conversación junto al contenido
+   -------------------------------------------------------------------------- */
+.assistant-panel {
+    -fx-background-color: -ag-card;
+    -fx-background-radius: 14;
+    -fx-border-color: -ag-border;
+    -fx-border-radius: 14;
+    -fx-effect: dropshadow(gaussian, rgba(17, 17, 17, 0.18), 24, 0.15, 0, 6);
+}
+
+.assistant-header {
+    -fx-padding: 16 14 14 18;
+    -fx-border-color: transparent transparent -ag-divider transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+.assistant-header-icon {
+    -fx-stroke: -ag-accent;
+}
+
+.assistant-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -ag-text;
+}
+
+.assistant-engine {
+    -fx-font-size: 12px;
+    -fx-text-fill: -ag-text-muted;
+}
+
+.assistant-scroll,
+.assistant-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+.assistant-messages {
+    -fx-padding: 16 16 8 16;
+}
+
+.assistant-bubble {
+    -fx-background-radius: 12;
+    -fx-padding: 10 12;
+}
+
+.assistant-bubble-bot {
+    -fx-background-color: -ag-surface-alt;
+}
+
+.assistant-bubble-user {
+    -fx-background-color: -ag-primary;
+}
+
+.assistant-text {
+    -fx-font-size: 14px;
+    -fx-text-fill: -ag-text;
+}
+
+.assistant-bubble-user .assistant-text {
+    -fx-text-fill: #FFFFFF;
+}
+
+.assistant-thinking {
+    -fx-font-size: 13px;
+    -fx-text-fill: -ag-text-muted;
+    -fx-padding: 0 0 0 4;
+}
+
+.assistant-chip {
+    -fx-background-color: -ag-card;
+    -fx-background-radius: 16;
+    -fx-border-color: -ag-border;
+    -fx-border-radius: 16;
+    -fx-font-size: 13px;
+    -fx-text-fill: -ag-text;
+    -fx-padding: 5 12;
+    -fx-cursor: hand;
+}
+
+.assistant-chip:hover {
+    -fx-background-color: -ag-hover;
+    -fx-border-color: -ag-border-strong;
+}
+
+.assistant-action {
+    -fx-alignment: center-left;
+}
+
+.assistant-input-row {
+    -fx-padding: 12 14 14 14;
+    -fx-border-color: -ag-divider transparent transparent transparent;
+    -fx-border-width: 1 0 0 0;
+}
+
+.assistant-send {
+    -fx-min-width: 40;
+    -fx-min-height: 40;
+    -fx-padding: 0;
+}
+
+.assistant-send .icon {
+    -fx-stroke: #FFFFFF;
+}
+
+.assistant-footnote {
+    -fx-font-size: 12px;
+    -fx-text-fill: -ag-text-muted;
+}
+
 /* Configuración de notificaciones: lista de plantillas, editor y vista previa. */
 .template-item {
     -fx-background-color: transparent;
