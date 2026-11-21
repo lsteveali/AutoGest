@@ -941,7 +941,7 @@ Rama `refactor/catalogos-modelo` desde `develop` (`b3f0f02`).
 ### 21/11/2026 — Sesión 33 (Líder): Sprint 9, Asistente AutoGest
 
 **Contexto.** Se inicia el Sprint 9. El Líder eligió:
-- **Motor «Híbrido»:** reglas locales que funcionan siempre, y Claude si hay una llave configurada.
+- **Motor «Híbrido»:** reglas locales que funcionan siempre, y una IA si hay una llave configurada. Primero se hizo con Claude; como cobra por consulta, el Líder pidió una opción gratis y eligió **Groq**.
 - **Alcance «Consultar y ayudar a crear»**, con esta definición: el Asistente navega entre los módulos, abre pantallas, aplica filtros y precarga formularios con la navegación existente de JavaFX, **sin guardar nada sin confirmación del usuario y respetando los permisos de cada rol**.
 
 Rama `feature/asistente` desde `develop` (`fb793e9`).
@@ -969,11 +969,13 @@ Rama `feature/asistente` desde `develop` (`fb793e9`).
    - `AssistantPanel`: panel de 400 px sobre el contenido, con burbujas, ejemplos y botones de acción. Se abre con el botón flotante o desde la barra lateral, y se cierra con `Esc`.
    - `AssistantFormFiller` aplica la búsqueda, los filtros y los campos **por su etiqueta visible**, sin tocar los controladores de cada pantalla.
    - `ViewNavigator.navigate(View, Integer, Consumer<Parent>)` avisa cuando la pantalla terminó de cargar.
-6. **Motor con IA opcional** (`ClaudeAssistantEngine`):
-   - Usa el SDK oficial de Anthropic (`anthropic-java` 3.3.0) con el modelo `claude-opus-5-5`, salida JSON con esquema fijo y esfuerzo bajo.
-   - **Solo envía lo que escribe el usuario y el catálogo del rol; nunca datos de la base.**
+6. **Motor con IA opcional y gratuito** (`GroqAssistantEngine`):
+   - Llama a la API de Groq (plan gratis con límites por minuto y por día) con el `HttpClient` de Java y Jackson (`jackson-databind` 2.19.4), sin SDK de proveedor. Modelo por defecto `openai/gpt-oss-120b`, con **esquema JSON estricto**.
+   - `AssistantPrompt` guarda lo que no depende del proveedor: las instrucciones con el catálogo, el esquema y la revisión de la respuesta. Otro proveedor solo tendría que hacer la llamada.
+   - **Solo envía lo que escribe el usuario y el catálogo del rol; nunca datos de la base.** Según su documentación, Groq no guarda por defecto lo que se le envía.
    - La respuesta se revisa contra el catálogo: se descartan los filtros u opciones inventados y los módulos que el rol no ve.
-   - La llave va en `application.local.properties` (`assistant.anthropic.api-key`, documentada en el archivo de ejemplo). **Sin llave, o si la IA falla o se niega, responde el motor local** con una nota.
+   - La llave va en `application.local.properties` (`assistant.groq.api-key`, documentada en el archivo de ejemplo). **Sin llave, sin internet, al llegar al límite gratis o si la respuesta no encaja, responde el motor local** con una nota. El panel muestra «Con IA (Groq)».
+   - El primer motor con Claude (`anthropic-java`) se quitó junto con su SDK.
 7. **Verificación** con el shell real y datos reales, **solo lecturas** (sin pulsar «Guardar» ni abrir Facturación), con estos pedidos:
    - «órdenes en reparación».
    - «repuestos con stock bajo».
@@ -992,9 +994,9 @@ Rama `feature/asistente` desde `develop` (`fb793e9`).
    - `LocalAssistantInterpreterTest` (13).
    - `AssistantServiceTest` (4).
    - `AssistantResolverTest` (12).
-   - `ClaudeAssistantEngineTest` (7) y `AssistantConfigTest` (2). Estas no llaman a la API.
+   - `AssistantPromptTest` (8), `GroqAssistantEngineTest` (5, con un transporte falso) y `AssistantConfigTest` (2). Ninguna sale a internet.
 
-   `mvn clean test` → **611 pruebas, 0 fallos** (573 + 38).
+   `mvn clean test` → **617 pruebas, 0 fallos** (573 + 44).
 
 **Archivos de Dev 1 tocados:** ninguno. Del Líder: `MainController`, `ViewNavigator`, `AppContext` (bloque del Líder), `autogest.css` y `pom.xml`.
 
@@ -1056,7 +1058,7 @@ Rama `feature/asistente` desde `develop` (`fb793e9`).
 | 21/11/2026 | **El Asistente se abre como un panel sobre el contenido**, no como una pantalla. | Así el usuario ve a la vez el panel y la pantalla que el Asistente abre, filtra o precarga. |
 | 21/11/2026 | **El Asistente precarga los formularios por la etiqueta visible de cada campo** (`AssistantFormFiller`), sin métodos nuevos en los controladores. | Funciona igual en las pantallas de Dev 1 sin tocarlas. Si una etiqueta cambia, el campo solo deja de precargarse; nada se rompe. |
 | 21/11/2026 | **El Asistente nunca guarda:** abre, filtra y precarga, y el usuario pulsa «Guardar». Los permisos se revisan dos veces: el catálogo solo tiene los módulos del rol y cada acción pasa por `Permissions` antes de navegar. | Pedido del Líder: nada cambia sin confirmación y se respetan los roles. Un motor con IA tampoco puede saltarse los permisos. |
-| 21/11/2026 | **Motor con IA opcional con Claude (`claude-opus-5-5`), con las reglas locales de respaldo.** Solo se envía el texto del usuario y el catálogo del rol. | Sin llave, sin internet o si la IA falla, el Asistente sigue funcionando. No se envían datos de clientes a un servicio externo, y cada consulta tiene costo. |
+| 21/11/2026 | **Motor con IA opcional sobre Groq (gratis, `openai/gpt-oss-120b`), con las reglas locales de respaldo;** reemplaza al primer motor con Claude. Solo se envía el texto del usuario y el catálogo del rol. | Claude cobra por consulta; Groq tiene plan gratis y por defecto no guarda lo enviado. Sin llave, sin internet o al llegar al límite gratis, el Asistente sigue funcionando. No se envían datos de la base a un servicio externo. |
 | 19/11/2026 | **El formulario «Nueva notificación» propone un mensaje según el tipo** (plantillas del Líder) sin pisar lo que el usuario escribió. | Pedido del Líder. Se autorizó tocar `NotificationNewController` y `NotificationService` de Dev 1; se registra en la sección «Para Dev 1» del PR. |
 
 ---
@@ -1194,7 +1196,7 @@ Verificación: `develop` → `mvn clean test` **108 pruebas, 0 fallos**
 **En curso (Líder, Sprint 9 — rama `feature/asistente`):**
 - [x] Panel, motor local, navegación con filtros, formularios precargados y motor con IA opcional (Sesión 33).
 - [ ] Subir la rama y abrir el PR hacia `develop` cuando el Líder termine su prueba manual.
-- [ ] Opcional: probar el motor con IA con una llave real (cada consulta tiene costo).
+- [ ] Opcional: probar el motor con Groq con una llave gratis real (`assistant.groq.api-key`).
 
 **Pendientes nuevos (14/10/2026):**
 - [x] ~~Confirmar el estado del PR del backend de Clientes~~ — resuelto: PR **#5** (backend) y **#8** (interfaz completa) fusionados en `develop`; siguen pendientes de revisión de Sebastián los PRs del Líder.
