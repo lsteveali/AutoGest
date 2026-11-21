@@ -1,9 +1,9 @@
 package com.autogest.service;
 
-import com.autogest.model.Channel;
+import com.autogest.model.Catalogs.Channel;
 import com.autogest.model.Notification;
-import com.autogest.model.NotificationStatus;
-import com.autogest.model.NotificationType;
+import com.autogest.model.Catalogs.NotificationStatus;
+import com.autogest.model.Catalogs.NotificationType;
 import com.autogest.repository.NotificationRepository;
 
 import java.time.LocalDateTime;

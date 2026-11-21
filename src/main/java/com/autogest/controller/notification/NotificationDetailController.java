@@ -12,7 +12,7 @@ import com.autogest.controller.components.StatusBadge;
 import com.autogest.exception.AutoGestException;
 import com.autogest.model.Customer;
 import com.autogest.model.Notification;
-import com.autogest.model.NotificationStatus;
+import com.autogest.model.Catalogs.NotificationStatus;
 import com.autogest.service.NotificationService;
 import com.autogest.util.Formatter;
 import javafx.fxml.FXML;

@@ -1,11 +1,11 @@
 package com.autogest.repository;
 
 import com.autogest.dao.NotificationDao;
-import com.autogest.model.Channel;
+import com.autogest.model.Catalogs.Channel;
 import com.autogest.model.Customer;
 import com.autogest.model.Notification;
-import com.autogest.model.NotificationStatus;
-import com.autogest.model.NotificationType;
+import com.autogest.model.Catalogs.NotificationStatus;
+import com.autogest.model.Catalogs.NotificationType;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;

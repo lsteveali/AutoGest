@@ -137,8 +137,8 @@ public class MainController implements Initializable {
         com.autogest.util.Background.run(() -> {
                     com.autogest.service.NotificationService notifications =
                             AppContext.getInstance().getNotificationService();
-                    return notifications.countByStatus(com.autogest.model.NotificationStatus.FAILED)
-                            + notifications.countByStatus(com.autogest.model.NotificationStatus.PENDING);
+                    return notifications.countByStatus(com.autogest.model.Catalogs.NotificationStatus.FAILED)
+                            + notifications.countByStatus(com.autogest.model.Catalogs.NotificationStatus.PENDING);
                 },
                 topbar::setNotificationCount,
                 error -> topbar.setNotificationCount(0));

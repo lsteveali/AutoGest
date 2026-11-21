@@ -3,7 +3,7 @@ package com.autogest.service;
 import com.autogest.exception.ValidationException;
 import com.autogest.model.Diagnosis;
 import com.autogest.model.Notification;
-import com.autogest.model.NotificationStatus;
+import com.autogest.model.Catalogs.NotificationStatus;
 import com.autogest.model.OrderHistory;
 import com.autogest.model.OrderLine;
 import com.autogest.model.Catalogs.OrderStatus;

@@ -4,10 +4,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import com.autogest.controller.components.StatusBadge;
-import com.autogest.model.Channel;
+import com.autogest.model.Catalogs.Channel;
 import com.autogest.model.Notification;
-import com.autogest.model.NotificationStatus;
-import com.autogest.model.NotificationType;
+import com.autogest.model.Catalogs.NotificationStatus;
+import com.autogest.model.Catalogs.NotificationType;
 import org.junit.jupiter.api.Test;
 
 /**

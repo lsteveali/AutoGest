@@ -1,10 +1,10 @@
 package com.autogest.service;
 
 import com.autogest.exception.ValidationException;
-import com.autogest.model.Channel;
+import com.autogest.model.Catalogs.Channel;
 import com.autogest.model.Customer;
 import com.autogest.model.Notification;
-import com.autogest.model.NotificationType;
+import com.autogest.model.Catalogs.NotificationType;
 import com.autogest.model.ServiceOrder;
 import com.autogest.model.Vehicle;
 import com.autogest.model.Catalogs.VehicleStatus;
