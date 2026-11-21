@@ -15,8 +15,8 @@
 | Proyecto | AutoGest — Sistema de gestión integral para talleres automotrices |
 | Materia | Programación de Computadores III (SS462) |
 | Repositorio | https://github.com/lsteveali/AutoGest.git |
-| Rama de trabajo actual | `feature/hallazgos-configuracion` (rebasada sobre `develop` en `0b472be`, tras fusionar el PR #28) |
-| Sprint en curso | **Sprint 8 (Configuración)** 🟡 · Sprint 7 ✅ cerrado (PR #21 y #22) · Paleta y Manrope ✅ (PR #23) · siguiente: Sprint 9 (Asistente) |
+| Rama de trabajo actual | `develop` (Sprint 8 cerrado con el PR #29; la próxima rama del Líder se crea desde aquí) |
+| Sprint en curso | **Sprint 8 ✅ cerrado** (PR #24 a #29) · Sprint 7 ✅ (PR #21 y #22) · Paleta, Manrope y logo ✅ (PR #23 y #27) · siguiente: Sprint 9 (Asistente) |
 | Equipo | Líder: Leonarth Steve Ali Camargo · Dev 1: Sebastián Murgas Tejeda · Dev 2: **sin integrante vinculado** — el Líder asume todas sus responsabilidades (decisión 14/10/2026) |
 | Documento guía | `AutoGest_Guia_Lider` (V2.0) |
 
@@ -69,7 +69,7 @@
 | 5 | Facturación (Líder: todo el módulo) | ✅ PR #16 fusionado en `develop` (`b858e80`, 15/11/2026): facturación, PDF, avisos al cliente e Inicio con órdenes y facturas (Sesión 22) |
 | 6 | Notificaciones (Dev 1: backend e interfaz · Líder: plantillas, eventos y correo real) | ✅ Dev 1 (PR #17 y #18) · Líder (PR #19 y #20) |
 | 7 | Reportes (Dev 1: consultas de apoyo · Líder: pantalla, indicadores y PDF) | ✅ Dev 1 (PR #21) · Líder (PR #22, `8338f73`, 19/11/2026) |
-| 8 | Configuración (Dev 1: Datos del taller y Preferencias · Líder: pantalla general y el resto de secciones, incluidas Copias de seguridad) | 🟡 En curso — Dev 1: `SettingsService`, Datos del taller y Preferencias ✅ (PR #26, tabla `app_settings` creada el 20/11/2026) · Líder: restaurar copias ✅ (PR #24, Sesión 26); Configuración de Facturación y de Notificaciones ✅ (PR #28, Sesión 30); hallazgos de Dev 1 en `feature/hallazgos-configuracion` (Sesión 31) |
+| 8 | Configuración (Dev 1: Datos del taller y Preferencias · Líder: pantalla general y el resto de secciones, incluidas Copias de seguridad) | ✅ Cerrado (20/11/2026) — Dev 1: `SettingsService`, Datos del taller y Preferencias (PR #26, tabla `app_settings` creada el 20/11/2026) · Líder: restaurar copias (PR #24, Sesión 26), Configuración de Facturación y de Notificaciones (PR #28, Sesión 30) y hallazgos de Dev 1 (PR #29, Sesión 31) |
 | 9 | Asistente AutoGest (Líder) | ⬜ No iniciado |
 
 > **Reasignación (14/10/2026):** las columnas de Dev 2 de la hoja de ruta
@@ -905,6 +905,8 @@ estaba incorporado; el otro era un WIP viejo de `login-usuarios`). Quedan solo
    - El temporizador se comprobó en un programa JavaFX temporal: con 1 minuto y actividad simulada a los 30 s, venció a los ~90 s, es decir, la actividad reinicia la cuenta.
    - Capturas de Datos del taller y Preferencias a 1280 px con datos en memoria.
    - `mvn clean test` → **573 pruebas, 0 fallos** (568 + 5).
+
+**Cierre:** cuando se fusionó el PR #28, la rama se rebasó sobre `develop` y se abrió el PR #29 (16 commits), con la sección «Para Dev 1». Fusionado el 20/11/2026 (`e79bf96`). **Con esto se cierra el Sprint 8.**
 - Capturas del login a 1280×720 y de la barra lateral; el menú completo cabe a 720 px de alto. `mvn clean test` → **539 pruebas, 0 fallos**.
 
 ---
@@ -1088,7 +1090,7 @@ Verificación: `develop` → `mvn clean test` **108 pruebas, 0 fallos**
 - [x] ~~Datos del taller y Preferencias del sistema (Dev 1)~~ — PR #26 fusionado (`a5b5f04`, 20/11/2026); `sprint8-settings.sql` ejecutado en Supabase el mismo día.
 - [ ] Dev 1: prueba manual de Datos del taller y Preferencias (lista de su PR #26), ahora que existe la tabla.
 - [x] ~~Hallazgos de la revisión del PR #26~~ — corregidos por el Líder a pedido suyo (Sesión 31, `feature/hallazgos-configuracion`).
-- [ ] Subir `feature/hallazgos-configuracion` y abrir el PR hacia `develop` (rebasada sobre `develop` después del PR #28).
+- [x] ~~Subir `feature/hallazgos-configuracion` y abrir el PR hacia `develop`~~ — PR #29 fusionado (`e79bf96`, 20/11/2026). **Sprint 8 cerrado.**
 - [ ] Preferencias que quedan «Próximamente»: idioma y formatos regionales, barra lateral compacta, orden predeterminado, información adicional en tablas, abrir el último módulo, ayuda contextual y filtros recientes.
 
 **Pendientes nuevos (14/10/2026):**
