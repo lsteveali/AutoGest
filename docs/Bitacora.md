@@ -15,7 +15,7 @@
 | Proyecto | AutoGest — Sistema de gestión integral para talleres automotrices |
 | Materia | Programación de Computadores III (SS462) |
 | Repositorio | https://github.com/lsteveali/AutoGest.git |
-| Rama de trabajo actual | `feature/hallazgos-configuracion` (desde `feature/configuracion-sistema`, PR #28; en prueba del Líder, sin subir) |
+| Rama de trabajo actual | `feature/hallazgos-configuracion` (rebasada sobre `develop` en `0b472be`, tras fusionar el PR #28) |
 | Sprint en curso | **Sprint 8 (Configuración)** 🟡 · Sprint 7 ✅ cerrado (PR #21 y #22) · Paleta y Manrope ✅ (PR #23) · siguiente: Sprint 9 (Asistente) |
 | Equipo | Líder: Leonarth Steve Ali Camargo · Dev 1: Sebastián Murgas Tejeda · Dev 2: **sin integrante vinculado** — el Líder asume todas sus responsabilidades (decisión 14/10/2026) |
 | Documento guía | `AutoGest_Guia_Lider` (V2.0) |
@@ -69,7 +69,7 @@
 | 5 | Facturación (Líder: todo el módulo) | ✅ PR #16 fusionado en `develop` (`b858e80`, 15/11/2026): facturación, PDF, avisos al cliente e Inicio con órdenes y facturas (Sesión 22) |
 | 6 | Notificaciones (Dev 1: backend e interfaz · Líder: plantillas, eventos y correo real) | ✅ Dev 1 (PR #17 y #18) · Líder (PR #19 y #20) |
 | 7 | Reportes (Dev 1: consultas de apoyo · Líder: pantalla, indicadores y PDF) | ✅ Dev 1 (PR #21) · Líder (PR #22, `8338f73`, 19/11/2026) |
-| 8 | Configuración (Dev 1: Datos del taller y Preferencias · Líder: pantalla general y el resto de secciones, incluidas Copias de seguridad) | 🟡 En curso — Dev 1: `SettingsService`, Datos del taller y Preferencias ✅ (PR #26, tabla `app_settings` creada el 20/11/2026) · Líder: restaurar copias ✅ (PR #24, Sesión 26); Configuración de Facturación y de Notificaciones hechas en `feature/configuracion-sistema` (Sesión 30, en prueba) |
+| 8 | Configuración (Dev 1: Datos del taller y Preferencias · Líder: pantalla general y el resto de secciones, incluidas Copias de seguridad) | 🟡 En curso — Dev 1: `SettingsService`, Datos del taller y Preferencias ✅ (PR #26, tabla `app_settings` creada el 20/11/2026) · Líder: restaurar copias ✅ (PR #24, Sesión 26); Configuración de Facturación y de Notificaciones ✅ (PR #28, Sesión 30); hallazgos de Dev 1 en `feature/hallazgos-configuracion` (Sesión 31) |
 | 9 | Asistente AutoGest (Líder) | ⬜ No iniciado |
 
 > **Reasignación (14/10/2026):** las columnas de Dev 2 de la hoja de ruta
@@ -877,11 +877,11 @@ estaba incorporado; el otro era un WIP viejo de `login-usuarios`). Quedan solo
 
 **Pendiente:** las Preferencias del sistema (Dev 1) siguen sin efecto en la app; ver los hallazgos de la Sesión 28. Se resolvió en la Sesión 31.
 
-**Cierre:** se subió la rama y se abrió el PR #28 (`feature/configuracion-sistema` → `develop`), con la sección «Para Dev 1».
+**Cierre:** se subió la rama y se abrió el PR #28 (`feature/configuracion-sistema` → `develop`), con la sección «Para Dev 1». Fusionado el 20/11/2026 (`0b472be`).
 
 ### 20/11/2026 — Sesión 31 (Líder): hallazgos del Sprint 8 de Dev 1
 
-**Contexto.** El Líder pidió corregir los cuatro hallazgos de la revisión del PR #26 de Dev 1 (Sesión 28), lo que **autoriza tocar sus archivos**. Rama `feature/hallazgos-configuracion`, creada desde `feature/configuracion-sistema` (PR #28, aún sin fusionar) para no chocar con sus cambios en la bitácora. El PR va hacia `develop`; mientras el #28 no se fusione, también muestra sus commits.
+**Contexto.** El Líder pidió corregir los cuatro hallazgos de la revisión del PR #26 de Dev 1 (Sesión 28), lo que **autoriza tocar sus archivos**. Rama `feature/hallazgos-configuracion`, creada desde `feature/configuracion-sistema` (PR #28, aún sin fusionar) para no chocar con sus cambios en la bitácora. Cuando se fusionó el #28 (`0b472be`), la rama se rebasó sobre `develop`: el PR muestra solo sus 15 commits.
 
 **Hecho:**
 1. **Lecturas en el hilo de la interfaz:** «Datos del taller» y «Preferencias del sistema» leen, guardan y restauran con `Background.run`. Los botones se desactivan mientras tanto y la ventana ya no se congela.
@@ -1084,11 +1084,11 @@ Verificación: `develop` → `mvn clean test` **108 pruebas, 0 fallos**
 - [x] Restaurar una copia desde AutoGest: vaciar y recargar las tablas en orden de dependencias, en una transacción, con copia previa y confirmación fuerte (Sesión 26, rama `feature/restaurar-copias`).
 - [x] ~~Subir `feature/restaurar-copias` y abrir el PR hacia `develop`~~ — PR #24 fusionado (`d8fd07a`, 19/11/2026).
 - [x] ~~Configuración de Facturación y de Notificaciones~~ — hechas en `feature/configuracion-sistema` (Sesión 30). Con esto, todas las secciones de Configuración están activas.
-- [ ] Subir `feature/configuracion-sistema` y abrir el PR hacia `develop` cuando el Líder termine de probarla.
+- [x] ~~Subir `feature/configuracion-sistema` y abrir el PR hacia `develop`~~ — PR #28 fusionado (`0b472be`, 20/11/2026).
 - [x] ~~Datos del taller y Preferencias del sistema (Dev 1)~~ — PR #26 fusionado (`a5b5f04`, 20/11/2026); `sprint8-settings.sql` ejecutado en Supabase el mismo día.
 - [ ] Dev 1: prueba manual de Datos del taller y Preferencias (lista de su PR #26), ahora que existe la tabla.
 - [x] ~~Hallazgos de la revisión del PR #26~~ — corregidos por el Líder a pedido suyo (Sesión 31, `feature/hallazgos-configuracion`).
-- [ ] Subir `feature/hallazgos-configuracion` y abrir el PR hacia `develop` cuando el Líder termine de probarla (después del PR #28).
+- [ ] Subir `feature/hallazgos-configuracion` y abrir el PR hacia `develop` (rebasada sobre `develop` después del PR #28).
 - [ ] Preferencias que quedan «Próximamente»: idioma y formatos regionales, barra lateral compacta, orden predeterminado, información adicional en tablas, abrir el último módulo, ayuda contextual y filtros recientes.
 
 **Pendientes nuevos (14/10/2026):**
