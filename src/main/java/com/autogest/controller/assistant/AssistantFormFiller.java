@@ -7,6 +7,7 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputControl;
 import javafx.scene.layout.Pane;
@@ -51,8 +52,11 @@ public final class AssistantFormFiller {
      * @param root   raíz de la pantalla cargada
      * @param action acción del Asistente
      */
-    public static void apply(Parent root, AssistantAction action) {
+    public static void apply(Parent screen, AssistantAction action) {
         List<Pending> pending = new ArrayList<>();
+        // Las pantallas son un ScrollPane: su contenido no es un hijo hasta que se dibuja, así que se busca en él.
+        Parent root = screen instanceof ScrollPane scroll && scroll.getContent() instanceof Parent content
+                ? content : screen;
         if (action.search() != null && !action.search().isBlank()) {
             pending.add(() -> {
                 Node node = root.lookup(".filter-field");
@@ -104,7 +108,8 @@ public final class AssistantFormFiller {
     static boolean selectFilter(Parent root, String label, String option) {
         Node bar = root.lookup(".filter-bar");
         if (!(bar instanceof Pane pane)) {
-            return true;
+            // La barra aún no se arma (o la pantalla no tiene): se reintenta.
+            return false;
         }
         List<Node> children = pane.getChildren();
         for (int i = 0; i + 1 < children.size(); i++) {
