@@ -23,6 +23,7 @@
         <pdfbox.version>3.0.3</pdfbox.version>
         <angus-mail.version>2.0.3</angus-mail.version>
         <greenmail.version>2.1.2</greenmail.version>
+        <anthropic-java.version>3.3.0</anthropic-java.version>
     </properties>
 
     <dependencies>
@@ -76,6 +77,13 @@
             <groupId>org.eclipse.angus</groupId>
             <artifactId>angus-mail</artifactId>
             <version>${angus-mail.version}</version>
+        </dependency>
+
+        <!-- SDK oficial de Anthropic: motor con IA del Asistente (opcional; sin llave se usan reglas locales) -->
+        <dependency>
+            <groupId>com.anthropic</groupId>
+            <artifactId>anthropic-java</artifactId>
+            <version>${anthropic-java.version}</version>
         </dependency>
 
         <!-- Servidor de correo falso en memoria (solo pruebas: nadie recibe correos) -->
