@@ -13,7 +13,7 @@ import com.autogest.controller.components.StatusBadge;
 import com.autogest.exception.AutoGestException;
 import com.autogest.exception.ValidationException;
 import com.autogest.model.Customer;
-import com.autogest.model.CustomerStatus;
+import com.autogest.model.Catalogs.CustomerStatus;
 import com.autogest.model.OrderLine;
 import com.autogest.model.OrderStatus;
 import com.autogest.model.Part;

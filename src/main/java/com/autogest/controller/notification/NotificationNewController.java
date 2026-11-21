@@ -12,7 +12,7 @@ import com.autogest.exception.AutoGestException;
 import com.autogest.exception.ValidationException;
 import com.autogest.model.Channel;
 import com.autogest.model.Customer;
-import com.autogest.model.CustomerStatus;
+import com.autogest.model.Catalogs.CustomerStatus;
 import com.autogest.model.Invoice;
 import com.autogest.model.InvoiceStatus;
 import com.autogest.model.Notification;

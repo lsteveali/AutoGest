@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.autogest.exception.NotFoundException;
 import com.autogest.exception.ValidationException;
 import com.autogest.model.Customer;
-import com.autogest.model.DocumentType;
+import com.autogest.model.Catalogs.DocumentType;
 import com.autogest.model.FuelType;
 import com.autogest.model.OrderStatus;
 import com.autogest.model.Part;

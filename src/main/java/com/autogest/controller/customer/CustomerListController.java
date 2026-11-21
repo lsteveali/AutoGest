@@ -14,7 +14,7 @@ import com.autogest.controller.components.PagedTable;
 import com.autogest.controller.components.StatusBadge;
 import com.autogest.exception.AutoGestException;
 import com.autogest.model.Customer;
-import com.autogest.model.CustomerStatus;
+import com.autogest.model.Catalogs.CustomerStatus;
 import com.autogest.service.CustomerService;
 import javafx.application.Platform;
 import javafx.fxml.FXML;

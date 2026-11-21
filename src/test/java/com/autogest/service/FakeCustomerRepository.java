@@ -1,7 +1,7 @@
 package com.autogest.service;
 
 import com.autogest.model.Customer;
-import com.autogest.model.CustomerStatus;
+import com.autogest.model.Catalogs.CustomerStatus;
 import com.autogest.repository.CustomerRepository;
 
 import java.time.LocalDate;

@@ -51,7 +51,7 @@ class InvoiceServiceTest {
         ServiceOrderService orderService = new ServiceOrderService(orders, null);
         customers = new FakeCustomerRepository();
         owner = new Customer();
-        owner.setDocumentType(com.autogest.model.DocumentType.CC);
+        owner.setDocumentType(com.autogest.model.Catalogs.DocumentType.CC);
         owner.setDocumentNumber("1098456789");
         owner.setFirstName("Juan");
         owner.setLastName("Pérez");

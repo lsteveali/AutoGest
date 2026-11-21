@@ -4,7 +4,7 @@ import com.autogest.config.EmailConfig;
 import com.autogest.exception.AutoGestException;
 import com.autogest.model.Channel;
 import com.autogest.model.Customer;
-import com.autogest.model.DocumentType;
+import com.autogest.model.Catalogs.DocumentType;
 import com.autogest.model.Notification;
 import com.autogest.model.NotificationStatus;
 import com.autogest.model.NotificationType;

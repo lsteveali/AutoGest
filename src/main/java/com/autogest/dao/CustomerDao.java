@@ -3,8 +3,8 @@ package com.autogest.dao;
 import com.autogest.config.DatabaseConnection;
 import com.autogest.exception.DataAccessException;
 import com.autogest.model.Customer;
-import com.autogest.model.CustomerStatus;
-import com.autogest.model.DocumentType;
+import com.autogest.model.Catalogs.CustomerStatus;
+import com.autogest.model.Catalogs.DocumentType;
 
 import java.sql.Connection;
 import java.sql.Date;
