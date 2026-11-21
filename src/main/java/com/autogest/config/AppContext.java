@@ -93,6 +93,10 @@ public final class AppContext {
     private com.autogest.service.BillingSettingsService billingSettingsService;
     private com.autogest.service.NotificationSettingsService notificationSettingsService;
 
+    // ===== Asistente AutoGest (Líder, Sprint 9) =====
+    // Se crea al pedirlo: con IA si application.local.properties tiene una llave; si no, solo reglas.
+    private com.autogest.service.assistant.AssistantService assistantService;
+
     // ===== Customers (Dev 1) =====
     private final CustomerDao customerDao;
     private final CustomerRepository customerRepository;
@@ -378,6 +382,21 @@ public final class AppContext {
             notificationEventService.setSettings(() -> getNotificationSettingsService().current());
         }
         return notificationEventService;
+    }
+
+    // ===== Asistente AutoGest (Líder, Sprint 9) =====
+
+    /**
+     * Devuelve el motor del Asistente: con IA si hay una llave configurada y,
+     * si no, solo con las reglas locales.
+     *
+     * @return servicio del Asistente compartido
+     */
+    public synchronized com.autogest.service.assistant.AssistantService getAssistantService() {
+        if (assistantService == null) {
+            assistantService = new com.autogest.service.assistant.AssistantService(null);
+        }
+        return assistantService;
     }
 
     // ===== Reportes (Líder, Sprint 7) =====
