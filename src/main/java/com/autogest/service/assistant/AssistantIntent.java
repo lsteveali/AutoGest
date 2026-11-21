@@ -1,5 +1,6 @@
 package com.autogest.service.assistant;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -36,10 +37,14 @@ public record AssistantIntent(Kind kind, String destination, String search, Map<
         UNKNOWN
     }
 
-    /** Copias inmutables; los mapas nulos quedan vacíos. */
+    /**
+     * Copias inmutables que conservan el orden (al precargar un formulario
+     * importa: el tipo de aviso va antes que el mensaje). Los mapas nulos
+     * quedan vacíos.
+     */
     public AssistantIntent {
-        filters = filters == null ? Map.of() : Map.copyOf(new LinkedHashMap<>(filters));
-        fields = fields == null ? Map.of() : Map.copyOf(new LinkedHashMap<>(fields));
+        filters = filters == null ? Map.of() : Collections.unmodifiableMap(new LinkedHashMap<>(filters));
+        fields = fields == null ? Map.of() : Collections.unmodifiableMap(new LinkedHashMap<>(fields));
     }
 
     /** Pedido no entendido, con un mensaje para el usuario. */
