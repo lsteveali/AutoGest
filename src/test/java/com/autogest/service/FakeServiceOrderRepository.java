@@ -1,6 +1,6 @@
 package com.autogest.service;
 
-import com.autogest.model.OrderStatus;
+import com.autogest.model.Catalogs.OrderStatus;
 import com.autogest.model.ServiceOrder;
 import com.autogest.repository.ServiceOrderRepository;
 

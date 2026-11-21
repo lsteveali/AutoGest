@@ -5,7 +5,7 @@ import com.autogest.model.Customer;
 import com.autogest.model.Catalogs.DocumentType;
 import com.autogest.model.Invoice;
 import com.autogest.model.InvoiceStatus;
-import com.autogest.model.OrderStatus;
+import com.autogest.model.Catalogs.OrderStatus;
 import com.autogest.model.Part;
 import com.autogest.model.PartLine;
 import com.autogest.model.ServiceLine;

@@ -3,7 +3,7 @@ package com.autogest.service;
 import com.autogest.exception.NotFoundException;
 import com.autogest.exception.ValidationException;
 import com.autogest.model.OrderLine;
-import com.autogest.model.OrderStatus;
+import com.autogest.model.Catalogs.OrderStatus;
 import com.autogest.model.Part;
 import com.autogest.model.PartLine;
 import com.autogest.model.Catalogs.Role;

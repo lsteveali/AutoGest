@@ -15,7 +15,7 @@ import com.autogest.exception.ValidationException;
 import com.autogest.model.Customer;
 import com.autogest.model.Catalogs.CustomerStatus;
 import com.autogest.model.OrderLine;
-import com.autogest.model.OrderStatus;
+import com.autogest.model.Catalogs.OrderStatus;
 import com.autogest.model.Part;
 import com.autogest.model.PartLine;
 import com.autogest.model.ServiceLine;

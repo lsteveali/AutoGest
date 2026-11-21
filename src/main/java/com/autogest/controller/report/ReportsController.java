@@ -15,7 +15,7 @@ import com.autogest.controller.order.OrderLabels;
 import com.autogest.exception.AutoGestException;
 import com.autogest.exception.ValidationException;
 import com.autogest.model.Catalogs.MovementType;
-import com.autogest.model.OrderStatus;
+import com.autogest.model.Catalogs.OrderStatus;
 import com.autogest.model.ReportData;
 import com.autogest.model.User;
 import com.autogest.service.ReportPdfService;

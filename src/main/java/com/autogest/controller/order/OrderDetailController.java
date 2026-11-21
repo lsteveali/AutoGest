@@ -20,7 +20,7 @@ import com.autogest.model.Invoice;
 import com.autogest.model.InvoiceStatus;
 import com.autogest.model.OrderHistory;
 import com.autogest.model.OrderLine;
-import com.autogest.model.OrderStatus;
+import com.autogest.model.Catalogs.OrderStatus;
 import com.autogest.model.Part;
 import com.autogest.model.PartLine;
 import com.autogest.model.ServiceLine;

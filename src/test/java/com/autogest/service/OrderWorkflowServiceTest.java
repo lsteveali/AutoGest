@@ -9,7 +9,7 @@ import com.autogest.model.NotificationStatus;
 import com.autogest.model.NotificationType;
 import com.autogest.model.OrderHistory;
 import com.autogest.model.OrderLine;
-import com.autogest.model.OrderStatus;
+import com.autogest.model.Catalogs.OrderStatus;
 import com.autogest.model.Part;
 import com.autogest.model.Catalogs.Role;
 import com.autogest.model.ServiceOffering;

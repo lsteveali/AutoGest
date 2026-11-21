@@ -13,7 +13,7 @@ import com.autogest.controller.components.PageHeader;
 import com.autogest.controller.components.PagedTable;
 import com.autogest.controller.components.StatusBadge;
 import com.autogest.exception.AutoGestException;
-import com.autogest.model.OrderStatus;
+import com.autogest.model.Catalogs.OrderStatus;
 import com.autogest.model.ServiceOrder;
 import com.autogest.model.User;
 import com.autogest.service.ServiceOrderService;
