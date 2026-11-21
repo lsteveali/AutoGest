@@ -73,9 +73,20 @@ public final class InvoiceLabels {
         return null;
     }
 
-    /** Nombres visibles de los métodos de pago, en el orden del Service. */
+    /** Nombres visibles de todos los métodos de pago (filtros de la lista), en el orden del Service. */
     public static List<String> methodOptions() {
-        return InvoiceService.PAYMENT_METHODS.stream().map(InvoiceService::methodText).toList();
+        return methodOptions(InvoiceService.PAYMENT_METHODS);
+    }
+
+    /**
+     * Nombres visibles de los métodos indicados (por ejemplo, los habilitados
+     * en Configuración → Facturación para registrar un pago).
+     *
+     * @param codes códigos de los métodos
+     * @return nombres en español, en el mismo orden
+     */
+    public static List<String> methodOptions(List<String> codes) {
+        return codes.stream().map(InvoiceService::methodText).toList();
     }
 
     /** Código del método elegido ({@code null} = todos o ninguno). */

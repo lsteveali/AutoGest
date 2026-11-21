@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /** Pruebas de {@link ReportPdfService}: se lee el texto del PDF generado. */
@@ -67,6 +68,18 @@ class ReportPdfServiceTest {
 
         assertEquals("Reporte 2026-11-01 a 2026-11-30.pdf", target.getFileName().toString());
         assertTrue(Files.size(target) > 1000);
+    }
+
+    @Test
+    void headerShowsTheWorkshopNameAndNit() throws IOException {
+        com.autogest.model.WorkshopProfile profile = new com.autogest.model.WorkshopProfile();
+        profile.setName("Taller El Bulldog");
+        profile.setNit("901.456.789-1");
+        ReportPdfService withWorkshop = new ReportPdfService();
+        withWorkshop.setWorkshop(() -> profile);
+
+        assertTrue(text(withWorkshop.render(report(Map.of()))).contains("Taller El Bulldog · NIT 901.456.789-1"));
+        assertFalse(text(service.render(report(Map.of()))).contains("NIT"));
     }
 
     private static String text(byte[] pdf) throws IOException {

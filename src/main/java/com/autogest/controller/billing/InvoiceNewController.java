@@ -16,7 +16,6 @@ import com.autogest.model.Customer;
 import com.autogest.model.Invoice;
 import com.autogest.model.ServiceOrder;
 import com.autogest.model.Vehicle;
-import com.autogest.service.InvoiceService;
 import com.autogest.util.Background;
 import com.autogest.util.Formatter;
 import com.autogest.util.Session;
@@ -154,12 +153,12 @@ public class InvoiceNewController implements Initializable, NavigatorAware, Para
     }
 
     private Node paymentCard() {
-        dueDate = new DatePicker(LocalDate.now().plusDays(InvoiceService.DEFAULT_DUE_DAYS));
+        dueDate = new DatePicker(LocalDate.now().plusDays(BillingUi.service().settings().getDueDays()));
         dueDate.getStyleClass().add("input");
         dueDate.setMaxWidth(Double.MAX_VALUE);
         payNow = new CheckBox("Registrar el pago ahora");
         methodBox = FormLayout.combo("Selecciona el método");
-        methodBox.getItems().setAll(InvoiceLabels.methodOptions());
+        methodBox.getItems().setAll(InvoiceLabels.methodOptions(BillingUi.service().paymentMethods()));
         VBox methodField = FormLayout.labeled("Método de pago *", methodBox);
         methodField.visibleProperty().bind(payNow.selectedProperty());
         methodField.managedProperty().bind(payNow.selectedProperty());
@@ -271,11 +270,11 @@ public class InvoiceNewController implements Initializable, NavigatorAware, Para
             return;
         }
         try {
-            Invoice draft = InvoiceService.buildDraft(order, BillingUi.parseMoney(discountField.getText()), null);
+            Invoice draft = BillingUi.service().draft(order, BillingUi.parseMoney(discountField.getText()), null);
             totals.getChildren().add(BillingUi.totals(draft));
             setDiscountError(null);
         } catch (AutoGestException e) {
-            Invoice withoutDiscount = InvoiceService.buildDraft(order, BigDecimal.ZERO, null);
+            Invoice withoutDiscount = BillingUi.service().draft(order, BigDecimal.ZERO, null);
             totals.getChildren().add(BillingUi.totals(withoutDiscount));
             setDiscountError(e.getMessage());
         }

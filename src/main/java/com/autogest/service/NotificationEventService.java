@@ -54,6 +54,30 @@ public class NotificationEventService {
         this.vehicleService = vehicleService;
     }
 
+    private java.util.function.Supplier<com.autogest.model.NotificationSettings> settings =
+            com.autogest.model.NotificationSettings::defaults;
+
+    /**
+     * Define de dónde sale la configuración de notificaciones (qué avisos
+     * automáticos están activos). Sin llamarlo, todos están activos.
+     *
+     * @param settings proveedor de la configuración vigente
+     */
+    public void setSettings(java.util.function.Supplier<com.autogest.model.NotificationSettings> settings) {
+        this.settings = settings == null ? com.autogest.model.NotificationSettings::defaults : settings;
+    }
+
+    /**
+     * @return {@code true} si el aviso «vehículo listo» está activo en Configuración
+     */
+    public boolean isVehicleReadyEnabled() {
+        try {
+            return settings.get().isVehicleReadyEnabled();
+        } catch (RuntimeException e) {
+            return true;
+        }
+    }
+
     // ---------- vehículo listo ----------
 
     /**

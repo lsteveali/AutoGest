@@ -6,6 +6,7 @@ import com.autogest.model.Notification;
 import com.autogest.model.NotificationType;
 
 import java.util.List;
+import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 /**
@@ -27,12 +28,28 @@ public class InvoiceAttachmentProvider implements EmailAttachmentProvider {
      * @param pdfService     generador del PDF y la imagen
      */
     public InvoiceAttachmentProvider(Supplier<InvoiceService> invoiceService, InvoicePdfService pdfService) {
+        this(invoiceService, pdfService, () -> true);
+    }
+
+    /**
+     * @param invoiceService facturas
+     * @param pdfService     generador del PDF y la imagen
+     * @param enabled        interruptor «Adjuntar la factura» de Configuración → Notificaciones
+     */
+    public InvoiceAttachmentProvider(Supplier<InvoiceService> invoiceService, InvoicePdfService pdfService,
+                                     BooleanSupplier enabled) {
         this.invoiceService = invoiceService;
         this.pdfService = pdfService;
+        this.enabled = enabled == null ? () -> true : enabled;
     }
+
+    private final BooleanSupplier enabled;
 
     @Override
     public List<EmailAttachment> attachmentsFor(Notification notification) {
+        if (!enabled.getAsBoolean()) {
+            return List.of();
+        }
         Invoice invoice = invoiceFor(notification);
         if (invoice == null) {
             return List.of();

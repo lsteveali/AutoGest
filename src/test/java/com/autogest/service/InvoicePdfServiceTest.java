@@ -112,6 +112,54 @@ class InvoicePdfServiceTest {
         assertTrue(new String(Files.readAllBytes(target), 0, 5).startsWith("%PDF"));
     }
 
+    // ---------- datos del taller y nota ----------
+
+    @Test
+    void workshopDataReplacesTheSlogan() throws IOException {
+        com.autogest.model.WorkshopProfile profile = new com.autogest.model.WorkshopProfile();
+        profile.setName("Taller El Bulldog");
+        profile.setNit("901.456.789-1");
+        profile.setAddress("Carrera 15 # 25-40");
+        profile.setCity("Valledupar");
+        profile.setPhone("605 555 1234");
+        profile.setEmail("contacto@bulldog.com");
+        InvoicePdfService withWorkshop = new InvoicePdfService();
+        withWorkshop.setDocumentSources(() -> profile, null);
+
+        String text = text(withWorkshop.render(invoice(InvoiceStatus.PENDING, 2)));
+
+        assertTrue(text.contains("Taller El Bulldog"), text);
+        assertTrue(text.contains("NIT 901.456.789-1 · Carrera 15 # 25-40, Valledupar"), text);
+        assertTrue(text.contains("Tel. 605 555 1234 · contacto@bulldog.com"), text);
+        assertFalse(text.contains("Gestión integral para talleres automotrices"), text);
+    }
+
+    @Test
+    void withoutWorkshopDataTheSloganStays() throws IOException {
+        InvoicePdfService failing = new InvoicePdfService();
+        failing.setDocumentSources(() -> {
+            throw new com.autogest.exception.DataAccessException("sin conexión");
+        }, null);
+
+        assertTrue(text(failing.render(invoice(InvoiceStatus.PENDING, 2)))
+                .contains("Gestión integral para talleres automotrices"));
+    }
+
+    @Test
+    void configuredNoteIsPrinted() throws IOException {
+        com.autogest.model.BillingSettings billing = com.autogest.model.BillingSettings.defaults();
+        billing.setInvoiceNote("Transferencias a la cuenta Bancolombia 123-456789-00.\nGracias por su pago.");
+        InvoicePdfService withNote = new InvoicePdfService();
+        withNote.setDocumentSources(null, () -> billing);
+
+        String text = text(withNote.render(invoice(InvoiceStatus.PENDING, 2)));
+
+        assertTrue(text.contains("NOTA"), text);
+        assertTrue(text.contains("Bancolombia 123-456789-00."), text);
+        assertTrue(text.contains("Gracias por su pago."), text);
+        assertFalse(text(service.render(invoice(InvoiceStatus.PENDING, 2))).contains("NOTA"));
+    }
+
     // ---------- PNG ----------
 
     @Test

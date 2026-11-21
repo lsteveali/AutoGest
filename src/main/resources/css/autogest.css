@@ -1242,6 +1242,69 @@
     -fx-text-fill: -ag-text;
 }
 
+/* Configuración de facturación: ejemplo que se actualiza mientras se escribe. */
+.billing-settings-example {
+    -fx-font-size: 13px;
+    -fx-text-fill: -ag-text;
+    -fx-background-color: -ag-surface-alt;
+    -fx-background-radius: 8;
+    -fx-padding: 10 12;
+}
+
+/* Configuración de notificaciones: lista de plantillas, editor y vista previa. */
+.template-item {
+    -fx-background-color: transparent;
+    -fx-background-radius: 8;
+    -fx-text-fill: -ag-text;
+    -fx-font-size: 14px;
+    -fx-alignment: center-left;
+    -fx-padding: 8 12;
+    -fx-cursor: hand;
+}
+
+.template-item:hover {
+    -fx-background-color: -ag-hover;
+}
+
+.template-item:selected {
+    -fx-background-color: -ag-selected;
+    -fx-font-weight: 700;
+}
+
+.template-editor-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -ag-text;
+}
+
+.template-field {
+    -fx-font-size: 12px;
+    -fx-min-height: 28;
+    -fx-padding: 3 8;
+}
+
+.template-preview {
+    -fx-background-color: -ag-surface-alt;
+    -fx-background-radius: 8;
+    -fx-padding: 12 14;
+}
+
+.template-preview-subject {
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -ag-text;
+}
+
+.template-preview-message {
+    -fx-font-size: 13px;
+    -fx-text-fill: -ag-text;
+}
+
+.template-preview-subject.template-preview-error {
+    -fx-text-fill: -ag-danger;
+    -fx-font-weight: 500;
+}
+
 /* Diálogo «Restaurar copia de seguridad»: aviso en tinte de error y datos de la copia. */
 .restore-warning {
     -fx-background-color: -ag-danger-tint;

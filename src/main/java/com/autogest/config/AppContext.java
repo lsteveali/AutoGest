@@ -88,6 +88,11 @@ public final class AppContext {
     private final com.autogest.service.ReportPdfService reportPdfService =
             new com.autogest.service.ReportPdfService();
 
+    // ===== Configuración de Facturación y de Notificaciones (Líder, Sprint 8) =====
+    // Se crean al pedirlas: usan el SettingsDao de Dev 1, que se arma al final del constructor.
+    private com.autogest.service.BillingSettingsService billingSettingsService;
+    private com.autogest.service.NotificationSettingsService notificationSettingsService;
+
     // ===== Customers (Dev 1) =====
     private final CustomerDao customerDao;
     private final CustomerRepository customerRepository;
@@ -221,9 +226,23 @@ public final class AppContext {
      */
     private void configureEmail() {
         notificationService.setEmailSender(EmailConfig.fromLocalFile());
-        // Los correos de Facturación llevan la factura en PDF y PNG.
+        // Los correos de Facturación llevan la factura en PDF y PNG (si está activo en Configuración).
         notificationService.setAttachmentProvider(new com.autogest.service.InvoiceAttachmentProvider(
-                this::getInvoiceService, invoicePdfService));
+                this::getInvoiceService, invoicePdfService,
+                () -> getNotificationSettingsService().current().isAttachInvoice()));
+        configureSettings();
+    }
+
+    /**
+     * Configuración (Líder, Sprint 8): las plantillas toman los textos
+     * editados y el nombre del taller; los PDF, los datos del taller y la nota
+     * de la factura.
+     */
+    private void configureSettings() {
+        com.autogest.service.NotificationTemplate.useTextSource(getNotificationSettingsService());
+        invoicePdfService.setDocumentSources(() -> getSettingsService().getWorkshopProfile(),
+                () -> getBillingSettingsService().current());
+        reportPdfService.setWorkshop(() -> getSettingsService().getWorkshopProfile());
     }
 
     /**
@@ -298,8 +317,41 @@ public final class AppContext {
                     new com.autogest.repository.InvoiceRepository(
                             new com.autogest.dao.InvoiceDao(databaseConnection)),
                     serviceOrderService, serviceOrderRepository, notificationService);
+            invoiceService.setSettings(() -> getBillingSettingsService().current());
+            invoiceService.setNoticesEnabled(() -> getNotificationSettingsService().current().isBillingNoticesEnabled());
         }
         return invoiceService;
+    }
+
+    // ===== Configuración de Facturación y de Notificaciones (Líder, Sprint 8) =====
+
+    /**
+     * Devuelve la configuración de facturación (IVA, plazo, numeración,
+     * métodos de pago y nota).
+     *
+     * @return servicio compartido
+     */
+    public synchronized com.autogest.service.BillingSettingsService getBillingSettingsService() {
+        if (billingSettingsService == null) {
+            billingSettingsService = new com.autogest.service.BillingSettingsService(
+                    new com.autogest.repository.BillingSettingsRepository(settingsDao));
+        }
+        return billingSettingsService;
+    }
+
+    /**
+     * Devuelve la configuración de notificaciones (avisos automáticos y
+     * plantillas). El nombre del taller sale de «Datos del taller» (Dev 1).
+     *
+     * @return servicio compartido
+     */
+    public synchronized com.autogest.service.NotificationSettingsService getNotificationSettingsService() {
+        if (notificationSettingsService == null) {
+            notificationSettingsService = new com.autogest.service.NotificationSettingsService(
+                    new com.autogest.repository.NotificationSettingsRepository(settingsDao),
+                    () -> getSettingsService().getWorkshopProfile().getDisplayName());
+        }
+        return notificationSettingsService;
     }
 
     /**
@@ -323,6 +375,7 @@ public final class AppContext {
         if (notificationEventService == null) {
             notificationEventService = new com.autogest.service.NotificationEventService(notificationService,
                     vehicleService);
+            notificationEventService.setSettings(() -> getNotificationSettingsService().current());
         }
         return notificationEventService;
     }

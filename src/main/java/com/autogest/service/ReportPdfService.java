@@ -4,6 +4,7 @@ import com.autogest.exception.AutoGestException;
 import com.autogest.model.MovementType;
 import com.autogest.model.OrderStatus;
 import com.autogest.model.ReportData;
+import com.autogest.model.WorkshopProfile;
 import com.autogest.util.Formatter;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -25,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.function.Supplier;
 
 /**
  * Genera el PDF de un reporte (A4): encabezado con el periodo y una tabla por
@@ -79,7 +81,7 @@ public class ReportPdfService {
      */
     public byte[] render(ReportData.Snapshot report) {
         try (PDDocument document = new PDDocument()) {
-            new Writer(document).write(report);
+            new Writer(document, workshopLine()).write(report);
             document.getDocumentInformation().setTitle("Reporte AutoGest");
             document.getDocumentInformation().setCreator("AutoGest");
             ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -90,17 +92,45 @@ public class ReportPdfService {
         }
     }
 
+    private Supplier<WorkshopProfile> workshop;
+
+    /**
+     * Datos del taller (Configuración → Datos del taller, de Dev 1) para el
+     * encabezado. Sin definirlo, el encabezado no los lleva.
+     *
+     * @param workshop datos del taller
+     */
+    public void setWorkshop(Supplier<WorkshopProfile> workshop) {
+        this.workshop = workshop;
+    }
+
+    /** «Taller El Bulldog · NIT 901.456.789-1», o {@code null} si no hay datos. */
+    String workshopLine() {
+        try {
+            WorkshopProfile profile = workshop == null ? null : workshop.get();
+            if (profile == null || profile.getDisplayName() == null || profile.getDisplayName().isBlank()) {
+                return null;
+            }
+            String nit = profile.getNit();
+            return profile.getDisplayName().trim() + (nit == null || nit.isBlank() ? "" : " · NIT " + nit.trim());
+        } catch (RuntimeException e) {
+            return null;
+        }
+    }
+
     /** Escribe las secciones y lleva la página y la posición actuales. */
     private static final class Writer {
 
         private final PDDocument document;
+        private final String workshopLine;
         private final PDFont regular;
         private final PDFont bold;
         private PDPageContentStream stream;
         private float y;
 
-        Writer(PDDocument document) throws IOException {
+        Writer(PDDocument document, String workshopLine) throws IOException {
             this.document = document;
+            this.workshopLine = workshopLine;
             this.regular = font("Roboto-Regular.ttf");
             this.bold = font("Roboto-Bold.ttf");
         }
@@ -175,7 +205,10 @@ public class ReportPdfService {
             textRight(bold, 18, ONYX, MARGIN + WIDTH, TOP - 18, "Reporte del taller");
             textRight(regular, 10, MUTED, MARGIN + WIDTH, TOP - 34,
                     "Periodo: " + Formatter.date(r.from()) + " a " + Formatter.date(r.to()));
-            y = TOP - LOGO_HEIGHT - 16;
+            if (workshopLine != null) {
+                textRight(regular, 9, MUTED, MARGIN + WIDTH, TOP - 48, workshopLine);
+            }
+            y = TOP - Math.max(LOGO_HEIGHT, workshopLine == null ? 0 : 52) - 16;
             line(y);
             y -= 22;
         }
