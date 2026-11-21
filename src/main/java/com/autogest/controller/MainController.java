@@ -1,6 +1,11 @@
 package com.autogest.controller;
 
 import com.autogest.config.AppContext;
+import com.autogest.controller.assistant.AssistantAction;
+import com.autogest.controller.assistant.AssistantFormFiller;
+import com.autogest.controller.assistant.AssistantPanel;
+import com.autogest.controller.assistant.AssistantResolver;
+import com.autogest.controller.assistant.ServiceAssistantLookup;
 import com.autogest.controller.components.AssistantButton;
 import com.autogest.controller.components.ConfirmDialog;
 import com.autogest.controller.components.ErrorDialog;
@@ -16,6 +21,9 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.StackPane;
 
 import java.net.URL;
@@ -51,6 +59,8 @@ public class MainController implements Initializable {
     private Runnable onLogout;
     /** Cierre de sesión por inactividad, según las Preferencias del sistema. */
     private final InactivityTimer inactivity = new InactivityTimer(this::endSessionForInactivity);
+    /** Panel del Asistente; se crea la primera vez que se abre. */
+    private AssistantPanel assistantPanel;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -92,7 +102,7 @@ public class MainController implements Initializable {
         // Se enciende cuando la ventana ya existe (después de initialize).
         javafx.application.Platform.runLater(inactivity::start);
 
-        assistantButton.setOnAction(event -> open(View.ASSISTANT));
+        assistantButton.setOnAction(event -> toggleAssistant());
         StackPane.setMargin(assistantButton, new Insets(0, 24, 24, 0));
 
         navigator.navigateTo(View.HOME);
@@ -144,9 +154,55 @@ public class MainController implements Initializable {
                 error -> topbar.setNotificationCount(0));
     }
 
+    // ---------- Asistente AutoGest (Sprint 9, Líder) ----------
+
+    /** Abre o cierra el panel del Asistente (botón flotante e ítem de la barra lateral). */
+    private void toggleAssistant() {
+        if (assistantPanel == null) {
+            assistantPanel = new AssistantPanel(AppContext.getInstance().getAssistantService(),
+                    new AssistantResolver(new ServiceAssistantLookup()), this::runAssistantAction);
+            assistantPanel.setOnClose(this::toggleAssistant);
+            assistantPanel.addEventHandler(KeyEvent.KEY_PRESSED, event -> {
+                if (event.getCode() == KeyCode.ESCAPE) {
+                    toggleAssistant();
+                }
+            });
+            StackPane.setAlignment(assistantPanel, Pos.CENTER_RIGHT);
+            StackPane.setMargin(assistantPanel, new Insets(12, 12, 12, 0));
+            ((StackPane) contentArea.getParent()).getChildren().add(assistantPanel);
+            assistantPanel.setVisible(false);
+        }
+        boolean show = !assistantPanel.isVisible();
+        assistantPanel.setVisible(show);
+        assistantButton.setVisible(!show);
+        if (show) {
+            assistantPanel.focusInput();
+        }
+    }
+
+    /**
+     * Ejecuta una acción del Asistente con los mismos permisos que la barra
+     * lateral: abre la pantalla y aplica filtros o precarga campos. Nunca
+     * guarda nada.
+     *
+     * @return {@code false} si el rol no puede abrir la pantalla
+     */
+    private boolean runAssistantAction(AssistantAction action) {
+        if (!Permissions.canAccess(currentRole(), action.view())) {
+            return false;
+        }
+        navigator.navigate(action.view(), action.parameter(), root -> AssistantFormFiller.apply(root, action));
+        return true;
+    }
+
     /** Abre una pantalla comprobando antes los permisos del rol. */
     private void open(View view) {
         if (view == null) {
+            return;
+        }
+        if (view == View.ASSISTANT) {
+            // El Asistente es un panel junto al contenido, no una pantalla aparte.
+            toggleAssistant();
             return;
         }
         if (Permissions.canAccess(currentRole(), view)) {
