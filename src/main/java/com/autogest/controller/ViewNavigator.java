@@ -64,6 +64,23 @@ public class ViewNavigator {
     }
 
     /**
+     * Navega a una pantalla (con su parámetro, si lo tiene) y entrega la raíz
+     * ya cargada, para aplicar filtros o precargar campos (Asistente).
+     *
+     * @param view      pantalla destino
+     * @param parameter id que recibe la pantalla, o {@code null}
+     * @param onLoaded  recibe la raíz de la pantalla cargada
+     */
+    public void navigate(View view, Integer parameter, Consumer<Parent> onLoaded) {
+        history.push(new Entry(view, parameter));
+        load(view, parameter);
+        if (onLoaded != null && !container.getChildren().isEmpty()
+                && container.getChildren().get(0) instanceof Parent root) {
+            onLoaded.accept(root);
+        }
+    }
+
+    /**
      * Regresa a la pantalla visitada anteriormente, con su mismo parámetro
      * (así un detalle vuelve a abrir el mismo registro). Sin historial, va a
      * Inicio.
