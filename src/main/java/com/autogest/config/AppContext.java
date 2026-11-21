@@ -394,7 +394,14 @@ public final class AppContext {
      */
     public synchronized com.autogest.service.assistant.AssistantService getAssistantService() {
         if (assistantService == null) {
-            assistantService = new com.autogest.service.assistant.AssistantService(null);
+            com.autogest.service.assistant.AssistantService.AiEngine engine;
+            try {
+                engine = AssistantConfig.fromLocalFile();
+            } catch (RuntimeException e) {
+                // Sin archivo de configuración legible: el Asistente sigue con las reglas locales.
+                engine = null;
+            }
+            assistantService = new com.autogest.service.assistant.AssistantService(engine);
         }
         return assistantService;
     }
