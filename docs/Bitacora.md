@@ -15,7 +15,7 @@
 | Proyecto | AutoGest — Sistema de gestión integral para talleres automotrices |
 | Materia | Programación de Computadores III (SS462) |
 | Repositorio | https://github.com/lsteveali/AutoGest.git |
-| Rama de trabajo actual | `develop` (Sprint 8 cerrado con el PR #29; la próxima rama del Líder se crea desde aquí) |
+| Rama de trabajo actual | `refactor/catalogos-modelo` (desde `develop` en `b3f0f02`; en prueba del Líder, sin subir) |
 | Sprint en curso | **Sprint 8 ✅ cerrado** (PR #24 a #29) · Sprint 7 ✅ (PR #21 y #22) · Paleta, Manrope y logo ✅ (PR #23 y #27) · siguiente: Sprint 9 (Asistente) |
 | Equipo | Líder: Leonarth Steve Ali Camargo · Dev 1: Sebastián Murgas Tejeda · Dev 2: **sin integrante vinculado** — el Líder asume todas sus responsabilidades (decisión 14/10/2026) |
 | Documento guía | `AutoGest_Guia_Lider` (V2.0) |
@@ -907,6 +907,33 @@ estaba incorporado; el otro era un WIP viejo de `login-usuarios`). Quedan solo
    - `mvn clean test` → **573 pruebas, 0 fallos** (568 + 5).
 
 **Cierre:** cuando se fusionó el PR #28, la rama se rebasó sobre `develop` y se abrió el PR #29 (16 commits), con la sección «Para Dev 1». Fusionado el 20/11/2026 (`e79bf96`). **Con esto se cierra el Sprint 8.**
+
+### 20/11/2026 — Sesión 32 (Líder): los enums del modelo en un solo archivo
+
+**Contexto.** El docente sugirió tener menos archivos agrupando los enums del modelo. El Líder pidió unirlos «en uno solo que cumpla las funciones de todos». Se habló de las opciones:
+- **Un enum único**, con todos los valores juntos, **se descartó**. Se pierde la seguridad de tipos: `setStatus` aceptaría `ADMINISTRATOR`. Además, `ACTIVE`, `INACTIVE` y otros se repiten con significados distintos, y habría que renombrarlos y migrar los textos guardados en Supabase, con lo que las copias de seguridad existentes dejarían de servir.
+- **Opción elegida:** un solo archivo con los enums **anidados**. Logra lo mismo (de 16 archivos a 1) sin esos problemas.
+
+Rama `refactor/catalogos-modelo` desde `develop` (`b3f0f02`).
+
+**Hecho:**
+1. **`model/Catalogs.java`** (clase final, sin instancias) con los **16 enums anidados**, por secciones:
+   - Usuarios: `Role`, `UserStatus`.
+   - Clientes: `CustomerStatus`, `DocumentType`.
+   - Vehículos: `VehicleStatus`, `VehicleType`, `FuelType`, `Transmission`.
+   - Servicios e inventario: `ServiceOfferingStatus`, `StockStatus`, `MovementType`.
+   - Órdenes: `OrderStatus`.
+   - Facturación: `InvoiceStatus`.
+   - Notificaciones: `Channel`, `NotificationStatus`, `NotificationType`.
+
+   Cada enum conserva su Javadoc, sus constantes y sus métodos.
+2. **Se borraron los 16 archivos.** El paquete `model` pasa de 42 a 27 archivos.
+3. **Referencias:** solo cambian los imports, `com.autogest.model.Role` → `com.autogest.model.Catalogs.Role`, en el código, las pruebas y los nombres completos. Las clases del propio paquete `model` (`User`, `ServiceOrder`…) y sus pruebas reciben el import. El código sigue escribiendo `Role.ADMINISTRATOR`.
+4. **Sin cambios en la base de datos:** los nombres de las constantes, que se guardan como texto, son los mismos. No hay migración y las copias de seguridad siguen sirviendo.
+5. **Siete commits**, uno por módulo, hechos con un script temporal fuera del repositorio. En cada paso se agregaron los enums del módulo, se cambiaron sus imports, se borraron los archivos viejos y se compiló **desde cero** (`mvn clean test-compile`) antes del commit. Los diffs son solo líneas de `import`.
+6. `mvn clean test` → **573 pruebas, 0 fallos**, el mismo número de antes.
+
+**Archivos de Dev 1 tocados (pedido del Líder):** todo el paquete `model` que usa los enums y casi todas sus pantallas, servicios y pruebas; solo cambian los imports. Si Sebastián tiene `.diff` pendientes, chocarán en las líneas de `import`: hay que cambiar `com.autogest.model.X` por `com.autogest.model.Catalogs.X`.
 - Capturas del login a 1280×720 y de la barra lateral; el menú completo cabe a 720 px de alto. `mvn clean test` → **539 pruebas, 0 fallos**.
 
 ---
@@ -1092,6 +1119,10 @@ Verificación: `develop` → `mvn clean test` **108 pruebas, 0 fallos**
 - [x] ~~Hallazgos de la revisión del PR #26~~ — corregidos por el Líder a pedido suyo (Sesión 31, `feature/hallazgos-configuracion`).
 - [x] ~~Subir `feature/hallazgos-configuracion` y abrir el PR hacia `develop`~~ — PR #29 fusionado (`e79bf96`, 20/11/2026). **Sprint 8 cerrado.**
 - [ ] Preferencias que quedan «Próximamente»: idioma y formatos regionales, barra lateral compacta, orden predeterminado, información adicional en tablas, abrir el último módulo, ayuda contextual y filtros recientes.
+
+**Catálogos del modelo (Líder, `refactor/catalogos-modelo`):**
+- [x] Los 16 enums agrupados en `model/Catalogs.java` (Sesión 32).
+- [ ] Subir la rama y abrir el PR hacia `develop` cuando el Líder termine de probarla; avisar a Dev 1 del cambio de imports.
 
 **Pendientes nuevos (14/10/2026):**
 - [x] ~~Confirmar el estado del PR del backend de Clientes~~ — resuelto: PR **#5** (backend) y **#8** (interfaz completa) fusionados en `develop`; siguen pendientes de revisión de Sebastián los PRs del Líder.
