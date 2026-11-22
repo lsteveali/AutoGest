@@ -1193,10 +1193,11 @@ Verificación: `develop` → `mvn clean test` **108 pruebas, 0 fallos**
 - [x] Los 16 enums agrupados en `model/Catalogs.java` (Sesión 32).
 - [x] ~~Subir la rama y abrir el PR hacia `develop`~~ — PR #30 fusionado (`3d86180`, 20/11/2026); el cambio de imports quedó explicado a Dev 1 en el PR.
 
-**En curso (Líder, Sprint 9 — rama `feature/asistente`):**
+**Sprint 9 (Líder, rama `feature/asistente`):**
 - [x] Panel, motor local, navegación con filtros, formularios precargados y motor con IA opcional (Sesión 33).
-- [ ] Subir la rama y abrir el PR hacia `develop` cuando el Líder termine su prueba manual.
-- [ ] Opcional: probar el motor con Groq con una llave gratis real (`assistant.groq.api-key`).
+- [x] ~~Subir la rama y abrir el PR hacia `develop`~~ — PR #31 fusionado (`c6574b5`, 21/11/2026). **Sprint 9 cerrado.**
+- [x] ~~Probar el motor con Groq con una llave gratis real~~ — el panel muestra «Con IA (Groq)» en la app real.
+- [ ] Fusionar `develop` en `main` con un PR (primera entrega en `main`, 22/11/2026).
 
 **Pendientes nuevos (14/10/2026):**
 - [x] ~~Confirmar el estado del PR del backend de Clientes~~ — resuelto: PR **#5** (backend) y **#8** (interfaz completa) fusionados en `develop`; siguen pendientes de revisión de Sebastián los PRs del Líder.
