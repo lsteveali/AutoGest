@@ -30,7 +30,7 @@ public record LoginAppearance(Vehicle vehicle, String color) {
     /** Vehículos del catálogo de la vitrina. */
     public enum Vehicle {
         /** Camioneta todoterreno de dos puertas (la original). */
-        TRUCK("Camioneta todoterreno"),
+        TRUCK("Camioneta"),
         /** Sedán de cuatro puertas. */
         SEDAN("Sedán"),
         /** Deportivo de dos puertas con alerón. */
