@@ -1000,6 +1000,36 @@ Rama `feature/asistente` desde `develop` (`fb793e9`).
 
 **Archivos de Dev 1 tocados:** ninguno. Del Líder: `MainController`, `ViewNavigator`, `AppContext` (bloque del Líder), `autogest.css` y `pom.xml`.
 
+### 22/11/2026 — Sesión 34 (Líder): login personalizable
+
+**Contexto.** El Líder pidió poder cambiar el vehículo que gira en el inicio de sesión y su color desde Configuración, y que cada equipo recuerde lo elegido, igual que se haría con un modo oscuro (que no se implementa por ahora). Eligió:
+- **Catálogo:** la camioneta actual más un sedán y un deportivo.
+- **Color:** paleta de 8 colores más un selector libre («Otro color»).
+- **Permiso:** solo el administrador.
+
+Rama `feature/personalizacion-login` desde `origin/develop` (`87999a1`).
+
+**Hecho:**
+1. **Personalización y almacén** (`util`):
+   - `LoginAppearance` guarda el vehículo (`TRUCK`, `SEDAN` o `SPORTS`) y el color `#RRGGBB`, con la paleta. Un color inválido vuelve al plateado y un vehículo desconocido, a la camioneta.
+   - `LoginAppearanceStore` usa `java.util.prefs.Preferences` (en Windows, el registro del usuario). **No toca Supabase:** el login lo lee antes de iniciar sesión y cada computador conserva lo suyo.
+2. **Pintura por color** (`VehiclePaint`): arma el degradado metalizado a partir de un solo color, con las mismas proporciones del plateado original.
+3. **Vehículos 3D:**
+   - `TruckModel.build(Color)` devuelve un `VehicleBuild`: el modelo, su malla de pintura y su huella.
+   - `CarModel` arma el **sedán** y el **deportivo** (alerón, rines oscuros y frenos rojos) con la misma receta y el `MeshKit` existente.
+4. **Vitrina** (`CarTurntable`): recibe la personalización y tiene `show(...)`. Si solo cambia el color, repinta la carrocería sin rearmar el modelo. La sombra de contacto se calcula con la huella de cada vehículo.
+5. **Login:** abre con lo guardado en el equipo.
+6. **Pantalla Configuración → Personalización** (`AppearanceController`, `appearance.fxml`, `View.SETTINGS_APPEARANCE`): vehículo, paleta, «Otro color» y vista previa que gira mientras se elige. Se guarda al pulsar «Guardar cambios»; «Restaurar valores de fábrica» vuelve a la camioneta plateada. Por estar en la sección Configuración, solo la ve el administrador.
+7. **Pruebas nuevas:**
+   - `LoginAppearanceTest` (4).
+   - `LoginAppearanceStoreTest` (4, con un nodo de preferencias propio que se borra al terminar).
+   - `VehiclePaintTest` (2).
+   - `AppearanceControllerTest` (3).
+
+   `mvn clean test` → **630 pruebas, 0 fallos** (617 + 13).
+
+**Archivos de Dev 1 tocados:** ninguno. Del Líder: `CarTurntable`, `TruckModel`, `LoginController`, `View`, `SettingsController` y `autogest.css`.
+
 ---
 
 ## 4. Decisiones y acuerdos
@@ -1060,6 +1090,8 @@ Rama `feature/asistente` desde `develop` (`fb793e9`).
 | 21/11/2026 | **El Asistente nunca guarda:** abre, filtra y precarga, y el usuario pulsa «Guardar». Los permisos se revisan dos veces: el catálogo solo tiene los módulos del rol y cada acción pasa por `Permissions` antes de navegar. | Pedido del Líder: nada cambia sin confirmación y se respetan los roles. Un motor con IA tampoco puede saltarse los permisos. |
 | 21/11/2026 | **Motor con IA opcional sobre Groq (gratis, `openai/gpt-oss-120b`), con las reglas locales de respaldo;** reemplaza al primer motor con Claude. Solo se envía el texto del usuario y el catálogo del rol. | Claude cobra por consulta; Groq tiene plan gratis y por defecto no guarda lo enviado. Sin llave, sin internet o al llegar al límite gratis, el Asistente sigue funcionando. No se envían datos de la base a un servicio externo. |
 | 22/11/2026 | **Se quitan los 20 `package-info.java`** (capas base y todos los controladores, incluidos los 5 de Dev 1: `customer`, `inventory`, `notification`, `order` y `settings`). | Pedido del Líder antes de la primera entrega en `main`: solo tenían la descripción del paquete, sin anotaciones. Menos archivos y nada cambia al compilar; `mvn clean test` sigue en 617 pruebas sin fallos. |
+| 22/11/2026 | **La personalización del login se guarda en cada computador con `java.util.prefs.Preferences`, no en Supabase.** | El login la necesita antes de iniciar sesión, y cada equipo puede verse distinto. Es la misma pieza que serviría para un modo oscuro. |
+| 22/11/2026 | **Los vehículos nuevos se modelan en 3D por código (`CarModel`), sin archivos de modelos externos.** | Igual que la camioneta: no depende de licencias de modelos ni de un lector de formatos 3D, y el color se cambia sobre la malla de la pintura. |
 | 19/11/2026 | **El formulario «Nueva notificación» propone un mensaje según el tipo** (plantillas del Líder) sin pisar lo que el usuario escribió. | Pedido del Líder. Se autorizó tocar `NotificationNewController` y `NotificationService` de Dev 1; se registra en la sección «Para Dev 1» del PR. |
 
 ---
@@ -1200,6 +1232,10 @@ Verificación: `develop` → `mvn clean test` **108 pruebas, 0 fallos**
 - [x] ~~Probar el motor con Groq con una llave gratis real~~ — el panel muestra «Con IA (Groq)» en la app real.
 - [x] ~~Fusionar `develop` en `main` con un PR~~ — PR #32 fusionado (`cc3deae`, 22/11/2026). **Primera entrega en `main`** (Sprints 1 a 9).
 - [x] ~~Quitar los `package-info.java` antes de la entrega~~ — PR #33 fusionado (`f17c035`, 22/11/2026).
+
+**Login personalizable (Líder, rama `feature/personalizacion-login`):**
+- [x] Vehículo (camioneta, sedán, deportivo), color y pantalla Personalización (Sesión 34).
+- [ ] Subir la rama y abrir el PR hacia `develop` cuando el Líder termine su prueba manual.
 
 **Pendientes nuevos (14/10/2026):**
 - [x] ~~Confirmar el estado del PR del backend de Clientes~~ — resuelto: PR **#5** (backend) y **#8** (interfaz completa) fusionados en `develop`; siguen pendientes de revisión de Sebastián los PRs del Líder.
