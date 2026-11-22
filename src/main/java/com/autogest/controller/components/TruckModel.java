@@ -6,6 +6,7 @@ import com.autogest.controller.components.MeshKit.Warp;
 import javafx.scene.Group;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
+import javafx.scene.shape.MeshView;
 
 /**
  * Modelo 3D de una camioneta todoterreno corta de dos puertas (estilo serie 70
@@ -64,8 +65,17 @@ final class TruckModel {
     private TruckModel() {
     }
 
-    /** Arma la camioneta completa con el piso en y = 0 y el frente hacia +X. */
-    static Group build() {
+    /** Huella de la camioneta para la sombra de la plataforma. */
+    static final VehicleBuild.Footprint FOOTPRINT =
+            new VehicleBuild.Footprint(0.03, 2.13, 0.97, TRACK, FRONT_AXLE, REAR_AXLE, 0.30, 0.20);
+
+    /**
+     * Arma la camioneta completa con el piso en y = 0 y el frente hacia +X.
+     *
+     * @param color color de la pintura
+     * @return la camioneta, su malla de pintura y su huella
+     */
+    static VehicleBuild build(Color color) {
         TruckModel model = new TruckModel();
         model.chassis();
         model.body();
@@ -81,14 +91,11 @@ final class TruckModel {
             }
         }
         model.wheel(Warp.rotateY(-90).then(Warp.translate(-2.14, 1.08, 0.24)));
-        return model.group();
+        return model.group(color);
     }
 
-    private Group group() {
-        PhongMaterial paintMaterial = MeshKit.material(MeshKit.gradient(
-                0.0, Color.web("#D5DADF"), 0.25, Color.web("#CFD4DA"), 0.47, Color.web("#C2C8CF"),
-                0.50, Color.web("#8B929B"), 0.53, Color.web("#9EA5AD"), 0.75, Color.web("#B0B6BD"),
-                1.0, Color.web("#5E646B")), 0.55, 36);
+    private VehicleBuild group(Color color) {
+        PhongMaterial paintMaterial = VehiclePaint.material(color);
         PhongMaterial glassMaterial = MeshKit.material(MeshKit.gradient(
                 0.0, Color.web("#8C99A6"), 0.35, Color.web("#3A4552"), 0.5, Color.web("#1A2029"),
                 1.0, Color.web("#0B0E12")), 0.9, 90);
@@ -101,7 +108,7 @@ final class TruckModel {
                 1.0, Color.web("#C9CED4")), 0.8, 50);
 
         Group truck = new Group();
-        add(truck, paint, paintMaterial);
+        MeshView paintView = add(truck, paint, paintMaterial);
         add(truck, glass, glassMaterial);
         add(truck, chrome, chromeMaterial);
         add(truck, rim, rimMaterial);
@@ -115,13 +122,16 @@ final class TruckModel {
         add(truck, tail, MeshKit.material(Color.web("#B42F2F"), 0.7, 60));
         add(truck, plate, MeshKit.material(Color.web("#F1F3F5"), 0.3, 16));
         add(truck, plateText, MeshKit.material(Color.web("#1F2A44"), 0.1, 8));
-        return truck;
+        return new VehicleBuild(truck, paintView, FOOTPRINT);
     }
 
-    private static void add(Group group, Builder builder, PhongMaterial material) {
-        if (!builder.isEmpty()) {
-            group.getChildren().add(builder.view(material));
+    private static MeshView add(Group group, Builder builder, PhongMaterial material) {
+        if (builder.isEmpty()) {
+            return null;
         }
+        MeshView view = builder.view(material);
+        group.getChildren().add(view);
+        return view;
     }
 
     // ------------------------------------------------------------------ partes

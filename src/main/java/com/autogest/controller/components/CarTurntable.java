@@ -92,7 +92,7 @@ public final class CarTurntable extends StackPane {
     }
 
     private SubScene buildScene(double width, double height) {
-        Group truck = TruckModel.build();
+        Group truck = TruckModel.build(Color.web("#C2C8CF")).group();
         truck.getTransforms().addAll(
                 new Translate(0, -GROUND, 0),
                 new Scale(TRUCK_SCALE, TRUCK_SCALE, TRUCK_SCALE));
