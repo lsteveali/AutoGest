@@ -1,0 +1,2008 @@
+/* ==========================================================================
+   AutoGest - Sistema de diseño (Sprint 1, L4)
+   Paleta del Líder (19/11/2026): Onyx #111111, Porcelain #FFFFFC,
+   Khaki Beige #BEB7A4, Burnt Caramel #C65C00 e Inferno #AB0000.
+   Ningún FXML ni clase Java usa colores fijos: todo viene de aquí.
+   ========================================================================== */
+
+.root {
+    /* Paleta base */
+    -ag-navy: #111111;              /* Onyx: barra lateral y superficies oscuras */
+    -ag-primary: #AB0000;           /* Inferno: botones principales, enlaces y foco */
+    -ag-primary-hover: #8C0000;
+    -ag-accent: #C65C00;            /* Burnt Caramel: ítem activo, íconos y gráficas */
+    -ag-accent-hover: #A84E00;
+    -ag-sand: #BEB7A4;              /* Khaki Beige: base de fondos y bordes */
+    -ag-card: #FFFFFC;              /* Porcelain: tarjetas, campos y tablas */
+    -ag-bg: #ECE8DE;                /* Khaki Beige aclarado: fondo de las pantallas */
+    -ag-border: #DAD4C5;
+    -ag-border-strong: #C6BEAA;
+    -ag-divider: #EEE9DE;
+
+    /* Estados de interacción (tintes cálidos sobre Porcelain) */
+    -ag-hover: #F4F0E6;
+    -ag-pressed: #EAE4D6;
+    -ag-surface-alt: #F8F5EE;
+    -ag-selected: #F7E4DE;
+
+    /* Texto */
+    -ag-text: #111111;
+    -ag-text-muted: #6B6455;
+    -ag-text-placeholder: #78715F;
+    -ag-text-disabled: #A39C8B;
+    -ag-avatar: #DDD6C5;
+    -ag-avatar-text: #5A5446;
+
+    /* Estados (reservados: no se usan como decoración) */
+    -ag-success: #1E8A4F;
+    -ag-warning: #D99A12;
+    -ag-info: #2F6A94;
+    -ag-danger: #AB0000;
+    -ag-danger-tint: #F6DCD6;
+    -ag-neutral: #8C8577;
+
+    /* Tipografía */
+    -fx-font-family: "Manrope", "Segoe UI", sans-serif;
+    -fx-font-size: 14px;
+    -fx-text-fill: -ag-text;
+    -fx-background-color: -ag-bg;
+}
+
+/* --------------------------------------------------------------------------
+   Shell
+   -------------------------------------------------------------------------- */
+.app-shell {
+    -fx-background-color: -ag-bg;
+}
+
+.sidebar {
+    -fx-background-color: -ag-navy;
+    -fx-padding: 22 14 16 14;
+    -fx-spacing: 2;
+    -fx-min-width: 232;
+    -fx-pref-width: 232;
+}
+
+.sidebar-brand {
+    -fx-padding: 0 0 18 8;
+}
+
+/* Título de grupo («Taller», «Gestión»): más aire arriba que abajo, para que
+   se lea como inicio del grupo y no como cierre del anterior. */
+.sidebar-section {
+    -fx-text-fill: rgba(255, 255, 255, 0.55);
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+    -fx-padding: 16 12 6 12;
+}
+
+/* Asistente al pie, separado de los módulos por una línea tenue. */
+.sidebar-item-footer {
+    -fx-border-color: rgba(255, 255, 255, 0.10) transparent transparent transparent;
+    -fx-border-insets: -8 0 0 0;
+}
+
+.sidebar .app-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #FFFFFF;
+}
+
+/* El ítem es un HBox: el color y la fuente no se heredan a sus hijos, por eso
+   se aplican al Label (si no, toma el gris oscuro de modena). */
+.sidebar-item {
+    -fx-padding: 10 12;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+}
+
+.sidebar-item .label {
+    -fx-text-fill: #FFFFFF;
+    -fx-font-size: 14px;
+    -fx-font-weight: 500;
+}
+
+.sidebar-item:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.06);
+}
+
+.sidebar-item-active {
+    -fx-background-color: -ag-accent-hover;
+}
+
+.sidebar-item-active .label {
+    -fx-font-weight: 700;
+}
+
+.sidebar-item-active:hover {
+    -fx-background-color: derive(-ag-accent-hover, -10%);
+}
+
+/* Respuesta al clic: el ítem se oscurece un poco al presionarlo. */
+.sidebar-item:pressed {
+    -fx-background-color: rgba(255, 255, 255, 0.10);
+}
+
+.sidebar-item-active:pressed {
+    -fx-background-color: derive(-ag-accent-hover, -18%);
+}
+
+/* Como en los mockups: sin franja blanca ni borde, sobre el mismo fondo del
+   contenido y alineada con su margen. */
+.topbar {
+    -fx-background-color: transparent;
+    -fx-padding: 14 24 0 24;
+    -fx-spacing: 16;
+}
+
+.content-area {
+    -fx-padding: 24;
+}
+
+/* --------------------------------------------------------------------------
+   Cabecera de página
+   -------------------------------------------------------------------------- */
+.page-title {
+    -fx-font-size: 28px;
+    -fx-font-weight: 700;
+}
+
+.page-subtitle {
+    -fx-font-size: 14px;
+    -fx-text-fill: -ag-text-muted;
+    -fx-wrap-text: true;
+}
+
+/* --------------------------------------------------------------------------
+   Tarjetas
+   -------------------------------------------------------------------------- */
+.card {
+    -fx-background-color: -ag-card;
+    -fx-background-radius: 12;
+    -fx-border-color: -ag-border;
+    -fx-border-radius: 12;
+    -fx-padding: 20;
+    -fx-effect: dropshadow(gaussian, rgba(17, 17, 17, 0.06), 12, 0, 0, 3);
+}
+
+.card-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: 700;
+}
+
+/* --------------------------------------------------------------------------
+   Botones
+   -------------------------------------------------------------------------- */
+.button {
+    -fx-background-radius: 8;
+    -fx-padding: 10 20;
+    -fx-cursor: hand;
+    -fx-font-size: 14px;
+    -fx-min-height: 40;
+}
+
+/* Presionar: el botón se encoge un poco (escala 0.97). La escala no cambia el
+   tamaño de diseño, así que nada alrededor se mueve. */
+.button:pressed,
+.menu-button:pressed {
+    -fx-scale-x: 0.97;
+    -fx-scale-y: 0.97;
+}
+
+/* Anillo de foco solo con teclado (:focus-visible, JavaFX 19+). Los .btn-*
+   reemplazan el fondo de modena y con él su anillo, así que sin esto el foco
+   del Tab era invisible. Se dibuja con un efecto para no mover el contenido. */
+.button:focus-visible,
+.menu-button:focus-visible {
+    -fx-effect: dropshadow(three-pass-box, rgba(171, 0, 0, 0.55), 4, 0.9, 0, 0);
+}
+
+.btn-primary {
+    -fx-background-color: -ag-primary;
+    -fx-text-fill: #FFFFFF;
+    -fx-font-weight: 700;
+}
+
+.btn-primary:hover {
+    -fx-background-color: -ag-primary-hover;
+}
+
+.btn-primary:pressed {
+    -fx-background-color: derive(-ag-primary, -24%);
+}
+
+.btn-secondary {
+    -fx-background-color: -ag-card;
+    -fx-text-fill: -ag-text;
+    -fx-border-color: -ag-border;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-font-weight: 500;
+}
+
+.btn-secondary:hover {
+    -fx-background-color: -ag-surface-alt;
+    -fx-border-color: -ag-border-strong;
+}
+
+.btn-secondary:pressed {
+    -fx-background-color: -ag-hover;
+}
+
+/* Menú con aspecto de botón secundario («Descargar» en el detalle de la
+   factura): mismo alto que los botones vecinos. */
+.menu-button.btn-secondary {
+    -fx-min-height: 40;
+    -fx-padding: 0 4 0 6;
+}
+
+.btn-danger {
+    -fx-background-color: -ag-danger;
+    -fx-text-fill: #FFFFFF;
+    -fx-font-weight: 700;
+}
+
+.btn-danger:hover {
+    -fx-background-color: -ag-primary-hover;
+}
+
+.btn-danger:pressed {
+    -fx-background-color: derive(-ag-danger, -30%);
+}
+
+/* --------------------------------------------------------------------------
+   Campos de entrada
+   -------------------------------------------------------------------------- */
+.input {
+    -fx-background-color: -ag-card;
+    -fx-border-color: -ag-border;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-padding: 8 12;
+    -fx-font-size: 14px;
+    /* Misma altura que los desplegables y las fechas (40px). */
+    -fx-min-height: 40;
+    /* Texto de ejemplo legible (~4.6:1 sobre blanco) y selección con la marca. */
+    -fx-prompt-text-fill: -ag-text-placeholder;
+    -fx-highlight-fill: derive(-ag-primary, 72%);
+    -fx-highlight-text-fill: -ag-text;
+}
+
+.input:hover {
+    -fx-border-color: -ag-border-strong;
+}
+
+/* Foco: borde primario + halo suave, sin cambiar el grosor del borde (no
+   desplaza el texto). */
+.input:focused {
+    -fx-border-color: -ag-primary;
+    -fx-effect: dropshadow(three-pass-box, rgba(171, 0, 0, 0.18), 6, 0.5, 0, 0);
+}
+
+/* --------------------------------------------------------------------------
+   Desplegables, fechas y áreas de texto con .input (todas las pantallas)
+   Antes solo Clientes los ajustaba (customers.css); el resto mostraba el
+   relleno, la flecha y la línea interna de modena.
+   -------------------------------------------------------------------------- */
+.combo-box.input,
+.date-picker.input {
+    -fx-padding: 0;
+    -fx-min-height: 40;
+}
+
+.combo-box.input > .list-cell,
+.combo-box.input > .text-field,
+.date-picker.input > .text-field {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 9 12;
+    -fx-text-fill: -ag-text;
+}
+
+.combo-box.input > .arrow-button,
+.date-picker.input > .arrow-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0 14 0 4;
+}
+
+.combo-box.input > .arrow-button > .arrow,
+.date-picker.input > .arrow-button > .arrow {
+    -fx-background-color: -ag-text-muted;
+}
+
+.combo-box.input:disabled,
+.date-picker.input:disabled {
+    -fx-opacity: 0.55;
+}
+
+.text-area.input {
+    -fx-padding: 0;
+}
+
+.text-area.input .scroll-pane,
+.text-area.input .scroll-pane .viewport {
+    -fx-background-color: transparent;
+}
+
+/* modena pinta un degradado de 4px arriba del contenido: era la línea gris. */
+.text-area.input .content {
+    -fx-background-color: transparent;
+    -fx-padding: 9 12;
+}
+
+/* Lista abierta del desplegable. Causa de la «opción vacía» del filtro
+   Estado: la opción seleccionada usa texto blanco de modena y customers.css
+   deja su fondo transparente, así que «Todos» quedaba blanco sobre blanco.
+   Aquí la lista tiene sus propios colores para cada estado de la celda. */
+.combo-box-popup > .list-view {
+    -fx-background-color: -ag-card;
+    -fx-background-radius: 10;
+    -fx-border-color: -ag-border;
+    -fx-border-radius: 10;
+    -fx-padding: 4;
+    -fx-effect: dropshadow(gaussian, rgba(17, 17, 17, 0.14), 18, 0, 0, 6);
+}
+
+.combo-box-popup > .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell,
+.combo-box.input .combo-box-popup .list-view .list-cell {
+    -fx-background-color: transparent;
+    -fx-background-radius: 6;
+    -fx-padding: 8 12;
+    -fx-text-fill: -ag-text;
+    -fx-font-size: 14px;
+    -fx-cursor: hand;
+}
+
+.combo-box-popup > .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell:filled:hover,
+.combo-box.input .combo-box-popup .list-view .list-cell:filled:hover {
+    -fx-background-color: -ag-surface-alt;
+}
+
+.combo-box-popup > .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell:filled:selected,
+.combo-box.input .combo-box-popup .list-view .list-cell:filled:selected {
+    -fx-background-color: -ag-selected;
+    -fx-text-fill: -ag-primary;
+    -fx-font-weight: 700;
+}
+
+/* Calendario del selector de fecha: mismo borde y sombra que la lista. */
+.date-picker-popup {
+    -fx-background-color: -ag-card;
+    -fx-background-radius: 10;
+    -fx-border-color: -ag-border;
+    -fx-border-radius: 10;
+    -fx-effect: dropshadow(gaussian, rgba(17, 17, 17, 0.14), 18, 0, 0, 6);
+}
+
+.date-picker-popup > .month-year-pane {
+    -fx-background-color: transparent;
+}
+
+.date-picker-popup .selected {
+    -fx-background-color: -ag-primary;
+    -fx-text-fill: #FFFFFF;
+}
+
+.label-required {
+    -fx-text-fill: -ag-danger;
+    -fx-font-weight: 700;
+}
+
+.field-label {
+    -fx-font-size: 13px;
+    -fx-font-weight: 500;
+    -fx-text-fill: -ag-text-muted;
+}
+
+/* --------------------------------------------------------------------------
+   Insignias de estado
+   -------------------------------------------------------------------------- */
+.badge {
+    -fx-background-radius: 999;
+    -fx-padding: 3 10;
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+}
+
+.badge-success {
+    -fx-background-color: derive(-ag-success, 88%);
+    -fx-text-fill: -ag-success;
+}
+
+.badge-warning {
+    -fx-background-color: derive(-ag-warning, 82%);
+    -fx-text-fill: derive(-ag-warning, -40%);
+}
+
+.badge-info {
+    -fx-background-color: derive(-ag-info, 86%);
+    -fx-text-fill: -ag-info;
+}
+
+.badge-danger {
+    -fx-background-color: -ag-danger-tint;
+    -fx-text-fill: -ag-danger;
+}
+
+.badge-neutral {
+    -fx-background-color: derive(-ag-neutral, 86%);
+    -fx-text-fill: -ag-neutral;
+}
+
+/* --------------------------------------------------------------------------
+   Tabla
+   -------------------------------------------------------------------------- */
+.table-autogest {
+    /* Fondo de tarjeta: transparente dejaba ver el gris de la página. */
+    -fx-background-color: -ag-card;
+    -fx-background-insets: 0;
+    -fx-padding: 1;
+    -fx-border-color: -ag-border;
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+}
+
+/* Radio concéntrico: la cabecera va dentro del borde de 1px de la tabla, así
+   que su radio es 12 - 1 = 11 y no asoma una esquina clara sobre el borde. */
+.table-autogest .column-header-background {
+    -fx-background-color: -ag-surface-alt;
+    -fx-background-radius: 11 11 0 0;
+}
+
+.table-autogest .column-header,
+.table-autogest .filler {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent transparent -ag-border transparent;
+}
+
+.table-autogest .column-header .label {
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -ag-text-muted;
+    -fx-padding: 10 12;
+    /* Alineado a la izquierda, como los datos de su columna. */
+    -fx-alignment: center-left;
+}
+
+.table-autogest .column-header {
+    -fx-alignment: center-left;
+}
+
+/* Sin líneas verticales entre celdas: las filas ya separan con su borde inferior. */
+.table-autogest .table-row-cell .table-cell {
+    -fx-border-color: transparent;
+}
+
+.table-autogest .table-row-cell:empty {
+    -fx-border-color: transparent;
+}
+
+.table-autogest .table-row-cell {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent transparent -ag-divider transparent;
+}
+
+/* Las filas abren el detalle al hacer clic: el hover lo anuncia. */
+.table-autogest .table-row-cell:filled:hover {
+    -fx-background-color: -ag-surface-alt;
+    -fx-cursor: hand;
+}
+
+.table-autogest .table-row-cell:selected {
+    -fx-background-color: -ag-selected;
+}
+
+.table-autogest .table-row-cell .table-cell {
+    -fx-font-size: 13px;
+    -fx-padding: 10 12;
+    -fx-text-fill: -ag-text;
+}
+
+/* --------------------------------------------------------------------------
+   Íconos (D-15: SVGPath propios, íconos lineales, sin dependencia)
+   -------------------------------------------------------------------------- */
+.icon {
+    -fx-fill: transparent;
+    -fx-stroke: -ag-text-muted;
+    -fx-stroke-width: 1.8;
+    -fx-stroke-line-cap: round;
+    -fx-stroke-line-join: round;
+}
+
+.sidebar-item .icon {
+    -fx-stroke: #FFFFFF;
+}
+
+.sidebar-item:hover .icon {
+    -fx-stroke: #FFFFFF;
+}
+
+.sidebar-item-active .icon {
+    -fx-stroke: #FFFFFF;
+}
+
+/* --------------------------------------------------------------------------
+   Componentes reutilizables
+   -------------------------------------------------------------------------- */
+.kpi-card {
+    -fx-background-color: -ag-card;
+    -fx-background-radius: 12;
+    -fx-border-color: derive(-ag-accent, 62%);
+    -fx-border-radius: 12;
+    -fx-padding: 16 20;
+    -fx-spacing: 4;
+    -fx-effect: dropshadow(gaussian, rgba(17, 17, 17, 0.05), 10, 0, 0, 2);
+}
+
+.kpi-title {
+    -fx-font-size: 13px;
+    -fx-text-fill: -ag-text-muted;
+}
+
+.kpi-value {
+    -fx-font-size: 28px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -ag-accent;
+}
+
+.kpi-detail {
+    -fx-font-size: 12px;
+    -fx-text-fill: -ag-text-muted;
+    -fx-wrap-text: true;
+}
+
+.filter-bar {
+    -fx-background-color: -ag-card;
+    -fx-background-radius: 12;
+    -fx-border-color: -ag-border;
+    -fx-border-radius: 12;
+    -fx-padding: 12 16;
+    -fx-spacing: 12;
+}
+
+.pagination-label {
+    -fx-font-size: 13px;
+    -fx-text-fill: -ag-text-muted;
+}
+
+/* --------------------------------------------------------------------------
+   Estado vacío
+   -------------------------------------------------------------------------- */
+.empty-state {
+    -fx-background-color: -ag-card;
+    -fx-background-radius: 12;
+    -fx-border-color: -ag-border;
+    -fx-border-radius: 12;
+    -fx-padding: 48;
+}
+
+/* --------------------------------------------------------------------------
+   Cabecera de página (componente PageHeader)
+   -------------------------------------------------------------------------- */
+.page-header {
+    -fx-spacing: 4;
+}
+
+.breadcrumb {
+    -fx-font-size: 13px;
+    -fx-text-fill: -ag-text-muted;
+}
+
+/* --------------------------------------------------------------------------
+   KpiCard (ícono)
+   -------------------------------------------------------------------------- */
+.kpi-icon {
+    -fx-stroke: -ag-accent;
+}
+
+/* --------------------------------------------------------------------------
+   FilterBar
+   -------------------------------------------------------------------------- */
+.filter-field {
+    -fx-min-width: 240;
+}
+
+.filter-combo {
+    -fx-min-width: 136;
+}
+
+/* --------------------------------------------------------------------------
+   PagedTable (paginación)
+   -------------------------------------------------------------------------- */
+.paged-table {
+    -fx-spacing: 8;
+}
+
+.pagination-bar {
+    -fx-spacing: 12;
+    -fx-alignment: center-left;
+}
+
+.page-btn {
+    -fx-background-color: -ag-card;
+    -fx-text-fill: -ag-text;
+    -fx-border-color: -ag-border;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-padding: 6 14;
+    -fx-font-size: 13px;
+    -fx-cursor: hand;
+    /* Área de clic mínima de 36px (antes ~30px). */
+    -fx-min-height: 36;
+    -fx-min-width: 36;
+}
+
+.page-btn:hover {
+    -fx-background-color: -ag-surface-alt;
+    -fx-border-color: -ag-border-strong;
+}
+
+.page-btn:disabled {
+    -fx-opacity: 0.5;
+}
+
+/* --------------------------------------------------------------------------
+   Topbar (campana, avatar y usuario)
+   -------------------------------------------------------------------------- */
+.icon-button {
+    -fx-background-color: transparent;
+    -fx-background-radius: 999;
+    -fx-padding: 8;
+    -fx-cursor: hand;
+    -fx-min-width: 40;
+    -fx-min-height: 40;
+}
+
+.icon-button:hover {
+    -fx-background-color: -ag-hover;
+}
+
+.icon-button:pressed {
+    -fx-background-color: -ag-pressed;
+}
+
+.topbar .icon-button .icon {
+    -fx-stroke: -ag-text;
+    -fx-scale-x: 1.1;
+    -fx-scale-y: 1.1;
+}
+
+.topbar-avatar {
+    -fx-background-color: -ag-avatar;
+    -fx-background-radius: 999;
+    -fx-text-fill: -ag-avatar-text;
+    -fx-font-weight: 500;
+    -fx-font-size: 15px;
+    -fx-min-width: 42;
+    -fx-min-height: 42;
+    -fx-alignment: center;
+}
+
+.topbar-user-name {
+    -fx-text-fill: -ag-navy;
+    -fx-font-size: 15px;
+    -fx-font-weight: 700;
+}
+
+.topbar-user-role {
+    -fx-font-size: 13px;
+    -fx-text-fill: -ag-text-muted;
+}
+
+/* --------------------------------------------------------------------------
+   Botón flotante del Asistente
+   -------------------------------------------------------------------------- */
+.assistant-button {
+    -fx-background-color: -ag-accent-hover;
+    -fx-text-fill: #FFFFFF;
+    -fx-font-weight: 700;
+    -fx-background-radius: 999;
+    -fx-padding: 12 20;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(17, 17, 17, 0.22), 16, 0, 0, 5);
+}
+
+.assistant-button:hover {
+    -fx-background-color: derive(-ag-accent-hover, -12%);
+}
+
+/* El hover cambia el fondo; el presionado lo baja (sombra más corta). */
+.assistant-button:pressed {
+    -fx-background-color: derive(-ag-accent-hover, -22%);
+    -fx-effect: dropshadow(gaussian, rgba(17, 17, 17, 0.18), 8, 0, 0, 2);
+}
+
+.assistant-button .icon {
+    -fx-stroke: #FFFFFF;
+}
+
+/* --------------------------------------------------------------------------
+   Inicio de sesión (LoginController + login.fxml)
+   -------------------------------------------------------------------------- */
+.login-root {
+    -fx-background-color: -ag-bg;
+}
+
+/* Panel de marca claro, como el mockup Login V2: logotipo completo (escudo y
+   «AutoGest») + eslogan + ilustración del carro. */
+.login-brand {
+    -fx-background-color: -ag-bg;
+    -fx-padding: 40 48;
+    -fx-spacing: 12;
+    -fx-min-width: 460;
+}
+
+.login-brand-slogan {
+    -fx-text-fill: -ag-text-muted;
+    -fx-font-size: 18px;
+    -fx-padding: 0 0 8 0;
+}
+
+.login-form-side {
+    -fx-padding: 48;
+}
+
+.login-card {
+    -fx-background-color: -ag-card;
+    -fx-background-radius: 16;
+    -fx-border-color: -ag-border;
+    -fx-border-radius: 16;
+    -fx-padding: 36 36 32 36;
+    -fx-spacing: 18;
+    -fx-effect: dropshadow(gaussian, rgba(17, 17, 17, 0.10), 18, 0, 0, 6);
+}
+
+.login-card-header {
+    -fx-spacing: 8;
+    -fx-padding: 0 0 6 0;
+}
+
+.login-title {
+    -fx-text-fill: -ag-navy;
+    -fx-font-size: 26px;
+    -fx-font-weight: 700;
+}
+
+.login-subtitle {
+    -fx-text-fill: -ag-text-muted;
+    -fx-font-size: 15px;
+}
+
+.login-field-label {
+    -fx-text-fill: -ag-text;
+    -fx-font-size: 14px;
+    -fx-font-weight: 500;
+}
+
+/* Campo con ícono a la izquierda: el borde lo dibuja el contenedor y el campo
+   va sin fondo ni borde. */
+.input-group {
+    -fx-background-color: -ag-card;
+    -fx-border-color: -ag-border;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-padding: 0 0 0 14;
+    -fx-spacing: 10;
+    -fx-min-height: 46;
+}
+
+.input-group:hover {
+    -fx-border-color: -ag-border-strong;
+}
+
+.input-group:focus-within {
+    -fx-border-color: -ag-primary;
+    -fx-effect: dropshadow(three-pass-box, rgba(171, 0, 0, 0.18), 6, 0.5, 0, 0);
+}
+
+.input-group:focus-within .icon {
+    -fx-stroke: -ag-primary;
+}
+
+.input-group .icon {
+    -fx-stroke: -ag-neutral;
+    -fx-scale-x: 0.85;
+    -fx-scale-y: 0.85;
+}
+
+.input-bare {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 10 12 10 0;
+    -fx-font-size: 15px;
+}
+
+/* Manrope no trae el carácter ● de la máscara: JavaFX lo toma de otra fuente y
+   sale gigante. Con Segoe UI los puntos quedan del tamaño del texto. */
+.password-field {
+    -fx-font-family: "Segoe UI", sans-serif;
+}
+
+.login-button {
+    -fx-font-size: 16px;
+    -fx-min-height: 48;
+    -fx-background-radius: 10;
+}
+.login-error {
+    -fx-text-fill: -ag-danger;
+    -fx-font-size: 13px;
+}
+
+.login-card .hyperlink {
+    -fx-text-fill: -ag-primary;
+}
+
+.login-card .hyperlink:disabled {
+    -fx-opacity: 0.7;
+}
+
+/* --------------------------------------------------------------------------
+   Usuarios y roles (UsersRolesController)
+   -------------------------------------------------------------------------- */
+.topbar-user {
+    -fx-padding: 4 8;
+    -fx-background-radius: 10;
+}
+
+.topbar-user:hover {
+    -fx-background-color: -ag-hover;
+}
+
+.user-avatar {
+    -fx-background-color: derive(-ag-primary, 82%);
+    -fx-text-fill: -ag-primary;
+    -fx-font-weight: 700;
+    -fx-font-size: 12px;
+    -fx-background-radius: 999;
+    -fx-min-width: 32;
+    -fx-min-height: 32;
+    -fx-alignment: center;
+}
+
+.user-cell-name {
+    -fx-font-weight: 700;
+}
+
+.user-cell-username {
+    -fx-font-size: 12px;
+    -fx-text-fill: -ag-text-muted;
+}
+
+.role-name {
+    -fx-font-weight: 700;
+}
+
+.role-description {
+    -fx-font-size: 13px;
+    -fx-text-fill: -ag-text-muted;
+}
+
+/* --------------------------------------------------------------------------
+   Dashboard (Sprint 3, Líder)
+   -------------------------------------------------------------------------- */
+.dashboard-scroll {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+.dashboard-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+/* --------------------------------------------------------------------------
+   Desplazamiento de formularios y detalles (Vehículos, Servicios)
+   El shell no desplaza: cada pantalla alta trae su ScrollPane transparente.
+   -------------------------------------------------------------------------- */
+.page-scroll {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+.page-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+/* Barras de desplazamiento de toda la app (pantallas, tablas, listas y
+   áreas de texto): delgadas, sin flechas y del color de los bordes, en vez
+   de la barra gris con botones de modena. */
+.scroll-bar {
+    -fx-background-color: transparent;
+}
+
+.scroll-bar:vertical {
+    -fx-pref-width: 10;
+}
+
+.scroll-bar:horizontal {
+    -fx-pref-height: 10;
+}
+
+.scroll-bar > .increment-button,
+.scroll-bar > .decrement-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.scroll-bar > .increment-button > .increment-arrow,
+.scroll-bar > .decrement-button > .decrement-arrow {
+    -fx-shape: "";
+    -fx-padding: 0;
+}
+
+.scroll-bar > .track,
+.scroll-bar > .track-background {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.scroll-bar > .thumb {
+    -fx-background-color: -ag-border-strong;
+    -fx-background-radius: 999;
+    -fx-background-insets: 2;
+}
+
+.scroll-bar > .thumb:hover,
+.scroll-bar > .thumb:pressed {
+    -fx-background-color: -ag-neutral;
+}
+
+/* Esquina donde se cruzan las dos barras de una tabla. */
+.table-autogest .corner {
+    -fx-background-color: transparent;
+}
+
+.dashboard-row {
+    -fx-spacing: 16;
+    -fx-alignment: center-left;
+}
+
+.side-card {
+    -fx-pref-width: 340;
+    -fx-min-width: 340;
+}
+
+.stage {
+    -fx-alignment: center;
+    -fx-spacing: 4;
+}
+
+.stage-icon {
+    -fx-background-color: rgba(198, 92, 0, 0.12);
+    -fx-background-radius: 12;
+    -fx-min-width: 44;
+    -fx-min-height: 44;
+    -fx-padding: 10;
+    -fx-alignment: center;
+}
+
+.stage-icon .icon {
+    -fx-stroke: -ag-accent;
+}
+
+.stage-title {
+    -fx-font-size: 13px;
+    -fx-text-fill: -ag-text-muted;
+}
+
+.stage-count {
+    -fx-font-size: 22px;
+    -fx-font-weight: 700;
+}
+
+.stat-row {
+    -fx-alignment: center-left;
+    -fx-spacing: 8;
+}
+
+.stat-value {
+    -fx-font-size: 16px;
+    -fx-font-weight: 700;
+}
+
+.card-note {
+    -fx-font-size: 13px;
+    -fx-text-fill: -ag-text-muted;
+    -fx-text-alignment: center;
+    -fx-wrap-text: true;
+}
+
+/* --------------------------------------------------------------------------
+   Configuración (Sprint 8, Líder): pantalla general y Perfil y cuenta
+   -------------------------------------------------------------------------- */
+.settings-group-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -ag-text;
+    -fx-padding: 8 0 0 0;
+}
+
+.settings-profile-card {
+    -fx-padding: 18 20;
+}
+
+.settings-avatar {
+    -fx-background-color: -ag-avatar;
+    -fx-background-radius: 999;
+    -fx-text-fill: -ag-avatar-text;
+    -fx-font-size: 20px;
+    -fx-font-weight: 500;
+    -fx-min-width: 60;
+    -fx-min-height: 60;
+    -fx-alignment: center;
+}
+
+.settings-profile-name {
+    -fx-font-size: 18px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -ag-navy;
+}
+
+.settings-profile-role {
+    -fx-font-size: 14px;
+    -fx-text-fill: -ag-text;
+}
+
+.settings-profile-email {
+    -fx-font-size: 13px;
+    -fx-text-fill: -ag-text-muted;
+}
+
+.settings-grid {
+    -fx-hgap: 16;
+    -fx-vgap: 16;
+}
+
+/* Tarjeta de sección: es un botón (foco con Tab y Enter), con aspecto de tarjeta. */
+.settings-card {
+    -fx-background-color: -ag-card;
+    -fx-background-radius: 12;
+    -fx-border-color: -ag-border;
+    -fx-border-radius: 12;
+    -fx-padding: 16 20;
+    -fx-alignment: center-left;
+    -fx-effect: dropshadow(gaussian, rgba(17, 17, 17, 0.05), 10, 0, 0, 2);
+}
+
+.settings-card:hover {
+    -fx-border-color: -ag-border-strong;
+    -fx-effect: dropshadow(gaussian, rgba(17, 17, 17, 0.10), 14, 0, 0, 4);
+    -fx-cursor: hand;
+}
+
+.settings-card:focus-visible {
+    -fx-border-color: -ag-primary;
+}
+
+/* Sección aún no disponible: legible pero claramente inactiva. */
+.settings-card:disabled {
+    -fx-opacity: 1;
+    -fx-background-color: -ag-surface-alt;
+    -fx-effect: null;
+}
+
+/* modena baja a 0.4 la opacidad de todo lo deshabilitado y el texto quedaba
+   ilegible; aquí se mantiene legible y se marca con color. */
+.settings-card:disabled .label {
+    -fx-opacity: 1;
+}
+
+.settings-card:disabled .settings-card-title {
+    -fx-text-fill: -ag-text-muted;
+}
+
+.settings-card:disabled .settings-card-icon {
+    -fx-background-color: -ag-hover;
+}
+
+.settings-card:disabled .settings-card-icon .icon {
+    -fx-stroke: -ag-neutral;
+}
+
+.settings-card-icon {
+    -fx-background-color: rgba(198, 92, 0, 0.12);
+    -fx-background-radius: 10;
+    -fx-min-width: 48;
+    -fx-min-height: 48;
+    -fx-max-width: 48;
+    -fx-max-height: 48;
+}
+
+.settings-card-icon .icon {
+    -fx-stroke: -ag-accent;
+}
+
+.settings-card-title {
+    -fx-font-size: 15px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -ag-text;
+}
+
+.settings-card-description {
+    -fx-font-size: 13px;
+    -fx-text-fill: -ag-text-muted;
+}
+
+.settings-card-arrow {
+    -fx-stroke: -ag-primary;
+}
+
+.settings-info-card {
+    -fx-max-width: 560;
+}
+
+.settings-info-card .icon {
+    -fx-stroke: -ag-accent;
+}
+
+.settings-info-grid {
+    -fx-hgap: 24;
+    -fx-vgap: 8;
+}
+
+.settings-info-label {
+    -fx-font-size: 13px;
+    -fx-text-fill: -ag-text-muted;
+}
+
+.settings-info-value {
+    -fx-font-size: 14px;
+    -fx-text-fill: -ag-text;
+}
+
+.status-dot-pending {
+    -fx-fill: -ag-neutral;
+}
+
+.status-dot-ok {
+    -fx-fill: -ag-success;
+}
+
+.status-dot-error {
+    -fx-fill: -ag-danger;
+}
+
+.settings-note {
+    -fx-font-size: 13px;
+    -fx-text-fill: -ag-text-muted;
+}
+
+/* Campos de solo lectura (usuario, rol): fondo gris para que no parezcan editables. */
+.input.input-readonly,
+.input.input-readonly:hover,
+.input.input-readonly:focused {
+    -fx-background-color: -ag-surface-alt;
+    -fx-border-color: -ag-border;
+    -fx-effect: null;
+    -fx-text-fill: -ag-text-muted;
+}
+
+.form-message {
+    -fx-font-size: 13px;
+}
+
+/* Verde oscurecido: el -ag-success puro no llega a 4.5:1 en texto de 13px. */
+.form-message-success {
+    -fx-text-fill: derive(-ag-success, -25%);
+}
+
+.form-message-error {
+    -fx-text-fill: -ag-danger;
+}
+
+/* Seguridad y Copias de seguridad (Sprint 8, Líder) */
+.security-card-icon {
+    -fx-stroke: -ag-accent;
+}
+
+.security-check {
+    -fx-stroke: -ag-success;
+    -fx-scale-x: 0.8;
+    -fx-scale-y: 0.8;
+}
+
+.security-rule {
+    -fx-font-size: 14px;
+    -fx-text-fill: -ag-text;
+}
+
+.security-matrix {
+    -fx-hgap: 8;
+    -fx-vgap: 6;
+}
+
+.security-matrix-header {
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -ag-text-muted;
+    -fx-padding: 0 0 6 0;
+}
+
+.security-matrix-section {
+    -fx-font-size: 14px;
+    -fx-text-fill: -ag-text;
+}
+
+.security-allowed {
+    -fx-stroke: -ag-success;
+    -fx-stroke-width: 2.2;
+    -fx-scale-x: 0.8;
+    -fx-scale-y: 0.8;
+}
+
+.security-denied {
+    -fx-text-fill: -ag-text-disabled;
+}
+
+.backup-description {
+    -fx-font-size: 14px;
+    -fx-text-fill: -ag-text;
+}
+
+/* Configuración de facturación: ejemplo que se actualiza mientras se escribe. */
+.billing-settings-example {
+    -fx-font-size: 13px;
+    -fx-text-fill: -ag-text;
+    -fx-background-color: -ag-surface-alt;
+    -fx-background-radius: 8;
+    -fx-padding: 10 12;
+}
+
+/* --------------------------------------------------------------------------
+   Asistente AutoGest (Sprint 9): panel de conversación junto al contenido
+   -------------------------------------------------------------------------- */
+.assistant-panel {
+    -fx-background-color: -ag-card;
+    -fx-background-radius: 14;
+    -fx-border-color: -ag-border;
+    -fx-border-radius: 14;
+    -fx-effect: dropshadow(gaussian, rgba(17, 17, 17, 0.18), 24, 0.15, 0, 6);
+}
+
+.assistant-header {
+    -fx-padding: 16 14 14 18;
+    -fx-border-color: transparent transparent -ag-divider transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+.assistant-header-icon {
+    -fx-stroke: -ag-accent;
+}
+
+.assistant-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -ag-text;
+}
+
+.assistant-engine {
+    -fx-font-size: 12px;
+    -fx-text-fill: -ag-text-muted;
+}
+
+.assistant-scroll,
+.assistant-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+.assistant-messages {
+    -fx-padding: 16 16 8 16;
+}
+
+.assistant-bubble {
+    -fx-background-radius: 12;
+    -fx-padding: 10 12;
+}
+
+.assistant-bubble-bot {
+    -fx-background-color: -ag-surface-alt;
+}
+
+.assistant-bubble-user {
+    -fx-background-color: -ag-primary;
+}
+
+.assistant-text {
+    -fx-font-size: 14px;
+    -fx-text-fill: -ag-text;
+}
+
+.assistant-bubble-user .assistant-text {
+    -fx-text-fill: #FFFFFF;
+}
+
+.assistant-thinking {
+    -fx-font-size: 13px;
+    -fx-text-fill: -ag-text-muted;
+    -fx-padding: 0 0 0 4;
+}
+
+.assistant-chip {
+    -fx-background-color: -ag-card;
+    -fx-background-radius: 16;
+    -fx-border-color: -ag-border;
+    -fx-border-radius: 16;
+    -fx-font-size: 13px;
+    -fx-text-fill: -ag-text;
+    -fx-padding: 5 12;
+    -fx-cursor: hand;
+}
+
+.assistant-chip:hover {
+    -fx-background-color: -ag-hover;
+    -fx-border-color: -ag-border-strong;
+}
+
+.assistant-action {
+    -fx-alignment: center-left;
+}
+
+.assistant-input-row {
+    -fx-padding: 12 14 14 14;
+    -fx-border-color: -ag-divider transparent transparent transparent;
+    -fx-border-width: 1 0 0 0;
+}
+
+.assistant-send {
+    -fx-min-width: 40;
+    -fx-min-height: 40;
+    -fx-padding: 0;
+}
+
+.assistant-send .icon {
+    -fx-stroke: #FFFFFF;
+}
+
+.assistant-footnote {
+    -fx-font-size: 12px;
+    -fx-text-fill: -ag-text-muted;
+}
+
+/* Configuración de notificaciones: lista de plantillas, editor y vista previa. */
+.template-item {
+    -fx-background-color: transparent;
+    -fx-background-radius: 8;
+    -fx-text-fill: -ag-text;
+    -fx-font-size: 14px;
+    -fx-alignment: center-left;
+    -fx-padding: 8 12;
+    -fx-cursor: hand;
+}
+
+.template-item:hover {
+    -fx-background-color: -ag-hover;
+}
+
+.template-item:selected {
+    -fx-background-color: -ag-selected;
+    -fx-font-weight: 700;
+}
+
+.template-editor-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -ag-text;
+}
+
+.template-field {
+    -fx-font-size: 12px;
+    -fx-min-height: 28;
+    -fx-padding: 3 8;
+}
+
+.template-preview {
+    -fx-background-color: -ag-surface-alt;
+    -fx-background-radius: 8;
+    -fx-padding: 12 14;
+}
+
+.template-preview-subject {
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -ag-text;
+}
+
+.template-preview-message {
+    -fx-font-size: 13px;
+    -fx-text-fill: -ag-text;
+}
+
+.template-preview-subject.template-preview-error {
+    -fx-text-fill: -ag-danger;
+    -fx-font-weight: 500;
+}
+
+/* Diálogo «Restaurar copia de seguridad»: aviso en tinte de error y datos de la copia. */
+.restore-warning {
+    -fx-background-color: -ag-danger-tint;
+    -fx-background-radius: 8;
+    -fx-padding: 12 14;
+    -fx-alignment: top-left;
+}
+
+.restore-warning-icon {
+    -fx-stroke: -ag-danger;
+    -fx-min-width: 24;
+}
+
+.restore-warning-text {
+    -fx-font-size: 14px;
+    -fx-text-fill: -ag-text;
+}
+
+.restore-details {
+    -fx-hgap: 16;
+    -fx-vgap: 6;
+}
+
+/* --------------------------------------------------------------------------
+   Migas de pan clicables y «Volver» (PageHeader)
+   Son botones (Tab + Enter) con aspecto de enlace: sin el alto mínimo de 40px
+   de .button, para no separar tanto la ruta del título.
+   -------------------------------------------------------------------------- */
+.breadcrumb-row {
+    -fx-padding: 0 0 4 0;
+}
+
+.breadcrumb-current {
+    -fx-font-size: 13px;
+    -fx-text-fill: -ag-text;
+    -fx-font-weight: 500;
+}
+
+.breadcrumb-link,
+.back-link {
+    -fx-background-color: transparent;
+    -fx-background-radius: 6;
+    -fx-min-height: 28;
+    -fx-padding: 4 6;
+    -fx-font-size: 13px;
+    -fx-cursor: hand;
+}
+
+.breadcrumb-link {
+    -fx-text-fill: -ag-primary;
+}
+
+.back-link {
+    -fx-text-fill: -ag-text;
+    -fx-font-weight: 500;
+    -fx-graphic-text-gap: 6;
+    /* La flecha queda alineada con el borde izquierdo del título. */
+    -fx-translate-x: -6;
+}
+
+.back-link .icon {
+    -fx-stroke: -ag-text;
+    -fx-scale-x: 0.8;
+    -fx-scale-y: 0.8;
+}
+
+.breadcrumb-link:hover,
+.back-link:hover {
+    -fx-background-color: -ag-hover;
+}
+
+.breadcrumb-link:hover {
+    -fx-underline: true;
+}
+
+.breadcrumb-link:pressed,
+.back-link:pressed {
+    -fx-background-color: -ag-pressed;
+    -fx-scale-x: 1;
+    -fx-scale-y: 1;
+}
+
+.breadcrumb-divider {
+    -fx-background-color: -ag-border;
+    -fx-min-width: 1;
+    -fx-pref-width: 1;
+    -fx-max-width: 1;
+    -fx-min-height: 16;
+    -fx-max-height: 16;
+}
+
+/* Menú «…» de las filas (icon-button): sin la flecha del MenuButton, que
+   duplicaba la señal de «abre un menú» y desalineaba el ícono. */
+.menu-button.icon-button > .arrow-button {
+    -fx-padding: 0;
+}
+
+.menu-button.icon-button > .arrow-button > .arrow {
+    -fx-shape: "";
+    -fx-padding: 0;
+}
+
+.menu-button.icon-button > .label {
+    -fx-padding: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Diálogos con formulario (UserFormDialog): fondo de tarjeta, encabezado
+   propio y los botones de la app en lugar de los grises de modena.
+   -------------------------------------------------------------------------- */
+.app-dialog {
+    -fx-background-color: -ag-card;
+    -fx-padding: 0;
+}
+
+.app-dialog > .header-panel,
+.app-dialog > .graphic-container {
+    -fx-padding: 0;
+    -fx-pref-height: 0;
+    -fx-min-height: 0;
+}
+
+.app-dialog .dialog-content {
+    -fx-padding: 24 24 8 24;
+}
+
+.app-dialog > .button-bar {
+    -fx-padding: 8 24 20 24;
+}
+
+.app-dialog > .button-bar > .container {
+    -fx-spacing: 12;
+}
+
+.dialog-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -ag-navy;
+}
+
+.dialog-subtitle {
+    -fx-font-size: 13px;
+    -fx-text-fill: -ag-text-muted;
+}
+
+/* --------------------------------------------------------------------------
+   Vehículos del cliente (detalle del cliente)
+   -------------------------------------------------------------------------- */
+.customer-vehicle-list {
+    -fx-spacing: 2;
+}
+
+.customer-vehicle-row {
+    -fx-padding: 10 12;
+    -fx-background-radius: 10;
+    -fx-cursor: hand;
+}
+
+.customer-vehicle-row:hover {
+    -fx-background-color: -ag-surface-alt;
+}
+
+.customer-vehicle-row:focus-visible {
+    -fx-background-color: -ag-hover;
+    -fx-border-color: -ag-primary;
+    -fx-border-radius: 10;
+}
+
+/* Placa como la de un carro particular en Colombia: amarilla con borde negro. */
+.vehicle-plate {
+    -fx-background-color: #FFD43B;
+    -fx-background-radius: 5;
+    -fx-border-color: -ag-text;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 5;
+    -fx-padding: 4 10;
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -ag-text;
+    /* Ancho fijo: así el modelo de cada fila arranca en la misma columna. */
+    -fx-min-width: 96;
+    -fx-alignment: center;
+}
+
+.customer-vehicle-name {
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -ag-text;
+}
+
+.customer-vehicle-meta {
+    -fx-font-size: 13px;
+    -fx-text-fill: -ag-text-muted;
+}
+
+.customer-vehicle-arrow {
+    -fx-stroke: -ag-neutral;
+}
+
+/* --------------------------------------------------------------------------
+   Detalle de la orden (Sprint 4, Líder)
+   -------------------------------------------------------------------------- */
+.order-stepper {
+    -fx-padding: 2 0 4 0;
+}
+
+.order-step {
+    -fx-font-size: 14px;
+    -fx-text-fill: -ag-neutral;
+    -fx-padding: 4 10;
+    -fx-background-radius: 999;
+}
+
+.order-step-done {
+    -fx-text-fill: -ag-text;
+}
+
+.order-step-current {
+    -fx-text-fill: -ag-primary;
+    -fx-font-weight: 700;
+    -fx-background-color: -ag-selected;
+}
+
+.order-step-arrow {
+    -fx-stroke: -ag-border-strong;
+    -fx-scale-x: 0.7;
+    -fx-scale-y: 0.7;
+}
+
+.order-step-cancelled {
+    -fx-text-fill: -ag-danger;
+    -fx-font-weight: 700;
+    -fx-padding: 0 0 0 12;
+}
+
+.order-card-icon {
+    -fx-stroke: -ag-accent;
+}
+
+.order-strong {
+    -fx-font-size: 15px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -ag-text;
+}
+
+.order-muted {
+    -fx-font-size: 13px;
+    -fx-text-fill: -ag-text-muted;
+}
+
+.order-paragraph {
+    -fx-font-size: 14px;
+    -fx-text-fill: -ag-text;
+}
+
+.btn-small {
+    -fx-min-height: 32;
+    -fx-padding: 5 12;
+    -fx-font-size: 13px;
+}
+
+.order-lines {
+    -fx-hgap: 0;
+    -fx-vgap: 0;
+}
+
+.order-lines-header {
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -ag-text-muted;
+    -fx-padding: 0 0 8 0;
+}
+
+.order-lines-cell {
+    -fx-font-size: 14px;
+    -fx-text-fill: -ag-text;
+    -fx-padding: 8 0;
+    -fx-border-color: -ag-divider transparent transparent transparent;
+}
+
+.order-lines-total {
+    -fx-font-weight: 700;
+}
+
+.order-lines-number {
+    -fx-padding: 8 0 8 12;
+}
+
+.order-stock-note {
+    -fx-font-size: 13px;
+    -fx-padding: 6 10;
+    -fx-background-radius: 8;
+}
+
+.order-stock-pending {
+    -fx-background-color: #FFF6E0;
+    -fx-text-fill: derive(-ag-warning, -45%);
+}
+
+.order-stock-done {
+    -fx-background-color: #E7F6EE;
+    -fx-text-fill: derive(-ag-success, -30%);
+}
+
+.order-costs {
+    -fx-vgap: 8;
+}
+
+.order-cost-label {
+    -fx-font-size: 14px;
+    -fx-text-fill: -ag-text-muted;
+}
+
+.order-cost-value {
+    -fx-font-size: 14px;
+    -fx-text-fill: -ag-text;
+}
+
+.order-costs-divider {
+    -fx-background-color: -ag-border;
+    -fx-min-height: 1;
+    -fx-max-height: 1;
+}
+
+.order-cost-total-label {
+    -fx-font-size: 18px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -ag-text;
+}
+
+.order-cost-total {
+    -fx-font-size: 22px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -ag-primary;
+}
+
+.order-costs-card {
+    -fx-border-color: derive(-ag-primary, 60%);
+}
+
+.order-history-item {
+    -fx-padding: 0 0 0 12;
+    /* Línea de tiempo de 1px en el color de los bordes (no un acento de color). */
+    -fx-border-color: transparent transparent transparent -ag-border;
+    -fx-border-width: 0 0 0 1;
+}
+
+.order-history-text {
+    -fx-font-size: 14px;
+    -fx-text-fill: -ag-text;
+}
+
+.order-history-meta {
+    -fx-font-size: 12px;
+    -fx-text-fill: -ag-text-muted;
+}
+
+/* Lista de órdenes: vehículo y placa en la misma celda. */
+.order-cell-vehicle {
+    -fx-font-size: 13px;
+    -fx-text-fill: -ag-text;
+}
+
+.order-cell-plate {
+    -fx-font-size: 12px;
+    -fx-text-fill: -ag-text-muted;
+}
+
+/* --------------------------------------------------------------------------
+   Facturación (Sprint 5)
+   -------------------------------------------------------------------------- */
+
+/* Indicadores con el valor en color (mockup: Pagadas en verde, Vencidas en rojo). */
+.kpi-success .kpi-value {
+    -fx-text-fill: -ag-success;
+}
+
+.kpi-danger .kpi-value {
+    -fx-text-fill: -ag-danger;
+}
+
+/* Filtros dentro de la tarjeta de la tabla: sin segundo borde ni fondo propio. */
+.filter-bar-flat {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+}
+
+/* Resumen de facturación: tres recuadros con el valor en grande. */
+.billing-tile {
+    -fx-background-color: -ag-bg;
+    -fx-background-radius: 10;
+    -fx-padding: 14 16;
+}
+
+.billing-tile-title {
+    -fx-font-size: 13px;
+    -fx-text-fill: -ag-text-muted;
+}
+
+.billing-tile-value {
+    -fx-font-size: 22px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -ag-text;
+}
+
+.billing-tile-detail {
+    -fx-font-size: 12px;
+    -fx-text-fill: -ag-text-muted;
+}
+
+/* Vehículo dentro de la tarjeta del cliente. */
+.billing-vehicle-box {
+    -fx-background-color: -ag-bg;
+    -fx-background-radius: 10;
+    -fx-padding: 10 14;
+}
+
+.billing-overdue {
+    -fx-text-fill: -ag-danger;
+}
+
+/* «Ver vehículo» alineado con el texto del vehículo: el relleno queda para el hover. */
+.billing-vehicle-box .breadcrumb-link {
+    -fx-translate-x: -6;
+}
+
+/* Campo con un valor que no se puede usar (descuento mal escrito o mayor que el total). */
+.input.input-invalid,
+.input.input-invalid:focused {
+    -fx-border-color: -ag-danger;
+}
+
+/* Indicadores del Inicio que abren su módulo (Órdenes, Facturación). */
+.kpi-card.kpi-link {
+    -fx-cursor: hand;
+}
+
+.kpi-card.kpi-link:hover {
+    -fx-border-color: derive(-ag-primary, 55%);
+}
+
+/* --------------------------------------------------------------------------
+   Notificaciones en el Inicio y la campana (Sprint 6)
+   -------------------------------------------------------------------------- */
+
+/* Contador sobre la campana de la Topbar. */
+.topbar-badge {
+    -fx-background-color: -ag-danger;
+    -fx-background-radius: 9;
+    -fx-text-fill: #FFFFFF;
+    -fx-font-size: 10px;
+    -fx-font-weight: 700;
+    -fx-padding: 1 5;
+    -fx-min-width: 18;
+    -fx-alignment: center;
+    -fx-translate-x: 4;
+    -fx-translate-y: -2;
+}
+
+/* Últimos avisos en la tarjeta «Notificaciones» del Inicio. */
+.home-notification {
+    -fx-padding: 0 0 10 0;
+    -fx-border-color: transparent transparent -ag-border transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+.home-notification-title {
+    -fx-font-size: 13px;
+    -fx-text-fill: -ag-text;
+}
+
+.home-notification-alert {
+    -fx-text-fill: -ag-danger;
+}
+
+.home-reminders {
+    -fx-background-color: -ag-bg;
+    -fx-background-radius: 10;
+    -fx-padding: 12 14;
+}
+
+.home-reminders .card-note,
+.home-notification-alert {
+    -fx-text-alignment: left;
+    -fx-alignment: center-left;
+}
+
+/* --------------------------------------------------------------------------
+   Reportes (Sprint 7)
+   -------------------------------------------------------------------------- */
+.report-period-bar {
+    -fx-background-color: -ag-card;
+    -fx-background-radius: 12;
+    -fx-border-color: -ag-border;
+    -fx-border-radius: 12;
+    -fx-padding: 12 16;
+}
+
+.report-period {
+    -fx-background-color: transparent;
+    -fx-background-radius: 999;
+    -fx-padding: 6 12;
+    -fx-font-size: 13px;
+    -fx-text-fill: -ag-text;
+    -fx-cursor: hand;
+}
+
+.report-period:hover {
+    -fx-background-color: -ag-hover;
+}
+
+.report-period:selected {
+    -fx-background-color: -ag-primary;
+    -fx-text-fill: #FFFFFF;
+    -fx-font-weight: 700;
+}
+
+.report-stat-value {
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -ag-text;
+}
+
+/* Barras: un solo color, con el valor escrito al lado. */
+.report-bar-name {
+    -fx-font-size: 13px;
+    -fx-text-fill: -ag-text;
+}
+
+.report-bar-value {
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -ag-text;
+}
+
+.report-bar-track {
+    -fx-background-color: -ag-bg;
+    -fx-background-radius: 4;
+    -fx-min-height: 8;
+    -fx-pref-height: 8;
+}
+
+.report-bar-fill {
+    -fx-background-color: -ag-accent;
+    -fx-background-radius: 4;
+    -fx-min-height: 8;
+    -fx-pref-height: 8;
+    -fx-max-height: 8;
+}
+
+/* Gráfica de ingresos: línea de 2 px, relleno tenue y cuadrícula discreta. */
+.report-chart {
+    -fx-padding: 0;
+}
+
+.report-chart .chart-plot-background {
+    -fx-background-color: transparent;
+}
+
+.report-chart .chart-horizontal-grid-lines {
+    -fx-stroke: -ag-border;
+    -fx-stroke-dash-array: null;
+}
+
+.report-chart .chart-horizontal-zero-line,
+.report-chart .chart-vertical-zero-line {
+    -fx-stroke: transparent;
+}
+
+.report-chart .axis {
+    -fx-tick-label-fill: -ag-text-muted;
+    -fx-tick-label-font-size: 11px;
+    -fx-border-color: transparent;
+}
+
+.report-chart .default-color0.chart-series-area-line {
+    -fx-stroke: -ag-accent;
+    -fx-stroke-width: 2px;
+}
+
+.report-chart .default-color0.chart-series-area-fill {
+    -fx-fill: rgba(198, 92, 0, 0.14);
+}
+
+.report-chart .default-color0.chart-area-symbol {
+    -fx-background-color: -ag-accent, -ag-card;
+    -fx-background-insets: 0, 2;
+    -fx-background-radius: 5;
+    -fx-padding: 4;
+}

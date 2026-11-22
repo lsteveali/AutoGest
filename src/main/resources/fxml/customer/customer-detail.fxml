@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.VBox?>
+
+<!-- Customer detail screen (Detalle cliente mockup). The controller receives the customer id
+     through ParameterizedController and builds the content on the VBox. The ScrollPane exists
+     because the shell has no scroll bar and the detail is taller than the window. -->
+<ScrollPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.autogest.controller.customer.CustomerDetailController"
+            fitToWidth="true" hbarPolicy="NEVER" styleClass="customer-scroll">
+    <stylesheets>
+        <URL value="@../../css/customers.css" />
+    </stylesheets>
+    <content>
+        <VBox fx:id="root" styleClass="customer-page" />
+    </content>
+</ScrollPane>

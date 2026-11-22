@@ -1,0 +1,247 @@
+/* ==========================================================================
+   AutoGest - Módulo Clientes (Sprint 2)
+   Solo estilos propios del módulo: lista, formulario y detalle de clientes.
+   Los colores y las clases generales (.card, .input, .btn-*, .badge-*,
+   .empty-state, ...) vienen de autogest.css; aquí solo se usan sus variables.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Estructura común de las tres pantallas
+   -------------------------------------------------------------------------- */
+.customer-page {
+    -fx-spacing: 20;
+}
+
+/* Color de texto explícito: .page-title no define -fx-text-fill y, sin él, el tema
+   por defecto lo calcula según el fondo. Así el título y la casilla se ven siempre. */
+.customer-page .page-title {
+    -fx-text-fill: -ag-text;
+}
+
+.customer-page .check-box {
+    -fx-text-fill: -ag-text;
+}
+
+.customer-kpi-row {
+    -fx-spacing: 16;
+}
+
+/* El shell no trae barra de desplazamiento: las pantallas largas (formulario y
+   detalle) van dentro de un ScrollPane transparente que deja ver el fondo */
+.customer-scroll {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.customer-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+/* --------------------------------------------------------------------------
+   Lista de clientes
+   -------------------------------------------------------------------------- */
+.customer-cell-name {
+    -fx-font-weight: 700;
+}
+
+.customer-muted {
+    -fx-text-fill: -ag-text-muted;
+}
+
+/* El texto de ayuda del buscador («Buscar por nombre, documento o correo...») no cabe en 260 */
+.customer-page .filter-field {
+    -fx-min-width: 340;
+}
+
+/* Menú de acciones de cada fila («...»): botón redondo sin la flecha */
+.customer-actions {
+    -fx-background-color: transparent;
+    -fx-background-radius: 999;
+    -fx-padding: 2 10;
+    -fx-cursor: hand;
+    -fx-font-size: 16px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -ag-text-muted;
+}
+
+.customer-actions:hover {
+    -fx-background-color: -ag-hover;
+}
+
+.customer-actions > .arrow-button {
+    -fx-padding: 0;
+    -fx-pref-width: 0;
+    -fx-min-width: 0;
+    -fx-max-width: 0;
+}
+
+.customer-actions > .arrow-button > .arrow {
+    -fx-padding: 0;
+    -fx-shape: "";
+}
+
+/* --------------------------------------------------------------------------
+   Formulario de nuevo y editar cliente
+   -------------------------------------------------------------------------- */
+.customer-form-card {
+    -fx-padding: 24;
+    -fx-spacing: 20;
+}
+
+.customer-section {
+    -fx-spacing: 12;
+}
+
+.customer-section-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -ag-text;
+}
+
+.customer-form-grid {
+    -fx-hgap: 24;
+    -fx-vgap: 14;
+}
+
+.customer-field {
+    -fx-spacing: 6;
+}
+
+/* Área de notas: el contenido interno toma el aspecto de .input */
+.text-area.input {
+    -fx-padding: 0;
+}
+
+.text-area.input .scroll-pane {
+    -fx-background-color: transparent;
+}
+
+.text-area.input .viewport {
+    -fx-background-color: transparent;
+}
+
+.text-area.input .content {
+    -fx-padding: 8 12;
+    -fx-background-color: -ag-card;
+    -fx-background-radius: 8;
+}
+
+/* Combos (tipo de documento, ciudad y filtros): misma altura que .input; la
+   celda y el campo interno llevan el relleno y no dibujan su propio borde */
+.combo-box.input {
+    -fx-padding: 0;
+}
+
+.combo-box.input .list-cell {
+    -fx-padding: 8 12;
+    -fx-background-color: transparent;
+}
+
+.combo-box.input .text-field {
+    -fx-padding: 8 12;
+    -fx-background-color: transparent;
+}
+
+.combo-box.input .arrow-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0 12 0 0;
+}
+
+.customer-form-error {
+    -fx-text-fill: -ag-danger;
+    -fx-font-size: 13px;
+    -fx-wrap-text: true;
+}
+
+.customer-form-actions {
+    -fx-spacing: 12;
+    -fx-alignment: center-right;
+}
+
+/* --------------------------------------------------------------------------
+   Detalle del cliente
+   -------------------------------------------------------------------------- */
+.customer-detail-header {
+    -fx-spacing: 16;
+    -fx-alignment: center-left;
+}
+
+.customer-avatar-large {
+    -fx-background-color: derive(-ag-primary, 82%);
+    -fx-text-fill: -ag-primary;
+    -fx-font-weight: 700;
+    -fx-font-size: 22px;
+    -fx-background-radius: 999;
+    -fx-min-width: 64;
+    -fx-min-height: 64;
+    -fx-alignment: center;
+}
+
+.customer-detail-name {
+    -fx-font-size: 28px;
+    -fx-font-weight: 700;
+}
+
+.customer-detail-meta {
+    -fx-font-size: 14px;
+    -fx-text-fill: -ag-text-muted;
+}
+
+.customer-detail-contact {
+    -fx-font-size: 14px;
+}
+
+.customer-detail-columns {
+    -fx-spacing: 16;
+}
+
+/* Tarjeta «Información del cliente»: pares etiqueta / valor */
+.customer-info-card {
+    -fx-spacing: 14;
+}
+
+.customer-info-row {
+    -fx-spacing: 12;
+    -fx-alignment: center-left;
+}
+
+.customer-info-label {
+    -fx-font-size: 13px;
+    -fx-text-fill: -ag-text-muted;
+}
+
+.customer-info-value {
+    -fx-font-size: 14px;
+    -fx-font-weight: 500;
+    -fx-wrap-text: true;
+}
+
+/* Enlaces de la tabla de vehículos («Ver vehículo», «+ Nueva orden») */
+.customer-link {
+    -fx-text-fill: -ag-primary;
+    -fx-font-weight: 500;
+    -fx-border-color: transparent;
+    -fx-padding: 0 8 0 0;
+}
+
+.customer-link:hover {
+    -fx-underline: true;
+}
+
+.customer-link:disabled {
+    -fx-text-fill: -ag-neutral;
+}
+
+/* Tarjetas con estado vacío (Facturas, Actividad reciente y Notificaciones):
+   usan .empty-state con un relleno menor y el contenido alineado arriba */
+.customer-mini-card {
+    -fx-padding: 20;
+    -fx-spacing: 8;
+    -fx-alignment: top-left;
+}
+
+.customer-empty-text {
+    -fx-font-size: 13px;
+    -fx-text-fill: -ag-text-muted;
+    -fx-wrap-text: true;
+}

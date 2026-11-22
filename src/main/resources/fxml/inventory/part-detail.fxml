@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.VBox?>
+
+<!-- Pantalla «Detalle del repuesto». El controlador arma todo el contenido sobre el VBox «root»;
+     el ScrollPane permite desplazarse cuando la pantalla es más alta que la ventana. -->
+<ScrollPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.autogest.controller.inventory.PartDetailController"
+            fitToWidth="true" hbarPolicy="NEVER" styleClass="module-scroll">
+    <stylesheets>
+        <URL value="@../../css/inventory.css" />
+    </stylesheets>
+    <content>
+        <VBox fx:id="root" styleClass="module-page" spacing="20" />
+    </content>
+</ScrollPane>

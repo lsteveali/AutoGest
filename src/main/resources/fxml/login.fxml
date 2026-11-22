@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<!-- Pantalla de inicio de sesión (mockup Login V2). A la izquierda, el logo, el
+     eslogan y la ilustración del carro; a la derecha, la tarjeta con correo,
+     contraseña y recordarme. Los íconos de los campos los agrega el controlador. -->
+<HBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.autogest.controller.user.LoginController"
+      styleClass="login-root">
+
+    <VBox styleClass="login-brand" alignment="CENTER" HBox.hgrow="ALWAYS">
+        <!-- Logotipo completo (escudo y «AutoGest» en negro, para el fondo claro). -->
+        <ImageView fitWidth="420" preserveRatio="true" smooth="true" accessibleText="AutoGest">
+            <image>
+                <Image url="@../images/logo-full-light.png" />
+            </image>
+        </ImageView>
+        <!-- Centrada bajo las letras «AutoGest» y no bajo todo el logotipo: a 420 px de
+             ancho, el centro de las letras está 69 px a la derecha del centro de la imagen. -->
+        <Label text="“Gestión inteligente para tu taller.”" styleClass="login-brand-slogan" wrapText="true"
+               translateX="69" />
+        <!-- Vitrina 3D del carro sobre la plataforma giratoria (la agrega el controlador). -->
+        <StackPane fx:id="carStage" />
+    </VBox>
+
+    <StackPane styleClass="login-form-side" HBox.hgrow="ALWAYS">
+        <VBox styleClass="login-card" maxWidth="440" maxHeight="-Infinity">
+            <VBox styleClass="login-card-header" alignment="CENTER">
+                <Label text="Bienvenido a AutoGest" styleClass="login-title" />
+                <Label text="Ingresa a tu cuenta para continuar." styleClass="login-subtitle" />
+            </VBox>
+
+            <VBox spacing="8">
+                <Label text="Correo electrónico" styleClass="login-field-label" />
+                <HBox fx:id="emailBox" styleClass="input-group" alignment="CENTER_LEFT">
+                    <TextField fx:id="emailField" promptText="usuario@ejemplo.com"
+                               styleClass="input-bare" HBox.hgrow="ALWAYS" />
+                </HBox>
+            </VBox>
+
+            <VBox spacing="8">
+                <Label text="Contraseña" styleClass="login-field-label" />
+                <HBox fx:id="passwordBox" styleClass="input-group" alignment="CENTER_LEFT">
+                    <PasswordField fx:id="passwordField" promptText="Tu contraseña"
+                                   styleClass="input-bare" HBox.hgrow="ALWAYS" />
+                </HBox>
+            </VBox>
+
+            <HBox alignment="CENTER_LEFT" spacing="12">
+                <CheckBox fx:id="rememberCheck" text="Recordarme" />
+                <Region HBox.hgrow="ALWAYS" />
+                <Hyperlink text="¿Olvidaste tu contraseña?" disable="true" />
+            </HBox>
+
+            <Label fx:id="errorLabel" styleClass="login-error" wrapText="true" managed="false" visible="false" />
+
+            <Button fx:id="loginButton" text="Iniciar sesión" maxWidth="Infinity"
+                    styleClass="btn-primary, login-button" defaultButton="true" />
+        </VBox>
+    </StackPane>
+
+</HBox>

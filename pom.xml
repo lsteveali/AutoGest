@@ -16,11 +16,19 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <javafx.version>21.0.12</javafx.version>
+        <junit.version>5.12.2</junit.version>
+        <postgresql.version>42.7.14</postgresql.version>
+        <hikaricp.version>6.3.3</hikaricp.version>
+        <slf4j.version>2.0.17</slf4j.version>
+        <pdfbox.version>3.0.3</pdfbox.version>
+        <angus-mail.version>2.0.3</angus-mail.version>
+        <greenmail.version>2.1.2</greenmail.version>
+        <jackson.version>2.19.4</jackson.version>
     </properties>
 
     <dependencies>
 
-        <!-- JavaFX Controls -->
+        <!-- JavaFX controles -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
@@ -34,12 +42,79 @@
             <version>${javafx.version}</version>
         </dependency>
 
+        <!-- Driver PostgreSQL (Supabase) -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>${postgresql.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- Pool de conexiones: reutiliza conexiones abiertas con Supabase -->
+        <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+            <version>${hikaricp.version}</version>
+        </dependency>
+
+        <!-- Silencia el registro de HikariCP (no usamos SLF4J) -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-nop</artifactId>
+            <version>${slf4j.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- PDF de la factura (Facturación, Sprint 5) -->
+        <dependency>
+            <groupId>org.apache.pdfbox</groupId>
+            <artifactId>pdfbox</artifactId>
+            <version>${pdfbox.version}</version>
+        </dependency>
+
+        <!-- Envío de correos por SMTP (avisos al cliente, Gmail) -->
+        <dependency>
+            <groupId>org.eclipse.angus</groupId>
+            <artifactId>angus-mail</artifactId>
+            <version>${angus-mail.version}</version>
+        </dependency>
+
+        <!-- JSON para el motor con IA del Asistente (API de Groq; sin llave se usan reglas locales) -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+
+        <!-- Servidor de correo falso en memoria (solo pruebas: nadie recibe correos) -->
+        <dependency>
+            <groupId>com.icegreen</groupId>
+            <artifactId>greenmail-junit5</artifactId>
+            <version>${greenmail.version}</version>
+            <scope>test</scope>
+            <!-- Trae JUnit 5.11 y choca con el 5.12 del proyecto: se usa el del proyecto. -->
+            <exclusions>
+                <exclusion>
+                    <groupId>org.junit.jupiter</groupId>
+                    <artifactId>junit-jupiter-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!-- JUnit 5 (pruebas) -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <build>
         <plugins>
 
-            <!-- Maven Compiler -->
+            <!-- Compilador Maven -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -49,17 +124,49 @@
                 </configuration>
             </plugin>
 
-            <!-- JavaFX Maven Plugin -->
+            <!-- Surefire de Maven (ejecutor de JUnit 5).
+                 Las pruebas con la etiqueta "integration" (que necesitan la base
+                 de datos) quedan excluidas del build por defecto. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.2.5</version>
+                <configuration>
+                    <excludedGroups>integration</excludedGroups>
+                </configuration>
+            </plugin>
+
+            <!-- Plugin JavaFX de Maven -->
             <plugin>
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-maven-plugin</artifactId>
                 <version>0.0.8</version>
                 <configuration>
-                    <mainClass>com.autogest.Main</mainClass>
+                    <mainClass>com.autogest.AutoGestApplication</mainClass>
                 </configuration>
             </plugin>
 
         </plugins>
     </build>
+
+    <!-- Perfil para ejecutar las pruebas de integración que necesitan la base de
+         datos real (por defecto quedan excluidas del build). Uso:
+         mvn test -Pintegration -->
+    <profiles>
+        <profile>
+            <id>integration</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <excludedGroups combine.self="override"/>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>

@@ -1,0 +1,24 @@
+/* ==========================================================================
+   AutoGest - Configuración: Datos del taller y Preferencias (Sprint 8, Dev 1)
+   Solo estilos propios; el resto viene de autogest.css.
+   ========================================================================== */
+
+.module-scroll,
+.module-scroll > .viewport {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.module-page {
+    -fx-padding: 0 4 24 0;
+}
+
+.module-page .page-title {
+    -fx-text-fill: -ag-text;
+}
+
+/* Casillas que reemplazan los interruptores del mockup */
+.module-page .check-box {
+    -fx-text-fill: -ag-text;
+    -fx-padding: 4 0;
+}

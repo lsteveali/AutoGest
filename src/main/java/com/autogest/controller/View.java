@@ -1,0 +1,94 @@
+package com.autogest.controller;
+
+/**
+ * Pantallas de la aplicación: cada constante conoce su ruta FXML, el título
+ * que se muestra al usuario (en español) y la sección de la barra lateral
+ * que activa.
+ *
+ * <p>Principles: High Cohesion, Indirection.</p>
+ */
+public enum View {
+
+    HOME("/fxml/home/home.fxml", "Inicio", "HOME"),
+    // Pantalla personal: la abre cualquier rol (menú del avatar) y también Configuración.
+    SETTINGS_PROFILE("/fxml/settings/profile.fxml", "Perfil y cuenta", "SETTINGS"),
+    // Secciones de Configuración del Líder (junto a HOME para no tocar las líneas de los View.diff de Dev 1).
+    SETTINGS_SECURITY("/fxml/settings/security.fxml", "Seguridad", "SETTINGS"),
+    SETTINGS_BACKUP("/fxml/settings/backup.fxml", "Copias de seguridad", "SETTINGS"),
+    SETTINGS_BILLING("/fxml/settings/billing-settings.fxml", "Configuración de facturación", "SETTINGS"),
+    SETTINGS_NOTIFICATIONS("/fxml/settings/notification-settings.fxml", "Configuración de notificaciones", "SETTINGS"),
+    // Facturación del Líder (Sprint 5), también junto a HOME por los View.diff de Dev 1.
+    INVOICE_NEW("/fxml/billing/invoice-new.fxml", "Nueva factura", "BILLING"),
+    INVOICE_DETAIL("/fxml/billing/invoice-detail.fxml", "Detalle de la factura", "BILLING"),
+    CUSTOMERS("/fxml/customer/customers.fxml", "Clientes", "CUSTOMERS"),
+    CUSTOMER_NEW("/fxml/customer/customer-new.fxml", "Nuevo cliente", "CUSTOMERS"),
+    CUSTOMER_EDIT("/fxml/customer/customer-edit.fxml", "Editar cliente", "CUSTOMERS"),
+    CUSTOMER_DETAIL("/fxml/customer/customer-detail.fxml", "Detalle del cliente", "CUSTOMERS"),
+    VEHICLES("/fxml/vehicle/vehicles.fxml", "Vehículos", "VEHICLES"),
+    VEHICLE_NEW("/fxml/vehicle/vehicle-new.fxml", "Nuevo vehículo", "VEHICLES"),
+    VEHICLE_EDIT("/fxml/vehicle/vehicle-edit.fxml", "Editar vehículo", "VEHICLES"),
+    VEHICLE_DETAIL("/fxml/vehicle/vehicle-detail.fxml", "Detalle del vehículo", "VEHICLES"),
+    ORDERS("/fxml/order/orders.fxml", "Órdenes de servicio", "ORDERS"),
+    ORDER_NEW("/fxml/order/order-new.fxml", "Nueva orden", "ORDERS"),
+    ORDER_DETAIL("/fxml/order/order-detail.fxml", "Detalle de la orden", "ORDERS"),
+    SERVICES("/fxml/catalog/services.fxml", "Servicios", "SERVICES"),
+    SERVICE_NEW("/fxml/catalog/service-new.fxml", "Nuevo servicio", "SERVICES"),
+    SERVICE_EDIT("/fxml/catalog/service-edit.fxml", "Editar servicio", "SERVICES"),
+    SERVICE_DETAIL("/fxml/catalog/service-detail.fxml", "Detalle del servicio", "SERVICES"),
+    INVENTORY("/fxml/inventory/inventory.fxml", "Inventario", "INVENTORY"),
+    PART_NEW("/fxml/inventory/part-new.fxml", "Nuevo repuesto", "INVENTORY"),
+    PART_EDIT("/fxml/inventory/part-edit.fxml", "Editar repuesto", "INVENTORY"),
+    PART_DETAIL("/fxml/inventory/part-detail.fxml", "Detalle del repuesto", "INVENTORY"),
+    BILLING("/fxml/billing/billing.fxml", "Facturación", "BILLING"),
+    NOTIFICATIONS("/fxml/notification/notifications.fxml", "Notificaciones", "NOTIFICATIONS"),
+    NOTIFICATION_NEW("/fxml/notification/notification-new.fxml", "Nueva notificación", "NOTIFICATIONS"),
+    NOTIFICATION_DETAIL("/fxml/notification/notification-detail.fxml", "Detalle de la notificación", "NOTIFICATIONS"),
+    REPORTS("/fxml/report/reports.fxml", "Reportes", "REPORTS"),
+    SETTINGS("/fxml/settings/settings.fxml", "Configuración", "SETTINGS"),
+    SETTINGS_WORKSHOP("/fxml/settings/workshop-data.fxml", "Datos del taller", "SETTINGS"),
+    SETTINGS_PREFERENCES("/fxml/settings/preferences.fxml", "Preferencias del sistema", "SETTINGS"),
+    USERS_ROLES("/fxml/user/users-roles.fxml", "Usuarios y roles", "SETTINGS"),
+    ASSISTANT("/fxml/assistant/assistant.fxml", "Asistente AutoGest", "ASSISTANT");
+
+    private final String fxmlPath;
+    private final String title;
+    private final String sidebarSection;
+
+    View(String fxmlPath, String title, String sidebarSection) {
+        this.fxmlPath = fxmlPath;
+        this.title = title;
+        this.sidebarSection = sidebarSection;
+    }
+
+    /** Ruta del recurso FXML de la pantalla. */
+    public String getFxmlPath() {
+        return fxmlPath;
+    }
+
+    /** Título de la pantalla mostrado al usuario (español). */
+    public String getTitle() {
+        return title;
+    }
+
+    /** Sección de la barra lateral que se activa al mostrar esta pantalla. */
+    public View getSidebarSection() {
+        return valueOf(sidebarSection);
+    }
+
+    /**
+     * Busca la pantalla cuyo título coincide con el texto (lo usan las migas
+     * de pan para volverse clicables). Si varias comparten título, gana la
+     * primera declarada.
+     *
+     * @param title título visible, por ejemplo «Configuración»
+     * @return la pantalla, o vacío si ningún título coincide
+     */
+    public static java.util.Optional<View> byTitle(String title) {
+        for (View view : values()) {
+            if (view.title.equals(title)) {
+                return java.util.Optional.of(view);
+            }
+        }
+        return java.util.Optional.empty();
+    }
+}
