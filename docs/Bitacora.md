@@ -1059,6 +1059,7 @@ Rama `feature/asistente` desde `develop` (`fb793e9`).
 | 21/11/2026 | **El Asistente precarga los formularios por la etiqueta visible de cada campo** (`AssistantFormFiller`), sin métodos nuevos en los controladores. | Funciona igual en las pantallas de Dev 1 sin tocarlas. Si una etiqueta cambia, el campo solo deja de precargarse; nada se rompe. |
 | 21/11/2026 | **El Asistente nunca guarda:** abre, filtra y precarga, y el usuario pulsa «Guardar». Los permisos se revisan dos veces: el catálogo solo tiene los módulos del rol y cada acción pasa por `Permissions` antes de navegar. | Pedido del Líder: nada cambia sin confirmación y se respetan los roles. Un motor con IA tampoco puede saltarse los permisos. |
 | 21/11/2026 | **Motor con IA opcional sobre Groq (gratis, `openai/gpt-oss-120b`), con las reglas locales de respaldo;** reemplaza al primer motor con Claude. Solo se envía el texto del usuario y el catálogo del rol. | Claude cobra por consulta; Groq tiene plan gratis y por defecto no guarda lo enviado. Sin llave, sin internet o al llegar al límite gratis, el Asistente sigue funcionando. No se envían datos de la base a un servicio externo. |
+| 22/11/2026 | **Se quitan los 20 `package-info.java`** (capas base y todos los controladores, incluidos los 5 de Dev 1: `customer`, `inventory`, `notification`, `order` y `settings`). | Pedido del Líder antes de la primera entrega en `main`: solo tenían la descripción del paquete, sin anotaciones. Menos archivos y nada cambia al compilar; `mvn clean test` sigue en 617 pruebas sin fallos. |
 | 19/11/2026 | **El formulario «Nueva notificación» propone un mensaje según el tipo** (plantillas del Líder) sin pisar lo que el usuario escribió. | Pedido del Líder. Se autorizó tocar `NotificationNewController` y `NotificationService` de Dev 1; se registra en la sección «Para Dev 1» del PR. |
 
 ---
@@ -1198,6 +1199,7 @@ Verificación: `develop` → `mvn clean test` **108 pruebas, 0 fallos**
 - [x] ~~Subir la rama y abrir el PR hacia `develop`~~ — PR #31 fusionado (`c6574b5`, 21/11/2026). **Sprint 9 cerrado.**
 - [x] ~~Probar el motor con Groq con una llave gratis real~~ — el panel muestra «Con IA (Groq)» en la app real.
 - [ ] Fusionar `develop` en `main` con un PR (primera entrega en `main`, 22/11/2026).
+- [x] Quitar los `package-info.java` antes de la entrega (rama `chore/quitar-package-info`, 22/11/2026).
 
 **Pendientes nuevos (14/10/2026):**
 - [x] ~~Confirmar el estado del PR del backend de Clientes~~ — resuelto: PR **#5** (backend) y **#8** (interfaz completa) fusionados en `develop`; siguen pendientes de revisión de Sebastián los PRs del Líder.
