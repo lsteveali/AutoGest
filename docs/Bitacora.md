@@ -1198,8 +1198,8 @@ Verificación: `develop` → `mvn clean test` **108 pruebas, 0 fallos**
 - [x] Panel, motor local, navegación con filtros, formularios precargados y motor con IA opcional (Sesión 33).
 - [x] ~~Subir la rama y abrir el PR hacia `develop`~~ — PR #31 fusionado (`c6574b5`, 21/11/2026). **Sprint 9 cerrado.**
 - [x] ~~Probar el motor con Groq con una llave gratis real~~ — el panel muestra «Con IA (Groq)» en la app real.
-- [ ] Fusionar `develop` en `main` con un PR (primera entrega en `main`, 22/11/2026).
-- [x] Quitar los `package-info.java` antes de la entrega (rama `chore/quitar-package-info`, 22/11/2026).
+- [x] ~~Fusionar `develop` en `main` con un PR~~ — PR #32 fusionado (`cc3deae`, 22/11/2026). **Primera entrega en `main`** (Sprints 1 a 9).
+- [x] ~~Quitar los `package-info.java` antes de la entrega~~ — PR #33 fusionado (`f17c035`, 22/11/2026).
 
 **Pendientes nuevos (14/10/2026):**
 - [x] ~~Confirmar el estado del PR del backend de Clientes~~ — resuelto: PR **#5** (backend) y **#8** (interfaz completa) fusionados en `develop`; siguen pendientes de revisión de Sebastián los PRs del Líder.
