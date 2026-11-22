@@ -1136,6 +1136,8 @@ Rama `feature/modelos-importados` desde `origin/develop` (`781c6b9`, con el PR #
 | 22/11/2026 | **La personalización del login se guarda en cada computador con `java.util.prefs.Preferences`, no en Supabase.** | El login la necesita antes de iniciar sesión, y cada equipo puede verse distinto. Es la misma pieza que serviría para un modo oscuro. |
 | 22/11/2026 | **Los vehículos nuevos se modelan en 3D por código (`CarModel`), sin archivos de modelos externos.** | Igual que la camioneta: no depende de licencias de modelos ni de un lector de formatos 3D, y el color se cambia sobre la malla de la pintura. |
 | 22/11/2026 | **Los carros descargados se convierten una vez a `.agm` (`tools/ModelConverter.java`) en vez de leer el OBJ en la app.** | El OBJ del Mustang pesaba 106 MB; convertido y sin los pernos queda en 1,7 MB y carga rápido. |
+| 22/11/2026 | **Los comentarios y el Javadoc del código van en español.** | Decisión del Líder; coincide con la interfaz, la bitácora y los commits. |
+| 22/11/2026 | **El póster de ExpoSoftware no se sube al repositorio.** | Decisión del Líder: queda fuera de Git (se ignora solo en el equipo local con `.git/info/exclude`). |
 | 19/11/2026 | **El formulario «Nueva notificación» propone un mensaje según el tipo** (plantillas del Líder) sin pisar lo que el usuario escribió. | Pedido del Líder. Se autorizó tocar `NotificationNewController` y `NotificationService` de Dev 1; se registra en la sección «Para Dev 1» del PR. |
 
 ---
@@ -1285,6 +1287,12 @@ Verificación: `develop` → `mvn clean test` **108 pruebas, 0 fallos**
 - [x] Convertidor, lector y Mustang en el catálogo (Sesión 35).
 - [ ] Subir la rama y abrir el PR hacia `develop` cuando el Líder termine su prueba manual.
 
+**Arreglos pendientes (para después de la entrega; pedido del Líder, 22/11/2026):**
+- [ ] Notificaciones (Dev 1): «Nueva notificación», «Enviar ahora» y «Reintentar» congelan la ventana de 1 a 3 s mientras responde Gmail; etiquetas de filtros cortadas.
+- [ ] «Ver facturas» en el detalle del cliente (`CustomerDetailController`, Dev 1) sigue desactivado.
+- [ ] Preferencias marcadas «Próximamente»: idioma y formatos regionales, barra lateral compacta, orden predeterminado y las demás.
+- [ ] Etiquetar `v1.0` en `main` (no se hizo al entregar).
+
 **Pendientes nuevos (14/10/2026):**
 - [x] ~~Confirmar el estado del PR del backend de Clientes~~ — resuelto: PR **#5** (backend) y **#8** (interfaz completa) fusionados en `develop`; siguen pendientes de revisión de Sebastián los PRs del Líder.
 - [x] ~~Correr `mvn clean test` sobre V3.0 y anotar el número de pruebas~~ — hecho: **245 pruebas, 0 fallos** con Clientes integrado (17/10/2026, `feature/vehiculos`, ver §3 Sesión 9).
@@ -1292,9 +1300,9 @@ Verificación: `develop` → `mvn clean test` **108 pruebas, 0 fallos**
 - [x] ~~Sebastián: interfaz de Clientes y bloque *Customers* en `AppContext`~~ — hecho (PR #8, 17/10/2026).
 - [x] ~~Líder: Vehículos (backend + interfaz), tras Clientes~~ — backend ✅ e interfaz ✅ (Sesión 9); solo queda la prueba de humo de FXML.
 - [x] ~~Documentos del Sprint 2: análisis y diagrama de clases de Usuarios, Clientes y Vehículos~~ — hecho (PR #8 y commit `4f9b5d5`, PR #9).
-- [ ] Decidir el idioma de comentarios y Javadoc y alinear README, guía y código.
+- [x] ~~Decidir el idioma de comentarios y Javadoc~~ — en español (decisión del Líder, 22/11/2026).
 - [ ] Definir las fechas de entrega de cada sprint (la guía las deja `[PENDIENTE]`).
-- [ ] Cerrado el Sprint 2: decidir si se integra `develop` en `main` y se etiqueta `v1.0`.
+- [x] ~~Integrar `develop` en `main`~~ — PR #32 (22/11/2026); la etiqueta `v1.0` quedó en «Arreglos pendientes».
 
 ---
 
