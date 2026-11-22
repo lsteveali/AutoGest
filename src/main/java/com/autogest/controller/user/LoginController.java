@@ -5,6 +5,7 @@ import com.autogest.controller.components.IconSet;
 import com.autogest.controller.components.CarTurntable;
 import com.autogest.exception.AutoGestException;
 import com.autogest.util.Background;
+import com.autogest.util.LoginAppearanceStore;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -67,8 +68,8 @@ public class LoginController implements Initializable {
         // Íconos dentro de los campos, como en el mockup Login V2.
         emailBox.getChildren().add(0, IconSet.icon(IconSet.MAIL));
         passwordBox.getChildren().add(0, IconSet.icon(IconSet.LOCK));
-        // Carro 3D sobre una plataforma que gira de izquierda a derecha.
-        carStage.getChildren().add(new CarTurntable(460, 400));
+        // Vehículo 3D sobre una plataforma giratoria, con la personalización guardada en este equipo.
+        carStage.getChildren().add(new CarTurntable(460, 400, new LoginAppearanceStore().load()));
         hideError();
         loginButton.setOnAction(event -> handleLogin());
         passwordField.setOnAction(event -> handleLogin());
