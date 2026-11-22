@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.VBox?>
+
+<!-- Pantalla «Personalización». El controlador arma el vehículo, el color y
+     la vista previa de la vitrina del inicio de sesión sobre el VBox. -->
+<ScrollPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.autogest.controller.settings.AppearanceController"
+            styleClass="page-scroll"
+            fitToWidth="true"
+            hbarPolicy="NEVER"
+            vbarPolicy="AS_NEEDED">
+    <VBox fx:id="root" spacing="20" />
+</ScrollPane>
