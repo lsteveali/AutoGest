@@ -1100,6 +1100,34 @@ Eligió dos PR: este, con Notificaciones y «Ver facturas», y otro con las Pref
 - `NotificationsController`, `NotificationDetailController` y `NotificationNewController`: consultas y envíos en segundo plano, y anchos mínimos de las columnas.
 - `CustomerDetailController`: habilita «Ver facturas».
 
+### 23/11/2026 — Sesión 37 (Líder): Preferencias «Próximamente»
+
+**Contexto.** El Líder eligió aplicar el formato regional, la barra lateral compacta, el último módulo y los filtros recientes. Siguen «Próximamente»: el idioma (inglés implicaría traducir toda la app), el país, el orden predeterminado, la información adicional en tablas y la ayuda contextual. Rama `feature/preferencias`, encima de `feature/notificaciones-facturas` para no chocar en la bitácora.
+
+**Hecho:**
+1. **Formato regional** (`RegionalFormat` + `Formatter`): `Formatter` lee las preferencias vigentes (`AppPreferences`) y rehace su formato cuando cambian. Así cambian todas las pantallas, los PDF y los correos:
+   - **Moneda:** el símbolo (`$`, `US$`, `S/`, `MX$`). Solo cambia el símbolo; los valores no se convierten.
+   - **Separador decimal:** coma o punto; los miles usan el otro.
+   - **Formato de fecha:** DD/MM/AAAA, AAAA-MM-DD o MM/DD/AAAA.
+   - **Hora:** 24 o 12 horas.
+   - **Zona horaria:** Bogotá, Caracas o Ciudad de México. Las fechas con hora se guardan en la zona del equipo y se muestran en la elegida.
+   - El kilometraje (`VehicleLabels`, `OrderLabels`) usa `Formatter.integer`.
+   - Las de fábrica siguen siendo las de Colombia, así que nada cambia hasta que se elija otra cosa.
+2. **Barra lateral compacta** (`Sidebar.setCompact`): solo íconos, el escudo como logo y el nombre al pasar el mouse. `MainController` la aplica al entrar y cuando se guardan las preferencias.
+3. **Último módulo** (`LocalMemory` + `MainController`): el equipo recuerda la sección de la barra que abrió cada usuario. Con la preferencia activa, al entrar se abre esa sección, salvo en tres casos: si el rol ya no puede abrirla, si es Inicio o si el usuario ya eligió otra pantalla.
+4. **Filtros recientes** (`LocalMemory` + `FilterBar`): `ViewNavigator` le dice a `FilterBar` qué pantalla se carga. Con la preferencia activa, cada barra recuerda en el equipo su búsqueda y sus filtros, y los vuelve a aplicar al abrir la pantalla, sin tocar los controladores. No pisa lo que el Asistente ya haya llenado.
+5. **Pantalla Preferencias:** se habilitan esas opciones y las notas «Próximamente» dicen lo que falta.
+6. **Pruebas:**
+   - `RegionalFormatTest` (6).
+   - `LocalMemoryTest` (4, con un nodo de preferencias propio que se borra al terminar).
+   - `MainControllerLastModuleTest` (2).
+
+   `mvn clean test` → **650 pruebas, 0 fallos**.
+
+**Archivos de Dev 1 tocados (a pedido del Líder):**
+- `PreferencesController`: habilita las opciones y cambia las notas.
+- `OrderLabels`: kilometraje con `Formatter.integer`.
+
 ---
 
 ## 4. Decisiones y acuerdos
@@ -1293,7 +1321,7 @@ Verificación: `develop` → `mvn clean test` **108 pruebas, 0 fallos**
 - [ ] Dev 1: prueba manual de Datos del taller y Preferencias (lista de su PR #26), ahora que existe la tabla.
 - [x] ~~Hallazgos de la revisión del PR #26~~ — corregidos por el Líder a pedido suyo (Sesión 31, `feature/hallazgos-configuracion`).
 - [x] ~~Subir `feature/hallazgos-configuracion` y abrir el PR hacia `develop`~~ — PR #29 fusionado (`e79bf96`, 20/11/2026). **Sprint 8 cerrado.**
-- [ ] Preferencias que quedan «Próximamente»: idioma y formatos regionales, barra lateral compacta, orden predeterminado, información adicional en tablas, abrir el último módulo, ayuda contextual y filtros recientes.
+- [~] Preferencias que quedan «Próximamente»: idioma y formatos regionales, barra lateral compacta, orden predeterminado, información adicional en tablas, abrir el último módulo, ayuda contextual y filtros recientes. — aplicados el formato regional, la barra compacta, el último módulo y los filtros recientes (Sesión 37).
 
 **Catálogos del modelo (Líder, `refactor/catalogos-modelo`):**
 - [x] Los 16 enums agrupados en `model/Catalogs.java` (Sesión 32).
@@ -1317,7 +1345,7 @@ Verificación: `develop` → `mvn clean test` **108 pruebas, 0 fallos**
 **Arreglos pendientes (para después de la entrega; pedido del Líder, 22/11/2026):**
 - [x] ~~Notificaciones (Dev 1): «Nueva notificación», «Enviar ahora» y «Reintentar» congelan la ventana de 1 a 3 s mientras responde Gmail; etiquetas de filtros cortadas.~~ — en segundo plano y con anchos mínimos (Sesión 36).
 - [x] ~~«Ver facturas» en el detalle del cliente (`CustomerDetailController`, Dev 1) sigue desactivado.~~ — abre Facturación con las facturas del cliente (Sesión 36).
-- [ ] Preferencias marcadas «Próximamente»: idioma y formatos regionales, barra lateral compacta, orden predeterminado y las demás.
+- [~] Preferencias «Próximamente»: hechos el formato regional, la barra lateral compacta, el último módulo y los filtros recientes (Sesión 37). Siguen pendientes el idioma inglés, el país, el orden predeterminado, la información adicional en tablas y la ayuda contextual.
 - [x] ~~Etiquetar `v1.0` en `main` (no se hizo al entregar).~~ — etiqueta `v1.0` sobre `cc3deae` (PR #32), subida el 23/11/2026.
 
 **Pendientes nuevos (14/10/2026):**
