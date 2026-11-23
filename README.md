@@ -89,3 +89,17 @@ feature/<nombre>   una rama por módulo o tarea grande
 - Dinero con `BigDecimal` (escala 2, `RoundingMode.HALF_UP`); fechas con `LocalDate`/`LocalDateTime`.
 - `javafx.*` solo en `controller`; `java.sql.*` solo en `dao` y `config`.
 - Javadoc obligatorio en clases y métodos públicos, con la línea `Principles: ...`.
+
+## Modelos 3D de la vitrina del login
+
+La camioneta, el sedán y el deportivo se arman por código (`controller/components`). Los carros importados se convierten una sola vez a un formato compacto (`.agm`) con la herramienta del equipo:
+
+```
+java tools/ModelConverter.java <modelo.obj> tools/models/<carro>.rules src/main/resources/models/<carro>.agm
+```
+
+Las reglas (`tools/models/*.rules`) indican el largo real del carro, hacia dónde mira, qué piezas se descartan y qué papel cumple cada pieza; la que se marca como `paint` es la que cambia de color. Para agregarlo al catálogo basta una constante en `LoginAppearance.Vehicle` con su archivo.
+
+## Créditos
+
+- Modelo 3D «Mustang» por **danielmillsy22** ([free3d.com](https://free3d.com)), licencia de uso personal. Se usa solo en este proyecto académico; para publicar o vender AutoGest habría que reemplazarlo por un modelo con licencia libre. «Mustang» es una marca registrada de Ford Motor Company.
