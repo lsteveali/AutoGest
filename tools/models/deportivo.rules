@@ -10,7 +10,7 @@
 # El frente mira a +Z: allí está el capó largo y bajo que sube hacia el parabrisas.
 # El largo se deja un poco mayor que el real para que llene la plataforma como los demás.
 
-length 4.95
+length 5.4
 front +z
 
 part Plane.001 Material.001 paint
