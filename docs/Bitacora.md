@@ -1134,7 +1134,7 @@ Rama `feature/modelos-importados` desde `origin/develop` (`781c6b9`, con el PR #
 | 21/11/2026 | **Motor con IA opcional sobre Groq (gratis, `openai/gpt-oss-120b`), con las reglas locales de respaldo;** reemplaza al primer motor con Claude. Solo se envía el texto del usuario y el catálogo del rol. | Claude cobra por consulta; Groq tiene plan gratis y por defecto no guarda lo enviado. Sin llave, sin internet o al llegar al límite gratis, el Asistente sigue funcionando. No se envían datos de la base a un servicio externo. |
 | 22/11/2026 | **Se quitan los 20 `package-info.java`** (capas base y todos los controladores, incluidos los 5 de Dev 1: `customer`, `inventory`, `notification`, `order` y `settings`). | Pedido del Líder antes de la primera entrega en `main`: solo tenían la descripción del paquete, sin anotaciones. Menos archivos y nada cambia al compilar; `mvn clean test` sigue en 617 pruebas sin fallos. |
 | 22/11/2026 | **La personalización del login se guarda en cada computador con `java.util.prefs.Preferences`, no en Supabase.** | El login la necesita antes de iniciar sesión, y cada equipo puede verse distinto. Es la misma pieza que serviría para un modo oscuro. |
-| 22/11/2026 | **Los vehículos nuevos se modelan en 3D por código (`CarModel`), sin archivos de modelos externos.** | Igual que la camioneta: no depende de licencias de modelos ni de un lector de formatos 3D, y el color se cambia sobre la malla de la pintura. |
+| 22/11/2026 | **Los vehículos nuevos se modelan en 3D por código (`CarModel`), sin archivos de modelos externos.** | Igual que la camioneta: no depende de licencias de modelos ni de un lector de formatos 3D, y el color se cambia sobre la malla de la pintura. Después se reemplazó: el clásico, el deportivo y el Mustang son modelos importados y `CarModel` se quitó (Sesión 35). |
 | 22/11/2026 | **Los carros descargados se convierten una vez a `.agm` (`tools/ModelConverter.java`) en vez de leer el OBJ en la app.** | El OBJ del Mustang pesaba 106 MB; convertido y sin los pernos queda en 1,7 MB y carga rápido. |
 | 22/11/2026 | **Los comentarios y el Javadoc del código van en español.** | Decisión del Líder; coincide con la interfaz, la bitácora y los commits. |
 | 22/11/2026 | **El póster de ExpoSoftware no se sube al repositorio.** | Decisión del Líder: queda fuera de Git (se ignora solo en el equipo local con `.git/info/exclude`). |
@@ -1284,8 +1284,8 @@ Verificación: `develop` → `mvn clean test` **108 pruebas, 0 fallos**
 - [x] ~~Subir la rama y abrir el PR hacia `develop`~~ — PR #34 fusionado (`781c6b9`, 22/11/2026).
 
 **Modelos importados (Líder, rama `feature/modelos-importados`):**
-- [x] Convertidor, lector y Mustang en el catálogo (Sesión 35).
-- [ ] Subir la rama y abrir el PR hacia `develop` cuando el Líder termine su prueba manual.
+- [x] Convertidor, lector, Mustang, deportivo y clásico importados en el catálogo (Sesión 35).
+- [x] ~~Subir la rama y abrir el PR hacia `develop`~~ — PR #35 fusionado (`ea39e71`, 23/11/2026).
 
 **Arreglos pendientes (para después de la entrega; pedido del Líder, 22/11/2026):**
 - [ ] Notificaciones (Dev 1): «Nueva notificación», «Enviar ahora» y «Reintentar» congelan la ventana de 1 a 3 s mientras responde Gmail; etiquetas de filtros cortadas.
