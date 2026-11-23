@@ -1067,6 +1067,7 @@ Rama `feature/modelos-importados` desde `origin/develop` (`781c6b9`, con el PR #
    - La constante pasa de `SEDAN` a `CLASSIC` («Clásico»). Lo guardado como `SEDAN` en un equipo abre el clásico.
    - Se borra `CarModel`, que ya no se usaba: la camioneta es el único vehículo hecho por código.
    - El Mustang y el deportivo salen idénticos con el convertidor nuevo.
+   - En la prueba manual el Clásico se veía sin capó: muchas caras de su carrocería (capó y tapa del baúl) traen la normal hacia adentro, y JavaFX no dibuja la cara de atrás. Con la nueva regla `twosided paint`, la pintura se dibuja por las dos caras. Quedó en 323 mil triángulos y 2,5 MB.
 
    `mvn clean test` → **636 pruebas, 0 fallos**.
 
