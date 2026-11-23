@@ -29,7 +29,8 @@ import java.util.zip.GZIPOutputStream;
  * coincide gana; {@code *} vale por cualquier texto. Con {@code mirror} se
  * reflejan al otro costado las piezas que el modelo solo trae de un lado, y
  * con {@code tires} se dicen cuáles objetos son los cuatro cauchos (para la
- * sombra), si hay más caucho en el carro. El frente puede ser un eje o una
+ * sombra), si hay más caucho en el carro. Con {@code twosided} un papel se
+ * dibuja por las dos caras, para modelos con caras volteadas. El frente puede ser un eje o una
  * dirección {@code dx dz} para modelos girados.</p>
  *
  * <p>El resultado queda en metros, con el frente hacia +X, Y hacia arriba,
@@ -65,6 +66,7 @@ public final class ModelConverter {
         List<Rule> rules = new ArrayList<>();
         List<Pattern> mirrors = new ArrayList<>();
         List<Pattern> tires = new ArrayList<>();
+        List<String> twoSided = new ArrayList<>();
         for (String raw : Files.readAllLines(rulesFile, StandardCharsets.UTF_8)) {
             String line = raw.strip();
             if (line.isEmpty() || line.startsWith("#")) {
@@ -81,6 +83,7 @@ public final class ModelConverter {
                         tires.add(glob(t[i]));
                     }
                 }
+                case "twosided" -> twoSided.addAll(List.of(t).subList(1, t.length));
                 default -> throw new IllegalArgumentException("Regla desconocida: " + line);
             }
         }
@@ -137,6 +140,25 @@ public final class ModelConverter {
                         }
                     }
                 }
+            }
+        }
+
+        // Piezas de dos caras: cada triángulo se repite con la normal al revés, para que
+        // se vean aunque el modelo traiga caras volteadas (JavaFX no dibuja la cara de atrás).
+        for (String name : twoSided) {
+            Part part = parts.get(name);
+            if (part == null) {
+                throw new IllegalArgumentException("«twosided» nombra un papel sin piezas: " + name);
+            }
+            int count = part.vertices.size();
+            for (int i = 0; i < count; i++) {
+                float[] v = part.vertices.get(i);
+                part.vertices.add(new float[]{v[0], v[1], v[2], -v[3], -v[4], -v[5]});
+            }
+            int triangles = part.triangles.size();
+            for (int i = 0; i < triangles; i++) {
+                int[] t = part.triangles.get(i);
+                part.triangles.add(new int[]{t[0] + count, t[2] + count, t[1] + count});
             }
         }
 
