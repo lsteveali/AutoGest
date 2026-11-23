@@ -1056,6 +1056,12 @@ Rama `feature/modelos-importados` desde `origin/develop` (`781c6b9`, con el PR #
    - `CarModel` queda solo con el sedán.
 
    `mvn clean test` → **635 pruebas, 0 fallos**.
+8. **Ajustes tras la prueba manual del Líder:**
+   - Al Mustang le sobresalían las llantas de un costado: los «Arches» del modelo solo venían del lado derecho y salían 34 cm de la carrocería, así que se descartan.
+   - Los cubos de las ruedas también venían de un solo lado. El convertidor ganó la regla `mirror`, que refleja una pieza al otro costado.
+   - Los rines del Mustang se dejan plateados para que no se pierdan sobre el caucho.
+   - Los vidrios de los modelos importados se veían claros: el vidrio de los faros pasa a cromo, el reflejo de las ventanas se centra en la altura de los vidrios y la normal pesa menos.
+   - El deportivo se convierte con 5,4 m de largo para que llene la plataforma.
 
 **Archivos de Dev 1 tocados:** ninguno.
 
