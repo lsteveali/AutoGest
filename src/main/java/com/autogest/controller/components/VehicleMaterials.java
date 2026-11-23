@@ -4,10 +4,9 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 
 /**
- * Materiales comunes de los automóviles de la vitrina (vidrio, cromo, rines,
- * caucho, luces…). Los usan los modelos hechos por código ({@link CarModel})
- * y los importados ({@link ImportedModel}); la pintura sale de
- * {@link VehiclePaint}.
+ * Materiales comunes de los automóviles importados de la vitrina (vidrio,
+ * cromo, rines, caucho, luces…), según el papel de cada pieza en
+ * {@link ImportedModel}; la pintura sale de {@link VehiclePaint}.
  *
  * <p>Principles: Pure Fabrication, High Cohesion.</p>
  */

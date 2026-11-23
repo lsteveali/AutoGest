@@ -186,8 +186,11 @@ final class ImportedModel {
                 builder.triangle(t[i], t[i + 1], t[i + 2]);
             }
             boolean paint = part.role().equals("paint");
-            MeshView view = CarModel.add(car, builder,
-                    paint ? VehiclePaint.material(color) : material(part.role()));
+            if (builder.isEmpty()) {
+                continue;
+            }
+            MeshView view = builder.view(paint ? VehiclePaint.material(color) : material(part.role()));
+            car.getChildren().add(view);
             if (paint) {
                 paintView = view;
             }
@@ -204,7 +207,8 @@ final class ImportedModel {
             // Los vidrios importados suelen ser más inclinados que los hechos por código:
             // la normal pesa menos para que no tomen todo el reflejo claro del cielo.
             case "glass" -> (x, y, z, nx, ny, nz) -> 0.62 - 0.2 * ny + 0.3 * (windowMiddle - y);
-            case "chrome", "rim", "rimDark" -> CarModel.TruckLikeShading.CHROME;
+            // Bandas de reflejo que se repiten con la altura, como el cromo de la camioneta.
+            case "chrome", "rim", "rimDark" -> (x, y, z, nx, ny, nz) -> 0.5 - 0.4 * ny + 0.18 * Math.sin(y * 17);
             default -> Shading.flat();
         };
     }

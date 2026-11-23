@@ -31,8 +31,12 @@ public record LoginAppearance(Vehicle vehicle, String color) {
     public enum Vehicle {
         /** Camioneta todoterreno de dos puertas (la original). */
         TRUCK("Camioneta"),
-        /** Sedán de cuatro puertas. */
-        SEDAN("Sedán"),
+        /**
+         * Clásico descapotable importado (modelo «Roadster»), en lugar del
+         * sedán que se hacía por código. Lo guardado como {@code SEDAN} en un
+         * equipo se lee como este vehículo.
+         */
+        CLASSIC("Clásico", "/models/clasico.agm"),
         /**
          * Deportivo importado: modelo «PG2.79». Convertido con
          * {@code tools/ModelConverter.java} (reglas en {@code tools/models/deportivo.rules}).

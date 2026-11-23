@@ -32,10 +32,10 @@ class LoginAppearanceTest {
 
     @Test
     void copiesChangeOnlyOneField() {
-        LoginAppearance sedan = LoginAppearance.DEFAULT.withVehicle(Vehicle.SEDAN);
+        LoginAppearance classic = LoginAppearance.DEFAULT.withVehicle(Vehicle.CLASSIC);
 
-        assertEquals(Vehicle.SEDAN, sedan.vehicle());
-        assertEquals(LoginAppearance.DEFAULT_COLOR, sedan.color());
-        assertEquals("#2A2D31", sedan.withColor("#2a2d31").color());
+        assertEquals(Vehicle.CLASSIC, classic.vehicle());
+        assertEquals(LoginAppearance.DEFAULT_COLOR, classic.color());
+        assertEquals("#2A2D31", classic.withColor("#2a2d31").color());
     }
 }

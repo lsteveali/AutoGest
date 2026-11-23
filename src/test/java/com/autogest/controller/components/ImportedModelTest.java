@@ -45,6 +45,18 @@ class ImportedModelTest {
     }
 
     @Test
+    void classicSitsOnItsFourTiresAndNotOnTheSpare() {
+        ImportedModel.Data data = ImportedModel.read(Vehicle.CLASSIC.model());
+
+        Set<String> roles = data.parts().stream().map(ImportedModel.Part::role).collect(Collectors.toSet());
+        assertTrue(roles.containsAll(Set.of("paint", "rubber", "chrome", "tail")), roles.toString());
+        // Las ruedas quedan a lado y lado (la de repuesto, atrás y en el centro, no cuenta).
+        VehicleBuild.Footprint footprint = data.footprint();
+        assertTrue(footprint.track() > 0.6, footprint.toString());
+        assertTrue(footprint.frontAxle() > 1.5 && footprint.rearAxle() < -1, footprint.toString());
+    }
+
+    @Test
     void modelIsReadOnceAndKeptInMemory() {
         assertSame(ImportedModel.read(Vehicle.MUSTANG.model()), ImportedModel.read(Vehicle.MUSTANG.model()));
     }
@@ -52,7 +64,7 @@ class ImportedModelTest {
     @Test
     void onlyImportedVehiclesHaveAModelFile() {
         assertEquals(null, Vehicle.TRUCK.model());
-        assertEquals(null, Vehicle.SEDAN.model());
+        assertTrue(Vehicle.CLASSIC.model().endsWith(".agm"));
         assertTrue(Vehicle.MUSTANG.model().endsWith(".agm"));
         assertTrue(Vehicle.SPORTS.model().endsWith(".agm"));
     }
