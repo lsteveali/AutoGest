@@ -104,3 +104,4 @@ Las reglas (`tools/models/*.rules`) indican el largo real del carro, hacia dónd
 
 - Modelo 3D «Mustang» por **danielmillsy22** ([free3d.com](https://free3d.com)), licencia de uso personal. Se usa solo en este proyecto académico; para publicar o vender AutoGest habría que reemplazarlo por un modelo con licencia libre. «Mustang» es una marca registrada de Ford Motor Company.
 - Modelo 3D del deportivo («PG2.79») de **syn3d**, comprado por el equipo con licencia de uso comercial.
+- Modelo 3D del clásico («Roadster») por **benzin** ([free3d.com](https://free3d.com)), licencia *Royalty Free*.
