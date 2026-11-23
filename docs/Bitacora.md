@@ -1073,6 +1073,33 @@ Rama `feature/modelos-importados` desde `origin/develop` (`781c6b9`, con el PR #
 
 **Archivos de Dev 1 tocados:** ninguno.
 
+### 23/11/2026 — Sesión 36 (Líder): arreglos pendientes (v1.0, Notificaciones y «Ver facturas»)
+
+**Contexto.** El Líder pidió resolver los arreglos pendientes:
+- La etiqueta `v1.0`.
+- Las Notificaciones de Dev 1.
+- «Ver facturas».
+- Las Preferencias «Próximamente».
+
+Eligió dos PR: este, con Notificaciones y «Ver facturas», y otro con las Preferencias, que incluirá formatos regionales, barra lateral compacta, último módulo y filtros recientes. El idioma inglés, el orden predeterminado, la información adicional en tablas y la ayuda contextual siguen «Próximamente».
+
+**Hecho:**
+1. **Etiqueta `v1.0`** sobre el commit de la primera entrega en `main` (`cc3deae`, PR #32), subida a GitHub.
+2. **Notificaciones sin congelar la ventana** (rama `feature/notificaciones-facturas`):
+   - En la lista, enviar, reintentar, eliminar, «Enviar programadas vencidas» y la recarga (tabla, indicadores y actividad reciente) corren con `Background`. La pantalla se desactiva mientras tanto para no repetir la acción.
+   - En el detalle, la carga, el envío, el reintento y la eliminación también corren en segundo plano.
+   - «Nueva notificación» guarda y envía en segundo plano.
+   - Las columnas Tipo, Canal, Fecha, Estado y Acciones tienen ancho mínimo. Las etiquetas de los filtros ya no se cortaban: `FilterBar` las corrigió en la Sesión 25.
+3. **«Ver facturas»** en el menú del detalle del cliente abre Facturación con solo las facturas de ese cliente (las del dueño del vehículo de cada orden):
+   - Un aviso «Facturas de …» con el botón «Ver todas» quita el filtro.
+   - Los indicadores y el resumen siguen siendo del taller.
+   - El ítem queda desactivado para los roles que no pueden entrar a Facturación.
+4. **Pruebas:** `InvoiceLabelsTest` (2). `mvn clean test` → **638 pruebas, 0 fallos**.
+
+**Archivos de Dev 1 tocados (a pedido del Líder):**
+- `NotificationsController`, `NotificationDetailController` y `NotificationNewController`: consultas y envíos en segundo plano, y anchos mínimos de las columnas.
+- `CustomerDetailController`: habilita «Ver facturas».
+
 ---
 
 ## 4. Decisiones y acuerdos
@@ -1222,7 +1249,7 @@ Verificación: `develop` → `mvn clean test` **108 pruebas, 0 fallos**
 - [x] ~~**Avisos al cliente**~~ — conectados el 15/11/2026 tras el PR #17 de Dev 1 (ver §3, Sesión 22).
 - [x] ~~Volver a abrir el PR de `feature/facturacion`~~ — reabierto, revisado por Dev 1 y fusionado; `develop` → **445 pruebas, 0 fallos**.
 - [x] ~~Tasa de IVA y plazo de pago desde Configuración de Facturación~~ — también prefijo, métodos de pago y nota (Sesión 30).
-- [ ] «Ver facturas» en el menú del detalle del cliente (`CustomerDetailController`, archivo de Dev 1) sigue desactivado: habilitarlo solo si el Líder lo pide.
+- [x] ~~«Ver facturas» en el menú del detalle del cliente (`CustomerDetailController`, archivo de Dev 1) sigue desactivado: habilitarlo solo si el Líder lo pide.~~ — habilitado a pedido del Líder (Sesión 36, rama `feature/notificaciones-facturas`).
 - [ ] Decidir si `OrderWorkflowService` debe impedir cancelar una orden con factura vigente (hoy solo lo evita la pantalla).
 - [x] ~~Descargar la factura en PDF~~ — hecho (15/11/2026, `InvoicePdfService`).
 - [x] ~~Datos del taller en el encabezado del PDF y en `{taller}` de los correos~~ — factura, reporte y plantillas (Sesión 30).
@@ -1231,7 +1258,7 @@ Verificación: `develop` → `mvn clean test` **108 pruebas, 0 fallos**
 - [x] Plantillas, aviso «vehículo listo», recordatorios de mantenimiento, tarjeta del Inicio y campana (Sesión 23).
 - [x] ~~Subir la rama y abrir el PR hacia `develop`~~ — PR #19 fusionado (`eb15f59`, 17/11/2026).
 - [x] ~~Editar las plantillas desde Configuración de Notificaciones~~ — las nueve, con vista previa e interruptores de los avisos (Sesión 30).
-- [ ] Comentarios para Dev 1 sobre su pantalla de Notificaciones: etiquetas de filtros cortadas, consultas en el hilo de la interfaz y anchos mínimos de columnas (ver Sesión 23). Con el correo real esto pesa más: «Nueva notificación», «Enviar ahora» y «Reintentar» esperan la respuesta de Gmail (1 a 3 s) con la ventana congelada.
+- [x] ~~Comentarios para Dev 1 sobre su pantalla de Notificaciones: etiquetas de filtros cortadas, consultas en el hilo de la interfaz y anchos mínimos de columnas (ver Sesión 23). Con el correo real esto pesa más: «Nueva notificación», «Enviar ahora» y «Reintentar» esperan la respuesta de Gmail (1 a 3 s) con la ventana congelada.~~ — corregido por el Líder a pedido suyo (Sesión 36, rama `feature/notificaciones-facturas`).
 
 **Correo real (rama `feature/correo-smtp`):**
 - [x] Envío por SMTP de Gmail, opcional, con pruebas contra GreenMail (16/11/2026).
@@ -1288,10 +1315,10 @@ Verificación: `develop` → `mvn clean test` **108 pruebas, 0 fallos**
 - [x] ~~Subir la rama y abrir el PR hacia `develop`~~ — PR #35 fusionado (`ea39e71`, 23/11/2026).
 
 **Arreglos pendientes (para después de la entrega; pedido del Líder, 22/11/2026):**
-- [ ] Notificaciones (Dev 1): «Nueva notificación», «Enviar ahora» y «Reintentar» congelan la ventana de 1 a 3 s mientras responde Gmail; etiquetas de filtros cortadas.
-- [ ] «Ver facturas» en el detalle del cliente (`CustomerDetailController`, Dev 1) sigue desactivado.
+- [x] ~~Notificaciones (Dev 1): «Nueva notificación», «Enviar ahora» y «Reintentar» congelan la ventana de 1 a 3 s mientras responde Gmail; etiquetas de filtros cortadas.~~ — en segundo plano y con anchos mínimos (Sesión 36).
+- [x] ~~«Ver facturas» en el detalle del cliente (`CustomerDetailController`, Dev 1) sigue desactivado.~~ — abre Facturación con las facturas del cliente (Sesión 36).
 - [ ] Preferencias marcadas «Próximamente»: idioma y formatos regionales, barra lateral compacta, orden predeterminado y las demás.
-- [ ] Etiquetar `v1.0` en `main` (no se hizo al entregar).
+- [x] ~~Etiquetar `v1.0` en `main` (no se hizo al entregar).~~ — etiqueta `v1.0` sobre `cc3deae` (PR #32), subida el 23/11/2026.
 
 **Pendientes nuevos (14/10/2026):**
 - [x] ~~Confirmar el estado del PR del backend de Clientes~~ — resuelto: PR **#5** (backend) y **#8** (interfaz completa) fusionados en `develop`; siguen pendientes de revisión de Sebastián los PRs del Líder.
