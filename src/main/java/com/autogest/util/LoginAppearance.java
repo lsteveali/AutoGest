@@ -31,20 +31,46 @@ public record LoginAppearance(Vehicle vehicle, String color) {
     public enum Vehicle {
         /** Camioneta todoterreno de dos puertas (la original). */
         TRUCK("Camioneta"),
-        /** Sedán de cuatro puertas. */
-        SEDAN("Sedán"),
-        /** Deportivo de dos puertas con alerón. */
-        SPORTS("Deportivo");
+        /**
+         * Clásico descapotable importado (modelo «Roadster»), en lugar del
+         * sedán que se hacía por código. Lo guardado como {@code SEDAN} en un
+         * equipo se lee como este vehículo.
+         */
+        CLASSIC("Clásico", "/models/clasico.agm"),
+        /**
+         * Deportivo importado: modelo «PG2.79». Convertido con
+         * {@code tools/ModelConverter.java} (reglas en {@code tools/models/deportivo.rules}).
+         */
+        SPORTS("Deportivo", "/models/deportivo.agm"),
+        /**
+         * Mustang importado: modelo de danielmillsy22 (free3d.com), licencia de
+         * uso comercial (comprado). Convertido con {@code tools/ModelConverter.java}.
+         */
+        MUSTANG("Mustang", "/models/mustang.agm");
 
         private final String label;
+        private final String model;
 
         Vehicle(String label) {
+            this(label, null);
+        }
+
+        Vehicle(String label, String model) {
             this.label = label;
+            this.model = model;
         }
 
         /** Nombre para mostrar en pantalla. */
         public String label() {
             return label;
+        }
+
+        /**
+         * Recurso del modelo importado ({@code .agm}), o {@code null} si el
+         * vehículo se arma por código.
+         */
+        public String model() {
+            return model;
         }
     }
 

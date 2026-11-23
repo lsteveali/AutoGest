@@ -74,6 +74,10 @@ public final class LoginAppearanceStore {
         if (text == null) {
             return Vehicle.TRUCK;
         }
+        if (text.equals("SEDAN")) {
+            // El sedán hecho por código se reemplazó por el clásico importado.
+            return Vehicle.CLASSIC;
+        }
         try {
             return Vehicle.valueOf(text);
         } catch (IllegalArgumentException unknown) {

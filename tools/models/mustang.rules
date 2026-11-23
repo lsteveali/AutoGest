@@ -1,0 +1,62 @@
+# Mustang — modelo de danielmillsy22 (free3d.com), comprado con licencia de uso comercial.
+# Archivo original: «Mustang 13.04.2021 Compressed.obj» (exportado de Blender 2.92).
+#
+# Formato:  length <metros>  ·  front <+x|-x|+z|-z>  ·  part <objeto> <material> <papel>
+#           mirror <objeto>  (refleja al otro costado una pieza que solo viene de un lado)
+# Papeles: paint (se recolorea), glass, chrome, rim, rimDark, disc, trim, rubber,
+# well, grille, lens, tail, plate, o drop para descartar. Gana la primera regla que
+# coincide; * vale por cualquier texto. Lo que no coincide con ninguna se descarta.
+
+length 4.79
+front -z
+
+# Escena y piezas demasiado pesadas: pernos de las ruedas (1,3 millones de
+# triángulos), telón de fondo y luces de estudio. Los «Arches» solo vienen del
+# lado derecho y sobresalen 34 cm de la carrocería, así que también se quitan.
+part Bolt* * drop
+part Background* * drop
+part Light* * drop
+part alights* * drop
+part Arches* * drop
+
+# Los cubos de las ruedas solo vienen del lado derecho: se reflejan al izquierdo.
+mirror Hub*
+
+# Carrocería: la pintura es Gloss_Red.
+part Body* Gloss_Red paint
+part Bonnet_gaps* Gloss_Red paint
+part Body* Gloss_Black trim
+part Body* Matte_Black trim
+part Body* Mirror chrome
+part Body* Windows* glass
+
+# Ruedas: caucho (banda y costado), calipers rojos y rines. Los rayos y cubos
+# vienen en negro brillante; se dejan plateados para que no se pierdan sobre el
+# caucho. «Wheels» es el forro interior de los pasos de rueda.
+part Rubber/Brakes* Matte_Black rubber
+part Rubber/Brakes* Material rubber
+part Rubber/Brakes* Gloss_Red tail
+part Spokes* * rim
+part Hub* * rim
+part Wheels* * well
+
+# Frente: parrillas, faros y luces bajas.
+part Grill* * grille
+part Left_and_Right_Grill* * grille
+# El vidrio de los faros va como cromo: como vidrio de ventana se veía oscuro
+# y además bajaba la altura con la que se calcula el reflejo de las ventanas.
+part Front_Head_Lights* Glass* chrome
+part Front_Head_Lights* Material.006 chrome
+part Front_Head_Lights* * lens
+part Front_Head_Light_* * chrome
+part Front_Low_light* Glass* chrome
+part Front_Low_light* Mirror chrome
+part Front_Low_light* * lens
+part Front_Black_Bits* * trim
+
+# Atrás y abajo.
+part Rear_Number_Plate_Cube* * plate
+part Rear_Splitters* * trim
+part Exhaust_Cylinder* * chrome
+part Plane* Matte_Black trim
+part * None well

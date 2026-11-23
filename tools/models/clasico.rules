@@ -1,0 +1,50 @@
+# Clásico — roadster descapotable «Roadster» de benzin (free3d.com, licencia Royalty Free), exportado de Blender 2.79.
+# Archivo original: «Roadster.obj» + «Roadster.mtl».
+#
+# El modelo viene girado en diagonal: el frente se calculó con los centros de
+# los ejes (cauchos Torus.005/.007 atrás y Torus.006/.008 adelante, donde están
+# los faros); la rueda de repuesto y los stops quedan atrás.
+
+length 5.3
+front -6.8475 11.8425
+
+# Los cuatro cauchos que tocan el piso (la rueda de repuesto no cuenta para la sombra).
+tires Torus.005 Torus.006 Torus.007 Torus.008
+
+# Muchas caras de la carrocería (el capó, la tapa del baúl) vienen con la normal
+# hacia adentro y JavaFX no las dibujaba: la pintura se dibuja por las dos caras.
+twosided paint
+
+# Escena: piso de acero y planos de luz.
+part Plane.001 * drop
+part Plane.003 * drop
+part Plane.004* * drop
+
+# Pintura y vidrios.
+part * BMD_CarPaint_0020 paint
+part Plane glass glass
+part * glass lens
+part * Glass glass
+part * BMD_AbstractGlass lens
+part * light_lamp lens
+
+# Luces de atrás.
+part * stop_light tail
+part * back_light tail
+part * turn_light tail
+
+# Caucho («gumm»): cauchos, rueda de repuesto, topes y volante. El tambor de
+# una de las ruedas viene sin material.
+part Cylinder.015_Cylinder.018 None rubber
+part * gumm rubber
+
+# Cromos, acero de los rines y cuero de los asientos.
+part * BMD_Chrome_0019 chrome
+part * chrome chrome
+part * chromeLOgo chrome
+part * chrome_logo chrome
+part * BMD_PBRMetallic chrome
+part * steel rim
+part * None rim
+part * BMD_Leather_0007 trim
+part * Untitled trim

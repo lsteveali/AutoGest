@@ -47,15 +47,16 @@ class LoginAppearanceStoreTest {
 
         assertEquals(new LoginAppearance(Vehicle.TRUCK, "#1F4E8C"), store.load());
 
+        // Lo guardado como «SEDAN» (el sedán hecho por código) abre el clásico.
         node.put(LoginAppearanceStore.VEHICLE_KEY, "SEDAN");
         node.put(LoginAppearanceStore.COLOR_KEY, "azulito");
 
-        assertEquals(new LoginAppearance(Vehicle.SEDAN, LoginAppearance.DEFAULT_COLOR), store.load());
+        assertEquals(new LoginAppearance(Vehicle.CLASSIC, LoginAppearance.DEFAULT_COLOR), store.load());
     }
 
     @Test
     void savingNullRestoresTheFactoryLook() {
-        store.save(new LoginAppearance(Vehicle.SEDAN, "#2F6B3A"));
+        store.save(new LoginAppearance(Vehicle.CLASSIC, "#2F6B3A"));
         store.save(null);
 
         assertEquals(LoginAppearance.DEFAULT, store.load());

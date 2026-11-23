@@ -34,7 +34,7 @@ import javafx.util.Duration;
 
 /**
  * Vitrina 3D de la pantalla de inicio de sesión: un vehículo del catálogo
- * (camioneta, sedán o deportivo, del color elegido) sobre una plataforma
+ * (la camioneta hecha por código o un modelo importado, del color elegido) sobre una plataforma
  * giratoria, ambos girando juntos de izquierda a derecha. Todo se construye
  * con figuras de JavaFX 3D, así que no depende de imágenes ni de modelos
  * externos.
@@ -54,8 +54,8 @@ public final class CarTurntable extends StackPane {
     private static final double SECONDS_PER_TURN = 16;
     /** Escala de metros a unidades de escena para la camioneta. */
     private static final double TRUCK_SCALE = 1.04;
-    /** Escala de los automóviles, más largos que la camioneta. */
-    private static final double CAR_SCALE = 1.10;
+    /** Escala de los modelos importados (su largo se fija al convertirlos). */
+    private static final double IMPORTED_SCALE = 0.95;
     /** Altura de la cara superior de la plataforma, donde se apoyan las ruedas. */
     private static final double GROUND = 0.034;
     /** Radio del disco central con la sombra de contacto. */
@@ -129,7 +129,7 @@ public final class CarTurntable extends StackPane {
             current.paint().setMaterial(VehiclePaint.material(color));
         } else {
             current = build(next.vehicle(), color);
-            double scale = next.vehicle() == Vehicle.TRUCK ? TRUCK_SCALE : CAR_SCALE;
+            double scale = next.vehicle().model() != null ? IMPORTED_SCALE : TRUCK_SCALE;
             Group model = current.group();
             model.getTransforms().addAll(new Translate(0, -GROUND, 0), new Scale(scale, scale, scale));
             vehicleSlot.getChildren().setAll(shadowDisc(current.footprint(), scale), model);
@@ -139,11 +139,10 @@ public final class CarTurntable extends StackPane {
 
     /** Arma el vehículo del catálogo con su pintura. */
     static VehicleBuild build(Vehicle vehicle, Color color) {
-        return switch (vehicle) {
-            case TRUCK -> TruckModel.build(color);
-            case SEDAN -> CarModel.build(CarModel.SEDAN, color);
-            case SPORTS -> CarModel.build(CarModel.SPORTS, color);
-        };
+        if (vehicle.model() != null) {
+            return ImportedModel.build(vehicle.model(), color);
+        }
+        return TruckModel.build(color);
     }
 
     private SubScene buildScene(double width, double height) {

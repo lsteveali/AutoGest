@@ -1030,6 +1030,49 @@ Rama `feature/personalizacion-login` desde `origin/develop` (`87999a1`).
 
 **Archivos de Dev 1 tocados:** ninguno. Del Líder: `CarTurntable`, `TruckModel`, `LoginController`, `View`, `SettingsController` y `autogest.css`.
 
+### 22/11/2026 — Sesión 35 (Líder): modelos 3D importados, primero el Mustang
+
+**Contexto.** El Líder quiere muchos carros bonitos sin modelarlos por código uno por uno. Trajo un Mustang de free3d.com (autor **danielmillsy22**, comprado con licencia de **uso comercial**), exportado de Blender a OBJ: 106 MB y 1,47 millones de triángulos, sin archivo de materiales.
+
+Rama `feature/modelos-importados` desde `origin/develop` (`781c6b9`, con el PR #34 ya fusionado).
+
+**Hecho:**
+1. **Convertidor del equipo** (`tools/ModelConverter.java`, no forma parte de la app): lee el OBJ, aplica las reglas de `tools/models/mustang.rules`, orienta el carro (frente a +X, piso en y = 0), lo escala a su largo real (4,79 m) y lo guarda en `src/main/resources/models/mustang.agm`. Las posiciones van en 16 bits y las normales en 8 bits, comprimidas con GZIP. Las reglas:
+   - Descartan los pernos de las ruedas (1,32 millones de triángulos), el telón de fondo y las luces de la escena.
+   - Asignan un papel a cada pieza (pintura, vidrio, cromo, caucho, calipers, parrilla…). La pintura es el material `Gloss_Red`.
+
+   Resultado: **149 mil triángulos y 1,7 MB**.
+2. **Lector** (`ImportedModel`): lee el `.agm` una vez y lo guarda en memoria. Valida el formato y los índices, y da a cada pieza los materiales de la vitrina. La pintura usa el color elegido, igual que en los vehículos hechos por código.
+3. **Materiales comunes** (`VehicleMaterials`), compartidos por `CarModel` y los importados.
+4. **Catálogo:** `LoginAppearance.Vehicle.MUSTANG` apunta a su archivo. Agregar otro carro importado es convertirlo y sumar una constante. La vitrina lo muestra a escala 0,95.
+5. **README:** cómo importar modelos y el crédito del Mustang, con su licencia y la nota de marca de Ford.
+6. **Pruebas nuevas:** `ImportedModelTest` (4: el Mustang tiene pintura, vidrio y caucho, menos de 200 mil triángulos y medidas razonables; la caché; y que se rechazan los archivos dañados).
+
+   `mvn clean test` → **634 pruebas, 0 fallos** (630 + 4).
+7. **El deportivo pasa a ser importado:** a pedido del Líder, el deportivo hecho por código se cambió por el modelo «PG2.79» de **syn3d** (free3d.com), comprado con **licencia de uso comercial**. Pesa 11 546 triángulos y 0,11 MB.
+   - Sus materiales no tenían nombre, así que el papel de cada uno se dedujo por su forma y su posición (reglas en `tools/models/deportivo.rules`).
+   - Se convirtió con 4,95 m de largo para que llene la plataforma.
+   - Lo guardado como «Deportivo» en un equipo abre el modelo nuevo.
+   - `CarModel` queda solo con el sedán.
+
+   `mvn clean test` → **635 pruebas, 0 fallos**.
+8. **Ajustes tras la prueba manual del Líder:**
+   - Al Mustang le sobresalían las llantas de un costado: los «Arches» del modelo solo venían del lado derecho y salían 34 cm de la carrocería, así que se descartan.
+   - Los cubos de las ruedas también venían de un solo lado. El convertidor ganó la regla `mirror`, que refleja una pieza al otro costado.
+   - Los rines del Mustang se dejan plateados para que no se pierdan sobre el caucho.
+   - Los vidrios de los modelos importados se veían claros: el vidrio de los faros pasa a cromo, el reflejo de las ventanas se centra en la altura de los vidrios y la normal pesa menos.
+   - El deportivo se convierte con 5,4 m de largo para que llene la plataforma.
+9. **El sedán pasa a ser el «Clásico» importado:** a pedido del Líder, el sedán hecho por código se cambió por el roadster «Roadster» de **benzin** (free3d.com, licencia **Royalty Free**). Pesa 278 mil triángulos y 2,2 MB.
+   - El modelo venía girado en diagonal. El convertidor ahora acepta el frente como dirección (`front dx dz`), calculada con los centros de los ejes, y la regla `tires` para indicar las cuatro llantas que tocan el piso (la de repuesto, los topes y el volante también son caucho).
+   - La constante pasa de `SEDAN` a `CLASSIC` («Clásico»). Lo guardado como `SEDAN` en un equipo abre el clásico.
+   - Se borra `CarModel`, que ya no se usaba: la camioneta es el único vehículo hecho por código.
+   - El Mustang y el deportivo salen idénticos con el convertidor nuevo.
+   - En la prueba manual el Clásico se veía sin capó: muchas caras de su carrocería (capó y tapa del baúl) traen la normal hacia adentro, y JavaFX no dibuja la cara de atrás. Con la nueva regla `twosided paint`, la pintura se dibuja por las dos caras. Quedó en 323 mil triángulos y 2,5 MB.
+
+   `mvn clean test` → **636 pruebas, 0 fallos**.
+
+**Archivos de Dev 1 tocados:** ninguno.
+
 ---
 
 ## 4. Decisiones y acuerdos
@@ -1092,6 +1135,7 @@ Rama `feature/personalizacion-login` desde `origin/develop` (`87999a1`).
 | 22/11/2026 | **Se quitan los 20 `package-info.java`** (capas base y todos los controladores, incluidos los 5 de Dev 1: `customer`, `inventory`, `notification`, `order` y `settings`). | Pedido del Líder antes de la primera entrega en `main`: solo tenían la descripción del paquete, sin anotaciones. Menos archivos y nada cambia al compilar; `mvn clean test` sigue en 617 pruebas sin fallos. |
 | 22/11/2026 | **La personalización del login se guarda en cada computador con `java.util.prefs.Preferences`, no en Supabase.** | El login la necesita antes de iniciar sesión, y cada equipo puede verse distinto. Es la misma pieza que serviría para un modo oscuro. |
 | 22/11/2026 | **Los vehículos nuevos se modelan en 3D por código (`CarModel`), sin archivos de modelos externos.** | Igual que la camioneta: no depende de licencias de modelos ni de un lector de formatos 3D, y el color se cambia sobre la malla de la pintura. |
+| 22/11/2026 | **Los carros descargados se convierten una vez a `.agm` (`tools/ModelConverter.java`) en vez de leer el OBJ en la app.** | El OBJ del Mustang pesaba 106 MB; convertido y sin los pernos queda en 1,7 MB y carga rápido. |
 | 19/11/2026 | **El formulario «Nueva notificación» propone un mensaje según el tipo** (plantillas del Líder) sin pisar lo que el usuario escribió. | Pedido del Líder. Se autorizó tocar `NotificationNewController` y `NotificationService` de Dev 1; se registra en la sección «Para Dev 1» del PR. |
 
 ---
@@ -1235,6 +1279,10 @@ Verificación: `develop` → `mvn clean test` **108 pruebas, 0 fallos**
 
 **Login personalizable (Líder, rama `feature/personalizacion-login`):**
 - [x] Vehículo (camioneta, sedán, deportivo), color y pantalla Personalización (Sesión 34).
+- [x] ~~Subir la rama y abrir el PR hacia `develop`~~ — PR #34 fusionado (`781c6b9`, 22/11/2026).
+
+**Modelos importados (Líder, rama `feature/modelos-importados`):**
+- [x] Convertidor, lector y Mustang en el catálogo (Sesión 35).
 - [ ] Subir la rama y abrir el PR hacia `develop` cuando el Líder termine su prueba manual.
 
 **Pendientes nuevos (14/10/2026):**
