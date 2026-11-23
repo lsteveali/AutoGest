@@ -44,7 +44,7 @@ public record LoginAppearance(Vehicle vehicle, String color) {
         SPORTS("Deportivo", "/models/deportivo.agm"),
         /**
          * Mustang importado: modelo de danielmillsy22 (free3d.com), licencia de
-         * uso personal. Convertido con {@code tools/ModelConverter.java}.
+         * uso comercial (comprado). Convertido con {@code tools/ModelConverter.java}.
          */
         MUSTANG("Mustang", "/models/mustang.agm");
 
