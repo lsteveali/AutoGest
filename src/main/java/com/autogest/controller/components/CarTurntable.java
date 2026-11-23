@@ -1,5 +1,7 @@
 package com.autogest.controller.components;
 
+import com.autogest.util.LoginAppearance;
+import com.autogest.util.LoginAppearance.Vehicle;
 import javafx.animation.Animation;
 import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
@@ -31,13 +33,14 @@ import javafx.scene.transform.Translate;
 import javafx.util.Duration;
 
 /**
- * Vitrina 3D de la pantalla de inicio de sesión: una camioneta todoterreno
- * ({@link TruckModel}) sobre una plataforma giratoria, ambas girando juntas de
- * izquierda a derecha. Todo se construye con figuras de JavaFX 3D, así que no
- * depende de imágenes ni de modelos externos.
+ * Vitrina 3D de la pantalla de inicio de sesión: un vehículo del catálogo
+ * (camioneta, sedán o deportivo, del color elegido) sobre una plataforma
+ * giratoria, ambos girando juntos de izquierda a derecha. Todo se construye
+ * con figuras de JavaFX 3D, así que no depende de imágenes ni de modelos
+ * externos.
  *
  * <p>Las medidas están en unidades de escena con el eje Y hacia abajo, como en
- * JavaFX; la camioneta se modela en metros y se escala para llenar la
+ * JavaFX; los vehículos se modelan en metros y se escalan para llenar la
  * plataforma. Si el equipo no soporta 3D se muestra la ilustración fija del
  * carro. La animación se detiene cuando el componente sale de la escena.</p>
  *
@@ -51,6 +54,8 @@ public final class CarTurntable extends StackPane {
     private static final double SECONDS_PER_TURN = 16;
     /** Escala de metros a unidades de escena para la camioneta. */
     private static final double TRUCK_SCALE = 1.04;
+    /** Escala de los automóviles, más largos que la camioneta. */
+    private static final double CAR_SCALE = 1.10;
     /** Altura de la cara superior de la plataforma, donde se apoyan las ruedas. */
     private static final double GROUND = 0.034;
     /** Radio del disco central con la sombra de contacto. */
@@ -63,14 +68,29 @@ public final class CarTurntable extends StackPane {
     private static final Color HALO = Color.web("#EFE8DA");
 
     private Timeline timeline;
+    /** Lo que gira sobre la plataforma: el vehículo y su sombra de contacto. */
+    private final Group vehicleSlot = new Group();
+    private VehicleBuild current;
+    private LoginAppearance shown;
 
     /**
-     * Crea la vitrina con el tamaño indicado.
+     * Crea la vitrina con la camioneta plateada de fábrica.
      *
      * @param width  ancho en px
      * @param height alto en px
      */
     public CarTurntable(double width, double height) {
+        this(width, height, LoginAppearance.DEFAULT);
+    }
+
+    /**
+     * Crea la vitrina con el vehículo y el color indicados.
+     *
+     * @param width      ancho en px
+     * @param height     alto en px
+     * @param appearance vehículo y color de la pintura
+     */
+    public CarTurntable(double width, double height, LoginAppearance appearance) {
         setPrefSize(width, height);
         setMaxSize(width, height);
         setMouseTransparent(true);
@@ -89,15 +109,45 @@ public final class CarTurntable extends StackPane {
         Circle halo = new Circle(Math.min(width, height) * 0.36, HALO);
         halo.setTranslateY(-height * 0.06);
         getChildren().addAll(halo, buildScene(width, height));
+        show(appearance);
+    }
+
+    /**
+     * Cambia el vehículo o el color. Si solo cambia el color, se repinta la
+     * carrocería sin rearmar el modelo, así la vista previa responde al
+     * instante mientras se elige el color.
+     *
+     * @param appearance vehículo y color de la pintura
+     */
+    public void show(LoginAppearance appearance) {
+        LoginAppearance next = appearance == null ? LoginAppearance.DEFAULT : appearance;
+        if (timeline == null || next.equals(shown)) {
+            return;
+        }
+        Color color = Color.web(next.color());
+        if (current != null && shown.vehicle() == next.vehicle()) {
+            current.paint().setMaterial(VehiclePaint.material(color));
+        } else {
+            current = build(next.vehicle(), color);
+            double scale = next.vehicle() == Vehicle.TRUCK ? TRUCK_SCALE : CAR_SCALE;
+            Group model = current.group();
+            model.getTransforms().addAll(new Translate(0, -GROUND, 0), new Scale(scale, scale, scale));
+            vehicleSlot.getChildren().setAll(shadowDisc(current.footprint(), scale), model);
+        }
+        shown = next;
+    }
+
+    /** Arma el vehículo del catálogo con su pintura. */
+    static VehicleBuild build(Vehicle vehicle, Color color) {
+        return switch (vehicle) {
+            case TRUCK -> TruckModel.build(color);
+            case SEDAN -> CarModel.build(CarModel.SEDAN, color);
+            case SPORTS -> CarModel.build(CarModel.SPORTS, color);
+        };
     }
 
     private SubScene buildScene(double width, double height) {
-        Group truck = TruckModel.build();
-        truck.getTransforms().addAll(
-                new Translate(0, -GROUND, 0),
-                new Scale(TRUCK_SCALE, TRUCK_SCALE, TRUCK_SCALE));
-
-        Group turntable = new Group(buildPlatform(), truck);
+        Group turntable = new Group(buildPlatform(), vehicleSlot);
         Rotate spin = new Rotate(0, Rotate.Y_AXIS);
         turntable.getTransforms().add(spin);
 
@@ -155,7 +205,6 @@ public final class CarTurntable extends StackPane {
         // Aro interior tenue y cuatro marcas discretas que delatan el giro.
         platform.getChildren().add(cylinder(2.62, 0.075, PLATFORM_EDGE, -0.025));
         platform.getChildren().add(cylinder(DISC_RADIUS, 0.08, PLATFORM_TOP, -0.03));
-        platform.getChildren().add(shadowDisc());
         for (int i = 0; i < 4; i++) {
             Box mark = box(0.10, 0.03, 0.30, ACCENT);
             mark.getTransforms().addAll(
@@ -170,12 +219,11 @@ public final class CarTurntable extends StackPane {
     /**
      * Disco central de la plataforma con la sombra de contacto ya pintada: un
      * halo suave bajo la carrocería y manchas más oscuras donde apoyan los
-     * cauchos. Gira con la camioneta, así que siempre queda debajo de ella.
+     * cauchos. Gira con el vehículo, así que siempre queda debajo de él.
      */
-    private static MeshView shadowDisc() {
+    private static MeshView shadowDisc(VehicleBuild.Footprint fp, double scale) {
         int size = 512;
-        double scale = TRUCK_SCALE;
-        double[] axles = {1.18 * scale, -1.13 * scale};
+        double[] axles = {fp.frontAxle() * scale, fp.rearAxle() * scale};
         WritableImage texture = new WritableImage(size, size);
         PixelWriter writer = texture.getPixelWriter();
         Color shade = Color.web("#7A7262");
@@ -185,16 +233,16 @@ public final class CarTurntable extends StackPane {
                 double z = (j / (size - 1.0) * 2 - 1) * DISC_RADIUS;
                 // Distancia a un rectángulo redondeado con la huella de la carrocería.
                 double corner = 0.5;
-                double qx = Math.abs(x - 0.03 * scale) - 2.13 * scale + corner;
-                double qz = Math.abs(z) - 0.97 * scale + corner;
+                double qx = Math.abs(x - fp.centerX() * scale) - fp.halfLength() * scale + corner;
+                double qz = Math.abs(z) - fp.halfWidth() * scale + corner;
                 double outside = Math.hypot(Math.max(qx, 0), Math.max(qz, 0));
                 double distance = outside + Math.min(Math.max(qx, qz), 0) - corner;
                 double body = 0.30 * (distance < 0 ? 1 : Math.exp(-Math.pow(distance / 0.35, 2)));
                 double tires = 0;
                 for (double axle : axles) {
                     for (double side : new double[]{-1, 1}) {
-                        double dx = (x - axle) / 0.30;
-                        double dz = (z - side * 0.80 * scale) / 0.20;
+                        double dx = (x - axle) / (fp.tireLength() * scale);
+                        double dz = (z - side * fp.track() * scale) / (fp.tireWidth() * scale);
                         tires = Math.max(tires, 0.42 * Math.exp(-(dx * dx + dz * dz)));
                     }
                 }

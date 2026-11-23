@@ -1251,6 +1251,72 @@
     -fx-padding: 10 12;
 }
 
+/* Configuración → Personalización (vitrina del inicio de sesión) */
+.appearance-vehicle {
+    -fx-background-color: -ag-card;
+    -fx-background-radius: 10;
+    -fx-border-color: -ag-border;
+    -fx-border-radius: 10;
+    -fx-padding: 12 14;
+    -fx-font-size: 14px;
+    -fx-text-fill: -ag-text;
+    -fx-cursor: hand;
+}
+
+.appearance-vehicle:hover {
+    -fx-background-color: -ag-hover;
+    -fx-border-color: -ag-border-strong;
+}
+
+.appearance-vehicle:selected {
+    -fx-background-color: -ag-selected;
+    -fx-border-color: -ag-accent;
+    -fx-border-width: 2;
+    -fx-padding: 11 13;
+    -fx-font-weight: bold;
+}
+
+.appearance-swatch {
+    -fx-background-color: transparent;
+    -fx-background-radius: 20;
+    -fx-border-color: transparent;
+    -fx-border-width: 2;
+    -fx-border-radius: 20;
+    -fx-padding: 3;
+    -fx-cursor: hand;
+}
+
+.appearance-swatch:hover {
+    -fx-border-color: -ag-border-strong;
+}
+
+.appearance-swatch-selected,
+.appearance-swatch-selected:hover {
+    -fx-border-color: -ag-accent;
+}
+
+.appearance-swatch-dot {
+    -fx-stroke: -ag-border-strong;
+    -fx-stroke-width: 1;
+}
+
+.appearance-picker {
+    -fx-background-color: -ag-card;
+    -fx-background-radius: 8;
+    -fx-border-color: -ag-border;
+    -fx-border-radius: 8;
+}
+
+.appearance-color-name {
+    -fx-font-size: 13px;
+    -fx-text-fill: -ag-text-muted;
+}
+
+.appearance-preview {
+    -fx-background-color: -ag-bg;
+    -fx-background-radius: 10;
+}
+
 /* --------------------------------------------------------------------------
    Asistente AutoGest (Sprint 9): panel de conversación junto al contenido
    -------------------------------------------------------------------------- */

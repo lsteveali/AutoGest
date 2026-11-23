@@ -82,7 +82,10 @@ public class SettingsController implements Initializable, NavigatorAware {
                     IconSet.SHIELD, "SETTINGS_SECURITY"),
             new Section("Copias de seguridad",
                     "Crea y consulta las copias de seguridad de la información de AutoGest.",
-                    IconSet.CLOUD_DOWNLOAD, "SETTINGS_BACKUP"));
+                    IconSet.CLOUD_DOWNLOAD, "SETTINGS_BACKUP"),
+            new Section("Personalización",
+                    "Elige el vehículo y el color que giran en la pantalla de inicio de sesión de este equipo.",
+                    IconSet.CAR, "SETTINGS_APPEARANCE"));
 
     private static final int COLUMNS = 2;
 

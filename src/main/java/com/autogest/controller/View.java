@@ -17,6 +17,7 @@ public enum View {
     SETTINGS_BACKUP("/fxml/settings/backup.fxml", "Copias de seguridad", "SETTINGS"),
     SETTINGS_BILLING("/fxml/settings/billing-settings.fxml", "Configuración de facturación", "SETTINGS"),
     SETTINGS_NOTIFICATIONS("/fxml/settings/notification-settings.fxml", "Configuración de notificaciones", "SETTINGS"),
+    SETTINGS_APPEARANCE("/fxml/settings/appearance.fxml", "Personalización", "SETTINGS"),
     // Facturación del Líder (Sprint 5), también junto a HOME por los View.diff de Dev 1.
     INVOICE_NEW("/fxml/billing/invoice-new.fxml", "Nueva factura", "BILLING"),
     INVOICE_DETAIL("/fxml/billing/invoice-detail.fxml", "Detalle de la factura", "BILLING"),
