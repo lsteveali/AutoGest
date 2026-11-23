@@ -252,15 +252,21 @@ public class NotificationNewController implements Initializable, NavigatorAware,
             ErrorDialog.show("Revisa la notificación", e.getMessage());
             return;
         }
-        try {
-            NotificationService service = AppContext.getInstance().getNotificationService();
-            Notification saved = sendNow ? service.createAndSend(notification) : service.createNotification(notification);
-            if (navigator != null) {
-                navigator.navigateWithParameter(View.NOTIFICATION_DETAIL, saved.getId());
-            }
-        } catch (AutoGestException e) {
-            ErrorDialog.show("No se pudo guardar la notificación", e.getMessage());
-        }
+        // Guardar y enviar corre en segundo plano: Gmail tarda unos segundos en
+        // responder y la ventana no debe quedarse congelada mientras tanto.
+        root.setDisable(true);
+        NotificationService service = AppContext.getInstance().getNotificationService();
+        Background.run(() -> sendNow ? service.createAndSend(notification) : service.createNotification(notification),
+                saved -> {
+                    root.setDisable(false);
+                    if (navigator != null) {
+                        navigator.navigateWithParameter(View.NOTIFICATION_DETAIL, saved.getId());
+                    }
+                },
+                error -> {
+                    root.setDisable(false);
+                    ErrorDialog.show("No se pudo guardar la notificación", NotificationsController.errorText(error));
+                });
     }
 
     private Notification readForm() {
