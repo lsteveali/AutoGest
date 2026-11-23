@@ -67,6 +67,26 @@
     -fx-padding: 0 0 18 8;
 }
 
+/* Barra lateral compacta (Preferencias del sistema): solo íconos. */
+.sidebar-compact {
+    -fx-min-width: 72;
+    -fx-pref-width: 72;
+    -fx-padding: 22 12 16 12;
+}
+
+.sidebar-compact .sidebar-brand {
+    -fx-padding: 0 0 18 0;
+    -fx-alignment: center;
+}
+
+.sidebar-compact .sidebar-item {
+    -fx-alignment: center;
+}
+
+.sidebar-compact .sidebar-section {
+    -fx-padding: 10 0 0 0;
+}
+
 /* Título de grupo («Taller», «Gestión»): más aire arriba que abajo, para que
    se lea como inicio del grupo y no como cierre del anterior. */
 .sidebar-section {

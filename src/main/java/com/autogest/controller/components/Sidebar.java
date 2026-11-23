@@ -5,6 +5,7 @@ import com.autogest.controller.View;
 import com.autogest.model.Catalogs.Role;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
@@ -70,12 +71,20 @@ public class Sidebar extends VBox {
     private static final String LOGO = "/images/logo-full-dark.png";
     /** Ancho del logotipo en la barra (la imagen tiene el doble, para pantallas nítidas). */
     private static final double LOGO_WIDTH = 180;
+    /** En la barra compacta solo cabe el escudo. */
+    private static final String SHIELD = "/images/logo-shield-64.png";
+    private static final double COMPACT_LOGO_WIDTH = 36;
 
     private final Map<View, HBox> itemsByView = new LinkedHashMap<>();
     /** Título de cada sección con sus ítems, para ocultarlo si el rol no ve ninguno. */
     private final Map<Label, List<View>> sectionTitles = new LinkedHashMap<>();
     private Consumer<View> onNavigate;
     private View activeView;
+    /** Nombres de los ítems, que se ocultan en la barra compacta. */
+    private final List<Label> itemLabels = new ArrayList<>();
+    private ImageView logoView;
+    private Image fullLogo;
+    private Image shield;
 
     /** Crea la barra lateral con el orden oficial de ítems. */
     public Sidebar() {
@@ -86,7 +95,8 @@ public class Sidebar extends VBox {
         brand.getStyleClass().add("sidebar-brand");
         URL logo = Sidebar.class.getResource(LOGO);
         if (logo != null) {
-            ImageView logoView = new ImageView(new Image(logo.toExternalForm()));
+            fullLogo = new Image(logo.toExternalForm());
+            logoView = new ImageView(fullLogo);
             logoView.setFitWidth(LOGO_WIDTH);
             logoView.setPreserveRatio(true);
             logoView.setSmooth(true);
@@ -180,6 +190,49 @@ public class Sidebar extends VBox {
         }
     }
 
+    /**
+     * Cambia entre la barra expandida y la compacta (solo íconos, con el nombre
+     * al pasar el mouse), según «Mostrar barra lateral» de las Preferencias.
+     *
+     * @param compact {@code true} para mostrar solo los íconos
+     */
+    public void setCompact(boolean compact) {
+        if (compact == getStyleClass().contains("sidebar-compact")) {
+            return;
+        }
+        if (compact) {
+            getStyleClass().add("sidebar-compact");
+        } else {
+            getStyleClass().remove("sidebar-compact");
+        }
+        for (Label label : itemLabels) {
+            label.setVisible(!compact);
+            label.setManaged(!compact);
+        }
+        for (Label title : sectionTitles.keySet()) {
+            // En compacto los títulos de grupo no caben: queda solo su espacio, que
+            // separa los grupos, sin tocar los permisos que los muestran u ocultan.
+            if (compact) {
+                title.setUserData(title.getText());
+                title.setText("");
+            } else if (title.getUserData() instanceof String text) {
+                title.setText(text);
+            }
+        }
+        if (logoView != null) {
+            logoView.setImage(compact ? shieldImage() : fullLogo);
+            logoView.setFitWidth(compact ? COMPACT_LOGO_WIDTH : LOGO_WIDTH);
+        }
+    }
+
+    private Image shieldImage() {
+        if (shield == null) {
+            URL url = Sidebar.class.getResource(SHIELD);
+            shield = url == null ? fullLogo : new Image(url.toExternalForm());
+        }
+        return shield;
+    }
+
     private HBox createItem(NavItem item) {
         Path icon = IconSet.icon(item.iconData());
         StackPane iconSlot = new StackPane(icon);
@@ -187,10 +240,13 @@ public class Sidebar extends VBox {
         iconSlot.setPrefSize(ICON_SLOT, ICON_SLOT);
         iconSlot.setMaxSize(ICON_SLOT, ICON_SLOT);
         Label label = new Label(item.label());
+        itemLabels.add(label);
 
         HBox box = new HBox(12, iconSlot, label);
         box.setAlignment(Pos.CENTER_LEFT);
         box.getStyleClass().add("sidebar-item");
+        // En la barra compacta el nombre aparece al pasar el mouse.
+        Tooltip.install(box, new Tooltip(item.label()));
         box.setOnMouseClicked(event -> {
             if (onNavigate != null) {
                 onNavigate.accept(item.view());
