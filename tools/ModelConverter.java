@@ -27,7 +27,10 @@ import java.util.zip.GZIPOutputStream;
  * papel cumple cada pieza según su objeto y su material del OBJ: la pintura
  * (la que se recolorea), vidrio, cromo, caucho, etc. La primera regla que
  * coincide gana; {@code *} vale por cualquier texto. Con {@code mirror} se
- * reflejan al otro costado las piezas que el modelo solo trae de un lado.</p>
+ * reflejan al otro costado las piezas que el modelo solo trae de un lado, y
+ * con {@code tires} se dicen cuáles objetos son los cuatro cauchos (para la
+ * sombra), si hay más caucho en el carro. El frente puede ser un eje o una
+ * dirección {@code dx dz} para modelos girados.</p>
  *
  * <p>El resultado queda en metros, con el frente hacia +X, Y hacia arriba,
  * el piso en y = 0 y el carro centrado. Las posiciones se guardan como
@@ -58,9 +61,10 @@ public final class ModelConverter {
         Path out = Path.of(args[2]);
 
         double length = 0;
-        String front = "+x";
+        double[] front = {1, 0};
         List<Rule> rules = new ArrayList<>();
         List<Pattern> mirrors = new ArrayList<>();
+        List<Pattern> tires = new ArrayList<>();
         for (String raw : Files.readAllLines(rulesFile, StandardCharsets.UTF_8)) {
             String line = raw.strip();
             if (line.isEmpty() || line.startsWith("#")) {
@@ -69,9 +73,14 @@ public final class ModelConverter {
             String[] t = line.split("\\s+");
             switch (t[0]) {
                 case "length" -> length = Double.parseDouble(t[1]);
-                case "front" -> front = t[1];
+                case "front" -> front = direction(t);
                 case "part" -> rules.add(new Rule(glob(t[1]), glob(t[2]), t[3]));
                 case "mirror" -> mirrors.add(glob(t[1]));
+                case "tires" -> {
+                    for (int i = 1; i < t.length; i++) {
+                        tires.add(glob(t[i]));
+                    }
+                }
                 default -> throw new IllegalArgumentException("Regla desconocida: " + line);
             }
         }
@@ -84,11 +93,16 @@ public final class ModelConverter {
         Map<String, Part> parts = new LinkedHashMap<>();
         Map<String, Integer> dropped = new LinkedHashMap<>();
         // Eje del ancho en las coordenadas del OBJ: el que no es el del frente ni Y.
-        int widthAxis = front.endsWith("z") ? 0 : 2;
+        int widthAxis = Math.abs(front[1]) > 0.999 ? 0 : 2;
+        if (!mirrors.isEmpty() && Math.abs(front[0]) < 0.999 && Math.abs(front[1]) < 0.999) {
+            throw new IllegalArgumentException("«mirror» solo funciona con un frente alineado a X o a Z.");
+        }
+        List<float[]> tirePoints = new ArrayList<>();
         String object = "";
         String material = "";
         String role = "drop";
         boolean mirrored = false;
+        boolean tire = false;
         try (BufferedReader reader = Files.newBufferedReader(obj, StandardCharsets.UTF_8)) {
             String line;
             while ((line = reader.readLine()) != null) {
@@ -101,6 +115,7 @@ public final class ModelConverter {
                     role = roleFor(rules, object, material);
                     String current = object;
                     mirrored = mirrors.stream().anyMatch(p -> p.matcher(current).matches());
+                    tire = tires.stream().anyMatch(p -> p.matcher(current).matches());
                 } else if (line.startsWith("usemtl ")) {
                     material = line.substring(7).strip();
                     role = roleFor(rules, object, material);
@@ -115,16 +130,25 @@ public final class ModelConverter {
                     if (mirrored) {
                         addFace(part, corners, positions, normals, widthAxis);
                     }
+                    if (tire) {
+                        for (String corner : corners) {
+                            float[] p = positions.get(resolve(corner.split("/")[0], positions.size()));
+                            tirePoints.add(new float[]{p[0], p[1], p[2]});
+                        }
+                    }
                 }
             }
         }
 
-        // Orientación: el frente pasa a +X y se conserva la mano derecha.
+        // Orientación: el frente pasa a +X con un giro alrededor de Y (se conserva la mano derecha).
         for (Part part : parts.values()) {
             for (float[] v : part.vertices) {
                 orient(v, 0, front);
                 orient(v, 3, front);
             }
+        }
+        for (float[] p : tirePoints) {
+            orient(p, 0, front);
         }
         float[] min = {Float.MAX_VALUE, Float.MAX_VALUE, Float.MAX_VALUE};
         float[] max = {-Float.MAX_VALUE, -Float.MAX_VALUE, -Float.MAX_VALUE};
@@ -146,8 +170,13 @@ public final class ModelConverter {
                 v[2] = (float) ((v[2] - cz) * scale);
             }
         }
+        for (float[] p : tirePoints) {
+            p[0] = (float) ((p[0] - cx) * scale);
+            p[1] = (float) ((p[1] - min[1]) * scale);
+            p[2] = (float) ((p[2] - cz) * scale);
+        }
 
-        float[] footprint = footprint(parts);
+        float[] footprint = footprint(parts, tirePoints);
         int triangles = 0;
         Files.createDirectories(out.toAbsolutePath().getParent());
         try (OutputStream file = Files.newOutputStream(out);
@@ -230,13 +259,18 @@ public final class ModelConverter {
     /**
      * Huella para la sombra: carrocería (pintura) y cauchos. Devuelve centro X,
      * medio largo, medio ancho, trocha, eje delantero, eje trasero y medio
-     * largo y medio ancho de la mancha de cada caucho.
+     * largo y medio ancho de la mancha de cada caucho. Los cauchos son las
+     * piezas de la regla {@code tires} o, si no hay, todo lo marcado «rubber».
      */
-    private static float[] footprint(Map<String, Part> parts) {
+    private static float[] footprint(Map<String, Part> parts, List<float[]> tirePoints) {
         float[] body = bounds(parts.get("paint"));
-        Part rubber = parts.get("rubber");
-        if (rubber == null) {
-            throw new IllegalArgumentException("Las reglas deben marcar los cauchos como «rubber».");
+        List<float[]> points = tirePoints;
+        if (points.isEmpty()) {
+            Part rubber = parts.get("rubber");
+            if (rubber == null) {
+                throw new IllegalArgumentException("Las reglas deben marcar los cauchos como «rubber» o con «tires».");
+            }
+            points = rubber.vertices;
         }
         double frontSum = 0;
         double rearSum = 0;
@@ -244,7 +278,7 @@ public final class ModelConverter {
         double top = 0;
         int frontCount = 0;
         int rearCount = 0;
-        for (float[] v : rubber.vertices) {
+        for (float[] v : points) {
             if (v[0] > 0) {
                 frontSum += v[0];
                 frontCount++;
@@ -257,7 +291,7 @@ public final class ModelConverter {
         }
         float radius = (float) (top / 2);
         return new float[]{(body[0] + body[1]) / 2, (body[1] - body[0]) / 2, (body[5] - body[4]) / 2,
-                (float) (zSum / rubber.vertices.size()), (float) (frontSum / frontCount),
+                (float) (zSum / points.size()), (float) (frontSum / frontCount),
                 (float) (rearSum / rearCount), radius * 0.65f, radius * 0.45f};
     }
 
@@ -273,17 +307,36 @@ public final class ModelConverter {
         return b;
     }
 
-    /** Gira un punto o una normal para que el frente indicado quede en +X. */
-    private static void orient(float[] v, int at, String front) {
-        float x = v[at];
-        float z = v[at + 2];
-        switch (front) {
-            case "+x" -> { }
-            case "-x" -> { v[at] = -x; v[at + 2] = -z; }
-            case "-z" -> { v[at] = -z; v[at + 2] = x; }
-            case "+z" -> { v[at] = z; v[at + 2] = -x; }
-            default -> throw new IllegalArgumentException("«front» debe ser +x, -x, +z o -z.");
-        }
+    /**
+     * Gira un punto o una normal alrededor de Y para que la dirección del
+     * frente {@code (dx, dz)} quede en +X.
+     */
+    private static void orient(float[] v, int at, double[] front) {
+        double x = v[at];
+        double z = v[at + 2];
+        v[at] = (float) (x * front[0] + z * front[1]);
+        v[at + 2] = (float) (-x * front[1] + z * front[0]);
+    }
+
+    /**
+     * Dirección del frente en el plano X-Z: {@code +x}, {@code -x}, {@code +z},
+     * {@code -z} o dos números (para modelos girados en diagonal).
+     */
+    private static double[] direction(String[] t) {
+        double[] d = switch (t[1]) {
+            case "+x" -> new double[]{1, 0};
+            case "-x" -> new double[]{-1, 0};
+            case "+z" -> new double[]{0, 1};
+            case "-z" -> new double[]{0, -1};
+            default -> {
+                if (t.length < 3) {
+                    throw new IllegalArgumentException("«front» debe ser +x, -x, +z, -z o dos números dx dz.");
+                }
+                yield new double[]{Double.parseDouble(t[1]), Double.parseDouble(t[2])};
+            }
+        };
+        double length = Math.hypot(d[0], d[1]);
+        return new double[]{d[0] / length, d[1] / length};
     }
 
     private static String roleFor(List<Rule> rules, String object, String material) {
