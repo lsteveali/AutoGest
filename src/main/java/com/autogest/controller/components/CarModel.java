@@ -408,37 +408,24 @@ final class CarModel {
     // ------------------------------------------------------------- materiales
 
     private VehicleBuild group(Color color) {
-        PhongMaterial glassMaterial = MeshKit.material(MeshKit.gradient(
-                0.0, Color.web("#8C99A6"), 0.35, Color.web("#3A4552"), 0.5, Color.web("#1A2029"),
-                1.0, Color.web("#0B0E12")), 0.9, 90);
-        PhongMaterial chromeMaterial = MeshKit.material(MeshKit.gradient(
-                0.0, Color.WHITE, 0.30, Color.web("#E9EDF1"), 0.46, Color.web("#A9B0B8"),
-                0.50, Color.web("#2F353C"), 0.58, Color.web("#5F666E"), 0.80, Color.web("#D3D8DD"),
-                1.0, Color.web("#F2F4F6")), 1.0, 80);
-        PhongMaterial rimMaterial = spec.darkRims()
-                ? MeshKit.material(MeshKit.gradient(0.0, Color.web("#7A828C"), 0.45, Color.web("#4A5058"),
-                0.5, Color.web("#2B2F35"), 1.0, Color.web("#555B63")), 0.7, 40)
-                : MeshKit.material(MeshKit.gradient(0.0, Color.web("#EEF1F4"), 0.45, Color.web("#C2C8CF"),
-                0.5, Color.web("#7E858D"), 1.0, Color.web("#C9CED4")), 0.8, 50);
-
         Group car = new Group();
         MeshView paintView = add(car, paint, VehiclePaint.material(color));
-        add(car, glass, glassMaterial);
-        add(car, chrome, chromeMaterial);
-        add(car, rim, rimMaterial);
-        add(car, rimDark, MeshKit.material(Color.web("#2C3036"), 0.3, 16));
-        add(car, disc, MeshKit.material(Color.web("#8A9099"), 0.5, 30));
-        add(car, trim, MeshKit.material(Color.web("#202327"), 0.2, 12));
-        add(car, rubber, MeshKit.material(Color.web("#1B1D20"), 0.12, 6));
-        add(car, well, MeshKit.material(Color.web("#0D0F11"), 0.0, 1));
-        add(car, grille, MeshKit.material(Color.web("#121417"), 0.3, 20));
-        add(car, lens, MeshKit.material(Color.web("#E6ECF1"), 1.0, 96));
-        add(car, tail, MeshKit.material(Color.web("#B42F2F"), 0.7, 60));
-        add(car, plate, MeshKit.material(Color.web("#F1F3F5"), 0.3, 16));
+        add(car, glass, VehicleMaterials.glass());
+        add(car, chrome, VehicleMaterials.chrome());
+        add(car, rim, spec.darkRims() ? VehicleMaterials.darkRim() : VehicleMaterials.rim());
+        add(car, rimDark, VehicleMaterials.rimBack());
+        add(car, disc, VehicleMaterials.disc());
+        add(car, trim, VehicleMaterials.trim());
+        add(car, rubber, VehicleMaterials.rubber());
+        add(car, well, VehicleMaterials.well());
+        add(car, grille, VehicleMaterials.grille());
+        add(car, lens, VehicleMaterials.lens());
+        add(car, tail, VehicleMaterials.tail());
+        add(car, plate, VehicleMaterials.plate());
         return new VehicleBuild(car, paintView, footprint(spec));
     }
 
-    private static MeshView add(Group group, Builder builder, PhongMaterial material) {
+    static MeshView add(Group group, Builder builder, PhongMaterial material) {
         if (builder.isEmpty()) {
             return null;
         }
@@ -448,7 +435,7 @@ final class CarModel {
     }
 
     /** Reflejo del cromo, el mismo de la camioneta. */
-    private static final class TruckLikeShading {
+    static final class TruckLikeShading {
         static final Shading CHROME = (x, y, z, nx, ny, nz) -> 0.5 - 0.4 * ny + 0.18 * Math.sin(y * 17);
 
         private TruckLikeShading() {
