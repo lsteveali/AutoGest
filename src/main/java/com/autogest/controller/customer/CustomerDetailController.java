@@ -3,6 +3,7 @@ package com.autogest.controller.customer;
 import com.autogest.config.AppContext;
 import com.autogest.controller.NavigatorAware;
 import com.autogest.controller.ParameterizedController;
+import com.autogest.controller.Permissions;
 import com.autogest.controller.View;
 import com.autogest.controller.ViewNavigator;
 import com.autogest.controller.components.ConfirmDialog;
@@ -17,6 +18,7 @@ import com.autogest.exception.NotFoundException;
 import com.autogest.model.Customer;
 import com.autogest.model.Vehicle;
 import com.autogest.service.CustomerService;
+import com.autogest.util.Session;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
@@ -155,8 +157,12 @@ public class CustomerDetailController implements NavigatorAware, ParameterizedCo
         editItem.setOnAction(event -> editCustomer(customer));
         MenuItem createVehicle = new MenuItem("Crear vehículo");
         createVehicle.setOnAction(event -> newVehicle(customer));
+        // Abre Facturación con las facturas de este cliente (pedido del Líder); solo
+        // si el rol puede entrar a Facturación.
         MenuItem invoices = new MenuItem("Ver facturas");
-        invoices.setDisable(true);
+        invoices.setDisable(Session.getCurrentUser() == null
+                || !Permissions.canAccess(Session.getCurrentUser().getRole(), View.BILLING));
+        invoices.setOnAction(event -> navigator.navigateWithParameter(View.BILLING, customer.getId()));
         MenuItem deactivate = new MenuItem("Desactivar cliente");
         deactivate.setDisable(!customer.isActive());
         deactivate.setOnAction(event -> deactivate(customer));
