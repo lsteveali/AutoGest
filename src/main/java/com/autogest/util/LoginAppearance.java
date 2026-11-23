@@ -34,17 +34,36 @@ public record LoginAppearance(Vehicle vehicle, String color) {
         /** Sedán de cuatro puertas. */
         SEDAN("Sedán"),
         /** Deportivo de dos puertas con alerón. */
-        SPORTS("Deportivo");
+        SPORTS("Deportivo"),
+        /**
+         * Mustang importado: modelo de danielmillsy22 (free3d.com), licencia de
+         * uso personal. Convertido con {@code tools/ModelConverter.java}.
+         */
+        MUSTANG("Mustang", "/models/mustang.agm");
 
         private final String label;
+        private final String model;
 
         Vehicle(String label) {
+            this(label, null);
+        }
+
+        Vehicle(String label, String model) {
             this.label = label;
+            this.model = model;
         }
 
         /** Nombre para mostrar en pantalla. */
         public String label() {
             return label;
+        }
+
+        /**
+         * Recurso del modelo importado ({@code .agm}), o {@code null} si el
+         * vehículo se arma por código.
+         */
+        public String model() {
+            return model;
         }
     }
 
