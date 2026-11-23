@@ -35,6 +35,16 @@ class ImportedModelTest {
     }
 
     @Test
+    void sportsCarIsImportedWithPaintAndTires() {
+        ImportedModel.Data data = ImportedModel.read(Vehicle.SPORTS.model());
+
+        Set<String> roles = data.parts().stream().map(ImportedModel.Part::role).collect(Collectors.toSet());
+        assertTrue(roles.containsAll(Set.of("paint", "glass", "rubber", "rim")), roles.toString());
+        assertTrue(data.footprint().frontAxle() > 0 && data.footprint().rearAxle() < 0);
+        assertTrue(data.paintHeight() < 1.5, "Un deportivo es bajo: " + data.paintHeight());
+    }
+
+    @Test
     void modelIsReadOnceAndKeptInMemory() {
         assertSame(ImportedModel.read(Vehicle.MUSTANG.model()), ImportedModel.read(Vehicle.MUSTANG.model()));
     }
@@ -44,6 +54,7 @@ class ImportedModelTest {
         assertEquals(null, Vehicle.TRUCK.model());
         assertEquals(null, Vehicle.SEDAN.model());
         assertTrue(Vehicle.MUSTANG.model().endsWith(".agm"));
+        assertTrue(Vehicle.SPORTS.model().endsWith(".agm"));
     }
 
     @Test

@@ -33,8 +33,11 @@ public record LoginAppearance(Vehicle vehicle, String color) {
         TRUCK("Camioneta"),
         /** Sedán de cuatro puertas. */
         SEDAN("Sedán"),
-        /** Deportivo de dos puertas con alerón. */
-        SPORTS("Deportivo"),
+        /**
+         * Deportivo importado: modelo «PG2.79». Convertido con
+         * {@code tools/ModelConverter.java} (reglas en {@code tools/models/deportivo.rules}).
+         */
+        SPORTS("Deportivo", "/models/deportivo.agm"),
         /**
          * Mustang importado: modelo de danielmillsy22 (free3d.com), licencia de
          * uso personal. Convertido con {@code tools/ModelConverter.java}.

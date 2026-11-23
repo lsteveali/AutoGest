@@ -145,11 +145,7 @@ public final class CarTurntable extends StackPane {
         if (vehicle.model() != null) {
             return ImportedModel.build(vehicle.model(), color);
         }
-        return switch (vehicle) {
-            case SEDAN -> CarModel.build(CarModel.SEDAN, color);
-            case SPORTS -> CarModel.build(CarModel.SPORTS, color);
-            default -> TruckModel.build(color);
-        };
+        return vehicle == Vehicle.SEDAN ? CarModel.build(CarModel.SEDAN, color) : TruckModel.build(color);
     }
 
     private SubScene buildScene(double width, double height) {

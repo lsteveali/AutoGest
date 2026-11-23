@@ -9,9 +9,10 @@ import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.MeshView;
 
 /**
- * Modelos 3D de automóviles para la vitrina del login: un sedán de cuatro
- * puertas y un deportivo de dos puertas con alerón. Los dos salen de la misma
- * receta ({@link Spec}): una carrocería baja de aristas redondeadas que baja
+ * Modelos 3D de automóviles hechos por código para la vitrina del login (hoy,
+ * el sedán de cuatro puertas). Salen de una receta ({@link Spec}) que también
+ * admite dos puertas, alerón, tomas laterales y frenos rojos (el primer
+ * deportivo se hizo así; hoy es un modelo importado): una carrocería baja de aristas redondeadas que baja
  * hacia el frente, una cabina cuyo parabrisas y vidrio trasero se inclinan con
  * una deformación, pasos de rueda oscuros y rines de rayos.
  *
@@ -64,13 +65,6 @@ final class CarModel {
             1.05, -1.35, 1.42, 0.55, 0.42, 0.14,
             5, false, true, false);
 
-    /** Deportivo bajo de dos puertas, con alerón. */
-    static final Spec SPORTS = new Spec(1.40, -1.30, 0.33, 0.13, 0.84,
-            2.25, -2.20, 0.20, 0.80, 0.95,
-            0.40, 0.06,
-            0.78, -1.20, 1.22, 0.70, 0.62, 0.18,
-            10, true, false, true);
-
     private final Spec spec;
     private final Warp body;
     private final Warp cabin;
@@ -104,7 +98,7 @@ final class CarModel {
     /**
      * Arma el automóvil con el piso en y = 0 y el frente hacia +X.
      *
-     * @param spec  proporciones ({@link #SEDAN} o {@link #SPORTS})
+     * @param spec  proporciones, por ejemplo {@link #SEDAN}
      * @param color color de la pintura
      * @return el automóvil, su malla de pintura y su huella
      */
