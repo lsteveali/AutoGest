@@ -154,6 +154,18 @@ public final class InvoiceLabels {
         return order == null || order.getNumber() == null ? "-" : "#" + order.getNumber();
     }
 
+    /**
+     * Indica si la factura es de ese cliente (el dueño del vehículo de su orden).
+     *
+     * @param invoice    factura
+     * @param customerId id del cliente
+     * @return {@code true} si el cliente coincide
+     */
+    static boolean belongsTo(Invoice invoice, int customerId) {
+        Customer owner = owner(invoice.getOrder());
+        return owner != null && owner.getId() == customerId;
+    }
+
     private static Customer owner(ServiceOrder order) {
         return order == null || order.getVehicle() == null ? null : order.getVehicle().getOwner();
     }

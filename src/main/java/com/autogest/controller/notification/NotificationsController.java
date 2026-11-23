@@ -19,6 +19,7 @@ import com.autogest.model.Notification;
 import com.autogest.model.Catalogs.NotificationStatus;
 import com.autogest.model.Catalogs.NotificationType;
 import com.autogest.service.NotificationService;
+import com.autogest.util.Background;
 import com.autogest.util.Formatter;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -129,12 +130,13 @@ public class NotificationsController implements Initializable, NavigatorAware {
         pagedTable.addColumn("Notificación", NotificationsController::title);
         pagedTable.addColumn("Cliente", n -> n.getCustomer() == null || n.getCustomer().getFirstName() == null
                 ? "-" : n.getCustomer().getFullName());
-        pagedTable.addColumn("Tipo", n -> NotificationLabels.typeText(n.getType()));
-        pagedTable.addColumn("Canal", n -> NotificationLabels.channelText(n.getChannel()));
-        pagedTable.addColumn("Fecha", n -> Formatter.timestamp(n.getScheduledDate()));
+        // Anchos mínimos para que tipo, fecha y estado no se corten (revisión de la Sesión 23).
+        pagedTable.addColumn("Tipo", n -> NotificationLabels.typeText(n.getType()), 150);
+        pagedTable.addColumn("Canal", n -> NotificationLabels.channelText(n.getChannel()), 90);
+        pagedTable.addColumn("Fecha", n -> Formatter.timestamp(n.getScheduledDate()), 140);
         pagedTable.addColumn("Estado", n -> StatusBadge.of(NotificationLabels.statusText(n.getStatus()),
-                NotificationLabels.statusType(n.getStatus())));
-        pagedTable.addColumn("Acciones", this::actionsCell);
+                NotificationLabels.statusType(n.getStatus())), 110);
+        pagedTable.addColumn("Acciones", this::actionsCell, 90);
         pagedTable.setOnSelect(n -> openDetail(n.getId()));
         return pagedTable;
     }
@@ -162,50 +164,101 @@ public class NotificationsController implements Initializable, NavigatorAware {
     }
 
     private void sendDue() {
-        run(() -> {
-            int sent = service().sendDueScheduled();
-            Alert info = new Alert(Alert.AlertType.INFORMATION);
-            info.setTitle("Notificaciones programadas");
-            info.setHeaderText(null);
-            info.setContentText(sent == 0 ? "No hay notificaciones programadas para enviar todavía."
-                    : "Se procesaron " + sent + " notificaciones programadas.");
-            info.showAndWait();
-        });
+        busy(true);
+        Background.run(() -> service().sendDueScheduled(),
+                sent -> {
+                    busy(false);
+                    Alert info = new Alert(Alert.AlertType.INFORMATION);
+                    info.setTitle("Notificaciones programadas");
+                    info.setHeaderText(null);
+                    info.setContentText(sent == 0 ? "No hay notificaciones programadas para enviar todavía."
+                            : "Se procesaron " + sent + " notificaciones programadas.");
+                    info.showAndWait();
+                    reload();
+                },
+                error -> {
+                    busy(false);
+                    ErrorDialog.show("No se pudo completar la acción", errorText(error));
+                    reload();
+                });
     }
 
-    /** Ejecuta una acción del Service, recarga la pantalla y muestra el error si ocurre. */
+    /**
+     * Ejecuta una acción del Service en segundo plano (enviar, reintentar y
+     * eliminar esperan la respuesta de Gmail o de la base), recarga la pantalla
+     * y muestra el error si ocurre. Mientras tanto la ventana sigue respondiendo.
+     */
     private void run(Runnable action) {
-        try {
-            action.run();
-        } catch (AutoGestException e) {
-            ErrorDialog.show("No se pudo completar la acción", e.getMessage());
-        }
-        reload();
+        busy(true);
+        Background.run(() -> {
+                    action.run();
+                    return Boolean.TRUE;
+                },
+                done -> {
+                    busy(false);
+                    reload();
+                },
+                error -> {
+                    busy(false);
+                    ErrorDialog.show("No se pudo completar la acción", errorText(error));
+                    reload();
+                });
+    }
+
+    /** Lo que muestra la pantalla, leído de una vez fuera del hilo de la interfaz. */
+    private record Snapshot(List<Notification> rows, int sent, int pending, int scheduled, int failed,
+                            List<Notification> recent) {
     }
 
     private void reload() {
-        NotificationService notifications = service();
-        try {
-            table.setData(notifications.searchNotifications(searchText, typeFilter, channelFilter, statusFilter));
-            sentCard.setValue(String.valueOf(notifications.countByStatus(NotificationStatus.SENT)));
-            pendingCard.setValue(String.valueOf(notifications.countByStatus(NotificationStatus.PENDING)));
-            scheduledCard.setValue(String.valueOf(notifications.countByStatus(NotificationStatus.SCHEDULED)));
-            failedCard.setValue(String.valueOf(notifications.countByStatus(NotificationStatus.FAILED)));
-            recentList.getChildren().clear();
-            for (Notification n : notifications.findRecent(RECENT)) {
-                Label line = new Label(Formatter.timestamp(n.getScheduledDate()) + "  —  " + title(n) + " · "
-                        + (n.getCustomer() == null ? "" : n.getCustomer().getFullName())
-                        + " (" + NotificationLabels.statusText(n.getStatus()) + ")");
-                line.setWrapText(true);
-                recentList.getChildren().add(line);
-            }
-            if (recentList.getChildren().isEmpty()) {
-                recentList.getChildren().add(new Label("Aún no hay notificaciones."));
-            }
-        } catch (AutoGestException e) {
-            table.setData(List.of());
-            ErrorDialog.show("No se pudieron cargar las notificaciones", e.getMessage());
+        String text = searchText;
+        NotificationType type = typeFilter;
+        Channel channel = channelFilter;
+        NotificationStatus status = statusFilter;
+        Background.run(() -> {
+                    NotificationService notifications = service();
+                    return new Snapshot(notifications.searchNotifications(text, type, channel, status),
+                            notifications.countByStatus(NotificationStatus.SENT),
+                            notifications.countByStatus(NotificationStatus.PENDING),
+                            notifications.countByStatus(NotificationStatus.SCHEDULED),
+                            notifications.countByStatus(NotificationStatus.FAILED),
+                            notifications.findRecent(RECENT));
+                },
+                this::show,
+                error -> {
+                    table.setData(List.of());
+                    ErrorDialog.show("No se pudieron cargar las notificaciones", errorText(error));
+                });
+    }
+
+    private void show(Snapshot data) {
+        table.setData(data.rows());
+        sentCard.setValue(String.valueOf(data.sent()));
+        pendingCard.setValue(String.valueOf(data.pending()));
+        scheduledCard.setValue(String.valueOf(data.scheduled()));
+        failedCard.setValue(String.valueOf(data.failed()));
+        recentList.getChildren().clear();
+        for (Notification n : data.recent()) {
+            Label line = new Label(Formatter.timestamp(n.getScheduledDate()) + "  —  " + title(n) + " · "
+                    + (n.getCustomer() == null ? "" : n.getCustomer().getFullName())
+                    + " (" + NotificationLabels.statusText(n.getStatus()) + ")");
+            line.setWrapText(true);
+            recentList.getChildren().add(line);
         }
+        if (recentList.getChildren().isEmpty()) {
+            recentList.getChildren().add(new Label("Aún no hay notificaciones."));
+        }
+    }
+
+    /** Desactiva la pantalla mientras se envía, para no repetir la acción. */
+    private void busy(boolean value) {
+        root.setDisable(value);
+    }
+
+    /** Texto del error para el usuario. */
+    static String errorText(RuntimeException error) {
+        return error instanceof AutoGestException && error.getMessage() != null
+                ? error.getMessage() : "Revisa la conexión e inténtalo de nuevo.";
     }
 
     /** Asunto o, si no tiene, el tipo de la notificación. */

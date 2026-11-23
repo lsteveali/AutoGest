@@ -9,11 +9,11 @@ import com.autogest.controller.components.ErrorDialog;
 import com.autogest.controller.components.FormLayout;
 import com.autogest.controller.components.PageHeader;
 import com.autogest.controller.components.StatusBadge;
-import com.autogest.exception.AutoGestException;
 import com.autogest.model.Customer;
 import com.autogest.model.Notification;
 import com.autogest.model.Catalogs.NotificationStatus;
 import com.autogest.service.NotificationService;
+import com.autogest.util.Background;
 import com.autogest.util.Formatter;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -57,14 +57,14 @@ public class NotificationDetailController implements Initializable, Parameterize
         refresh();
     }
 
+    /** Lee la notificación en segundo plano y la muestra. */
     private void refresh() {
-        Notification notification;
-        try {
-            notification = service().getDetail(notificationId);
-        } catch (AutoGestException e) {
-            ErrorDialog.show("No se pudo cargar la notificación", e.getMessage());
-            return;
-        }
+        Background.run(() -> service().getDetail(notificationId), this::show,
+                error -> ErrorDialog.show("No se pudo cargar la notificación",
+                        NotificationsController.errorText(error)));
+    }
+
+    private void show(Notification notification) {
         PageHeader header = new PageHeader(NotificationsController.title(notification),
                 NotificationLabels.typeText(notification.getType()));
         header.setBreadcrumbs(List.of("Inicio", "Notificaciones", "Detalle"));
@@ -112,21 +112,40 @@ public class NotificationDetailController implements Initializable, Parameterize
         if (!ConfirmDialog.confirmDelete("Eliminar notificación", "¿Deseas eliminar esta notificación?")) {
             return;
         }
-        try {
-            service().deleteNotification(notificationId);
-            goBack();
-        } catch (AutoGestException e) {
-            ErrorDialog.show("No se pudo eliminar la notificación", e.getMessage());
-        }
+        root.setDisable(true);
+        Background.run(() -> {
+                    service().deleteNotification(notificationId);
+                    return Boolean.TRUE;
+                },
+                done -> {
+                    root.setDisable(false);
+                    goBack();
+                },
+                error -> {
+                    root.setDisable(false);
+                    ErrorDialog.show("No se pudo eliminar la notificación", NotificationsController.errorText(error));
+                });
     }
 
+    /**
+     * Envía o reintenta en segundo plano: el correo puede tardar unos segundos
+     * en responder y la ventana no debe quedarse congelada mientras tanto.
+     */
     private void run(Runnable action) {
-        try {
-            action.run();
-        } catch (AutoGestException e) {
-            ErrorDialog.show("No se pudo completar la acción", e.getMessage());
-        }
-        refresh();
+        root.setDisable(true);
+        Background.run(() -> {
+                    action.run();
+                    return Boolean.TRUE;
+                },
+                done -> {
+                    root.setDisable(false);
+                    refresh();
+                },
+                error -> {
+                    root.setDisable(false);
+                    ErrorDialog.show("No se pudo completar la acción", NotificationsController.errorText(error));
+                    refresh();
+                });
     }
 
     private void goBack() {

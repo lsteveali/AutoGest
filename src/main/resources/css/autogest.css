@@ -1869,6 +1869,19 @@
     -fx-padding: 0;
 }
 
+/* Aviso de «Ver facturas» de un cliente, sobre la tabla de Facturación. */
+.billing-customer-bar {
+    -fx-background-color: -ag-selected;
+    -fx-background-radius: 10;
+    -fx-padding: 8 12;
+}
+
+.billing-customer-filter {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -ag-text;
+}
+
 /* Resumen de facturación: tres recuadros con el valor en grande. */
 .billing-tile {
     -fx-background-color: -ag-bg;

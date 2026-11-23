@@ -1,6 +1,8 @@
 package com.autogest.controller.billing;
 
+import com.autogest.config.AppContext;
 import com.autogest.controller.NavigatorAware;
+import com.autogest.controller.ParameterizedController;
 import com.autogest.controller.View;
 import com.autogest.controller.ViewNavigator;
 import com.autogest.controller.components.ErrorDialog;
@@ -22,6 +24,7 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
@@ -46,7 +49,7 @@ import java.util.ResourceBundle;
  *
  * <p>Principles: GRASP Controller, SRP, DIP.</p>
  */
-public class BillingController implements Initializable, NavigatorAware {
+public class BillingController implements Initializable, NavigatorAware, ParameterizedController {
 
     private static final int PAGE_SIZE = 10;
 
@@ -67,6 +70,10 @@ public class BillingController implements Initializable, NavigatorAware {
     private InvoiceStatus statusFilter;
     private String periodFilter;
     private String methodFilter;
+    /** Cliente cuyas facturas se muestran («Ver facturas» del detalle del cliente); {@code null} = todos. */
+    private Integer customerFilter;
+    private final Label customerLabel = new Label();
+    private HBox customerBar;
     private int reloadRequest;
 
     @Override
@@ -80,7 +87,7 @@ public class BillingController implements Initializable, NavigatorAware {
             }
         });
         table = buildTable();
-        VBox list = BillingUi.card("Facturas", IconSet.FILE_TEXT, null, buildFilters(), table);
+        VBox list = BillingUi.card("Facturas", IconSet.FILE_TEXT, null, buildFilters(), buildCustomerBar(), table);
         root.getChildren().addAll(header, buildKpis(), list, buildSummary());
         Platform.runLater(this::reload);
     }
@@ -88,6 +95,45 @@ public class BillingController implements Initializable, NavigatorAware {
     @Override
     public void setNavigator(ViewNavigator navigator) {
         this.navigator = navigator;
+    }
+
+    /**
+     * Muestra solo las facturas de un cliente (llega desde «Ver facturas» en el
+     * detalle del cliente). Los indicadores y el resumen siguen siendo del taller.
+     *
+     * @param customerId id del cliente
+     */
+    @Override
+    public void receiveParameter(int customerId) {
+        customerFilter = customerId;
+        customerLabel.setText("Facturas del cliente seleccionado");
+        customerBar.setVisible(true);
+        customerBar.setManaged(true);
+        Background.run(() -> AppContext.getInstance().getCustomerService().getDetail(customerId),
+                customer -> customerLabel.setText("Facturas de " + customer.getFullName()),
+                error -> { });
+        reload();
+    }
+
+    /** Aviso del filtro por cliente con el botón para volver a ver todas las facturas. */
+    private HBox buildCustomerBar() {
+        customerLabel.getStyleClass().add("billing-customer-filter");
+        Button all = new Button("Ver todas");
+        all.getStyleClass().add("btn-secondary");
+        all.setOnAction(event -> {
+            customerFilter = null;
+            customerBar.setVisible(false);
+            customerBar.setManaged(false);
+            reload();
+        });
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        customerBar = new HBox(12, IconSet.icon(IconSet.USER), customerLabel, spacer, all);
+        customerBar.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+        customerBar.getStyleClass().add("billing-customer-bar");
+        customerBar.setVisible(false);
+        customerBar.setManaged(false);
+        return customerBar;
     }
 
     // ---------- armado ----------
@@ -230,10 +276,15 @@ public class BillingController implements Initializable, NavigatorAware {
         InvoiceStatus status = statusFilter;
         LocalDate from = InvoiceLabels.periodStart(periodFilter, LocalDate.now());
         String method = methodFilter;
+        Integer customer = customerFilter;
         Background.run(() -> {
             InvoiceService service = BillingUi.service();
             service.refreshOverdue();
-            return new ScreenData(service.searchInvoices(text, status, from, method), service.getSummary());
+            List<Invoice> invoices = service.searchInvoices(text, status, from, method);
+            if (customer != null) {
+                invoices = invoices.stream().filter(invoice -> InvoiceLabels.belongsTo(invoice, customer)).toList();
+            }
+            return new ScreenData(invoices, service.getSummary());
         }, data -> {
             if (request == reloadRequest) {
                 show(data.invoices(), data.summary());
