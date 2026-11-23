@@ -105,7 +105,7 @@ public final class OrderLabels {
     /** «Toyota Corolla · ABC-123 · 2022 · 48.230 km» para el desplegable de vehículos. */
     public static String vehicleOption(Vehicle vehicle) {
         return vehicle.getMake() + " " + vehicle.getModel() + " · " + vehicle.getLicensePlate()
-                + " · " + vehicle.getYear() + " · " + String.format(java.util.Locale.US, "%,d", vehicle.getMileage()).replace(',', '.')
+                + " · " + vehicle.getYear() + " · " + com.autogest.util.Formatter.integer(vehicle.getMileage())
                 + " km";
     }
 }

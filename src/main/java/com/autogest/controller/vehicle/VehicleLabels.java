@@ -8,12 +8,9 @@ import com.autogest.model.Catalogs.VehicleStatus;
 import com.autogest.model.Catalogs.VehicleType;
 import com.autogest.util.Formatter;
 
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * Traduce los valores del dominio de vehículos a texto en español para las
@@ -25,8 +22,6 @@ import java.util.Locale;
  * <p>Principles: Pure Fabrication, High Cohesion, Protected Variations.</p>
  */
 public final class VehicleLabels {
-
-    private static final DecimalFormatSymbols NUMBER_SYMBOLS = numberSymbols();
 
     private VehicleLabels() {
         // Clase de utilidad: no se instancia.
@@ -208,7 +203,7 @@ public final class VehicleLabels {
         if (mileage == null) {
             return "—";
         }
-        return new DecimalFormat("#,##0", NUMBER_SYMBOLS).format(mileage) + " km";
+        return Formatter.integer(mileage) + " km";
     }
 
     /**
@@ -279,10 +274,4 @@ public final class VehicleLabels {
         return Arrays.stream(Transmission.values()).map(VehicleLabels::transmissionText).toList();
     }
 
-    /** Construye los símbolos numéricos colombianos (miles «.»). */
-    private static DecimalFormatSymbols numberSymbols() {
-        DecimalFormatSymbols symbols = DecimalFormatSymbols.getInstance(Locale.forLanguageTag("es-CO"));
-        symbols.setGroupingSeparator('.');
-        return symbols;
-    }
 }
