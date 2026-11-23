@@ -11,6 +11,10 @@ front -6.8475 11.8425
 # Los cuatro cauchos que tocan el piso (la rueda de repuesto no cuenta para la sombra).
 tires Torus.005 Torus.006 Torus.007 Torus.008
 
+# Muchas caras de la carrocería (el capó, la tapa del baúl) vienen con la normal
+# hacia adentro y JavaFX no las dibujaba: la pintura se dibuja por las dos caras.
+twosided paint
+
 # Escena: piso de acero y planos de luz.
 part Plane.001 * drop
 part Plane.003 * drop
