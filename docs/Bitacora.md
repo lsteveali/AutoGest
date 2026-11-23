@@ -1032,7 +1032,7 @@ Rama `feature/personalizacion-login` desde `origin/develop` (`87999a1`).
 
 ### 22/11/2026 — Sesión 35 (Líder): modelos 3D importados, primero el Mustang
 
-**Contexto.** El Líder quiere muchos carros bonitos sin modelarlos por código uno por uno. Trajo un Mustang de free3d.com (autor **danielmillsy22**, licencia de **uso personal**), exportado de Blender a OBJ: 106 MB y 1,47 millones de triángulos, sin archivo de materiales.
+**Contexto.** El Líder quiere muchos carros bonitos sin modelarlos por código uno por uno. Trajo un Mustang de free3d.com (autor **danielmillsy22**, comprado con licencia de **uso comercial**), exportado de Blender a OBJ: 106 MB y 1,47 millones de triángulos, sin archivo de materiales.
 
 Rama `feature/modelos-importados` desde `origin/develop` (`781c6b9`, con el PR #34 ya fusionado).
 
@@ -1049,7 +1049,7 @@ Rama `feature/modelos-importados` desde `origin/develop` (`781c6b9`, con el PR #
 6. **Pruebas nuevas:** `ImportedModelTest` (4: el Mustang tiene pintura, vidrio y caucho, menos de 200 mil triángulos y medidas razonables; la caché; y que se rechazan los archivos dañados).
 
    `mvn clean test` → **634 pruebas, 0 fallos** (630 + 4).
-7. **El deportivo pasa a ser importado:** a pedido del Líder, el deportivo hecho por código se cambió por el modelo «PG2.79» de **syn3d**, comprado con **licencia de uso comercial**. Pesa 11 546 triángulos y 0,11 MB.
+7. **El deportivo pasa a ser importado:** a pedido del Líder, el deportivo hecho por código se cambió por el modelo «PG2.79» de **syn3d** (free3d.com), comprado con **licencia de uso comercial**. Pesa 11 546 triángulos y 0,11 MB.
    - Sus materiales no tenían nombre, así que el papel de cada uno se dedujo por su forma y su posición (reglas en `tools/models/deportivo.rules`).
    - Se convirtió con 4,95 m de largo para que llene la plataforma.
    - Lo guardado como «Deportivo» en un equipo abre el modelo nuevo.
@@ -1134,7 +1134,7 @@ Rama `feature/modelos-importados` desde `origin/develop` (`781c6b9`, con el PR #
 | 22/11/2026 | **Se quitan los 20 `package-info.java`** (capas base y todos los controladores, incluidos los 5 de Dev 1: `customer`, `inventory`, `notification`, `order` y `settings`). | Pedido del Líder antes de la primera entrega en `main`: solo tenían la descripción del paquete, sin anotaciones. Menos archivos y nada cambia al compilar; `mvn clean test` sigue en 617 pruebas sin fallos. |
 | 22/11/2026 | **La personalización del login se guarda en cada computador con `java.util.prefs.Preferences`, no en Supabase.** | El login la necesita antes de iniciar sesión, y cada equipo puede verse distinto. Es la misma pieza que serviría para un modo oscuro. |
 | 22/11/2026 | **Los vehículos nuevos se modelan en 3D por código (`CarModel`), sin archivos de modelos externos.** | Igual que la camioneta: no depende de licencias de modelos ni de un lector de formatos 3D, y el color se cambia sobre la malla de la pintura. |
-| 22/11/2026 | **Los carros descargados se convierten una vez a `.agm` (`tools/ModelConverter.java`) en vez de leer el OBJ en la app.** | El OBJ del Mustang pesaba 106 MB; convertido y sin los pernos queda en 1,7 MB y carga rápido. El Mustang es de uso personal: sirve para el proyecto académico, pero habría que cambiarlo para publicar o vender AutoGest. |
+| 22/11/2026 | **Los carros descargados se convierten una vez a `.agm` (`tools/ModelConverter.java`) en vez de leer el OBJ en la app.** | El OBJ del Mustang pesaba 106 MB; convertido y sin los pernos queda en 1,7 MB y carga rápido. |
 | 19/11/2026 | **El formulario «Nueva notificación» propone un mensaje según el tipo** (plantillas del Líder) sin pisar lo que el usuario escribió. | Pedido del Líder. Se autorizó tocar `NotificationNewController` y `NotificationService` de Dev 1; se registra en la sección «Para Dev 1» del PR. |
 
 ---
