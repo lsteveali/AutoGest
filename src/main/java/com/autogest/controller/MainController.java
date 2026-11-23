@@ -13,10 +13,13 @@ import com.autogest.controller.components.Sidebar;
 import com.autogest.controller.components.Topbar;
 import com.autogest.controller.user.UserLabels;
 import com.autogest.model.Catalogs.Role;
+import com.autogest.model.SystemPreferences;
 import com.autogest.model.User;
 import com.autogest.util.AppPreferences;
 import com.autogest.util.Background;
+import com.autogest.util.LocalMemory;
 import com.autogest.util.Session;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.fxml.Initializable;
@@ -28,6 +31,7 @@ import javafx.scene.layout.StackPane;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.function.Consumer;
 
 /**
  * Controlador raíz del shell de la aplicación.
@@ -61,6 +65,13 @@ public class MainController implements Initializable {
     private final InactivityTimer inactivity = new InactivityTimer(this::endSessionForInactivity);
     /** Panel del Asistente; se crea la primera vez que se abre. */
     private AssistantPanel assistantPanel;
+    /** Último módulo de cada usuario en este equipo. */
+    private final LocalMemory memory = new LocalMemory();
+    /** El usuario ya eligió una pantalla: no se le cambia por el último módulo. */
+    private boolean navigatedByUser;
+    /** Aplica la barra lateral cuando se guardan las Preferencias del sistema. */
+    private final Consumer<SystemPreferences> preferencesChanged =
+            preferences -> Platform.runLater(() -> applyPreferences(preferences));
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -70,6 +81,7 @@ public class MainController implements Initializable {
         navigator.setOnViewChange(view -> {
             sidebar.setActiveItem(view);
             refreshTopbar();
+            rememberModule(view);
         });
 
         User currentUser = Session.getCurrentUser();
@@ -96,9 +108,15 @@ public class MainController implements Initializable {
         });
 
         // Preferencias del sistema de esta sesión (registros por página, confirmaciones,
-        // cierre por inactividad). Si no se pueden leer, siguen las de fábrica.
+        // cierre por inactividad, formato regional, barra lateral, último módulo y
+        // filtros). Si no se pueden leer, siguen las de fábrica.
+        AppPreferences.addListener(preferencesChanged);
+        applyPreferences(AppPreferences.current());
         Background.run(() -> AppContext.getInstance().getSettingsService().getPreferences(),
-                AppPreferences::update, error -> { });
+                preferences -> {
+                    AppPreferences.update(preferences);
+                    openLastModule();
+                }, error -> { });
         // Se enciende cuando la ventana ya existe (después de initialize).
         javafx.application.Platform.runLater(inactivity::start);
 
@@ -188,6 +206,7 @@ public class MainController implements Initializable {
      * @return {@code false} si el rol no puede abrir la pantalla
      */
     private boolean runAssistantAction(AssistantAction action) {
+        navigatedByUser = true;
         if (!Permissions.canAccess(currentRole(), action.view())) {
             return false;
         }
@@ -200,6 +219,7 @@ public class MainController implements Initializable {
         if (view == null) {
             return;
         }
+        navigatedByUser = true;
         if (view == View.ASSISTANT) {
             // El Asistente es un panel junto al contenido, no una pantalla aparte.
             toggleAssistant();
@@ -221,7 +241,51 @@ public class MainController implements Initializable {
     }
 
     /** Cierra la sesión sin preguntar y vuelve al inicio de sesión. */
+    /** Barra lateral expandida o compacta según «Mostrar barra lateral». */
+    private void applyPreferences(SystemPreferences preferences) {
+        sidebar.setCompact("Compacto".equals(preferences.getSidebarMode()));
+    }
+
+    /** Recuerda en el equipo el módulo abierto (la sección de la barra lateral). */
+    private void rememberModule(View view) {
+        User user = Session.getCurrentUser();
+        if (user != null && view != null) {
+            memory.rememberModule(user.getId(), view.getSidebarSection().name());
+        }
+    }
+
+    /**
+     * Con «Abrir automáticamente el último módulo utilizado», al entrar se abre
+     * el módulo donde el usuario quedó la última vez en este equipo, si su rol
+     * todavía lo puede abrir y si no ha elegido otra pantalla mientras cargaban
+     * las preferencias.
+     */
+    private void openLastModule() {
+        User user = Session.getCurrentUser();
+        if (navigatedByUser || user == null || !AppPreferences.current().isOpenLastModule()) {
+            return;
+        }
+        View last = lastModule(memory.lastModule(user.getId()));
+        if (last != null && last != View.HOME && Permissions.canAccess(user.getRole(), last)) {
+            navigator.navigateTo(last);
+        }
+    }
+
+    /** Módulo guardado, o {@code null} si no existe o ya no es un módulo de la barra. */
+    static View lastModule(String name) {
+        if (name == null) {
+            return null;
+        }
+        try {
+            View view = View.valueOf(name);
+            return view.getSidebarSection() == view && view != View.ASSISTANT ? view : null;
+        } catch (IllegalArgumentException unknown) {
+            return null;
+        }
+    }
+
     private void endSession() {
+        AppPreferences.removeListener(preferencesChanged);
         inactivity.stop();
         AppContext.getInstance().getAuthenticationService().logout();
         if (onLogout != null) {

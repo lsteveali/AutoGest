@@ -1,5 +1,8 @@
 package com.autogest.controller.components;
 
+import com.autogest.util.AppPreferences;
+import com.autogest.util.LocalMemory;
+import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
@@ -17,14 +20,62 @@ import java.util.function.Consumer;
  * <p>El filtrado real (reglas de negocio) vive en el Service; este componente
  * solo transporta el texto o la opción elegida.</p>
  *
+ * <p>Con «Guardar filtros utilizados recientemente» activo, cada barra
+ * recuerda en el equipo ({@link LocalMemory}) la búsqueda y los filtros de su
+ * pantalla, y los vuelve a aplicar al abrirla, sin que la pantalla haga nada.</p>
+ *
  * <p>Principles: Pure Fabrication, High Cohesion.</p>
  */
 public class FilterBar extends HBox {
+
+    /** Clave del recuadro de búsqueda en la memoria de filtros. */
+    static final String SEARCH_KEY = "search";
+    private static final LocalMemory MEMORY = new LocalMemory();
+    /** Pantalla que se está cargando; la fija el navegador antes de cargar el FXML. */
+    private static String currentScreen;
+
+    /** Pantalla a la que pertenece esta barra (para recordar sus filtros). */
+    private final String screen = currentScreen;
 
     /** Crea una barra vacía lista para agregar controles. */
     public FilterBar() {
         getStyleClass().add("filter-bar");
         setAlignment(Pos.CENTER_LEFT);
+    }
+
+    /**
+     * Indica qué pantalla se está cargando: las barras que se creen a
+     * continuación recuerdan sus filtros bajo ese nombre.
+     *
+     * @param screen nombre de la pantalla, o {@code null}
+     */
+    public static void setCurrentScreen(String screen) {
+        currentScreen = screen;
+    }
+
+    /** «Guardar filtros utilizados recientemente» está activo y se sabe la pantalla. */
+    private boolean remembers() {
+        return screen != null && AppPreferences.current().isSaveRecentFilters();
+    }
+
+    /**
+     * Devuelve el filtro guardado después de que la pantalla termine de
+     * armarse (su controlador ya tiene la tabla lista para recargar).
+     */
+    private void restore(String key, Consumer<String> apply) {
+        if (!remembers()) {
+            return;
+        }
+        String saved = MEMORY.filter(screen, key);
+        if (saved != null) {
+            Platform.runLater(() -> apply.accept(saved));
+        }
+    }
+
+    private void remember(String key, String value) {
+        if (remembers()) {
+            MEMORY.rememberFilter(screen, key, value);
+        }
     }
 
     /**
@@ -37,8 +88,17 @@ public class FilterBar extends HBox {
         TextField field = new TextField();
         field.setPromptText(placeholder);
         field.getStyleClass().addAll("input", "filter-field");
-        field.textProperty().addListener((observable, oldValue, newValue) -> onSearch.accept(newValue));
+        field.textProperty().addListener((observable, oldValue, newValue) -> {
+            remember(SEARCH_KEY, newValue);
+            onSearch.accept(newValue);
+        });
         getChildren().add(field);
+        // Solo si nadie escribió antes (por ejemplo el Asistente, que llena la búsqueda).
+        restore(SEARCH_KEY, saved -> {
+            if (field.getText() == null || field.getText().isEmpty()) {
+                field.setText(saved);
+            }
+        });
     }
 
     /**
@@ -64,9 +124,20 @@ public class FilterBar extends HBox {
         if (!options.isEmpty()) {
             combo.setValue(options.get(0));
         }
-        combo.valueProperty().addListener((observable, oldValue, newValue) -> onSelect.accept(newValue));
+        combo.valueProperty().addListener((observable, oldValue, newValue) -> {
+            // La primera opción («Todos») es la de siempre: no hace falta recordarla.
+            remember(label, options.isEmpty() || options.get(0).equals(newValue) ? null : newValue);
+            onSelect.accept(newValue);
+        });
 
         getChildren().addAll(filterLabel, combo);
+        // Solo si el filtro sigue en su primera opción (el Asistente pudo haberlo elegido).
+        restore(label, saved -> {
+            boolean untouched = options.isEmpty() || options.get(0).equals(combo.getValue());
+            if (untouched && combo.getItems().contains(saved)) {
+                combo.setValue(saved);
+            }
+        });
         return combo;
     }
 }

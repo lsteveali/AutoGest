@@ -1,5 +1,6 @@
 package com.autogest.controller;
 
+import com.autogest.controller.components.FilterBar;
 import javafx.animation.FadeTransition;
 import javafx.animation.Interpolator;
 import javafx.animation.ParallelTransition;
@@ -113,7 +114,14 @@ public class ViewNavigator {
         }
         try {
             FXMLLoader loader = new FXMLLoader(url);
-            Parent root = loader.load();
+            // Las barras de filtros de la pantalla recuerdan sus filtros bajo este nombre.
+            FilterBar.setCurrentScreen(view.name());
+            Parent root;
+            try {
+                root = loader.load();
+            } finally {
+                FilterBar.setCurrentScreen(null);
+            }
             Object controller = loader.getController();
             if (controller instanceof NavigatorAware aware) {
                 aware.setNavigator(this);
