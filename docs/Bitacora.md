@@ -1049,6 +1049,13 @@ Rama `feature/modelos-importados` desde `origin/develop` (`781c6b9`, con el PR #
 6. **Pruebas nuevas:** `ImportedModelTest` (4: el Mustang tiene pintura, vidrio y caucho, menos de 200 mil triángulos y medidas razonables; la caché; y que se rechazan los archivos dañados).
 
    `mvn clean test` → **634 pruebas, 0 fallos** (630 + 4).
+7. **El deportivo pasa a ser importado:** a pedido del Líder, el deportivo hecho por código se cambió por el modelo «PG2.79» de **syn3d**, comprado con **licencia de uso comercial**. Pesa 11 546 triángulos y 0,11 MB.
+   - Sus materiales no tenían nombre, así que el papel de cada uno se dedujo por su forma y su posición (reglas en `tools/models/deportivo.rules`).
+   - Se convirtió con 4,95 m de largo para que llene la plataforma.
+   - Lo guardado como «Deportivo» en un equipo abre el modelo nuevo.
+   - `CarModel` queda solo con el sedán.
+
+   `mvn clean test` → **635 pruebas, 0 fallos**.
 
 **Archivos de Dev 1 tocados:** ninguno.
 
