@@ -1235,7 +1235,7 @@ Verificación: `develop` → `mvn clean test` **108 pruebas, 0 fallos**
 
 **Login personalizable (Líder, rama `feature/personalizacion-login`):**
 - [x] Vehículo (camioneta, sedán, deportivo), color y pantalla Personalización (Sesión 34).
-- [ ] Subir la rama y abrir el PR hacia `develop` cuando el Líder termine su prueba manual.
+- [x] ~~Subir la rama y abrir el PR hacia `develop`~~ — PR #34 fusionado (`781c6b9`, 22/11/2026).
 
 **Pendientes nuevos (14/10/2026):**
 - [x] ~~Confirmar el estado del PR del backend de Clientes~~ — resuelto: PR **#5** (backend) y **#8** (interfaz completa) fusionados en `develop`; siguen pendientes de revisión de Sebastián los PRs del Líder.
