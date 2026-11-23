@@ -108,7 +108,9 @@ public class PreferencesController implements Initializable, NavigatorAware {
     // Las opciones que AutoGest todavía no aplica quedan desactivadas con la
     // nota «Próximamente»: la pantalla no promete algo que no pasa (hallazgo de
     // la revisión del PR #26). Se aplican: registros por página, confirmar antes
-    // de eliminar, mensajes después de guardar y cierre de sesión por inactividad.
+    // de eliminar, mensajes después de guardar, cierre de sesión por inactividad
+    // y, desde la Sesión 37, el formato regional, la barra lateral, el último
+    // módulo y los filtros recientes.
 
     private VBox regionCard() {
         // Dos columnas: en tres se cortaban la zona horaria y la moneda.
@@ -119,18 +121,21 @@ public class PreferencesController implements Initializable, NavigatorAware {
                 FormLayout.labeled("Formato de hora", timeFormat));
         FormLayout.row(grid, 3, FormLayout.labeled("Separador decimal", decimalSeparator),
                 FormLayout.labeled("Mostrar barra lateral", sidebarMode));
-        disable(language, country, sidebarMode, timeZone, currency, dateFormat, timeFormat, decimalSeparator);
+        // La moneda, la fecha, la hora, el separador decimal, la zona horaria y la barra
+        // lateral ya se aplican (pedido del Líder); el idioma y el país siguen pendientes.
+        disable(language, country);
         return FormLayout.card("Región y formato", grid,
-                comingSoon("Próximamente. Por ahora AutoGest usa español y el formato de Colombia: pesos, "
-                        + "DD/MM/AAAA, 24 horas y coma decimal; la barra lateral va expandida."));
+                comingSoon("El idioma y el país llegarán próximamente; por ahora AutoGest está en español. "
+                        + "La moneda cambia el símbolo, no convierte los valores."));
     }
 
     private VBox behaviourCard() {
-        disable(openLastModule, contextHelp, recentFilters);
+        disable(contextHelp);
         return FormLayout.card("Comportamiento del sistema",
                 wrap(confirmDelete), wrap(saveConfirmation), wrap(openLastModule), wrap(contextHelp),
                 wrap(recentFilters),
-                comingSoon("Las tres últimas opciones llegarán próximamente."));
+                comingSoon("La ayuda contextual llegará próximamente. El último módulo y los filtros "
+                        + "se recuerdan en cada equipo."));
     }
 
     private VBox tablesCard() {
