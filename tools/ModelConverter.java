@@ -26,7 +26,8 @@ import java.util.zip.GZIPOutputStream;
  * mira, qué piezas se descartan (pernos, fondos, luces de la escena) y qué
  * papel cumple cada pieza según su objeto y su material del OBJ: la pintura
  * (la que se recolorea), vidrio, cromo, caucho, etc. La primera regla que
- * coincide gana; {@code *} vale por cualquier texto.</p>
+ * coincide gana; {@code *} vale por cualquier texto. Con {@code mirror} se
+ * reflejan al otro costado las piezas que el modelo solo trae de un lado.</p>
  *
  * <p>El resultado queda en metros, con el frente hacia +X, Y hacia arriba,
  * el piso en y = 0 y el carro centrado. Las posiciones se guardan como
@@ -59,6 +60,7 @@ public final class ModelConverter {
         double length = 0;
         String front = "+x";
         List<Rule> rules = new ArrayList<>();
+        List<Pattern> mirrors = new ArrayList<>();
         for (String raw : Files.readAllLines(rulesFile, StandardCharsets.UTF_8)) {
             String line = raw.strip();
             if (line.isEmpty() || line.startsWith("#")) {
@@ -69,6 +71,7 @@ public final class ModelConverter {
                 case "length" -> length = Double.parseDouble(t[1]);
                 case "front" -> front = t[1];
                 case "part" -> rules.add(new Rule(glob(t[1]), glob(t[2]), t[3]));
+                case "mirror" -> mirrors.add(glob(t[1]));
                 default -> throw new IllegalArgumentException("Regla desconocida: " + line);
             }
         }
@@ -80,9 +83,12 @@ public final class ModelConverter {
         List<float[]> normals = new ArrayList<>();
         Map<String, Part> parts = new LinkedHashMap<>();
         Map<String, Integer> dropped = new LinkedHashMap<>();
+        // Eje del ancho en las coordenadas del OBJ: el que no es el del frente ni Y.
+        int widthAxis = front.endsWith("z") ? 0 : 2;
         String object = "";
         String material = "";
         String role = "drop";
+        boolean mirrored = false;
         try (BufferedReader reader = Files.newBufferedReader(obj, StandardCharsets.UTF_8)) {
             String line;
             while ((line = reader.readLine()) != null) {
@@ -93,6 +99,8 @@ public final class ModelConverter {
                 } else if (line.startsWith("o ") || line.startsWith("g ")) {
                     object = line.substring(2).strip();
                     role = roleFor(rules, object, material);
+                    String current = object;
+                    mirrored = mirrors.stream().anyMatch(p -> p.matcher(current).matches());
                 } else if (line.startsWith("usemtl ")) {
                     material = line.substring(7).strip();
                     role = roleFor(rules, object, material);
@@ -103,24 +111,9 @@ public final class ModelConverter {
                         continue;
                     }
                     Part part = parts.computeIfAbsent(role, r -> new Part());
-                    int[] ids = new int[corners.length];
-                    for (int i = 0; i < corners.length; i++) {
-                        String[] refs = corners[i].split("/");
-                        int v = resolve(refs[0], positions.size());
-                        int n = refs.length > 2 && !refs[2].isEmpty() ? resolve(refs[2], normals.size()) : -1;
-                        long key = ((long) v << 32) | (n & 0xffffffffL);
-                        Integer id = part.index.get(key);
-                        if (id == null) {
-                            float[] p = positions.get(v);
-                            float[] nn = n >= 0 ? normals.get(n) : new float[]{0, 1, 0};
-                            id = part.vertices.size();
-                            part.vertices.add(new float[]{p[0], p[1], p[2], nn[0], nn[1], nn[2]});
-                            part.index.put(key, id);
-                        }
-                        ids[i] = id;
-                    }
-                    for (int i = 1; i + 1 < ids.length; i++) {
-                        part.triangles.add(new int[]{ids[0], ids[i], ids[i + 1]});
+                    addFace(part, corners, positions, normals, -1);
+                    if (mirrored) {
+                        addFace(part, corners, positions, normals, widthAxis);
                     }
                 }
             }
@@ -196,6 +189,42 @@ public final class ModelConverter {
         dropped.forEach((k, v) -> System.out.printf(Locale.ROOT, "  %-50s %8d%n", k, v));
         System.out.printf(Locale.ROOT, "Huella: ejes %.2f / %.2f, trocha %.2f, medio largo %.2f, medio ancho %.2f%n",
                 footprint[4], footprint[5], footprint[3], footprint[1], footprint[2]);
+    }
+
+    /**
+     * Agrega una cara (en abanico de triángulos) a la pieza. Con
+     * {@code mirrorAxis} en 0 o 2 agrega su copia reflejada al otro lado del
+     * carro, para piezas que el modelo solo trae de un costado.
+     */
+    private static void addFace(Part part, String[] corners, List<float[]> positions, List<float[]> normals,
+                                int mirrorAxis) {
+        int[] ids = new int[corners.length];
+        for (int i = 0; i < corners.length; i++) {
+            String[] refs = corners[i].split("/");
+            int v = resolve(refs[0], positions.size());
+            int n = refs.length > 2 && !refs[2].isEmpty() ? resolve(refs[2], normals.size()) : -1;
+            long key = ((long) v << 32) | (n & 0xffffffffL);
+            if (mirrorAxis >= 0) {
+                key ^= 1L << 63;
+            }
+            Integer id = part.index.get(key);
+            if (id == null) {
+                float[] p = positions.get(v);
+                float[] nn = n >= 0 ? normals.get(n) : new float[]{0, 1, 0};
+                float[] vertex = {p[0], p[1], p[2], nn[0], nn[1], nn[2]};
+                if (mirrorAxis >= 0) {
+                    vertex[mirrorAxis] = -vertex[mirrorAxis];
+                    vertex[3 + mirrorAxis] = -vertex[3 + mirrorAxis];
+                }
+                id = part.vertices.size();
+                part.vertices.add(vertex);
+                part.index.put(key, id);
+            }
+            ids[i] = id;
+        }
+        for (int i = 1; i + 1 < ids.length; i++) {
+            part.triangles.add(new int[]{ids[0], ids[i], ids[i + 1]});
+        }
     }
 
     /**
