@@ -1062,6 +1062,13 @@ Rama `feature/modelos-importados` desde `origin/develop` (`781c6b9`, con el PR #
    - Los rines del Mustang se dejan plateados para que no se pierdan sobre el caucho.
    - Los vidrios de los modelos importados se veían claros: el vidrio de los faros pasa a cromo, el reflejo de las ventanas se centra en la altura de los vidrios y la normal pesa menos.
    - El deportivo se convierte con 5,4 m de largo para que llene la plataforma.
+9. **El sedán pasa a ser el «Clásico» importado:** a pedido del Líder, el sedán hecho por código se cambió por el roadster «Roadster» de **benzin** (free3d.com, licencia **Royalty Free**). Pesa 278 mil triángulos y 2,2 MB.
+   - El modelo venía girado en diagonal. El convertidor ahora acepta el frente como dirección (`front dx dz`), calculada con los centros de los ejes, y la regla `tires` para indicar las cuatro llantas que tocan el piso (la de repuesto, los topes y el volante también son caucho).
+   - La constante pasa de `SEDAN` a `CLASSIC` («Clásico»). Lo guardado como `SEDAN` en un equipo abre el clásico.
+   - Se borra `CarModel`, que ya no se usaba: la camioneta es el único vehículo hecho por código.
+   - El Mustang y el deportivo salen idénticos con el convertidor nuevo.
+
+   `mvn clean test` → **636 pruebas, 0 fallos**.
 
 **Archivos de Dev 1 tocados:** ninguno.
 
