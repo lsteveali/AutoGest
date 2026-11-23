@@ -63,15 +63,31 @@ final class ImportedModel {
 
         /** Altura máxima de la pintura (techo), en metros. */
         float paintHeight() {
-            float top = 0;
+            return heights("paint")[1];
+        }
+
+        /**
+         * Altura media de los vidrios: el reflejo de las ventanas se centra
+         * ahí, igual que en los modelos hechos por código.
+         */
+        float glassMiddle() {
+            float[] range = heights("glass");
+            return range[0] > range[1] ? paintHeight() * 0.82f : (range[0] + range[1]) / 2;
+        }
+
+        /** Altura mínima y máxima de las piezas con ese papel. */
+        private float[] heights(String role) {
+            float low = Float.MAX_VALUE;
+            float top = -Float.MAX_VALUE;
             for (Part part : parts) {
-                if (part.role().equals("paint")) {
+                if (part.role().equals(role)) {
                     for (int i = 1; i < part.positions().length; i += 3) {
+                        low = Math.min(low, part.positions()[i]);
                         top = Math.max(top, part.positions()[i]);
                     }
                 }
             }
-            return top;
+            return top < low ? new float[]{1, 0} : new float[]{low, top};
         }
     }
 
@@ -155,7 +171,7 @@ final class ImportedModel {
         Data data = read(resource);
         float height = data.paintHeight();
         double horizon = height * 0.72;
-        double windowMiddle = height * 0.82;
+        double windowMiddle = data.glassMiddle();
         Group car = new Group();
         MeshView paintView = null;
         for (Part part : data.parts()) {
@@ -185,7 +201,9 @@ final class ImportedModel {
     private static Shading shading(String role, double horizon, double windowMiddle) {
         return switch (role) {
             case "paint" -> (x, y, z, nx, ny, nz) -> 0.5 - 0.42 * ny + 0.12 * (horizon - y);
-            case "glass" -> (x, y, z, nx, ny, nz) -> 0.5 - 0.45 * ny + 0.35 * (windowMiddle - y);
+            // Los vidrios importados suelen ser más inclinados que los hechos por código:
+            // la normal pesa menos para que no tomen todo el reflejo claro del cielo.
+            case "glass" -> (x, y, z, nx, ny, nz) -> 0.62 - 0.2 * ny + 0.3 * (windowMiddle - y);
             case "chrome", "rim", "rimDark" -> CarModel.TruckLikeShading.CHROME;
             default -> Shading.flat();
         };
