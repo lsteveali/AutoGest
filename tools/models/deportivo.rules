@@ -1,0 +1,21 @@
+# Deportivo — modelo «PG2.79» (exportado de Blender 2.79). Autor y licencia: ver README.
+# Archivo original: «PG2.79.obj». Los materiales no tienen nombre propio; el papel de
+# cada uno se dedujo por su forma y su posición:
+#   Material.001  carrocería (6 339 triángulos)      -> pintura
+#   Material.002  partes bajas y alerón trasero        -> trim
+#   Material.003  vidrios de la cabina                 -> glass
+#   Material.008  luces de atrás (extremo -Z)          -> tail
+#   Material.004  cauchos (cilindros completos)        -> rubber
+#   Material.005  rines (cara exterior)                -> rim
+# El frente mira a +Z: allí está el capó largo y bajo que sube hacia el parabrisas.
+# El largo se deja un poco mayor que el real para que llene la plataforma como los demás.
+
+length 4.95
+front +z
+
+part Plane.001 Material.001 paint
+part Plane.001 Material.002 trim
+part Plane.001 Material.003 glass
+part Plane.001 Material.008 tail
+part Cylinder* Material.004 rubber
+part Cylinder* Material.005 rim
