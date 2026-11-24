@@ -70,7 +70,7 @@
             <HBox alignment="CENTER_LEFT" spacing="12">
                 <CheckBox fx:id="rememberCheck" text="Recordarme" />
                 <Region HBox.hgrow="ALWAYS" />
-                <Hyperlink text="¿Olvidaste tu contraseña?" disable="true" />
+                <Hyperlink fx:id="forgotLink" text="¿Olvidaste tu contraseña?" />
             </HBox>
 
             <Label fx:id="errorLabel" styleClass="login-error" wrapText="true" managed="false" visible="false" />

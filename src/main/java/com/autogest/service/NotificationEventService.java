@@ -158,6 +158,25 @@ public class NotificationEventService {
         return notificationService.createAndSend(build(NotificationTemplate.MAINTENANCE_DUE, owner, values));
     }
 
+    // ---------- bienvenida ----------
+
+    /**
+     * Da la bienvenida a un cliente recién registrado. Si no tiene correo no
+     * se envía nada (no queda una notificación fallida sin sentido).
+     *
+     * @param customer cliente ya guardado (con su id)
+     * @return la notificación enviada, o {@code null} si el cliente no tiene correo
+     */
+    public Notification welcomeCustomer(Customer customer) {
+        if (customer == null || customer.getId() <= 0 || customer.getEmail() == null
+                || customer.getEmail().isBlank()) {
+            return null;
+        }
+        Map<String, String> values = NotificationTemplate.baseValues();
+        values.put("cliente", customer.getFirstName());
+        return notificationService.createAndSend(build(NotificationTemplate.CUSTOMER_WELCOME, customer, values));
+    }
+
     // ---------- ayudas ----------
 
     /** Ya se recordó si hay un recordatorio de ese vehículo (por su placa) dentro de la ventana. */

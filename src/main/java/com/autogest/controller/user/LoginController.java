@@ -11,6 +11,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
@@ -24,24 +25,24 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 /**
- * Controlador de la pantalla de inicio de sesiÃ³n (decisiÃ³n D-01: solo correo,
- * contraseÃ±a, Â«RecordarmeÂ» y el enlace deshabilitado Â«Â¿Olvidaste tu
- * contraseÃ±a?Â»). Traduce el evento del formulario en una llamada a
+ * Controlador de la pantalla de inicio de sesión (decisión D-01: solo correo,
+ * contraseña, «Recordarme» y el enlace deshabilitado «¿Olvidaste tu
+ * contraseña?»). Traduce el evento del formulario en una llamada a
  * {@code AuthenticationService} y avisa al shell cuando el acceso es correcto.
  *
  * <p>No valida reglas de negocio ni conoce el Repository: las credenciales las
  * comprueba el Service y sus mensajes se muestran bajo el formulario. El
  * servicio se obtiene de forma diferida para que la pantalla pueda abrirse
- * aunque falte la configuraciÃ³n de la base de datos.</p>
+ * aunque falte la configuración de la base de datos.</p>
  *
  * <p>Principles: GRASP Controller, Indirection, SRP, DIP, Low Coupling,
  * High Cohesion.</p>
  */
 public class LoginController implements Initializable {
 
-    /** Logo con Â«AutoGestÂ» en negro, para el taller cÃ¡lido. */
+    /** Logo con «AutoGest» en negro, para el taller cálido. */
     private static final String LIGHT_LOGO = "/images/logo-full-light.png";
-    /** Logo con Â«AutoGestÂ» en blanco, para el taller nocturno. */
+    /** Logo con «AutoGest» en blanco, para el taller nocturno. */
     private static final String DARK_LOGO = "/images/logo-full-white.png";
 
     @FXML
@@ -74,17 +75,22 @@ public class LoginController implements Initializable {
     @FXML
     private ImageView logo;
 
+    @FXML
+    private Hyperlink forgotLink;
+
+    /** Tema del equipo: la ventana de recuperación usa el mismo. */
+    private AppTheme theme = AppTheme.LIGHT;
     private Runnable onLoginSuccess;
-    /** Evita lanzar dos inicios de sesiÃ³n a la vez (clic y Enter). */
+    /** Evita lanzar dos inicios de sesión a la vez (clic y Enter). */
     private boolean loggingIn;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        // Ãconos dentro de los campos, como en el mockup Login V2.
+        // Íconos dentro de los campos, como en el mockup Login V2.
         emailBox.getChildren().add(0, IconSet.icon(IconSet.MAIL));
         passwordBox.getChildren().add(0, IconSet.icon(IconSet.LOCK));
-        // VehÃ­culo 3D sobre una plataforma giratoria y tema (fondo del taller y
-        // formulario), con la personalizaciÃ³n guardada en este equipo.
+        // Vehículo 3D sobre una plataforma giratoria y tema (fondo del taller y
+        // formulario), con la personalización guardada en este equipo.
         LoginAppearanceStore store = new LoginAppearanceStore();
         applyTheme(store.theme());
         carStage.getChildren().add(new CarTurntable(460, 400, store.load()));
@@ -92,15 +98,33 @@ public class LoginController implements Initializable {
         loginButton.setOnAction(event -> handleLogin());
         passwordField.setOnAction(event -> handleLogin());
         emailField.setOnAction(event -> passwordField.requestFocus());
+        forgotLink.setOnAction(event -> recoverPassword());
     }
 
     /**
-     * Pone el tema en la raÃ­z (el CSS cambia el fondo del taller y el
+     * «¿Olvidaste tu contraseña?»: abre la recuperación con un código por
+     * correo. Si la contraseña cambió, deja el correo listo y lo avisa.
+     */
+    private void recoverPassword() {
+        String recovered = PasswordRecoveryDialog.show(
+                loginRoot.getScene() == null ? null : loginRoot.getScene().getWindow(), theme, emailField.getText());
+        forgotLink.setVisited(false);
+        if (recovered != null) {
+            emailField.setText(recovered);
+            passwordField.clear();
+            showInfo("Listo: tu contraseña cambió. Inicia sesión con la nueva.");
+            passwordField.requestFocus();
+        }
+    }
+
+    /**
+     * Pone el tema en la raíz (el CSS cambia el fondo del taller y el
      * formulario) y el logo que se lee sobre ese fondo.
      *
      * @param theme tema del equipo
      */
     public void applyTheme(AppTheme theme) {
+        this.theme = theme;
         for (AppTheme each : AppTheme.values()) {
             loginRoot.getStyleClass().remove(each.styleClass());
         }
@@ -113,18 +137,18 @@ public class LoginController implements Initializable {
     }
 
     /**
-     * Registra la acciÃ³n que se ejecuta tras un inicio de sesiÃ³n correcto
-     * (el shell de la aplicaciÃ³n la usa para mostrar la pantalla principal).
+     * Registra la acción que se ejecuta tras un inicio de sesión correcto
+     * (el shell de la aplicación la usa para mostrar la pantalla principal).
      *
-     * @param onLoginSuccess acciÃ³n a ejecutar con el usuario ya autenticado
+     * @param onLoginSuccess acción a ejecutar con el usuario ya autenticado
      */
     public void setOnLoginSuccess(Runnable onLoginSuccess) {
         this.onLoginSuccess = onLoginSuccess;
     }
 
     /**
-     * Intenta iniciar sesiÃ³n con los datos del formulario. La consulta y la
-     * verificaciÃ³n de la contraseÃ±a corren en segundo plano para que la
+     * Intenta iniciar sesión con los datos del formulario. La consulta y la
+     * verificación de la contraseña corren en segundo plano para que la
      * ventana (y la vitrina 3D) no se congelen mientras tanto.
      */
     @FXML
@@ -155,7 +179,7 @@ public class LoginController implements Initializable {
                 });
     }
 
-    /** Devuelve el botÃ³n de ingreso a su estado normal. */
+    /** Devuelve el botón de ingreso a su estado normal. */
     private void finishLogin(String buttonText) {
         loggingIn = false;
         loginButton.setText(buttonText);
@@ -164,7 +188,8 @@ public class LoginController implements Initializable {
 
     /** Muestra un mensaje de error bajo el formulario. */
     private void showError(String message) {
-        errorLabel.setText(message == null ? "No se pudo iniciar sesiÃ³n." : message);
+        errorLabel.getStyleClass().remove("login-info");
+        errorLabel.setText(message == null ? "No se pudo iniciar sesión." : message);
         errorLabel.setVisible(true);
         errorLabel.setManaged(true);
     }
@@ -174,5 +199,16 @@ public class LoginController implements Initializable {
         errorLabel.setText("");
         errorLabel.setVisible(false);
         errorLabel.setManaged(false);
+        errorLabel.getStyleClass().remove("login-info");
+    }
+
+    /** Muestra un aviso de éxito (en verde) donde suelen ir los errores. */
+    private void showInfo(String message) {
+        errorLabel.setText(message);
+        if (!errorLabel.getStyleClass().contains("login-info")) {
+            errorLabel.getStyleClass().add("login-info");
+        }
+        errorLabel.setVisible(true);
+        errorLabel.setManaged(true);
     }
 }

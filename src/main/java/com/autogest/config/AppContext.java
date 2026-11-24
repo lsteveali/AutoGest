@@ -81,6 +81,9 @@ public final class AppContext {
     // ===== Avisos automáticos (Líder, Sprint 6) =====
     // Se crea al pedirlo: usa el NotificationService de Dev 1, que se arma al final del constructor.
     private com.autogest.service.NotificationEventService notificationEventService;
+    // Correos de cuentas y recuperación de contraseña (Líder)
+    private com.autogest.service.AccountMailer accountMailer;
+    private com.autogest.service.PasswordRecoveryService passwordRecoveryService;
 
     // ===== Reportes (Líder, Sprint 7) =====
     // Se crea al pedirlo: usa servicios que se arman al final del constructor.
@@ -230,6 +233,18 @@ public final class AppContext {
      */
     private void configureEmail() {
         notificationService.setEmailSender(EmailConfig.fromLocalFile());
+        // Correos de las cuentas (Líder): bienvenida al crear un usuario y código para
+        // recuperar la contraseña. Bienvenida a los clientes nuevos, en segundo plano
+        // para que «Guardar» no espere la respuesta de Gmail.
+        accountMailer = new com.autogest.service.AccountMailer(EmailConfig::fromLocalFile);
+        userService.setAccountMailer(accountMailer);
+        customerService.setOnRegistered(customer -> Thread.ofVirtual().start(() -> {
+            try {
+                getNotificationEventService().welcomeCustomer(customer);
+            } catch (RuntimeException ignored) {
+                // Si el correo falla queda como «Fallida» en Notificaciones para reintentar.
+            }
+        }));
         // Los correos de Facturación llevan la factura en PDF y PNG (si está activo en Configuración).
         notificationService.setAttachmentProvider(new com.autogest.service.InvoiceAttachmentProvider(
                 this::getInvoiceService, invoicePdfService,
@@ -278,6 +293,22 @@ public final class AppContext {
      */
     public UserService getUserService() {
         return userService;
+    }
+
+    // ===== Recuperar contraseña (Líder) =====
+
+    /**
+     * Devuelve el servicio de «¿Olvidaste tu contraseña?» (código por correo).
+     *
+     * @return servicio compartido: guarda en memoria los códigos pendientes
+     */
+    public synchronized com.autogest.service.PasswordRecoveryService getPasswordRecoveryService() {
+        if (passwordRecoveryService == null) {
+            passwordRecoveryService = new com.autogest.service.PasswordRecoveryService(userRepository, userService,
+                    accountMailer == null ? new com.autogest.service.AccountMailer(EmailConfig::fromLocalFile)
+                            : accountMailer);
+        }
+        return passwordRecoveryService;
     }
 
     // ===== Copias de seguridad (Líder, Sprint 8) =====
