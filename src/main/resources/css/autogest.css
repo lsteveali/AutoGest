@@ -860,6 +860,15 @@
     -fx-font-size: 16px;
     -fx-min-height: 48;
     -fx-background-radius: 10;
+    -fx-background-color: -ag-brick;
+}
+
+.login-button:hover {
+    -fx-background-color: -ag-brick-hover;
+}
+
+.login-button:pressed {
+    -fx-background-color: derive(-ag-brick, -24%);
 }
 .login-error {
     -fx-text-fill: -ag-danger;
@@ -942,6 +951,36 @@
     -fx-opacity: 0.22;
 }
 
+/* Velo suave detrás del logo y el eslogan: sólido al centro y transparente
+   hacia los bordes, para que se vean las herramientas y el elevador. */
+.login-brand-heading {
+    -fx-spacing: 12;
+    -fx-padding: 34 64 30 64;
+}
+
+.theme-light .login-brand-heading {
+    -fx-background-color: radial-gradient(center 50% 50%, radius 50%, rgba(235, 237, 241, 0.82) 0%,
+            rgba(235, 237, 241, 0.60) 55%, rgba(235, 237, 241, 0) 100%);
+}
+
+.theme-dark .login-brand-heading {
+    -fx-background-color: radial-gradient(center 50% 50%, radius 50%, rgba(34, 40, 47, 0.80) 0%,
+            rgba(34, 40, 47, 0.56) 55%, rgba(34, 40, 47, 0) 100%);
+}
+
+/* Formulario claro sobre Ivory, con títulos Steel y enlace Brick. */
+.theme-light .login-form-side {
+    -fx-background-color: -ag-ivory;
+}
+
+.theme-light .login-title {
+    -fx-text-fill: -ag-steel;
+}
+
+.theme-light .login-card .hyperlink {
+    -fx-text-fill: -ag-brick;
+}
+
 /* Formulario oscuro sobre fondo nocturno. */
 .theme-dark .login-form-side {
     -fx-background-color: linear-gradient(to bottom, -ag-night-bg-end, -ag-night-bg);
@@ -975,13 +1014,16 @@
     -fx-border-color: -ag-night-border-strong;
 }
 
+/* Foco de los campos en Brick, en los dos temas. */
+.theme-light .input-group:focus-within,
 .theme-dark .input-group:focus-within {
-    -fx-border-color: -ag-night-link;
-    -fx-effect: dropshadow(three-pass-box, rgba(255, 90, 95, 0.30), 8, 0.5, 0, 0);
+    -fx-border-color: -ag-brick;
+    -fx-effect: dropshadow(three-pass-box, rgba(157, 86, 58, 0.28), 8, 0.5, 0, 0);
 }
 
+.theme-light .input-group:focus-within .icon,
 .theme-dark .input-group:focus-within .icon {
-    -fx-stroke: -ag-night-link;
+    -fx-stroke: -ag-brick;
 }
 
 .theme-dark .input-bare {
@@ -1014,7 +1056,7 @@
 
 /* Ventana «Recuperar contraseña»: el mismo fondo del formulario del login. */
 .recovery-root {
-    -fx-background-color: -ag-bg;
+    -fx-background-color: -ag-ivory;
     -fx-padding: 28;
 }
 
