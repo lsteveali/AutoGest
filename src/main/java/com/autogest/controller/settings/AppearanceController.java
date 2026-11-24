@@ -98,7 +98,7 @@ public class AppearanceController implements Initializable {
 
     // ---------- tarjetas ----------
 
-    /** Tema del inicio de sesión: taller cálido (claro) o taller nocturno (oscuro). */
+    /** Tema del inicio de sesión y del Inicio: taller de día (claro) o de noche (oscuro). */
     private VBox themeCard() {
         HBox options = new HBox(10);
         for (AppTheme each : AppTheme.values()) {
@@ -118,7 +118,8 @@ public class AppearanceController implements Initializable {
             options.getChildren().add(button);
         }
         return SettingsForm.card("Tema", IconSet.SETTINGS,
-                SettingsForm.note("Claro: taller cálido y formulario claro. Oscuro: taller nocturno y formulario oscuro."),
+                SettingsForm.note("Claro: taller de día y fondo Ivory. Oscuro: taller de noche y fondo Steel. "
+                        + "Se aplica al inicio de sesión y al Inicio."),
                 options);
     }
 
