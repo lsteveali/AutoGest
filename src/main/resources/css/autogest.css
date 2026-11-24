@@ -41,16 +41,23 @@
     -ag-danger-tint: #F6DCD6;
     -ag-neutral: #8C8577;
 
-    /* Tema oscuro (por ahora, el inicio de sesión con el taller nocturno) */
-    -ag-night-bg: #0E131B;
-    -ag-night-bg-end: #151C27;
-    -ag-night-card: #161C26;
-    -ag-night-input: #0F141C;
-    -ag-night-border: #2B3443;
-    -ag-night-border-strong: #3D4859;
-    -ag-night-text: #F2F4F7;
-    -ag-night-text-muted: #A3ACBA;
-    -ag-night-link: #FF5A5F;
+    /* Paleta del login y el Inicio (24/11/2026): Brick, Ivory y Steel */
+    -ag-brick: #9D563A;             /* Brick: «Iniciar sesión», «+ Nueva orden», ítem activo y foco */
+    -ag-brick-hover: #864931;
+    -ag-ivory: #EBEDF1;             /* Ivory: fondo del tema claro y texto del oscuro */
+    -ag-steel: #22282F;             /* Steel: fondo del tema oscuro y texto del claro */
+
+    /* Tema oscuro (el inicio de sesión y el Inicio): tonos de Steel */
+    -ag-night-bg: #22282F;
+    -ag-night-bg-end: #272E36;
+    -ag-night-card: #2B323B;
+    -ag-night-input: #232930;
+    -ag-night-border: #3A424D;
+    -ag-night-border-strong: #4C5562;
+    -ag-night-hover: #333B45;
+    -ag-night-text: #EBEDF1;
+    -ag-night-text-muted: #A9B0BA;
+    -ag-night-link: #E0936D;
 
     /* Tipografía */
     -fx-font-family: "Manrope", "Segoe UI", sans-serif;
@@ -138,7 +145,7 @@
 }
 
 .sidebar-item-active {
-    -fx-background-color: -ag-accent-hover;
+    -fx-background-color: -ag-brick;
 }
 
 .sidebar-item-active .label {
@@ -146,7 +153,7 @@
 }
 
 .sidebar-item-active:hover {
-    -fx-background-color: derive(-ag-accent-hover, -10%);
+    -fx-background-color: -ag-brick-hover;
 }
 
 /* Respuesta al clic: el ítem se oscurece un poco al presionarlo. */
@@ -155,7 +162,7 @@
 }
 
 .sidebar-item-active:pressed {
-    -fx-background-color: derive(-ag-accent-hover, -18%);
+    -fx-background-color: derive(-ag-brick, -18%);
 }
 
 /* Como en los mockups: sin franja blanca ni borde, sobre el mismo fondo del
