@@ -3,6 +3,7 @@ package com.autogest.controller.settings;
 import com.autogest.controller.components.CarTurntable;
 import com.autogest.controller.components.IconSet;
 import com.autogest.controller.components.PageHeader;
+import com.autogest.util.AppTheme;
 import com.autogest.util.LoginAppearance;
 import com.autogest.util.LoginAppearance.Swatch;
 import com.autogest.util.LoginAppearance.Vehicle;
@@ -19,6 +20,8 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -54,6 +57,11 @@ public class AppearanceController implements Initializable {
     private final Map<String, Button> swatchButtons = new LinkedHashMap<>();
     private final ColorPicker picker = new ColorPicker();
     private final Label colorName = new Label();
+    private final ToggleGroup themeGroup = new ToggleGroup();
+    private final Map<AppTheme, ToggleButton> themeButtons = new EnumMap<>(AppTheme.class);
+    /** Fondo de la vista previa: cambia con el tema, como el panel izquierdo del login. */
+    private final StackPane previewStage = new StackPane();
+    private AppTheme theme = AppTheme.LIGHT;
     private LoginAppearance selected;
     private CarTurntable preview;
     private Label message;
@@ -63,16 +71,18 @@ public class AppearanceController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         PageHeader header = new PageHeader("Personalización",
-                "Elige el vehículo y el color que giran en la pantalla de inicio de sesión de este equipo.");
+                "Elige el tema, el vehículo y el color de la pantalla de inicio de sesión de este equipo.");
         header.setBreadcrumbs(List.of("Configuración", "Personalización"));
 
         selected = store.load();
+        theme = store.theme();
         preview = new CarTurntable(PREVIEW_WIDTH, PREVIEW_HEIGHT, selected);
 
-        VBox left = new VBox(16, vehicleCard(), colorCard());
+        VBox left = new VBox(16, themeCard(), vehicleCard(), colorCard());
         message = SettingsForm.message();
         Button restore = SettingsForm.button("Restaurar valores de fábrica", "btn-secondary");
         restore.setOnAction(event -> {
+            chooseTheme(AppTheme.LIGHT);
             apply(LoginAppearance.DEFAULT);
             SettingsForm.show(message,
                     "Volvió la camioneta plateada. Pulsa «Guardar cambios» para dejarla en este equipo.", false);
@@ -83,9 +93,44 @@ public class AppearanceController implements Initializable {
         root.getChildren().addAll(header, SettingsForm.columns(left, previewCard()),
                 SettingsForm.actions(message, restore, save));
         apply(selected);
+        chooseTheme(theme);
     }
 
     // ---------- tarjetas ----------
+
+    /** Tema del inicio de sesión: taller cálido (claro) o taller nocturno (oscuro). */
+    private VBox themeCard() {
+        HBox options = new HBox(10);
+        for (AppTheme each : AppTheme.values()) {
+            ToggleButton button = new ToggleButton(each.label());
+            button.setToggleGroup(themeGroup);
+            button.getStyleClass().add("appearance-vehicle");
+            button.setMaxWidth(Double.MAX_VALUE);
+            HBox.setHgrow(button, Priority.ALWAYS);
+            button.setOnAction(event -> {
+                if (!button.isSelected()) {
+                    button.setSelected(true);
+                }
+                chooseTheme(each);
+                message.setText("");
+            });
+            themeButtons.put(each, button);
+            options.getChildren().add(button);
+        }
+        return SettingsForm.card("Tema", IconSet.SETTINGS,
+                SettingsForm.note("Claro: taller cálido y formulario claro. Oscuro: taller nocturno y formulario oscuro."),
+                options);
+    }
+
+    /** Marca el tema elegido y cambia el fondo de la vista previa. */
+    private void chooseTheme(AppTheme chosen) {
+        theme = chosen;
+        themeButtons.get(chosen).setSelected(true);
+        for (AppTheme each : AppTheme.values()) {
+            previewStage.getStyleClass().remove(each.styleClass());
+        }
+        previewStage.getStyleClass().add(chosen.styleClass());
+    }
 
     private VBox vehicleCard() {
         GridPane options = new GridPane();
@@ -146,11 +191,11 @@ public class AppearanceController implements Initializable {
     }
 
     private VBox previewCard() {
-        StackPane stage = new StackPane(preview);
-        stage.setAlignment(Pos.CENTER);
-        stage.getStyleClass().add("appearance-preview");
-        stage.setMinHeight(PREVIEW_HEIGHT + 24);
-        return SettingsForm.card("Vista previa", IconSet.SPARKLES, stage,
+        previewStage.getChildren().add(preview);
+        previewStage.setAlignment(Pos.CENTER);
+        previewStage.getStyleClass().add("appearance-preview");
+        previewStage.setMinHeight(PREVIEW_HEIGHT + 24);
+        return SettingsForm.card("Vista previa", IconSet.SPARKLES, previewStage,
                 SettingsForm.note("Así se verá el inicio de sesión. Se guarda solo en este computador."));
     }
 
@@ -185,7 +230,9 @@ public class AppearanceController implements Initializable {
     private void save() {
         try {
             store.save(selected);
-            SettingsForm.show(message, "Listo. Al abrir AutoGest en este equipo se verá: "
+            store.saveTheme(theme);
+            SettingsForm.show(message, "Listo. Al abrir AutoGest en este equipo se verá: tema "
+                    + theme.label().toLowerCase(Locale.ROOT) + ", "
                     + selected.vehicle().label().toLowerCase(Locale.ROOT) + ", "
                     + selected.colorName().toLowerCase(Locale.ROOT) + ".", false);
         } catch (IllegalStateException error) {
