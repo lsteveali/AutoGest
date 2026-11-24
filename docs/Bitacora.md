@@ -1261,6 +1261,29 @@ El carro de la vitrina no cambia. Misma rama `feature/encabezado-dashboard`.
 
 **Archivos de Dev 1 tocados:** ninguno. Las pantallas de Dev 1 toman la paleta por los tokens.
 
+### 24/11/2026 — Sesión 42 (Líder): barrido visual para una interfaz más limpia
+
+**Contexto.** El Líder pidió un barrido visual para que la interfaz se vea más limpia, sin cambiar el diseño (paleta, foto del taller, tipografía y distribución). Primero se capturaron 14 pantallas en los dos temas para ver qué hacía ruido. Durante el barrido pidió además que el botón de los avisos de error se viera bien: estaba en azul claro sobre el fondo oscuro.
+
+Rama `feature/barrido-visual` desde `develop` (`a962d21`).
+
+**Hecho:**
+1. **Tarjetas planas:** las tarjetas y los indicadores llevaban borde y sombra a la vez. Ahora solo llevan borde, en los dos temas.
+2. **Asistente flotante:**
+   - Pasa de una píldora naranja con texto a un botón redondo Brick de 48 px solo con el ícono. El nombre queda en la ayuda emergente y para lectores de pantalla.
+   - El contenido deja 84 px libres al pie, así el botón ya no tapa «Siguiente» de la paginación ni «Guardar» al final de los formularios.
+   - El ítem de la barra lateral sigue igual.
+3. **Migas de pan en gris:** con subrayado al pasar el mouse, para no competir en Brick sobre la foto. «Ver todas» y los demás enlaces siguen en Brick.
+4. **Tema oscuro:** el texto de ayuda de los campos se lee bien, también en los combos editables (Ciudad, Motivo del ingreso).
+5. **Avisos** (errores y confirmaciones): el botón principal va en verde con texto blanco y los demás en neutro, en los dos temas. Los formularios en diálogo conservan su «Guardar» en Brick.
+6. **Revisión:**
+   - Se volvieron a capturar las pantallas.
+   - Se probó quitar el fondo de la campana y del botón de tema, pero sobre el techo iluminado del taller de día no se veían, así que se dejó como estaba.
+   - El detector de diseño no encontró problemas.
+7. **Pruebas:** `mvn clean test` → **665 pruebas, 0 fallos**.
+
+**Archivos de Dev 1 tocados:** ninguno.
+
 ---
 
 ## 4. Decisiones y acuerdos
