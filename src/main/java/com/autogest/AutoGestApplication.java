@@ -4,6 +4,8 @@ import com.autogest.config.AppContext;
 import com.autogest.controller.MainController;
 import com.autogest.controller.components.ErrorDialog;
 import com.autogest.controller.user.LoginController;
+import com.autogest.util.LoginAppearanceStore;
+import com.autogest.util.ThemeManager;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -66,6 +68,8 @@ public class AutoGestApplication extends Application {
         installErrorHandler();
         loadAppIcons();
         loadFonts();
+        // Tema claro u oscuro de este equipo, para todas las ventanas.
+        ThemeManager.install(new LoginAppearanceStore().theme());
         showLogin();
         stage.show();
         warmUpDatabase();

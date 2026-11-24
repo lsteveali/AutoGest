@@ -8,6 +8,7 @@ import com.autogest.util.LoginAppearance;
 import com.autogest.util.LoginAppearance.Swatch;
 import com.autogest.util.LoginAppearance.Vehicle;
 import com.autogest.util.LoginAppearanceStore;
+import com.autogest.util.ThemeManager;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
@@ -75,7 +76,7 @@ public class AppearanceController implements Initializable {
         header.setBreadcrumbs(List.of("Configuración", "Personalización"));
 
         selected = store.load();
-        theme = store.theme();
+        theme = ThemeManager.current();
         preview = new CarTurntable(PREVIEW_WIDTH, PREVIEW_HEIGHT, selected);
 
         VBox left = new VBox(16, themeCard(), vehicleCard(), colorCard());
@@ -98,7 +99,7 @@ public class AppearanceController implements Initializable {
 
     // ---------- tarjetas ----------
 
-    /** Tema del inicio de sesión: taller cálido (claro) o taller nocturno (oscuro). */
+    /** Tema de toda la aplicación: taller de día (claro) o de noche (oscuro). */
     private VBox themeCard() {
         HBox options = new HBox(10);
         for (AppTheme each : AppTheme.values()) {
@@ -118,7 +119,8 @@ public class AppearanceController implements Initializable {
             options.getChildren().add(button);
         }
         return SettingsForm.card("Tema", IconSet.SETTINGS,
-                SettingsForm.note("Claro: taller cálido y formulario claro. Oscuro: taller nocturno y formulario oscuro."),
+                SettingsForm.note("Claro: taller de día y fondo Ivory. Oscuro: taller de noche y fondo Steel. "
+                        + "Se aplica a toda la aplicación, también con el botón de la barra superior."),
                 options);
     }
 
@@ -231,6 +233,8 @@ public class AppearanceController implements Initializable {
         try {
             store.save(selected);
             store.saveTheme(theme);
+            // El tema cambia al instante en toda la aplicación.
+            ThemeManager.set(theme);
             SettingsForm.show(message, "Listo. Al abrir AutoGest en este equipo se verá: tema "
                     + theme.label().toLowerCase(Locale.ROOT) + ", "
                     + selected.vehicle().label().toLowerCase(Locale.ROOT) + ", "

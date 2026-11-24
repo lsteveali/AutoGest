@@ -1199,6 +1199,68 @@ Rama `feature/recuperar-contrasena` desde `origin/develop` (`11c8454`).
 **Archivos de Dev 1 tocados (a pedido del Líder):**
 - `CustomerService`: `setOnRegistered` y el aviso después de `registerCustomer`. Un error del aviso nunca deshace el registro.
 
+### 24/11/2026 — Sesión 40 (Líder): encabezado del Inicio con foto y paleta Brick, Ivory y Steel
+
+**Contexto.** Se mostraron tres maquetas de fondo para el Inicio: banda superior, foto difuminada y barra lateral. El Líder no eligió ninguna. Trajo su propio diseño: capturas del Inicio y del login en los dos temas, dos fotos del taller (de día y de noche) y la paleta Brick `#9D563A`, Ivory `#EBEDF1` y Steel `#22282F`. Las fotos del login que venían en el diseño eran solo de referencia y no se subieron: el login sigue con sus fondos de la Sesión 38.
+
+Rama `feature/encabezado-dashboard` desde `origin/develop` (`d342de3`).
+
+**Hecho:**
+1. **Fotos:** `dashboard-taller-dia.png` y `dashboard-taller-noche.png` (2000 × 667), convertidas desde WebP.
+2. **Paleta** (tokens `-ag-brick`, `-ag-ivory` y `-ag-steel`):
+   - El tema oscuro (`-ag-night-*`) pasó de azul noche a tonos Steel.
+   - El ítem activo de la barra lateral va en Brick. La barra sigue negra en los dos temas.
+3. **Encabezado del Inicio** (`home.fxml` + `HomeController`):
+   - La foto cubre el encabezado sin deformarse y se recorta por la izquierda, para que el carro y el elevador queden a la derecha.
+   - Un degradado horizontal de Ivory (claro) o Steel (oscuro) la deja sólida detrás del saludo y transparente hacia el carro. Un borde inferior suave la funde con las tarjetas.
+   - «+ Nueva orden» va en Brick.
+   - El encabezado queda fijo y solo las tarjetas se desplazan. Así el saludo, el botón y el carro se ven siempre. Se revisó en 1024 × 700, 1440 × 900 y 1920 × 1080.
+4. **Tema en el Inicio** (`main.fxml` + `MainController.applyDashboardLook`):
+   - En el Inicio, la columna central toma el tema elegido en Personalización: claro (fondo Ivory, texto Steel) u oscuro (fondo Steel, texto Ivory, tarjetas y tablas sólidas).
+   - La foto sube hasta el borde de la ventana. La barra superior va encima, con un fondo translúcido detrás de la campana y del usuario.
+   - Las demás pantallas no cambian.
+5. **Login:**
+   - Velo suave (Ivory o Steel) detrás del logo y el eslogan, que se vuelve transparente hacia afuera.
+   - El formulario claro va sobre Ivory, con título Steel y enlace Brick.
+   - «Iniciar sesión» y el foco de los campos van en Brick en los dos temas, también en «Recuperar contraseña».
+6. **Personalización:** la tarjeta «Tema» avisa que también se aplica al Inicio.
+7. **Pruebas:** `mvn clean test` → **663 pruebas, 0 fallos**.
+
+**Archivos de Dev 1 tocados:** ninguno.
+
+### 24/11/2026 — Sesión 41 (Líder): tema claro u oscuro en toda la aplicación
+
+**Contexto.** Al revisar la Sesión 40, el Líder pidió:
+- La paleta nueva en toda la interfaz.
+- La foto del taller arriba en todas las pantallas.
+- Los fondos nuevos del login. En la Sesión 40 se entendió que esas fotos eran solo de referencia; eran para usarlas.
+- Un botón de tema claro u oscuro que cambie todo el sistema, login incluido, como sus capturas del Inicio en claro y en oscuro.
+
+El carro de la vitrina no cambia. Misma rama `feature/encabezado-dashboard`.
+
+**Hecho:**
+1. **Fondos del login:** `login-taller-claro.jpg` (taller de día) y `login-taller-noche.jpg` (taller de noche), convertidos desde WebP.
+2. **Paleta en toda la interfaz** (`autogest.css`):
+   - Los tokens de `.root` son ahora el tema claro: fondo Ivory, texto Steel, tarjetas blancas, y botones, enlaces y foco en Brick.
+   - El tema oscuro redefine los mismos tokens en `.app-dark`: fondo Steel, texto Ivory, tarjetas y tablas sólidas, y los colores base de los controles de JavaFX (campos, menús, diálogos, barras).
+   - La barra lateral sigue negra en los dos temas.
+   - Se cambiaron los tintes rojos y caramelo de la paleta anterior.
+   - La placa sigue amarilla con letras negras.
+   - El aviso de stock bajo de Inventario se ajustó desde `autogest.css`, sin tocar `inventory.css`.
+3. **`ThemeManager`:**
+   - Pone la clase `app-dark` en la raíz de cada ventana que se abre: la principal, los diálogos, los menús y «Recuperar contraseña».
+   - A los diálogos estándar de JavaFX les agrega la hoja de estilos.
+   - Al arrancar toma el tema guardado en el equipo.
+4. **Botón de tema** en la barra superior: luna en el tema claro, sol en el oscuro. Cambia toda la aplicación al instante y lo guarda en el equipo. «Guardar cambios» en Personalización hace lo mismo, y la tarjeta «Tema» marca el tema activo.
+5. **Foto del taller en todas las pantallas** (`main.fxml` + `MainController`):
+   - El shell pone la foto (de día o de noche) detrás de la barra superior y del título, con el degradado y un borde inferior que la funde con el fondo.
+   - El Inicio conserva su encabezado fijo de la Sesión 40.
+6. Se revisaron en los dos temas: Inicio, Clientes, Nuevo cliente, Vehículos, Órdenes, Inventario, Facturación, Notificaciones, Reportes, Configuración, Personalización y el login.
+   - **Barra lateral menos saturada** (pedido del Líder): textos e íconos en Ivory atenuado, que se encienden al pasar el mouse y en el ítem activo (Brick); títulos de grupo más discretos; más aire entre ítems; y un negro un poco más suave (`#15181C`). Después se compactó (ítems, títulos de grupo y logo con menos alto) para que no ocupe todo el alto en ventanas de 720 px y quede espacio libre antes del Asistente.
+7. **Pruebas:** `AppThemeTest` (2). `mvn clean test` → **665 pruebas, 0 fallos**.
+
+**Archivos de Dev 1 tocados:** ninguno. Las pantallas de Dev 1 toman la paleta por los tokens.
+
 ---
 
 ## 4. Decisiones y acuerdos
@@ -1266,6 +1328,8 @@ Rama `feature/recuperar-contrasena` desde `origin/develop` (`11c8454`).
 | 22/11/2026 | **El póster de ExpoSoftware no se sube al repositorio.** | Decisión del Líder: queda fuera de Git (se ignora solo en el equipo local con `.git/info/exclude`). |
 | 23/11/2026 | **Los códigos para recuperar la contraseña viven en memoria (con su hash) y no en la base de datos.** | La recuperación ocurre en el mismo equipo y en minutos; así no hace falta una tabla nueva en Supabase. Si se cierra la app antes de usar el código, se pide otro. |
 | 23/11/2026 | **Los correos de bienvenida nunca llevan la contraseña.** | Seguridad: el usuario la recibe del administrador o la cambia con «¿Olvidaste tu contraseña?». |
+| 24/11/2026 | **El encabezado del Inicio queda fijo y solo se desplazan las tarjetas.** | Con el encabezado fijo, el saludo, «+ Nueva orden» y el carro se ven en cualquier tamaño de ventana. |
+| 24/11/2026 | **Un solo tema (claro u oscuro) para toda la aplicación, login incluido: los tokens de `.root` son el claro y `.app-dark` los redefine; `ThemeManager` pone esa clase en cada ventana.** Reemplaza la decisión de la Sesión 40, que lo dejaba solo en el login y el Inicio. | Pedido del Líder. Al cambiar los tokens, todas las pantallas (también las de Dev 1) cambian sin tocar sus archivos, y los diálogos y menús siguen el tema. |
 | 19/11/2026 | **El formulario «Nueva notificación» propone un mensaje según el tipo** (plantillas del Líder) sin pisar lo que el usuario escribió. | Pedido del Líder. Se autorizó tocar `NotificationNewController` y `NotificationService` de Dev 1; se registra en la sección «Para Dev 1» del PR. |
 
 ---

@@ -16,8 +16,11 @@ import com.autogest.model.Catalogs.Role;
 import com.autogest.model.SystemPreferences;
 import com.autogest.model.User;
 import com.autogest.util.AppPreferences;
+import com.autogest.util.AppTheme;
 import com.autogest.util.Background;
 import com.autogest.util.LocalMemory;
+import com.autogest.util.LoginAppearanceStore;
+import com.autogest.util.ThemeManager;
 import com.autogest.util.Session;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -28,6 +31,7 @@ import javafx.geometry.Pos;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -59,6 +63,17 @@ public class MainController implements Initializable {
     @FXML
     private AssistantButton assistantButton;
 
+    /** Columna de la Topbar y el contenido. */
+    @FXML
+    private VBox centerColumn;
+
+    /** Foto del taller detrás de la Topbar y del título (todas las pantallas menos el Inicio). */
+    @FXML
+    private StackPane shellHeader;
+
+    /** Mantiene el ícono del botón de tema al día. */
+    private final Consumer<AppTheme> themeChanged = theme -> topbar.setTheme(theme);
+
     private ViewNavigator navigator;
     private Runnable onLogout;
     /** Cierre de sesión por inactividad, según las Preferencias del sistema. */
@@ -80,6 +95,7 @@ public class MainController implements Initializable {
         // editado en «Perfil y cuenta» sin acoplar esa pantalla al shell.
         navigator.setOnViewChange(view -> {
             sidebar.setActiveItem(view);
+            applyDashboardLook(view);
             refreshTopbar();
             rememberModule(view);
         });
@@ -92,6 +108,10 @@ public class MainController implements Initializable {
         topbar.setOnLogout(this::logout);
         topbar.setOnProfile(() -> open(View.SETTINGS_PROFILE));
         topbar.setOnNotifications(() -> open(View.NOTIFICATIONS));
+        topbar.setTheme(ThemeManager.current());
+        topbar.setOnToggleTheme(this::toggleTheme);
+        // Si el tema cambia desde Personalización, el botón se actualiza.
+        ThemeManager.addListener(themeChanged);
 
         // «Volver» y las migas de pan de cada pantalla (PageHeader) suben hasta aquí.
         contentArea.addEventHandler(NavigationEvent.BACK, event -> {
@@ -139,6 +159,40 @@ public class MainController implements Initializable {
     /** Devuelve el navegador de pantallas usado por el área central. */
     public ViewNavigator getNavigator() {
         return navigator;
+    }
+
+    /**
+     * En el Inicio, su propio encabezado con la foto sube hasta el borde de la
+     * ventana (la Topbar queda encima, sin fondo) y se oculta la foto del shell.
+     * En las demás pantallas, la foto del shell va detrás de la Topbar y del título.
+     */
+    private void applyDashboardLook(View view) {
+        boolean dashboard = view == View.HOME;
+        centerColumn.getStyleClass().remove("dashboard-mode");
+        shellHeader.getParent().getStyleClass().remove("dashboard-mode");
+        centerColumn.spacingProperty().unbind();
+        centerColumn.setSpacing(0);
+        topbar.setViewOrder(0);
+        if (!dashboard) {
+            return;
+        }
+        centerColumn.getStyleClass().add("dashboard-mode");
+        shellHeader.getParent().getStyleClass().add("dashboard-mode");
+        // El contenido sube bajo la Topbar y la Topbar se dibuja encima.
+        centerColumn.spacingProperty().bind(topbar.heightProperty().negate());
+        topbar.setViewOrder(-1);
+    }
+
+    /** Pasa de claro a oscuro (o al revés) en toda la aplicación y lo guarda en este equipo. */
+    private void toggleTheme() {
+        AppTheme next = ThemeManager.current().toggled();
+        ThemeManager.set(next);
+        topbar.setTheme(next);
+        try {
+            new LoginAppearanceStore().saveTheme(next);
+        } catch (IllegalStateException error) {
+            // Si no se puede guardar, el tema cambia solo en esta sesión.
+        }
     }
 
     /** Muestra en la Topbar al usuario de la sesión (o «Invitado»). */
@@ -286,6 +340,7 @@ public class MainController implements Initializable {
 
     private void endSession() {
         AppPreferences.removeListener(preferencesChanged);
+        ThemeManager.removeListener(themeChanged);
         inactivity.stop();
         AppContext.getInstance().getAuthenticationService().logout();
         if (onLogout != null) {
