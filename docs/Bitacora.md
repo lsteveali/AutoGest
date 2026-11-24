@@ -1336,6 +1336,34 @@ Rama `feature/validaciones-avisos` desde `develop` (`db30e92`).
 - `CustomerListController`, `OrdersController`: celdas de una sola línea.
 - `NotificationsController`, `PreferencesController`, `WorkshopDataController`: avisos nuevos (el último, además, con `PhoneField`).
 
+### 24/11/2026 — Sesión 44 (Líder): listas de clientes, vehículos y servicios, y detalle de factura simétrico
+
+**Contexto.** El Líder pidió dos cosas:
+- Arreglar las listas de clientes, vehículos y servicios.
+- Por recomendación del profesor, aprovechar mejor el espacio en el detalle de la factura: que todo sea simétrico y sin espacios en blanco (quedaba un hueco al lado de «Historial»).
+
+Misma rama `feature/validaciones-avisos`.
+
+**Causa de las listas.** Eran las únicas tres sin desplazamiento. En la ventana de 1280 × 720 con la que abre la app, los indicadores, los filtros y los 84 px libres al pie (del barrido visual) aplastaban la tabla a 2 filas. Además, la primera columna cortaba los nombres.
+
+**Hecho:**
+1. **Listas:**
+   - Clientes, Vehículos y Servicios van dentro de un `ScrollPane` que llena el alto. La tabla muestra siempre al menos 5 filas y, si la ventana es baja, la pantalla se desplaza.
+   - Todas las tablas usan filas de 48 px (`PagedTable.ROW_HEIGHT`), también Facturación y Usuarios.
+   - Cliente, Correo y Servicio tienen un ancho mínimo para no cortar los nombres.
+2. **Espacio al pie:**
+   - Se quitaron los 84 px del barrido visual. Las pantallas con desplazamiento ya dejaban ese espacio al final (`ViewNavigator`).
+   - La paginación deja libre la esquina del botón del Asistente, así «Siguiente» no queda debajo.
+3. **Detalle de factura** (`InvoiceDetailController.render`): cuadrícula de tres columnas iguales. Las tarjetas de una misma fila tienen el mismo alto:
+   - Cliente · Orden de servicio · Resumen de factura (el total se ve de entrada).
+   - Conceptos facturados (dos columnas) · Información de pago.
+   - Historial a todo el ancho.
+4. **Pruebas:** `mvn clean test` → **673 pruebas, 0 fallos**. Se revisaron capturas en 1280 × 720 en los dos temas.
+
+**Archivos de Dev 1 tocados (a pedido del Líder):**
+- `customers.fxml`: el `ScrollPane`.
+- `CustomerListController`: anchos de Cliente y Correo.
+
 ---
 
 ## 4. Decisiones y acuerdos
