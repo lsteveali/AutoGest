@@ -245,6 +245,7 @@ public class NotificationSettingsController implements Initializable {
             case INVOICE_AVAILABLE -> "Se envía sola al generar una factura pendiente; va con la factura adjunta.";
             case INVOICE_PAID -> "Se envía sola al registrar el pago; va con la factura adjunta.";
             case INVOICE_OVERDUE -> "Se envía sola cuando una factura vence; va con la factura adjunta.";
+            case CUSTOMER_WELCOME -> "Se envía sola al registrar un cliente nuevo con correo.";
             case SERVICE_UPDATE, MAINTENANCE_INVITE, PROMOTION, GENERAL ->
                     "Mensaje que propone «Nueva notificación» para este tipo.";
         };

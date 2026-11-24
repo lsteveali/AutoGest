@@ -67,6 +67,13 @@ public enum NotificationTemplate {
             "Hola {cliente}, tu factura {factura} por {total} venció el {vencimiento}. Te la adjuntamos en PDF "
                     + "y como imagen. Por favor comunícate con {taller} para ponerte al día."),
 
+    /** Cliente recién registrado: bienvenida (Líder, a pedido del Líder). */
+    CUSTOMER_WELCOME(NotificationType.GENERAL, "Bienvenida al cliente",
+            "¡Te registraste con éxito en {taller}!",
+            "Hola {cliente}, ¡bienvenido a {taller}! Tu registro como cliente quedó listo. Por este correo te "
+                    + "avisaremos cuando tu vehículo esté listo para entregar, cuando se acerque su mantenimiento "
+                    + "y cuando tengas facturas. ¡Gracias por confiar en nosotros!"),
+
     /** Mensaje predeterminado de «Actualización de servicio» (Nueva notificación). */
     SERVICE_UPDATE(NotificationType.SERVICE_UPDATE, "Novedades del servicio",
             "Novedades del servicio de tu {vehiculo}",
