@@ -782,22 +782,26 @@
    Botón flotante del Asistente
    -------------------------------------------------------------------------- */
 .assistant-button {
-    -fx-background-color: -ag-accent-hover;
-    -fx-text-fill: #FFFFFF;
-    -fx-font-weight: 700;
+    -fx-background-color: -ag-brick;
     -fx-background-radius: 999;
-    -fx-padding: 12 20;
+    -fx-min-width: 48;
+    -fx-min-height: 48;
+    -fx-pref-width: 48;
+    -fx-pref-height: 48;
+    -fx-max-width: 48;
+    -fx-max-height: 48;
+    -fx-padding: 0;
     -fx-cursor: hand;
-    -fx-effect: dropshadow(gaussian, rgba(17, 17, 17, 0.22), 16, 0, 0, 5);
+    -fx-effect: dropshadow(gaussian, rgba(17, 17, 17, 0.20), 12, 0, 0, 4);
 }
 
 .assistant-button:hover {
-    -fx-background-color: derive(-ag-accent-hover, -12%);
+    -fx-background-color: -ag-brick-hover;
 }
 
 /* El hover cambia el fondo; el presionado lo baja (sombra más corta). */
 .assistant-button:pressed {
-    -fx-background-color: derive(-ag-accent-hover, -22%);
+    -fx-background-color: derive(-ag-brick, -22%);
     -fx-effect: dropshadow(gaussian, rgba(17, 17, 17, 0.18), 8, 0, 0, 2);
 }
 
@@ -2557,3 +2561,21 @@
     -fx-background-color: -ag-ivory;
     -fx-text-fill: -ag-steel;
 }
+
+/* --------------------------------------------------------------------------
+   Barrido visual (24/11/2026): menos ruido sobre el mismo sistema
+   -------------------------------------------------------------------------- */
+/* Espacio libre al pie del contenido: el botón redondo del Asistente no tapa
+   la paginación ni los botones del final del formulario. */
+.content-area {
+    -fx-padding: 24 24 84 24;
+}
+
+.dashboard-mode .content-area {
+    -fx-padding: 0;
+}
+
+.dashboard-body {
+    -fx-padding: 16 24 84 24;
+}
+
