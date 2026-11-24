@@ -1,5 +1,6 @@
 package com.autogest.controller.components;
 
+import com.autogest.util.AppTheme;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.control.Button;
@@ -7,6 +8,7 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
@@ -32,6 +34,8 @@ public class Topbar extends HBox {
     private Runnable onLogout;
     private Runnable onProfile;
     private Runnable onNotifications;
+    private Runnable onToggleTheme;
+    private final Button themeButton = new Button();
 
     /** Crea la cabecera con el usuario provisional «Invitado». */
     public Topbar() {
@@ -84,7 +88,16 @@ public class Topbar extends HBox {
         userMenu.setOnMouseClicked(event ->
                 userContextMenu.show(userMenu, event.getScreenX(), event.getScreenY()));
 
-        getChildren().addAll(spacer, bell, userMenu);
+        // Cambio de tema: el ícono muestra el tema al que se pasa (luna = oscuro).
+        themeButton.getStyleClass().add("icon-button");
+        themeButton.setOnAction(event -> {
+            if (onToggleTheme != null) {
+                onToggleTheme.run();
+            }
+        });
+        setTheme(AppTheme.LIGHT);
+
+        getChildren().addAll(spacer, themeButton, bell, userMenu);
         setUser("Invitado", "Sin sesión");
     }
 
@@ -126,6 +139,29 @@ public class Topbar extends HBox {
      */
     public void setOnNotifications(Runnable onNotifications) {
         this.onNotifications = onNotifications;
+    }
+
+    /**
+     * Registra la acción del botón de tema (pasar de claro a oscuro y al revés).
+     *
+     * @param onToggleTheme acción a ejecutar al pulsar el botón
+     */
+    public void setOnToggleTheme(Runnable onToggleTheme) {
+        this.onToggleTheme = onToggleTheme;
+    }
+
+    /**
+     * Muestra en el botón de tema el ícono y la ayuda según el tema actual:
+     * en claro, una luna («Cambiar a tema oscuro»); en oscuro, un sol.
+     *
+     * @param theme tema actual
+     */
+    public void setTheme(AppTheme theme) {
+        boolean dark = theme == AppTheme.DARK;
+        themeButton.setGraphic(IconSet.icon(dark ? IconSet.SUN : IconSet.MOON));
+        String text = dark ? "Cambiar a tema claro" : "Cambiar a tema oscuro";
+        themeButton.setTooltip(new Tooltip(text));
+        themeButton.setAccessibleText(text);
     }
 
     /**

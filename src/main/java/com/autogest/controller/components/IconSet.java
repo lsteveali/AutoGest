@@ -69,6 +69,9 @@ public final class IconSet {
     public static final String INFO ="M12 22 A10 10 0 1 1 12 2 A10 10 0 1 1 12 22 M12 16 L12 12 M12 8 L12.01 8";
     public static final String MAIL = "M4 4 L20 4 A2 2 0 0 1 22 6 L22 18 A2 2 0 0 1 20 20 L4 20 A2 2 0 0 1 2 18 L2 6 A2 2 0 0 1 4 4 Z M22 6 L12 13 L2 6";
     public static final String LOCK = "M5 11 L19 11 A2 2 0 0 1 21 13 L21 20 A2 2 0 0 1 19 22 L5 22 A2 2 0 0 1 3 20 L3 13 A2 2 0 0 1 5 11 Z M7 11 L7 7 A5 5 0 0 1 17 7 L17 11";
+    public static final String SUN = "M12 7 A5 5 0 1 1 12 17 A5 5 0 1 1 12 7 Z M12 1 L12 3 M12 21 L12 23 M4.2 4.2 L5.6 5.6 "
+            + "M18.4 18.4 L19.8 19.8 M1 12 L3 12 M21 12 L23 12 M4.2 19.8 L5.6 18.4 M18.4 5.6 L19.8 4.2";
+    public static final String MOON = "M21 12.8 A9 9 0 1 1 11.2 3 A7 7 0 0 0 21 12.8 Z";
     public static final String CALENDAR ="M3 5 A1 1 0 0 1 4 4 L20 4 A1 1 0 0 1 21 5 L21 19 A1 1 0 0 1 20 20 L4 20 A1 1 0 0 1 3 19 Z M3 9 L21 9 M8 2 L8 6 M16 2 L16 6";
 
     /**

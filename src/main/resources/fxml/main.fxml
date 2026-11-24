@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
@@ -21,13 +22,23 @@
          como en los mockups: la Sidebar ocupa todo el alto), el área donde el
          ViewNavigator carga las pantallas y el botón flotante del Asistente. -->
     <center>
-        <VBox fx:id="centerColumn" styleClass="center-column">
-            <Topbar fx:id="topbar" />
-            <StackPane VBox.vgrow="ALWAYS">
-                <StackPane fx:id="contentArea" styleClass="content-area" />
-                <AssistantButton fx:id="assistantButton" StackPane.alignment="BOTTOM_RIGHT" />
+        <StackPane>
+            <!-- Foto del taller detrás de la Topbar y del título de cada pantalla
+                 (en el Inicio se oculta: el Inicio trae su propio encabezado fijo). -->
+            <StackPane fx:id="shellHeader" styleClass="shell-header" mouseTransparent="true"
+                       StackPane.alignment="TOP_CENTER">
+                <Region styleClass="page-photo" />
+                <Region styleClass="page-photo-fade" />
+                <Region styleClass="page-photo-bottom" StackPane.alignment="BOTTOM_CENTER" />
             </StackPane>
-        </VBox>
+            <VBox fx:id="centerColumn" styleClass="center-column">
+                <Topbar fx:id="topbar" />
+                <StackPane VBox.vgrow="ALWAYS">
+                    <StackPane fx:id="contentArea" styleClass="content-area" />
+                    <AssistantButton fx:id="assistantButton" StackPane.alignment="BOTTOM_RIGHT" />
+                </StackPane>
+            </VBox>
+        </StackPane>
     </center>
 
 </BorderPane>
