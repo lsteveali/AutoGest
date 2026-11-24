@@ -1228,6 +1228,38 @@ Rama `feature/encabezado-dashboard` desde `origin/develop` (`d342de3`).
 
 **Archivos de Dev 1 tocados:** ninguno.
 
+### 24/11/2026 — Sesión 41 (Líder): tema claro u oscuro en toda la aplicación
+
+**Contexto.** Al revisar la Sesión 40, el Líder pidió:
+- La paleta nueva en toda la interfaz.
+- La foto del taller arriba en todas las pantallas.
+- Los fondos nuevos del login. En la Sesión 40 se entendió que esas fotos eran solo de referencia; eran para usarlas.
+- Un botón de tema claro u oscuro que cambie todo el sistema, login incluido, como sus capturas del Inicio en claro y en oscuro.
+
+El carro de la vitrina no cambia. Misma rama `feature/encabezado-dashboard`.
+
+**Hecho:**
+1. **Fondos del login:** `login-taller-claro.jpg` (taller de día) y `login-taller-noche.jpg` (taller de noche), convertidos desde WebP.
+2. **Paleta en toda la interfaz** (`autogest.css`):
+   - Los tokens de `.root` son ahora el tema claro: fondo Ivory, texto Steel, tarjetas blancas, y botones, enlaces y foco en Brick.
+   - El tema oscuro redefine los mismos tokens en `.app-dark`: fondo Steel, texto Ivory, tarjetas y tablas sólidas, y los colores base de los controles de JavaFX (campos, menús, diálogos, barras).
+   - La barra lateral sigue negra en los dos temas.
+   - Se cambiaron los tintes rojos y caramelo de la paleta anterior.
+   - La placa sigue amarilla con letras negras.
+   - El aviso de stock bajo de Inventario se ajustó desde `autogest.css`, sin tocar `inventory.css`.
+3. **`ThemeManager`:**
+   - Pone la clase `app-dark` en la raíz de cada ventana que se abre: la principal, los diálogos, los menús y «Recuperar contraseña».
+   - A los diálogos estándar de JavaFX les agrega la hoja de estilos.
+   - Al arrancar toma el tema guardado en el equipo.
+4. **Botón de tema** en la barra superior: luna en el tema claro, sol en el oscuro. Cambia toda la aplicación al instante y lo guarda en el equipo. «Guardar cambios» en Personalización hace lo mismo, y la tarjeta «Tema» marca el tema activo.
+5. **Foto del taller en todas las pantallas** (`main.fxml` + `MainController`):
+   - El shell pone la foto (de día o de noche) detrás de la barra superior y del título, con el degradado y un borde inferior que la funde con el fondo.
+   - El Inicio conserva su encabezado fijo de la Sesión 40.
+6. Se revisaron en los dos temas: Inicio, Clientes, Nuevo cliente, Vehículos, Órdenes, Inventario, Facturación, Notificaciones, Reportes, Configuración, Personalización y el login.
+7. **Pruebas:** `AppThemeTest` (2). `mvn clean test` → **665 pruebas, 0 fallos**.
+
+**Archivos de Dev 1 tocados:** ninguno. Las pantallas de Dev 1 toman la paleta por los tokens.
+
 ---
 
 ## 4. Decisiones y acuerdos
@@ -1295,7 +1327,8 @@ Rama `feature/encabezado-dashboard` desde `origin/develop` (`d342de3`).
 | 22/11/2026 | **El póster de ExpoSoftware no se sube al repositorio.** | Decisión del Líder: queda fuera de Git (se ignora solo en el equipo local con `.git/info/exclude`). |
 | 23/11/2026 | **Los códigos para recuperar la contraseña viven en memoria (con su hash) y no en la base de datos.** | La recuperación ocurre en el mismo equipo y en minutos; así no hace falta una tabla nueva en Supabase. Si se cierra la app antes de usar el código, se pide otro. |
 | 23/11/2026 | **Los correos de bienvenida nunca llevan la contraseña.** | Seguridad: el usuario la recibe del administrador o la cambia con «¿Olvidaste tu contraseña?». |
-| 24/11/2026 | **El tema claro u oscuro se aplica al login y al Inicio; las demás pantallas siguen claras.** El encabezado del Inicio queda fijo y solo se desplazan las tarjetas. | Pedido del Líder: el cambio se limita al Inicio. Con el encabezado fijo, el saludo, «+ Nueva orden» y el carro se ven en cualquier tamaño de ventana. |
+| 24/11/2026 | **El encabezado del Inicio queda fijo y solo se desplazan las tarjetas.** | Con el encabezado fijo, el saludo, «+ Nueva orden» y el carro se ven en cualquier tamaño de ventana. |
+| 24/11/2026 | **Un solo tema (claro u oscuro) para toda la aplicación, login incluido: los tokens de `.root` son el claro y `.app-dark` los redefine; `ThemeManager` pone esa clase en cada ventana.** Reemplaza la decisión de la Sesión 40, que lo dejaba solo en el login y el Inicio. | Pedido del Líder. Al cambiar los tokens, todas las pantallas (también las de Dev 1) cambian sin tocar sus archivos, y los diálogos y menús siguen el tema. |
 | 19/11/2026 | **El formulario «Nueva notificación» propone un mensaje según el tipo** (plantillas del Líder) sin pisar lo que el usuario escribió. | Pedido del Líder. Se autorizó tocar `NotificationNewController` y `NotificationService` de Dev 1; se registra en la sección «Para Dev 1» del PR. |
 
 ---
