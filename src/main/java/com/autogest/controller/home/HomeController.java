@@ -38,8 +38,10 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Path;
+import javafx.scene.shape.Rectangle;
 
 import java.net.URL;
 import java.time.LocalDate;
@@ -69,6 +71,8 @@ public class HomeController implements Initializable, NavigatorAware {
 
     @FXML
     private VBox root;
+    @FXML
+    private StackPane hero;
 
     private KpiCard customersCard;
     private KpiCard vehiclesCard;
@@ -84,8 +88,8 @@ public class HomeController implements Initializable, NavigatorAware {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        root.getChildren().addAll(buildHeader(), buildKpiRow(),
-                buildStatusRow(), buildBottomRow());
+        buildHero();
+        root.getChildren().addAll(buildKpiRow(), buildStatusRow(), buildBottomRow());
         Platform.runLater(this::reload);
     }
 
@@ -95,6 +99,31 @@ public class HomeController implements Initializable, NavigatorAware {
     }
 
     // ---------- cabecera ----------
+
+    /**
+     * Encabezado con la foto del taller: la foto cubre el espacio, conserva su
+     * proporción y se recorta por la izquierda (el carro y el elevador quedan a
+     * la derecha); un degradado del color de fondo la funde detrás del saludo y
+     * encima van el saludo y «+ Nueva orden». La foto de cada tema la pone el CSS.
+     */
+    private void buildHero() {
+        Region photo = new Region();
+        photo.getStyleClass().add("dashboard-hero-photo");
+        Region fade = new Region();
+        fade.getStyleClass().add("dashboard-hero-fade");
+        Region bottomFade = new Region();
+        bottomFade.getStyleClass().add("dashboard-hero-bottom");
+        StackPane.setAlignment(bottomFade, Pos.BOTTOM_CENTER);
+        PageHeader header = buildHeader();
+        header.setMaxHeight(Region.USE_PREF_SIZE);
+        StackPane.setAlignment(header, Pos.BOTTOM_LEFT);
+        // La foto no se sale del encabezado al cambiar el tamaño de la ventana.
+        Rectangle clip = new Rectangle();
+        clip.widthProperty().bind(hero.widthProperty());
+        clip.heightProperty().bind(hero.heightProperty());
+        hero.setClip(clip);
+        hero.getChildren().addAll(photo, fade, bottomFade, header);
+    }
 
     private PageHeader buildHeader() {
         PageHeader header = new PageHeader(greeting(),

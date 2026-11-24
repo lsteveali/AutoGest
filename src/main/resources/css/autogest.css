@@ -1077,6 +1077,192 @@
     -fx-background-color: transparent;
 }
 
+/* Encabezado del Inicio (24/11/2026): la foto del taller llega hasta el borde
+   superior (la Topbar va encima, sin fondo) y un degradado del color de fondo la
+   funde detrás del saludo. De día en el tema claro y de noche en el oscuro
+   (MainController pone dashboard-light o dashboard-dark en la columna). */
+.dashboard-mode {
+    -fx-background-color: -ag-bg;
+}
+
+.dashboard-mode .content-area {
+    -fx-padding: 0;
+}
+
+.dashboard-body {
+    -fx-padding: 16 24 24 24;
+}
+
+.dashboard-hero {
+    -fx-min-height: 272;
+    -fx-pref-height: 272;
+    -fx-max-height: 272;
+}
+
+.dashboard-hero .page-header {
+    -fx-padding: 0 24 22 24;
+}
+
+.dashboard-hero .page-title {
+    -fx-font-size: 32px;
+}
+
+/* Cubre el encabezado sin deformarse y se recorta por la izquierda: el carro y
+   el elevador quedan siempre a la derecha. */
+.dashboard-hero-photo {
+    -fx-background-image: url("../images/dashboard-taller-dia.png");
+    -fx-background-size: cover;
+    -fx-background-position: right 30%;
+    -fx-background-repeat: no-repeat;
+}
+
+.dashboard-dark .dashboard-hero-photo {
+    -fx-background-image: url("../images/dashboard-taller-noche.png");
+}
+
+/* Sólido detrás del saludo y transparente hacia el carro. */
+.dashboard-hero-fade {
+    -fx-background-color: linear-gradient(to right, #EBEDF1 0%, rgba(235, 237, 241, 0.94) 22%,
+            rgba(235, 237, 241, 0.62) 38%, rgba(235, 237, 241, 0) 60%);
+}
+
+.dashboard-dark .dashboard-hero-fade {
+    -fx-background-color: linear-gradient(to right, #22282F 0%, rgba(34, 40, 47, 0.94) 22%,
+            rgba(34, 40, 47, 0.62) 38%, rgba(34, 40, 47, 0) 60%);
+}
+
+/* Borde inferior: la foto se funde con el fondo de las tarjetas. */
+.dashboard-hero-bottom {
+    -fx-max-height: 36;
+    -fx-background-color: linear-gradient(to bottom, rgba(235, 237, 241, 0), #EBEDF1);
+}
+
+.dashboard-dark .dashboard-hero-bottom {
+    -fx-background-color: linear-gradient(to bottom, rgba(34, 40, 47, 0), #22282F);
+}
+
+.dashboard-hero .btn-primary {
+    -fx-background-color: -ag-brick;
+    -fx-background-radius: 10;
+    -fx-font-size: 15px;
+    -fx-padding: 10 20;
+}
+
+.dashboard-hero .btn-primary:hover {
+    -fx-background-color: -ag-brick-hover;
+}
+
+.dashboard-hero .btn-primary:pressed {
+    -fx-background-color: derive(-ag-brick, -24%);
+}
+
+/* Tema claro del Inicio: fondo Ivory y texto Steel; tarjetas y tablas sólidas. */
+.dashboard-light {
+    -ag-bg: -ag-ivory;
+    -ag-card: #FFFFFF;
+    -ag-border: #D9DDE3;
+    -ag-border-strong: #C3C9D1;
+    -ag-divider: #E7E9ED;
+    -ag-hover: #F2F3F6;
+    -ag-pressed: #E6E8EC;
+    -ag-surface-alt: #F6F7F9;
+    -ag-text: -ag-steel;
+    -ag-text-muted: #5D6570;
+    -ag-avatar: #DCE0E6;
+    -ag-avatar-text: #3D4550;
+    -fx-text-background-color: -ag-steel;
+}
+
+/* Tema oscuro del Inicio: fondo Steel y texto Ivory; tarjetas y tablas sólidas. */
+.dashboard-dark {
+    -ag-bg: -ag-night-bg;
+    -ag-card: -ag-night-card;
+    -ag-border: -ag-night-border;
+    -ag-border-strong: -ag-night-border-strong;
+    -ag-divider: #353D47;
+    -ag-hover: -ag-night-hover;
+    -ag-pressed: #3A434E;
+    -ag-surface-alt: #272D35;
+    -ag-selected: #4A3329;
+    -ag-text: -ag-night-text;
+    -ag-text-muted: -ag-night-text-muted;
+    -ag-text-placeholder: #8A929D;
+    -ag-text-disabled: #6A727D;
+    -ag-avatar: -ag-ivory;
+    -ag-avatar-text: -ag-steel;
+    -ag-danger: #F07A6E;
+    -ag-danger-tint: rgba(240, 122, 110, 0.18);
+    -fx-background: -ag-night-bg;
+    -fx-base: -ag-night-card;
+    -fx-text-background-color: -ag-night-text;
+    -fx-text-base-color: -ag-night-text;
+}
+
+.dashboard-dark .topbar-user-name {
+    -fx-text-fill: -ag-night-text;
+}
+
+/* La campana y el usuario van sobre la foto: un fondo translúcido los separa. */
+.dashboard-mode .topbar-user,
+.dashboard-mode .topbar .icon-button {
+    -fx-background-color: rgba(235, 237, 241, 0.82);
+    -fx-background-radius: 12;
+}
+
+.dashboard-dark .topbar-user,
+.dashboard-dark .topbar .icon-button {
+    -fx-background-color: rgba(34, 40, 47, 0.78);
+}
+
+.dashboard-mode .topbar-user:hover,
+.dashboard-mode .topbar .icon-button:hover {
+    -fx-background-color: -ag-card;
+}
+
+.dashboard-dark .card {
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.30), 14, 0, 0, 4);
+}
+
+.dashboard-dark .kpi-value {
+    -fx-text-fill: -ag-night-text;
+}
+
+.dashboard-dark .breadcrumb-link {
+    -fx-text-fill: -ag-night-link;
+}
+
+.dashboard-dark .stage-icon {
+    -fx-background-color: -ag-brick;
+}
+
+.dashboard-dark .stage-icon .icon {
+    -fx-stroke: -ag-ivory;
+}
+
+.dashboard-dark .badge-success {
+    -fx-background-color: rgba(46, 160, 98, 0.22);
+    -fx-text-fill: #6FD3A0;
+}
+
+.dashboard-dark .badge-warning {
+    -fx-background-color: rgba(217, 154, 18, 0.20);
+    -fx-text-fill: #F0C25E;
+}
+
+.dashboard-dark .badge-danger {
+    -fx-text-fill: #FF8F84;
+}
+
+.dashboard-dark .badge-info {
+    -fx-background-color: rgba(84, 150, 200, 0.20);
+    -fx-text-fill: #8EC1E6;
+}
+
+.dashboard-dark .badge-neutral {
+    -fx-background-color: rgba(169, 176, 186, 0.18);
+    -fx-text-fill: -ag-night-text-muted;
+}
+
 /* --------------------------------------------------------------------------
    Desplazamiento de formularios y detalles (Vehículos, Servicios)
    El shell no desplaza: cada pantalla alta trae su ScrollPane transparente.
