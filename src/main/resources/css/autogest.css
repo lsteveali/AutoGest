@@ -2565,6 +2565,17 @@
 /* --------------------------------------------------------------------------
    Barrido visual (24/11/2026): menos ruido sobre el mismo sistema
    -------------------------------------------------------------------------- */
+/* Migas de pan en gris; el enlace se subraya al pasar el mouse. «Ver todas»
+   y los demás enlaces fuera de las migas siguen en Brick. */
+.breadcrumb-row .breadcrumb-link {
+    -fx-text-fill: -ag-text-muted;
+}
+
+.breadcrumb-row .breadcrumb-link:hover {
+    -fx-text-fill: -ag-text;
+    -fx-underline: true;
+}
+
 /* Espacio libre al pie del contenido: el botón redondo del Asistente no tapa
    la paginación ni los botones del final del formulario. */
 .content-area {
@@ -2577,5 +2588,11 @@
 
 .dashboard-body {
     -fx-padding: 16 24 84 24;
+}
+
+/* Texto de ayuda legible en los campos del tema oscuro (también en los
+   combos editables, como Ciudad o Motivo del ingreso). */
+.app-dark .text-input {
+    -fx-prompt-text-fill: -ag-text-placeholder;
 }
 
