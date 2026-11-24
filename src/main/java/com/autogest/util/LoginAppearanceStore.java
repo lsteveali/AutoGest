@@ -17,6 +17,7 @@ public final class LoginAppearanceStore {
 
     static final String VEHICLE_KEY = "vehicle";
     static final String COLOR_KEY = "color";
+    static final String THEME_KEY = "theme";
     private static final String NODE = "com/autogest/login-appearance";
 
     private final Preferences node;
@@ -67,6 +68,34 @@ public final class LoginAppearanceStore {
             node.flush();
         } catch (BackingStoreException | RuntimeException error) {
             throw new IllegalStateException("No se pudo guardar la personalización en este equipo.", error);
+        }
+    }
+
+    /**
+     * Tema guardado en este equipo.
+     *
+     * @return el tema, o el claro si no hay nada guardado
+     */
+    public AppTheme theme() {
+        try {
+            return AppTheme.parse(node.get(THEME_KEY, null));
+        } catch (RuntimeException error) {
+            return AppTheme.LIGHT;
+        }
+    }
+
+    /**
+     * Guarda el tema en este equipo.
+     *
+     * @param theme tema elegido ({@code null} = claro)
+     * @throws IllegalStateException si el sistema no permite escribirlo
+     */
+    public void saveTheme(AppTheme theme) {
+        try {
+            node.put(THEME_KEY, (theme == null ? AppTheme.LIGHT : theme).name());
+            node.flush();
+        } catch (BackingStoreException | RuntimeException error) {
+            throw new IllegalStateException("No se pudo guardar el tema en este equipo.", error);
         }
     }
 

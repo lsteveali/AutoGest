@@ -55,6 +55,17 @@ class LoginAppearanceStoreTest {
     }
 
     @Test
+    void themeIsLightUntilDarkIsSaved() {
+        assertEquals(AppTheme.LIGHT, store.theme());
+
+        store.saveTheme(AppTheme.DARK);
+        assertEquals(AppTheme.DARK, new LoginAppearanceStore(node).theme());
+
+        node.put(LoginAppearanceStore.THEME_KEY, "SEPIA");
+        assertEquals(AppTheme.LIGHT, store.theme());
+    }
+
+    @Test
     void savingNullRestoresTheFactoryLook() {
         store.save(new LoginAppearance(Vehicle.CLASSIC, "#2F6B3A"));
         store.save(null);
