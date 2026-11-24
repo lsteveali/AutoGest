@@ -2627,3 +2627,11 @@
 .dialog-pane.alert > .button-bar > .container > .button:focused {
     -fx-effect: dropshadow(three-pass-box, rgba(30, 138, 79, 0.35), 6, 0.5, 0, 0);
 }
+
+/* --------------------------------------------------------------------------
+   Teléfono con país (PhoneField)
+   -------------------------------------------------------------------------- */
+.phone-country {
+    -fx-min-width: 88;
+    -fx-pref-width: 92;
+}
