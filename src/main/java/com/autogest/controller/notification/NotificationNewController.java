@@ -8,6 +8,7 @@ import com.autogest.controller.ViewNavigator;
 import com.autogest.controller.components.ErrorDialog;
 import com.autogest.controller.components.FormLayout;
 import com.autogest.controller.components.PageHeader;
+import com.autogest.controller.components.SearchableCombo;
 import com.autogest.exception.AutoGestException;
 import com.autogest.exception.ValidationException;
 import com.autogest.model.Catalogs.Channel;
@@ -111,6 +112,13 @@ public class NotificationNewController implements Initializable, NavigatorAware,
                 : order.getVehicle().getMake() + " " + order.getVehicle().getModel()));
         customerBox.valueProperty().addListener((obs, old, customer) -> loadOrders(customer));
         orderBox.valueProperty().addListener((obs, old, order) -> refreshPreset(false));
+        // Se pueden escribir: la lista se reduce por nombre o documento del cliente,
+        // y por número, placa o vehículo de la orden (Líder, SearchableCombo).
+        SearchableCombo.enable(customerBox, Customer::getFullName,
+                customer -> customer.getFullName() + " " + customer.getDocumentNumber());
+        SearchableCombo.enable(orderBox, orderBox.getConverter()::toString,
+                order -> orderBox.getConverter().toString(order) + " "
+                        + (order.getVehicle() == null ? "" : order.getVehicle().getLicensePlate()));
         GridPane grid = FormLayout.grid(2);
         FormLayout.row(grid, 0, FormLayout.labeled("Cliente *", customerBox),
                 FormLayout.labeled("Orden relacionada", orderBox));
@@ -297,7 +305,7 @@ public class NotificationNewController implements Initializable, NavigatorAware,
 
     private void loadCustomers() {
         try {
-            customerBox.getItems().setAll(AppContext.getInstance().getCustomerService()
+            SearchableCombo.setItems(customerBox, AppContext.getInstance().getCustomerService()
                     .searchCustomers(null, CustomerStatus.ACTIVE));
             if (pendingCustomerId > 0) {
                 customerBox.getItems().stream().filter(c -> c.getId() == pendingCustomerId)
@@ -310,13 +318,13 @@ public class NotificationNewController implements Initializable, NavigatorAware,
 
     private void loadOrders(Customer customer) {
         orderBox.setValue(null);
-        orderBox.getItems().clear();
+        SearchableCombo.setItems(orderBox, java.util.List.of());
         refreshPreset(false);
         if (customer == null) {
             return;
         }
         try {
-            orderBox.getItems().setAll(AppContext.getInstance().getServiceOrderService()
+            SearchableCombo.setItems(orderBox, AppContext.getInstance().getServiceOrderService()
                     .findByCustomer(customer.getId()));
         } catch (AutoGestException e) {
             // La orden es opcional: si falla la carga se puede notificar sin ella.
