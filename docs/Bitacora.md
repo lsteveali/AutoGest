@@ -1256,6 +1256,7 @@ El carro de la vitrina no cambia. Misma rama `feature/encabezado-dashboard`.
    - El shell pone la foto (de día o de noche) detrás de la barra superior y del título, con el degradado y un borde inferior que la funde con el fondo.
    - El Inicio conserva su encabezado fijo de la Sesión 40.
 6. Se revisaron en los dos temas: Inicio, Clientes, Nuevo cliente, Vehículos, Órdenes, Inventario, Facturación, Notificaciones, Reportes, Configuración, Personalización y el login.
+   - **Barra lateral menos saturada** (pedido del Líder): textos e íconos en Ivory atenuado, que se encienden al pasar el mouse y en el ítem activo (Brick); títulos de grupo más discretos; más aire entre ítems; y un negro un poco más suave (`#15181C`).
 7. **Pruebas:** `AppThemeTest` (2). `mvn clean test` → **665 pruebas, 0 fallos**.
 
 **Archivos de Dev 1 tocados:** ninguno. Las pantallas de Dev 1 toman la paleta por los tokens.
