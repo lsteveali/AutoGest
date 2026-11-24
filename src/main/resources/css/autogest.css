@@ -41,6 +41,17 @@
     -ag-danger-tint: #F6DCD6;
     -ag-neutral: #8C8577;
 
+    /* Tema oscuro (por ahora, el inicio de sesión con el taller nocturno) */
+    -ag-night-bg: #0E131B;
+    -ag-night-bg-end: #151C27;
+    -ag-night-card: #161C26;
+    -ag-night-input: #0F141C;
+    -ag-night-border: #2B3443;
+    -ag-night-border-strong: #3D4859;
+    -ag-night-text: #F2F4F7;
+    -ag-night-text-muted: #A3ACBA;
+    -ag-night-link: #FF5A5F;
+
     /* Tipografía */
     -fx-font-family: "Manrope", "Segoe UI", sans-serif;
     -fx-font-size: 14px;
@@ -854,6 +865,135 @@
 
 .login-card .hyperlink:disabled {
     -fx-opacity: 0.7;
+}
+
+/* Temas del inicio de sesión: el fondo del taller va solo en el panel
+   izquierdo (60 %); el derecho (40 %) es el del formulario. */
+.theme-light .login-brand,
+.theme-dark .login-brand {
+    -fx-background-size: cover;
+    -fx-background-position: center;
+    -fx-background-repeat: no-repeat;
+}
+
+.theme-light .login-brand {
+    -fx-background-image: url("../images/login-taller-claro.jpg");
+}
+
+.theme-dark .login-brand {
+    -fx-background-color: -ag-night-bg;
+    -fx-background-image: url("../images/login-taller-noche.jpg");
+}
+
+/* Vista previa de Personalización: el mismo fondo del panel izquierdo del login. */
+.appearance-preview.theme-light,
+.appearance-preview.theme-dark {
+    -fx-background-size: cover;
+    -fx-background-position: center;
+    -fx-background-repeat: no-repeat;
+    -fx-background-radius: 10;
+}
+
+.appearance-preview.theme-light {
+    -fx-background-image: url("../images/login-taller-claro.jpg");
+}
+
+.appearance-preview.theme-dark {
+    -fx-background-color: -ag-night-bg;
+    -fx-background-image: url("../images/login-taller-noche.jpg");
+}
+
+.appearance-preview.theme-light .turntable-halo {
+    -fx-opacity: 0.55;
+}
+
+.appearance-preview.theme-dark .turntable-halo {
+    -fx-opacity: 0.22;
+}
+
+/* El eslogan va sobre la foto: un halo suave lo separa del fondo. */
+.theme-light .login-brand-slogan,
+.theme-dark .login-brand-slogan {
+    -fx-font-size: 22px;
+}
+
+.theme-light .login-brand-slogan {
+    -fx-text-fill: -ag-text;
+    -fx-effect: dropshadow(gaussian, rgba(255, 252, 245, 0.85), 10, 0.5, 0, 0);
+}
+
+.theme-dark .login-brand-slogan {
+    -fx-text-fill: -ag-night-text;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.75), 10, 0.4, 0, 1);
+}
+
+.theme-light .turntable-halo {
+    -fx-opacity: 0.55;
+}
+
+.theme-dark .turntable-halo {
+    -fx-opacity: 0.22;
+}
+
+/* Formulario oscuro sobre fondo nocturno. */
+.theme-dark .login-form-side {
+    -fx-background-color: linear-gradient(to bottom, -ag-night-bg-end, -ag-night-bg);
+}
+
+.theme-dark .login-card {
+    -fx-background-color: -ag-night-card;
+    -fx-border-color: -ag-night-border;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.45), 24, 0, 0, 8);
+}
+
+.theme-dark .login-title {
+    -fx-text-fill: -ag-night-text;
+}
+
+.theme-dark .login-subtitle {
+    -fx-text-fill: -ag-night-text-muted;
+}
+
+.theme-dark .login-field-label,
+.theme-dark .login-card .check-box {
+    -fx-text-fill: -ag-night-text;
+}
+
+.theme-dark .input-group {
+    -fx-background-color: -ag-night-input;
+    -fx-border-color: -ag-night-border;
+}
+
+.theme-dark .input-group:hover {
+    -fx-border-color: -ag-night-border-strong;
+}
+
+.theme-dark .input-group:focus-within {
+    -fx-border-color: -ag-night-link;
+    -fx-effect: dropshadow(three-pass-box, rgba(255, 90, 95, 0.30), 8, 0.5, 0, 0);
+}
+
+.theme-dark .input-group:focus-within .icon {
+    -fx-stroke: -ag-night-link;
+}
+
+.theme-dark .input-bare {
+    -fx-text-fill: -ag-night-text;
+    -fx-prompt-text-fill: -ag-night-text-muted;
+    -fx-highlight-fill: -ag-night-border-strong;
+}
+
+.theme-dark .login-card .check-box .box {
+    -fx-background-color: -ag-night-input;
+    -fx-border-color: -ag-night-border-strong;
+}
+
+.theme-dark .login-card .hyperlink {
+    -fx-text-fill: -ag-night-link;
+}
+
+.theme-dark .login-error {
+    -fx-text-fill: -ag-night-link;
 }
 
 /* --------------------------------------------------------------------------

@@ -110,6 +110,8 @@ public final class CarTurntable extends StackPane {
 
         // Halo de fondo, como la mancha suave de la ilustración original.
         halo = new Circle(Math.min(width, height) * 0.36, HALO);
+        // El login baja su opacidad para que se vea el taller de fondo detrás.
+        halo.getStyleClass().add("turntable-halo");
         halo.setTranslateY(-height * 0.06);
         getChildren().addAll(halo, buildScene(width, height));
         show(appearance);
