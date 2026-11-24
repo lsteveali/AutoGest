@@ -85,26 +85,49 @@ public class InvoiceDetailController implements NavigatorAware, ParameterizedCon
                 });
     }
 
-    /** Arma la pantalla con la factura cargada (visible en el paquete para las pruebas de interfaz). */
+    /**
+     * Arma la pantalla con la factura cargada (visible en el paquete para las
+     * pruebas de interfaz). Cuadrícula simétrica de tres columnas iguales; las
+     * tarjetas de una misma fila tienen el mismo alto, así no quedan huecos:
+     * <ul>
+     *   <li>Cliente · Orden de servicio · Resumen de factura;</li>
+     *   <li>Conceptos facturados (dos columnas) · Información de pago;</li>
+     *   <li>Historial, a todo el ancho.</li>
+     * </ul>
+     */
     void render(Invoice invoice) {
-        GridPane columns = new GridPane();
-        columns.setHgap(16);
-        ColumnConstraints left = new ColumnConstraints();
-        left.setPercentWidth(64);
-        ColumnConstraints right = new ColumnConstraints();
-        right.setPercentWidth(36);
-        columns.getColumnConstraints().addAll(left, right);
+        GridPane grid = new GridPane();
+        grid.setHgap(16);
+        grid.setVgap(16);
+        for (int i = 0; i < 3; i++) {
+            ColumnConstraints column = new ColumnConstraints();
+            column.setPercentWidth(100.0 / 3);
+            column.setHgrow(Priority.ALWAYS);
+            grid.getColumnConstraints().add(column);
+        }
 
-        GridPane parties = BillingUi.pair(customerCard(invoice.getOrder()), orderCard(invoice.getOrder()));
-        VBox leftColumn = new VBox(16, parties, BillingUi.card("Conceptos facturados", IconSet.FILE_TEXT, null,
-                BillingUi.conceptsTable(invoice.getOrder())));
         VBox summary = BillingUi.card("Resumen de factura", IconSet.CREDIT_CARD, null, BillingUi.totals(invoice));
         summary.getStyleClass().add("order-costs-card");
-        VBox rightColumn = new VBox(16, summary, paymentCard(invoice), historyCard(invoice));
-        columns.add(leftColumn, 0, 0);
-        columns.add(rightColumn, 1, 0);
+        Node concepts = BillingUi.card("Conceptos facturados", IconSet.FILE_TEXT, null,
+                BillingUi.conceptsTable(invoice.getOrder()));
 
-        root.getChildren().setAll(header(invoice), columns);
+        grid.add(fill(customerCard(invoice.getOrder())), 0, 0);
+        grid.add(fill(orderCard(invoice.getOrder())), 1, 0);
+        grid.add(fill(summary), 2, 0);
+        grid.add(fill(concepts), 0, 1, 2, 1);
+        grid.add(fill(paymentCard(invoice)), 2, 1);
+        grid.add(fill(historyCard(invoice)), 0, 2, 3, 1);
+
+        root.getChildren().setAll(header(invoice), grid);
+    }
+
+    /** La tarjeta ocupa todo el alto y el ancho de su celda (mismo alto en toda la fila). */
+    private static Node fill(Node card) {
+        if (card instanceof Region region) {
+            region.setMaxWidth(Double.MAX_VALUE);
+            region.setMaxHeight(Double.MAX_VALUE);
+        }
+        return card;
     }
 
     // ---------- cabecera ----------
