@@ -1592,6 +1592,7 @@ Verificación: `develop` → `mvn clean test` **108 pruebas, 0 fallos**
 - [x] ~~Recuperar contraseña por correo y correos de bienvenida a usuarios y clientes~~ — PR #39 fusionado (`d9549d0`, 23/11/2026; Sesión 39).
 - [x] ~~Tema claro u oscuro en toda la app, paleta Brick, Ivory y Steel, foto del taller en los encabezados y fondos nuevos del login~~ — PR #40 fusionado (`b0bbc2f`, 24/11/2026; Sesiones 40 y 41).
 - [x] ~~Barrido visual (tarjetas planas, Asistente redondo, migas de pan en gris) y botón verde en los avisos~~ — PR #41 fusionado (`7740113`, 24/11/2026; Sesión 42).
+- [x] ~~Validaciones de contacto, desplegables escribibles, tablas iguales, avisos con logo, listas de Clientes, Vehículos y Servicios y factura simétrica~~ — PR #42 fusionado (`d06694f`, 24/11/2026; Sesiones 43 y 44).
 
 **Pendientes nuevos (14/10/2026):**
 - [x] ~~Confirmar el estado del PR del backend de Clientes~~ — resuelto: PR **#5** (backend) y **#8** (interfaz completa) fusionados en `develop`; siguen pendientes de revisión de Sebastián los PRs del Líder.
