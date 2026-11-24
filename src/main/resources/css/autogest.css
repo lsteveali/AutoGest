@@ -1,53 +1,54 @@
 /* ==========================================================================
    AutoGest - Sistema de diseño (Sprint 1, L4)
-   Paleta del Líder (19/11/2026): Onyx #111111, Porcelain #FFFFFC,
-   Khaki Beige #BEB7A4, Burnt Caramel #C65C00 e Inferno #AB0000.
+   Paleta del Líder (24/11/2026): Brick #9D563A, Ivory #EBEDF1 y Steel #22282F,
+   con la barra lateral negra. El tema claro son los tokens de .root; el oscuro
+   los redefine en .app-dark (ThemeManager pone esa clase en cada ventana).
    Ningún FXML ni clase Java usa colores fijos: todo viene de aquí.
    ========================================================================== */
 
 .root {
     /* Paleta base */
-    -ag-navy: #111111;              /* Onyx: barra lateral y superficies oscuras */
-    -ag-primary: #AB0000;           /* Inferno: botones principales, enlaces y foco */
-    -ag-primary-hover: #8C0000;
-    -ag-accent: #C65C00;            /* Burnt Caramel: ítem activo, íconos y gráficas */
-    -ag-accent-hover: #A84E00;
-    -ag-sand: #BEB7A4;              /* Khaki Beige: base de fondos y bordes */
-    -ag-card: #FFFFFC;              /* Porcelain: tarjetas, campos y tablas */
-    -ag-bg: #ECE8DE;                /* Khaki Beige aclarado: fondo de las pantallas */
-    -ag-border: #DAD4C5;
-    -ag-border-strong: #C6BEAA;
-    -ag-divider: #EEE9DE;
+    -ag-navy: #111111;              /* Negro: barra lateral (en los dos temas) */
+    -ag-brick: #9D563A;             /* Brick: botones principales, ítem activo y foco */
+    -ag-brick-hover: #864931;
+    -ag-ivory: #EBEDF1;             /* Ivory: fondo del tema claro y texto del oscuro */
+    -ag-steel: #22282F;             /* Steel: fondo del tema oscuro y texto del claro */
+    -ag-primary: -ag-brick;         /* Botones principales, enlaces y foco */
+    -ag-primary-hover: -ag-brick-hover;
+    -ag-accent: #B0592F;            /* Íconos, indicadores y gráficas */
+    -ag-accent-hover: -ag-brick;
+    -ag-sand: #C9CED6;              /* Base de fondos y bordes */
+    -ag-card: #FFFFFF;              /* Tarjetas, campos y tablas */
+    -ag-bg: -ag-ivory;              /* Fondo de las pantallas */
+    -ag-border: #D9DDE3;
+    -ag-border-strong: #C3C9D1;
+    -ag-divider: #E7E9ED;
 
-    /* Estados de interacción (tintes cálidos sobre Porcelain) */
-    -ag-hover: #F4F0E6;
-    -ag-pressed: #EAE4D6;
-    -ag-surface-alt: #F8F5EE;
-    -ag-selected: #F7E4DE;
+    /* Estados de interacción */
+    -ag-hover: #F2F3F6;
+    -ag-pressed: #E6E8EC;
+    -ag-surface-alt: #F6F7F9;
+    -ag-selected: #F3E5DF;
 
     /* Texto */
-    -ag-text: #111111;
-    -ag-text-muted: #6B6455;
-    -ag-text-placeholder: #78715F;
-    -ag-text-disabled: #A39C8B;
-    -ag-avatar: #DDD6C5;
-    -ag-avatar-text: #5A5446;
+    -ag-text: -ag-steel;
+    -ag-text-muted: #5D6570;
+    -ag-text-placeholder: #7B838E;
+    -ag-text-disabled: #A3A9B2;
+    -ag-avatar: #DCE0E6;
+    -ag-avatar-text: #3D4550;
 
     /* Estados (reservados: no se usan como decoración) */
     -ag-success: #1E8A4F;
     -ag-warning: #D99A12;
     -ag-info: #2F6A94;
-    -ag-danger: #AB0000;
+    -ag-danger: #B3261E;
     -ag-danger-tint: #F6DCD6;
-    -ag-neutral: #8C8577;
+    -ag-neutral: #8A919B;
+    -ag-success-tint: #E7F6EE;
+    -ag-warning-tint: #FFF6E0;
 
-    /* Paleta del login y el Inicio (24/11/2026): Brick, Ivory y Steel */
-    -ag-brick: #9D563A;             /* Brick: «Iniciar sesión», «+ Nueva orden», ítem activo y foco */
-    -ag-brick-hover: #864931;
-    -ag-ivory: #EBEDF1;             /* Ivory: fondo del tema claro y texto del oscuro */
-    -ag-steel: #22282F;             /* Steel: fondo del tema oscuro y texto del claro */
-
-    /* Tema oscuro (el inicio de sesión y el Inicio): tonos de Steel */
+    /* Tonos de Steel del tema oscuro (también los usa el login oscuro) */
     -ag-night-bg: #22282F;
     -ag-night-bg-end: #272E36;
     -ag-night-card: #2B323B;
@@ -59,11 +60,58 @@
     -ag-night-text-muted: #A9B0BA;
     -ag-night-link: #E0936D;
 
+    /* Controles estándar de JavaFX (campos, menús, tablas, barras) */
+    -fx-accent: -ag-brick;
+    -fx-focus-color: -ag-brick;
+    -fx-faint-focus-color: rgba(157, 86, 58, 0.20);
+    -fx-text-background-color: -ag-text;
+
     /* Tipografía */
     -fx-font-family: "Manrope", "Segoe UI", sans-serif;
     -fx-font-size: 14px;
     -fx-text-fill: -ag-text;
     -fx-background-color: -ag-bg;
+}
+
+/* Tema oscuro de toda la aplicación: fondo Steel, texto Ivory, tarjetas y
+   tablas sólidas en tonos de Steel. La barra lateral sigue negra. */
+.app-dark {
+    -ag-primary: #B8653F;
+    -ag-primary-hover: #A3593A;
+    -ag-accent: #D9875F;
+    -ag-accent-hover: #C9784F;
+    -ag-sand: #4C5562;
+    -ag-bg: -ag-night-bg;
+    -ag-card: -ag-night-card;
+    -ag-border: -ag-night-border;
+    -ag-border-strong: -ag-night-border-strong;
+    -ag-divider: #353D47;
+    -ag-hover: -ag-night-hover;
+    -ag-pressed: #3A434E;
+    -ag-surface-alt: #272D35;
+    -ag-selected: #4A3329;
+    -ag-text: -ag-night-text;
+    -ag-text-muted: -ag-night-text-muted;
+    -ag-text-placeholder: #8A929D;
+    -ag-text-disabled: #6A727D;
+    -ag-avatar: -ag-ivory;
+    -ag-avatar-text: -ag-steel;
+    -ag-danger: #F07A6E;
+    -ag-danger-tint: rgba(240, 122, 110, 0.18);
+    -ag-success-tint: rgba(46, 160, 98, 0.20);
+    -ag-warning-tint: rgba(217, 154, 18, 0.18);
+    -ag-neutral: #9AA1AB;
+
+    -fx-base: -ag-night-card;
+    -fx-background: -ag-night-bg;
+    -fx-control-inner-background: -ag-night-input;
+    -fx-control-inner-background-alt: #282E36;
+    -fx-text-base-color: -ag-night-text;
+    -fx-text-background-color: -ag-night-text;
+    -fx-text-inner-color: -ag-night-text;
+    -fx-prompt-text-fill: #8A929D;
+    -fx-selection-bar-non-focused: #3A424D;
+    -fx-text-fill: -ag-text;
 }
 
 /* --------------------------------------------------------------------------
@@ -232,7 +280,7 @@
    del Tab era invisible. Se dibuja con un efecto para no mover el contenido. */
 .button:focus-visible,
 .menu-button:focus-visible {
-    -fx-effect: dropshadow(three-pass-box, rgba(171, 0, 0, 0.55), 4, 0.9, 0, 0);
+    -fx-effect: dropshadow(three-pass-box, rgba(157, 86, 58, 0.55), 4, 0.9, 0, 0);
 }
 
 .btn-primary {
@@ -314,7 +362,7 @@
    desplaza el texto). */
 .input:focused {
     -fx-border-color: -ag-primary;
-    -fx-effect: dropshadow(three-pass-box, rgba(171, 0, 0, 0.18), 6, 0.5, 0, 0);
+    -fx-effect: dropshadow(three-pass-box, rgba(157, 86, 58, 0.18), 6, 0.5, 0, 0);
 }
 
 /* --------------------------------------------------------------------------
@@ -565,7 +613,7 @@
 .kpi-card {
     -fx-background-color: -ag-card;
     -fx-background-radius: 12;
-    -fx-border-color: derive(-ag-accent, 62%);
+    -fx-border-color: -ag-border;
     -fx-border-radius: 12;
     -fx-padding: 16 20;
     -fx-spacing: 4;
@@ -717,7 +765,7 @@
 }
 
 .topbar-user-name {
-    -fx-text-fill: -ag-navy;
+    -fx-text-fill: -ag-text;
     -fx-font-size: 15px;
     -fx-font-weight: 700;
 }
@@ -830,7 +878,7 @@
 
 .input-group:focus-within {
     -fx-border-color: -ag-primary;
-    -fx-effect: dropshadow(three-pass-box, rgba(171, 0, 0, 0.18), 6, 0.5, 0, 0);
+    -fx-effect: dropshadow(three-pass-box, rgba(157, 86, 58, 0.18), 6, 0.5, 0, 0);
 }
 
 .input-group:focus-within .icon {
@@ -1119,12 +1167,19 @@
     -fx-background-color: transparent;
 }
 
-/* Encabezado del Inicio (24/11/2026): la foto del taller llega hasta el borde
-   superior (la Topbar va encima, sin fondo) y un degradado del color de fondo la
-   funde detrás del saludo. De día en el tema claro y de noche en el oscuro
-   (MainController pone dashboard-light o dashboard-dark en la columna). */
-.dashboard-mode {
-    -fx-background-color: -ag-bg;
+/* Foto del taller en el encabezado de todas las pantallas (24/11/2026): llega
+   hasta el borde superior (la Topbar va encima, sin fondo) y un degradado del
+   color de fondo la funde detrás del título. De día en el tema claro y de noche
+   en el oscuro. En el Inicio la pone el propio Inicio (encabezado fijo); en las
+   demás pantallas, el shell (MainController). */
+.shell-header {
+    -fx-min-height: 236;
+    -fx-pref-height: 236;
+    -fx-max-height: 236;
+}
+
+.dashboard-mode .shell-header {
+    visibility: hidden;
 }
 
 .dashboard-mode .content-area {
@@ -1151,156 +1206,109 @@
 
 /* Cubre el encabezado sin deformarse y se recorta por la izquierda: el carro y
    el elevador quedan siempre a la derecha. */
-.dashboard-hero-photo {
+.page-photo {
     -fx-background-image: url("../images/dashboard-taller-dia.png");
     -fx-background-size: cover;
     -fx-background-position: right 30%;
     -fx-background-repeat: no-repeat;
 }
 
-.dashboard-dark .dashboard-hero-photo {
+.app-dark .page-photo {
     -fx-background-image: url("../images/dashboard-taller-noche.png");
 }
 
-/* Sólido detrás del saludo y transparente hacia el carro. */
-.dashboard-hero-fade {
+/* Sólido detrás del título y transparente hacia el carro. */
+.page-photo-fade {
     -fx-background-color: linear-gradient(to right, #EBEDF1 0%, rgba(235, 237, 241, 0.94) 22%,
             rgba(235, 237, 241, 0.62) 38%, rgba(235, 237, 241, 0) 60%);
 }
 
-.dashboard-dark .dashboard-hero-fade {
+.app-dark .page-photo-fade {
     -fx-background-color: linear-gradient(to right, #22282F 0%, rgba(34, 40, 47, 0.94) 22%,
             rgba(34, 40, 47, 0.62) 38%, rgba(34, 40, 47, 0) 60%);
 }
 
 /* Borde inferior: la foto se funde con el fondo de las tarjetas. */
-.dashboard-hero-bottom {
+.page-photo-bottom {
     -fx-max-height: 36;
     -fx-background-color: linear-gradient(to bottom, rgba(235, 237, 241, 0), #EBEDF1);
 }
 
-.dashboard-dark .dashboard-hero-bottom {
+.shell-header .page-photo-bottom {
+    -fx-max-height: 110;
+}
+
+.app-dark .page-photo-bottom {
     -fx-background-color: linear-gradient(to bottom, rgba(34, 40, 47, 0), #22282F);
 }
 
 .dashboard-hero .btn-primary {
-    -fx-background-color: -ag-brick;
     -fx-background-radius: 10;
     -fx-font-size: 15px;
     -fx-padding: 10 20;
 }
 
-.dashboard-hero .btn-primary:hover {
-    -fx-background-color: -ag-brick-hover;
-}
-
-.dashboard-hero .btn-primary:pressed {
-    -fx-background-color: derive(-ag-brick, -24%);
-}
-
-/* Tema claro del Inicio: fondo Ivory y texto Steel; tarjetas y tablas sólidas. */
-.dashboard-light {
-    -ag-bg: -ag-ivory;
-    -ag-card: #FFFFFF;
-    -ag-border: #D9DDE3;
-    -ag-border-strong: #C3C9D1;
-    -ag-divider: #E7E9ED;
-    -ag-hover: #F2F3F6;
-    -ag-pressed: #E6E8EC;
-    -ag-surface-alt: #F6F7F9;
-    -ag-text: -ag-steel;
-    -ag-text-muted: #5D6570;
-    -ag-avatar: #DCE0E6;
-    -ag-avatar-text: #3D4550;
-    -fx-text-background-color: -ag-steel;
-}
-
-/* Tema oscuro del Inicio: fondo Steel y texto Ivory; tarjetas y tablas sólidas. */
-.dashboard-dark {
-    -ag-bg: -ag-night-bg;
-    -ag-card: -ag-night-card;
-    -ag-border: -ag-night-border;
-    -ag-border-strong: -ag-night-border-strong;
-    -ag-divider: #353D47;
-    -ag-hover: -ag-night-hover;
-    -ag-pressed: #3A434E;
-    -ag-surface-alt: #272D35;
-    -ag-selected: #4A3329;
-    -ag-text: -ag-night-text;
-    -ag-text-muted: -ag-night-text-muted;
-    -ag-text-placeholder: #8A929D;
-    -ag-text-disabled: #6A727D;
-    -ag-avatar: -ag-ivory;
-    -ag-avatar-text: -ag-steel;
-    -ag-danger: #F07A6E;
-    -ag-danger-tint: rgba(240, 122, 110, 0.18);
-    -fx-background: -ag-night-bg;
-    -fx-base: -ag-night-card;
-    -fx-text-background-color: -ag-night-text;
-    -fx-text-base-color: -ag-night-text;
-}
-
-.dashboard-dark .topbar-user-name {
+.app-dark .topbar-user-name {
     -fx-text-fill: -ag-night-text;
 }
 
 /* La campana y el usuario van sobre la foto: un fondo translúcido los separa. */
-.dashboard-mode .topbar-user,
-.dashboard-mode .topbar .icon-button {
+.topbar .topbar-user,
+.topbar .icon-button {
     -fx-background-color: rgba(235, 237, 241, 0.82);
     -fx-background-radius: 12;
 }
 
-.dashboard-dark .topbar-user,
-.dashboard-dark .topbar .icon-button {
+.app-dark .topbar-user,
+.app-dark .topbar .icon-button {
     -fx-background-color: rgba(34, 40, 47, 0.78);
 }
 
-.dashboard-mode .topbar-user:hover,
-.dashboard-mode .topbar .icon-button:hover {
+.topbar .topbar-user:hover,
+.topbar .icon-button:hover {
     -fx-background-color: -ag-card;
 }
 
-.dashboard-dark .card {
+.app-dark .card {
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.30), 14, 0, 0, 4);
 }
 
-.dashboard-dark .kpi-value {
+.app-dark .kpi-value {
     -fx-text-fill: -ag-night-text;
 }
 
-.dashboard-dark .breadcrumb-link {
+.app-dark .breadcrumb-link {
     -fx-text-fill: -ag-night-link;
 }
 
-.dashboard-dark .stage-icon {
+.app-dark .stage-icon {
     -fx-background-color: -ag-brick;
 }
 
-.dashboard-dark .stage-icon .icon {
+.app-dark .stage-icon .icon {
     -fx-stroke: -ag-ivory;
 }
 
-.dashboard-dark .badge-success {
+.app-dark .badge-success {
     -fx-background-color: rgba(46, 160, 98, 0.22);
     -fx-text-fill: #6FD3A0;
 }
 
-.dashboard-dark .badge-warning {
+.app-dark .badge-warning {
     -fx-background-color: rgba(217, 154, 18, 0.20);
     -fx-text-fill: #F0C25E;
 }
 
-.dashboard-dark .badge-danger {
+.app-dark .badge-danger {
     -fx-text-fill: #FF8F84;
 }
 
-.dashboard-dark .badge-info {
+.app-dark .badge-info {
     -fx-background-color: rgba(84, 150, 200, 0.20);
     -fx-text-fill: #8EC1E6;
 }
 
-.dashboard-dark .badge-neutral {
+.app-dark .badge-neutral {
     -fx-background-color: rgba(169, 176, 186, 0.18);
     -fx-text-fill: -ag-night-text-muted;
 }
@@ -1385,7 +1393,7 @@
 }
 
 .stage-icon {
-    -fx-background-color: rgba(198, 92, 0, 0.12);
+    -fx-background-color: rgba(157, 86, 58, 0.12);
     -fx-background-radius: 12;
     -fx-min-width: 44;
     -fx-min-height: 44;
@@ -1452,7 +1460,7 @@
 .settings-profile-name {
     -fx-font-size: 18px;
     -fx-font-weight: 700;
-    -fx-text-fill: -ag-navy;
+    -fx-text-fill: -ag-text;
 }
 
 .settings-profile-role {
@@ -1517,7 +1525,7 @@
 }
 
 .settings-card-icon {
-    -fx-background-color: rgba(198, 92, 0, 0.12);
+    -fx-background-color: rgba(157, 86, 58, 0.12);
     -fx-background-radius: 10;
     -fx-min-width: 48;
     -fx-min-height: 48;
@@ -2032,7 +2040,7 @@
 .dialog-title {
     -fx-font-size: 20px;
     -fx-font-weight: 700;
-    -fx-text-fill: -ag-navy;
+    -fx-text-fill: -ag-text;
 }
 
 .dialog-subtitle {
@@ -2190,12 +2198,12 @@
 }
 
 .order-stock-pending {
-    -fx-background-color: #FFF6E0;
+    -fx-background-color: -ag-warning-tint;
     -fx-text-fill: derive(-ag-warning, -45%);
 }
 
 .order-stock-done {
-    -fx-background-color: #E7F6EE;
+    -fx-background-color: -ag-success-tint;
     -fx-text-fill: derive(-ag-success, -30%);
 }
 
@@ -2347,7 +2355,7 @@
 }
 
 .kpi-card.kpi-link:hover {
-    -fx-border-color: derive(-ag-primary, 55%);
+    -fx-border-color: -ag-primary;
 }
 
 /* --------------------------------------------------------------------------
@@ -2490,7 +2498,7 @@
 }
 
 .report-chart .default-color0.chart-series-area-fill {
-    -fx-fill: rgba(198, 92, 0, 0.14);
+    -fx-fill: rgba(157, 86, 58, 0.14);
 }
 
 .report-chart .default-color0.chart-area-symbol {
@@ -2498,4 +2506,55 @@
     -fx-background-insets: 0, 2;
     -fx-background-radius: 5;
     -fx-padding: 4;
+}
+
+/* --------------------------------------------------------------------------
+   Tema oscuro: piezas con colores propios
+   -------------------------------------------------------------------------- */
+/* La placa sigue siendo amarilla con letras negras. */
+.app-dark .vehicle-plate {
+    -fx-text-fill: #111111;
+    -fx-border-color: #111111;
+}
+
+/* Aviso de stock bajo de Inventario (inventory.css): ámbar sobre Steel. */
+.app-dark .inventory-alert {
+    -fx-background-color: -ag-warning-tint;
+}
+
+.app-dark .inventory-alert-title,
+.app-dark .inventory-alert-text {
+    -fx-text-fill: #F0C25E;
+}
+
+/* Diálogos estándar (errores, confirmaciones y formularios). */
+.app-dark .dialog-pane {
+    -fx-background-color: -ag-card;
+}
+
+.app-dark .dialog-pane > .header-panel {
+    -fx-background-color: -ag-bg;
+}
+
+.app-dark .dialog-pane .label {
+    -fx-text-fill: -ag-text;
+}
+
+/* Menús contextuales y emergentes. */
+.app-dark .context-menu {
+    -fx-background-color: -ag-card;
+    -fx-border-color: -ag-border;
+}
+
+.app-dark .menu-item .label {
+    -fx-text-fill: -ag-text;
+}
+
+.app-dark .menu-item:focused {
+    -fx-background-color: -ag-hover;
+}
+
+.app-dark .tooltip {
+    -fx-background-color: -ag-ivory;
+    -fx-text-fill: -ag-steel;
 }

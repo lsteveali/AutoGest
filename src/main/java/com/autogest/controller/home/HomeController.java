@@ -108,11 +108,11 @@ public class HomeController implements Initializable, NavigatorAware {
      */
     private void buildHero() {
         Region photo = new Region();
-        photo.getStyleClass().add("dashboard-hero-photo");
+        photo.getStyleClass().add("page-photo");
         Region fade = new Region();
-        fade.getStyleClass().add("dashboard-hero-fade");
+        fade.getStyleClass().add("page-photo-fade");
         Region bottomFade = new Region();
-        bottomFade.getStyleClass().add("dashboard-hero-bottom");
+        bottomFade.getStyleClass().add("page-photo-bottom");
         StackPane.setAlignment(bottomFade, Pos.BOTTOM_CENTER);
         PageHeader header = buildHeader();
         header.setMaxHeight(Region.USE_PREF_SIZE);
