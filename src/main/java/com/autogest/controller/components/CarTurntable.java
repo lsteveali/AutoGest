@@ -72,6 +72,9 @@ public final class CarTurntable extends StackPane {
     private final Group vehicleSlot = new Group();
     private VehicleBuild current;
     private LoginAppearance shown;
+    /** Material del aro y las marcas de la plataforma: sigue el color del carro. */
+    private final PhongMaterial accent = material(ACCENT);
+    private Circle halo;
 
     /**
      * Crea la vitrina con la camioneta plateada de fábrica.
@@ -106,7 +109,7 @@ public final class CarTurntable extends StackPane {
         }
 
         // Halo de fondo, como la mancha suave de la ilustración original.
-        Circle halo = new Circle(Math.min(width, height) * 0.36, HALO);
+        halo = new Circle(Math.min(width, height) * 0.36, HALO);
         halo.setTranslateY(-height * 0.06);
         getChildren().addAll(halo, buildScene(width, height));
         show(appearance);
@@ -125,6 +128,11 @@ public final class CarTurntable extends StackPane {
             return;
         }
         Color color = Color.web(next.color());
+        // El aro de la plataforma, sus marcas y el halo acompañan el color del carro.
+        accent.setDiffuseColor(accentFor(color));
+        if (halo != null) {
+            halo.setFill(HALO.interpolate(color, 0.06));
+        }
         if (current != null && shown.vehicle() == next.vehicle()) {
             current.paint().setMaterial(VehiclePaint.material(color));
         } else {
@@ -135,6 +143,19 @@ public final class CarTurntable extends StackPane {
             vehicleSlot.getChildren().setAll(shadowDisc(current.footprint(), scale), model);
         }
         shown = next;
+    }
+
+    /**
+     * Color del aro de la plataforma para una pintura: el mismo color, pero
+     * oscurecido si es muy claro (blanco, plata o amarillo), para que se siga
+     * viendo sobre la plataforma blanca.
+     *
+     * @param paint color de la pintura
+     * @return color del aro
+     */
+    static Color accentFor(Color paint) {
+        double light = 0.2126 * paint.getRed() + 0.7152 * paint.getGreen() + 0.0722 * paint.getBlue();
+        return light > 0.62 ? paint.deriveColor(0, 1, 0.68, 1) : paint;
     }
 
     /** Arma el vehículo del catálogo con su pintura. */
@@ -193,12 +214,17 @@ public final class CarTurntable extends StackPane {
         return scene;
     }
 
-    /** Plataforma: base, canto, cara superior, aro de acento y marcas del giro. */
-    private static Group buildPlatform() {
+    /**
+     * Plataforma: base, canto, cara superior, aro de acento y marcas del giro.
+     * El aro y las marcas comparten {@link #accent}, que toma el color del carro.
+     */
+    private Group buildPlatform() {
         Group platform = new Group();
         platform.getChildren().add(cylinder(3.55, 0.16, PLATFORM_BASE, 0.30));
         platform.getChildren().add(cylinder(3.35, 0.30, PLATFORM_EDGE, 0.15));
-        platform.getChildren().add(cylinder(3.18, 0.04, ACCENT, 0.0));
+        Cylinder ring = cylinder(3.18, 0.04, ACCENT, 0.0);
+        ring.setMaterial(accent);
+        platform.getChildren().add(ring);
         platform.getChildren().add(cylinder(3.08, 0.06, PLATFORM_TOP, -0.01));
 
         // Aro interior tenue y cuatro marcas discretas que delatan el giro.
@@ -206,6 +232,7 @@ public final class CarTurntable extends StackPane {
         platform.getChildren().add(cylinder(DISC_RADIUS, 0.08, PLATFORM_TOP, -0.03));
         for (int i = 0; i < 4; i++) {
             Box mark = box(0.10, 0.03, 0.30, ACCENT);
+            mark.setMaterial(accent);
             mark.getTransforms().addAll(
                     new Rotate(i * 90 + 45, Rotate.Y_AXIS),
                     new Translate(0, -0.035, 2.85));
