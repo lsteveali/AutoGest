@@ -33,6 +33,8 @@ public class CustomerService {
     private static final int MAX_DOCUMENT_LENGTH = 15;
 
     private final CustomerRepository repository;
+    /** Se avisa al registrar un cliente (correo de bienvenida, Líder); por defecto nada. */
+    private java.util.function.Consumer<Customer> onRegistered = customer -> { };
 
     /**
      * Crea el servicio con el repositorio de clientes inyectado.
@@ -41,6 +43,16 @@ public class CustomerService {
      */
     public CustomerService(CustomerRepository repository) {
         this.repository = repository;
+    }
+
+    /**
+     * Define qué hacer después de registrar un cliente (lo usa el Líder para
+     * enviar el correo de bienvenida). Un error ahí no deshace el registro.
+     *
+     * @param onRegistered acción con el cliente ya guardado ({@code null} = ninguna)
+     */
+    public void setOnRegistered(java.util.function.Consumer<Customer> onRegistered) {
+        this.onRegistered = onRegistered == null ? customer -> { } : onRegistered;
     }
 
     /**
@@ -56,7 +68,13 @@ public class CustomerService {
         validateAndNormalize(customer, 0);
         customer.setRegistrationDate(LocalDate.now());
         customer.setStatus(CustomerStatus.ACTIVE);
-        return repository.create(customer);
+        Customer saved = repository.create(customer);
+        try {
+            onRegistered.accept(saved);
+        } catch (RuntimeException ignored) {
+            // El aviso de bienvenida nunca deshace un registro que ya quedó guardado.
+        }
+        return saved;
     }
 
     /**
