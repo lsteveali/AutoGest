@@ -132,7 +132,7 @@ public class ServicesController implements Initializable, NavigatorAware {
 
     private PagedTable<ServiceOffering> buildTable() {
         PagedTable<ServiceOffering> pagedTable = new PagedTable<>(PAGE_SIZE);
-        pagedTable.addColumn("Servicio", this::serviceCell);
+        pagedTable.addColumn("Servicio", this::serviceCell, 230);
         pagedTable.addColumn("Categoría", service -> service.getCategory() == null ? "-" : service.getCategory());
         pagedTable.addColumn("Duración", service -> ServiceLabels.duration(service.getDurationHours()));
         pagedTable.addColumn("Precio", service -> ServiceLabels.price(service.getPrice()));

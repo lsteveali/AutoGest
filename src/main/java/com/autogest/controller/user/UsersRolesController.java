@@ -52,7 +52,7 @@ public class UsersRolesController implements Initializable {
 
     private static final int PAGE_SIZE = 10;
     /** Alto de una fila con avatar, nombre y usuario. */
-    private static final double ROW_HEIGHT = 60;
+    private static final double ROW_HEIGHT = PagedTable.ROW_HEIGHT;
     private static final String FILTER_ALL = "Todos";
 
     @FXML

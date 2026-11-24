@@ -149,10 +149,10 @@ public class CustomerListController implements Initializable, NavigatorAware {
 
     private PagedTable<Customer> buildTable() {
         PagedTable<Customer> pagedTable = new PagedTable<>(PAGE_SIZE);
-        pagedTable.addColumn("Cliente", this::nameCell);
+        pagedTable.addColumn("Cliente", this::nameCell, 165);
         pagedTable.addColumn("Documento", CustomerLabels::documentText);
         pagedTable.addColumn("Teléfono", customer -> CustomerLabels.phoneText(customer.getPhone()));
-        pagedTable.addColumn("Correo", Customer::getEmail);
+        pagedTable.addColumn("Correo", Customer::getEmail, 170);
         pagedTable.addColumn("Vehículos",
                 customer -> String.valueOf(vehicleCounts.getOrDefault(customer.getId(), 0)));
         pagedTable.addColumn("Última visita", customer -> CustomerLabels.PLACEHOLDER);

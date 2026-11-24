@@ -2578,18 +2578,23 @@
     -fx-underline: true;
 }
 
-/* Espacio libre al pie del contenido: el botón redondo del Asistente no tapa
-   la paginación ni los botones del final del formulario. */
-.content-area {
-    -fx-padding: 24 24 84 24;
-}
-
-.dashboard-mode .content-area {
-    -fx-padding: 0;
+/* El botón redondo del Asistente queda en la esquina inferior derecha: la
+   paginación deja libre ese ancho para que «Siguiente» no quede debajo. Las
+   pantallas con desplazamiento ya agregan espacio al final (ViewNavigator). */
+.pagination-bar {
+    -fx-padding: 0 64 0 0;
 }
 
 .dashboard-body {
-    -fx-padding: 16 24 84 24;
+    -fx-padding: 16 24 72 24;
+}
+
+/* Fondo transparente de las listas con desplazamiento (Clientes, Vehículos,
+   Servicios); los demás módulos lo traen en su propia hoja. */
+.module-scroll,
+.module-scroll > .viewport {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
 }
 
 /* Texto de ayuda legible en los campos del tema oscuro (también en los

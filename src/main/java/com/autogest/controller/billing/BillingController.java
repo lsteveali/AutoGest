@@ -200,7 +200,7 @@ public class BillingController implements Initializable, NavigatorAware, Paramet
         pagedTable.addColumn("", this::actionsCell, 50);
         pagedTable.setOnSelect(invoice -> openDetail(invoice.getId()));
         // La página tiene más contenido debajo: la tabla toma el alto de sus filas (vehículo y placa).
-        pagedTable.fitHeightToRows(62);
+        pagedTable.fitHeightToRows(PagedTable.ROW_HEIGHT);
         return pagedTable;
     }
 
