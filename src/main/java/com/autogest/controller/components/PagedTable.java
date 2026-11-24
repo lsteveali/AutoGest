@@ -142,6 +142,19 @@ public class PagedTable<T> extends VBox {
     }
 
     /**
+     * Texto de una celda con un dato secundario en la misma línea, por ejemplo
+     * «Toyota TX · ISA-432». Todas las tablas usan celdas de una sola línea.
+     *
+     * @param main   dato principal
+     * @param detail dato secundario (si está vacío, solo va el principal)
+     * @return el texto de la celda
+     */
+    public static String withDetail(String main, String detail) {
+        String first = main == null || main.isBlank() ? "-" : main.trim();
+        return detail == null || detail.isBlank() || "-".equals(detail.trim()) ? first : first + " · " + detail.trim();
+    }
+
+    /**
      * Ajusta el alto de la tabla a las filas de la página (hasta {@code pageSize}),
      * en vez de crecer para llenar el espacio. Úsalo cuando la tabla va dentro de
      * una pantalla con desplazamiento y hay contenido debajo: así no queda un

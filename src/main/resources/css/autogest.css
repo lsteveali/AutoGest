@@ -587,6 +587,8 @@
     -fx-font-size: 13px;
     -fx-padding: 10 12;
     -fx-text-fill: -ag-text;
+    /* Texto, insignias y «...» centrados en la fila, todos a la misma altura. */
+    -fx-alignment: center-left;
 }
 
 /* --------------------------------------------------------------------------
