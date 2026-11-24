@@ -1159,6 +1159,46 @@ Rama `feature/fondos-interfaz` desde `origin/develop`.
 
 **Archivos de Dev 1 tocados:** ninguno.
 
+### 23/11/2026 — Sesión 39 (Líder): recuperar contraseña y correos «registrado con éxito»
+
+**Contexto.** El Líder pidió dos cosas:
+- Que «¿Olvidaste tu contraseña?» funcione.
+- Que se envíe un correo de «registrado con éxito» al crear un cliente o un usuario (administrador, recepción, mecánico o supervisión).
+
+Rama `feature/recuperar-contrasena` desde `origin/develop` (`11c8454`).
+
+**Hecho:**
+1. **Recuperar contraseña** (`PasswordRecoveryService`):
+   - Envía un código de 6 dígitos al correo de la cuenta. El código vence a los 15 minutos, sirve una vez y se anula tras 5 intentos fallidos.
+   - Solo se guarda el hash del código, en memoria; no se tocó la base de datos.
+   - Hay que esperar 1 minuto para pedir otro código.
+   - Si el correo no es de una cuenta activa, la respuesta es la misma y no se envía nada, para no revelar qué correos existen.
+   - Sin cuenta de Gmail configurada en el equipo, pide acudir al administrador.
+   - La contraseña nueva cumple las mismas reglas que al crear el usuario (`UserService.resetPassword`).
+2. **Ventana «Recuperar contraseña»** (`PasswordRecoveryDialog`), en dos pasos con el diseño del login de cada tema:
+   - **Paso 1:** el correo; se precarga el que esté escrito en el login.
+   - **Paso 2:** el código, la contraseña nueva y su confirmación, con «Reenviar código» y «Usar otro correo».
+
+   El enlace del login quedó habilitado. Al terminar, el login muestra en verde «Listo: tu contraseña cambió».
+3. **Bienvenida a usuarios** (`AccountMailer` + `UserService`):
+   - Al crear un usuario le llega «¡Te registraste con éxito en {taller}!» con su rol y el correo con el que entra.
+   - **Nunca lleva la contraseña.** Explica que la entrega el administrador o que se recupera desde el login.
+   - Si Gmail falla, el usuario igual queda creado.
+4. **Bienvenida a clientes:**
+   - Plantilla nueva «Bienvenida al cliente» (`CUSTOMER_WELCOME`, tipo General), editable en Configuración → Notificaciones.
+   - `NotificationEventService.welcomeCustomer` la envía como notificación, así queda en el historial y se puede reintentar si falla.
+   - `CustomerService.setOnRegistered` avisa después de registrar. `AppContext.configureEmail` la conecta en un hilo aparte, para que «Guardar» no espere a Gmail.
+   - Los clientes sin correo no reciben nada.
+5. **Arreglo:** el PR #38 dejó las tildes de `LoginController` dañadas («sesiÃ³n»). Un reemplazo de texto hecho con PowerShell 5.1 leyó el archivo como ANSI. Se repararon todas y no había más archivos afectados.
+6. **Pruebas:**
+   - `PasswordRecoveryServiceTest` (6, con un correo falso y un reloj que se adelanta).
+   - `WelcomeEmailTest` (4).
+
+   Ninguna envía correos reales. `mvn clean test` → **663 pruebas, 0 fallos**.
+
+**Archivos de Dev 1 tocados (a pedido del Líder):**
+- `CustomerService`: `setOnRegistered` y el aviso después de `registerCustomer`. Un error del aviso nunca deshace el registro.
+
 ---
 
 ## 4. Decisiones y acuerdos
@@ -1224,6 +1264,8 @@ Rama `feature/fondos-interfaz` desde `origin/develop`.
 | 22/11/2026 | **Los carros descargados se convierten una vez a `.agm` (`tools/ModelConverter.java`) en vez de leer el OBJ en la app.** | El OBJ del Mustang pesaba 106 MB; convertido y sin los pernos queda en 1,7 MB y carga rápido. |
 | 22/11/2026 | **Los comentarios y el Javadoc del código van en español.** | Decisión del Líder; coincide con la interfaz, la bitácora y los commits. |
 | 22/11/2026 | **El póster de ExpoSoftware no se sube al repositorio.** | Decisión del Líder: queda fuera de Git (se ignora solo en el equipo local con `.git/info/exclude`). |
+| 23/11/2026 | **Los códigos para recuperar la contraseña viven en memoria (con su hash) y no en la base de datos.** | La recuperación ocurre en el mismo equipo y en minutos; así no hace falta una tabla nueva en Supabase. Si se cierra la app antes de usar el código, se pide otro. |
+| 23/11/2026 | **Los correos de bienvenida nunca llevan la contraseña.** | Seguridad: el usuario la recibe del administrador o la cambia con «¿Olvidaste tu contraseña?». |
 | 19/11/2026 | **El formulario «Nueva notificación» propone un mensaje según el tipo** (plantillas del Líder) sin pisar lo que el usuario escribió. | Pedido del Líder. Se autorizó tocar `NotificationNewController` y `NotificationService` de Dev 1; se registra en la sección «Para Dev 1» del PR. |
 
 ---
