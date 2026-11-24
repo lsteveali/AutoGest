@@ -6,27 +6,36 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<!-- Pantalla de inicio de sesión (mockup Login V2). A la izquierda, el logo, el
-     eslogan y la ilustración del carro; a la derecha, la tarjeta con correo,
-     contraseña y recordarme. Los íconos de los campos los agrega el controlador. -->
-<HBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.autogest.controller.user.LoginController"
-      styleClass="login-root">
+<!-- Pantalla de inicio de sesión: división exacta 60/40. A la izquierda, el taller
+     de fondo (cálido en el tema claro, azul nocturno en el oscuro), el logo, el
+     eslogan y la vitrina del carro; a la derecha, la tarjeta con correo,
+     contraseña y recordarme. El controlador pone el tema en la raíz, el logo de
+     cada tema y los íconos de los campos. -->
+<GridPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+          fx:controller="com.autogest.controller.user.LoginController"
+          fx:id="loginRoot" styleClass="login-root">
 
-    <VBox styleClass="login-brand" alignment="CENTER" HBox.hgrow="ALWAYS">
-        <!-- Logotipo completo (escudo y «AutoGest» en negro, para el fondo claro). -->
-        <ImageView fitWidth="420" preserveRatio="true" smooth="true" accessibleText="AutoGest">
-            <image>
-                <Image url="@../images/logo-full-light.png" />
-            </image>
-        </ImageView>
+    <columnConstraints>
+        <ColumnConstraints percentWidth="60" />
+        <ColumnConstraints percentWidth="40" />
+    </columnConstraints>
+    <rowConstraints>
+        <RowConstraints percentHeight="100" vgrow="ALWAYS" />
+    </rowConstraints>
+
+    <VBox styleClass="login-brand" alignment="CENTER" GridPane.columnIndex="0"
+          maxWidth="Infinity" maxHeight="Infinity">
+        <!-- Logotipo completo: negro en el tema claro y blanco en el oscuro. -->
+        <ImageView fx:id="logo" fitWidth="420" preserveRatio="true" smooth="true" accessibleText="AutoGest" />
         <!-- Centrada bajo las letras «AutoGest» y no bajo todo el logotipo: a 420 px de
              ancho, el centro de las letras está 69 px a la derecha del centro de la imagen. -->
         <Label text="“Gestión inteligente para tu taller.”" styleClass="login-brand-slogan" wrapText="true"
@@ -35,7 +44,7 @@
         <StackPane fx:id="carStage" />
     </VBox>
 
-    <StackPane styleClass="login-form-side" HBox.hgrow="ALWAYS">
+    <StackPane styleClass="login-form-side" GridPane.columnIndex="1" maxWidth="Infinity" maxHeight="Infinity">
         <VBox styleClass="login-card" maxWidth="440" maxHeight="-Infinity">
             <VBox styleClass="login-card-header" alignment="CENTER">
                 <Label text="Bienvenido a AutoGest" styleClass="login-title" />
@@ -71,4 +80,4 @@
         </VBox>
     </StackPane>
 
-</HBox>
+</GridPane>

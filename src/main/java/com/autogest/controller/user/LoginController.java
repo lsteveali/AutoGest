@@ -4,6 +4,7 @@ import com.autogest.config.AppContext;
 import com.autogest.controller.components.IconSet;
 import com.autogest.controller.components.CarTurntable;
 import com.autogest.exception.AutoGestException;
+import com.autogest.util.AppTheme;
 import com.autogest.util.Background;
 import com.autogest.util.LoginAppearanceStore;
 import javafx.fxml.FXML;
@@ -13,6 +14,9 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 
@@ -20,20 +24,25 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 /**
- * Controlador de la pantalla de inicio de sesión (decisión D-01: solo correo,
- * contraseña, «Recordarme» y el enlace deshabilitado «¿Olvidaste tu
- * contraseña?»). Traduce el evento del formulario en una llamada a
+ * Controlador de la pantalla de inicio de sesiÃ³n (decisiÃ³n D-01: solo correo,
+ * contraseÃ±a, Â«RecordarmeÂ» y el enlace deshabilitado Â«Â¿Olvidaste tu
+ * contraseÃ±a?Â»). Traduce el evento del formulario en una llamada a
  * {@code AuthenticationService} y avisa al shell cuando el acceso es correcto.
  *
  * <p>No valida reglas de negocio ni conoce el Repository: las credenciales las
  * comprueba el Service y sus mensajes se muestran bajo el formulario. El
  * servicio se obtiene de forma diferida para que la pantalla pueda abrirse
- * aunque falte la configuración de la base de datos.</p>
+ * aunque falte la configuraciÃ³n de la base de datos.</p>
  *
  * <p>Principles: GRASP Controller, Indirection, SRP, DIP, Low Coupling,
  * High Cohesion.</p>
  */
 public class LoginController implements Initializable {
+
+    /** Logo con Â«AutoGestÂ» en negro, para el taller cÃ¡lido. */
+    private static final String LIGHT_LOGO = "/images/logo-full-light.png";
+    /** Logo con Â«AutoGestÂ» en blanco, para el taller nocturno. */
+    private static final String DARK_LOGO = "/images/logo-full-white.png";
 
     @FXML
     private TextField emailField;
@@ -59,17 +68,26 @@ public class LoginController implements Initializable {
     @FXML
     private StackPane carStage;
 
+    @FXML
+    private GridPane loginRoot;
+
+    @FXML
+    private ImageView logo;
+
     private Runnable onLoginSuccess;
-    /** Evita lanzar dos inicios de sesión a la vez (clic y Enter). */
+    /** Evita lanzar dos inicios de sesiÃ³n a la vez (clic y Enter). */
     private boolean loggingIn;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        // Íconos dentro de los campos, como en el mockup Login V2.
+        // Ãconos dentro de los campos, como en el mockup Login V2.
         emailBox.getChildren().add(0, IconSet.icon(IconSet.MAIL));
         passwordBox.getChildren().add(0, IconSet.icon(IconSet.LOCK));
-        // Vehículo 3D sobre una plataforma giratoria, con la personalización guardada en este equipo.
-        carStage.getChildren().add(new CarTurntable(460, 400, new LoginAppearanceStore().load()));
+        // VehÃ­culo 3D sobre una plataforma giratoria y tema (fondo del taller y
+        // formulario), con la personalizaciÃ³n guardada en este equipo.
+        LoginAppearanceStore store = new LoginAppearanceStore();
+        applyTheme(store.theme());
+        carStage.getChildren().add(new CarTurntable(460, 400, store.load()));
         hideError();
         loginButton.setOnAction(event -> handleLogin());
         passwordField.setOnAction(event -> handleLogin());
@@ -77,18 +95,36 @@ public class LoginController implements Initializable {
     }
 
     /**
-     * Registra la acción que se ejecuta tras un inicio de sesión correcto
-     * (el shell de la aplicación la usa para mostrar la pantalla principal).
+     * Pone el tema en la raÃ­z (el CSS cambia el fondo del taller y el
+     * formulario) y el logo que se lee sobre ese fondo.
      *
-     * @param onLoginSuccess acción a ejecutar con el usuario ya autenticado
+     * @param theme tema del equipo
+     */
+    public void applyTheme(AppTheme theme) {
+        for (AppTheme each : AppTheme.values()) {
+            loginRoot.getStyleClass().remove(each.styleClass());
+        }
+        loginRoot.getStyleClass().add(theme.styleClass());
+        String image = theme == AppTheme.DARK ? DARK_LOGO : LIGHT_LOGO;
+        URL url = LoginController.class.getResource(image);
+        if (url != null) {
+            logo.setImage(new Image(url.toExternalForm()));
+        }
+    }
+
+    /**
+     * Registra la acciÃ³n que se ejecuta tras un inicio de sesiÃ³n correcto
+     * (el shell de la aplicaciÃ³n la usa para mostrar la pantalla principal).
+     *
+     * @param onLoginSuccess acciÃ³n a ejecutar con el usuario ya autenticado
      */
     public void setOnLoginSuccess(Runnable onLoginSuccess) {
         this.onLoginSuccess = onLoginSuccess;
     }
 
     /**
-     * Intenta iniciar sesión con los datos del formulario. La consulta y la
-     * verificación de la contraseña corren en segundo plano para que la
+     * Intenta iniciar sesiÃ³n con los datos del formulario. La consulta y la
+     * verificaciÃ³n de la contraseÃ±a corren en segundo plano para que la
      * ventana (y la vitrina 3D) no se congelen mientras tanto.
      */
     @FXML
@@ -119,7 +155,7 @@ public class LoginController implements Initializable {
                 });
     }
 
-    /** Devuelve el botón de ingreso a su estado normal. */
+    /** Devuelve el botÃ³n de ingreso a su estado normal. */
     private void finishLogin(String buttonText) {
         loggingIn = false;
         loginButton.setText(buttonText);
@@ -128,7 +164,7 @@ public class LoginController implements Initializable {
 
     /** Muestra un mensaje de error bajo el formulario. */
     private void showError(String message) {
-        errorLabel.setText(message == null ? "No se pudo iniciar sesión." : message);
+        errorLabel.setText(message == null ? "No se pudo iniciar sesiÃ³n." : message);
         errorLabel.setVisible(true);
         errorLabel.setManaged(true);
     }
