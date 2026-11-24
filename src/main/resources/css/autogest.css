@@ -996,6 +996,25 @@
     -fx-text-fill: -ag-night-link;
 }
 
+/* Aviso de éxito del login (por ejemplo, «tu contraseña cambió»). */
+.login-error.login-info {
+    -fx-text-fill: -ag-success;
+}
+
+.theme-dark .login-error.login-info {
+    -fx-text-fill: derive(-ag-success, 45%);
+}
+
+/* Ventana «Recuperar contraseña»: el mismo fondo del formulario del login. */
+.recovery-root {
+    -fx-background-color: -ag-bg;
+    -fx-padding: 28;
+}
+
+.recovery-root.theme-dark {
+    -fx-background-color: linear-gradient(to bottom, -ag-night-bg-end, -ag-night-bg);
+}
+
 /* --------------------------------------------------------------------------
    Usuarios y roles (UsersRolesController)
    -------------------------------------------------------------------------- */

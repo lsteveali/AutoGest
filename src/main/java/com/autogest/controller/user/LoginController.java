@@ -11,6 +11,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
@@ -74,6 +75,11 @@ public class LoginController implements Initializable {
     @FXML
     private ImageView logo;
 
+    @FXML
+    private Hyperlink forgotLink;
+
+    /** Tema del equipo: la ventana de recuperación usa el mismo. */
+    private AppTheme theme = AppTheme.LIGHT;
     private Runnable onLoginSuccess;
     /** Evita lanzar dos inicios de sesión a la vez (clic y Enter). */
     private boolean loggingIn;
@@ -92,6 +98,23 @@ public class LoginController implements Initializable {
         loginButton.setOnAction(event -> handleLogin());
         passwordField.setOnAction(event -> handleLogin());
         emailField.setOnAction(event -> passwordField.requestFocus());
+        forgotLink.setOnAction(event -> recoverPassword());
+    }
+
+    /**
+     * «¿Olvidaste tu contraseña?»: abre la recuperación con un código por
+     * correo. Si la contraseña cambió, deja el correo listo y lo avisa.
+     */
+    private void recoverPassword() {
+        String recovered = PasswordRecoveryDialog.show(
+                loginRoot.getScene() == null ? null : loginRoot.getScene().getWindow(), theme, emailField.getText());
+        forgotLink.setVisited(false);
+        if (recovered != null) {
+            emailField.setText(recovered);
+            passwordField.clear();
+            showInfo("Listo: tu contraseña cambió. Inicia sesión con la nueva.");
+            passwordField.requestFocus();
+        }
     }
 
     /**
@@ -101,6 +124,7 @@ public class LoginController implements Initializable {
      * @param theme tema del equipo
      */
     public void applyTheme(AppTheme theme) {
+        this.theme = theme;
         for (AppTheme each : AppTheme.values()) {
             loginRoot.getStyleClass().remove(each.styleClass());
         }
@@ -164,6 +188,7 @@ public class LoginController implements Initializable {
 
     /** Muestra un mensaje de error bajo el formulario. */
     private void showError(String message) {
+        errorLabel.getStyleClass().remove("login-info");
         errorLabel.setText(message == null ? "No se pudo iniciar sesión." : message);
         errorLabel.setVisible(true);
         errorLabel.setManaged(true);
@@ -174,5 +199,16 @@ public class LoginController implements Initializable {
         errorLabel.setText("");
         errorLabel.setVisible(false);
         errorLabel.setManaged(false);
+        errorLabel.getStyleClass().remove("login-info");
+    }
+
+    /** Muestra un aviso de éxito (en verde) donde suelen ir los errores. */
+    private void showInfo(String message) {
+        errorLabel.setText(message);
+        if (!errorLabel.getStyleClass().contains("login-info")) {
+            errorLabel.getStyleClass().add("login-info");
+        }
+        errorLabel.setVisible(true);
+        errorLabel.setManaged(true);
     }
 }
