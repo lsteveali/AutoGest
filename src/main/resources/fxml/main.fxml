@@ -21,7 +21,7 @@
          como en los mockups: la Sidebar ocupa todo el alto), el área donde el
          ViewNavigator carga las pantallas y el botón flotante del Asistente. -->
     <center>
-        <VBox>
+        <VBox fx:id="centerColumn" styleClass="center-column">
             <Topbar fx:id="topbar" />
             <StackPane VBox.vgrow="ALWAYS">
                 <StackPane fx:id="contentArea" styleClass="content-area" />
