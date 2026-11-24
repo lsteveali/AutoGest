@@ -6,6 +6,7 @@ import com.autogest.controller.assistant.AssistantFormFiller;
 import com.autogest.controller.assistant.AssistantPanel;
 import com.autogest.controller.assistant.AssistantResolver;
 import com.autogest.controller.assistant.ServiceAssistantLookup;
+import com.autogest.controller.components.AppDialog;
 import com.autogest.controller.components.AssistantButton;
 import com.autogest.controller.components.ConfirmDialog;
 import com.autogest.controller.components.ErrorDialog;
@@ -24,7 +25,6 @@ import com.autogest.util.ThemeManager;
 import com.autogest.util.Session;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -351,12 +351,10 @@ public class MainController implements Initializable {
     /** Cierre por inactividad (preferencia del sistema): cierra la sesión y lo explica. */
     private void endSessionForInactivity() {
         endSession();
-        Alert alert = new Alert(Alert.AlertType.INFORMATION,
+        // Sin esperar respuesta: se llama desde el temporizador de inactividad.
+        AppDialog.notify(AppDialog.Kind.INFO, "Sesión cerrada",
                 "Por seguridad se cerró la sesión después de " + AppPreferences.inactivityMinutes()
                         + " minutos sin actividad. Inicia sesión de nuevo para continuar.");
-        alert.setHeaderText(null);
-        alert.setTitle("Sesión cerrada");
-        alert.show();
     }
 
     /** Rol del usuario en sesión, o {@code null} si no hay sesión abierta. */

@@ -3,6 +3,7 @@ package com.autogest.controller.settings;
 import com.autogest.config.AppContext;
 import com.autogest.controller.NavigatorAware;
 import com.autogest.controller.ViewNavigator;
+import com.autogest.controller.components.AppDialog;
 import com.autogest.controller.components.ErrorDialog;
 import com.autogest.controller.components.FormLayout;
 import com.autogest.controller.components.PhoneField;
@@ -15,7 +16,6 @@ import com.autogest.util.Background;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextArea;
@@ -190,10 +190,7 @@ public class WorkshopDataController implements Initializable, NavigatorAware {
                     if (!AppPreferences.showSaveConfirmation()) {
                         return;
                     }
-                    Alert alert = new Alert(Alert.AlertType.INFORMATION, "Los datos del taller se guardaron correctamente.");
-                    alert.setHeaderText(null);
-                    alert.setTitle("Datos del taller");
-                    alert.showAndWait();
+                    AppDialog.success("Datos del taller", "Los datos del taller se guardaron correctamente.");
                 },
                 error -> {
                     setBusy(false);
