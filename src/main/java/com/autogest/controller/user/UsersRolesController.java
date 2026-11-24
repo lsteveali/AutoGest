@@ -152,18 +152,9 @@ public class UsersRolesController implements Initializable {
         return pagedTable;
     }
 
-    private Node userCell(User user) {
-        Label avatar = new Label(UserLabels.initials(user));
-        avatar.getStyleClass().add("user-avatar");
-
-        Label name = new Label(user.getFullName());
-        name.getStyleClass().add("user-cell-name");
-        Label username = new Label(user.getUsername() == null ? user.getEmail() : "@" + user.getUsername());
-        username.getStyleClass().add("user-cell-username");
-
-        HBox cell = new HBox(10, avatar, new VBox(2, name, username));
-        cell.setAlignment(Pos.CENTER_LEFT);
-        return cell;
+    /** Nombre completo en una sola línea, como el resto de las tablas. */
+    private String userCell(User user) {
+        return user.getFullName();
     }
 
     private Node actionsCell(User user) {

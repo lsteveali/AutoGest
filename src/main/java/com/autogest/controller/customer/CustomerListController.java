@@ -182,10 +182,9 @@ public class CustomerListController implements Initializable, NavigatorAware {
         }
     }
 
-    private Node nameCell(Customer customer) {
-        Label name = new Label(customer.getFullName());
-        name.getStyleClass().add("customer-cell-name");
-        return name;
+    /** Nombre en una sola línea y sin negrita, como el resto de las tablas (Líder). */
+    private String nameCell(Customer customer) {
+        return customer.getFullName();
     }
 
     private Node actionsCell(Customer customer) {
