@@ -1128,6 +1128,37 @@ Eligió dos PR: este, con Notificaciones y «Ver facturas», y otro con las Pref
 - `PreferencesController`: habilita las opciones y cambia las notas.
 - `OrderLabels`: kilometraje con `Formatter.integer`.
 
+### 23/11/2026 — Sesión 38 (Líder): login con fondo de taller y tema claro u oscuro
+
+**Contexto.** El Líder quería que el login no se viera vacío. No le gustaron los patrones de fondo que se propusieron («Taller», «Plano técnico» y «Pista»). Trajo sus propias imágenes, un taller cálido y uno azul nocturno, con capturas de cómo debía quedar. Pidió:
+- Una división exacta 60/40, con el fondo solo en el panel izquierdo.
+- En el tema claro, el formulario con el color de siempre.
+- En el tema oscuro, el taller nocturno.
+- Que el aro de la plataforma cambie con el color del carro.
+
+Rama `feature/fondos-interfaz` desde `origin/develop`.
+
+**Hecho:**
+1. **Aro de la plataforma:** el aro, sus cuatro marcas y el halo toman el color del carro. Con colores claros (blanco, plata, amarillo), el aro se oscurece para verse sobre la plataforma blanca (`CarTurntable.accentFor`).
+2. **Fondos:**
+   - Las imágenes del Líder venían en WebP, que JavaFX no lee. Se pasaron a JPG: `login-taller-claro.jpg` (316 KB) y `login-taller-noche.jpg` (255 KB).
+   - `logo-full-white.png` es el logo grande con «AutoGest» en blanco, para el taller nocturno. El anterior (`logo-full-dark.png`) medía 362 px y se veía borroso a 420 px.
+3. **Tema** (`AppTheme`): claro u oscuro, guardado en cada equipo con `LoginAppearanceStore`.
+4. **Login** (`login.fxml` + `LoginController`):
+   - `GridPane` con columnas de 60 % y 40 %.
+   - El panel izquierdo tiene el taller de fondo (`cover`), el logo de cada tema, el eslogan con un halo que lo separa de la foto y la vitrina con su halo semitransparente.
+   - El panel derecho tiene el formulario: en el tema claro, el de siempre; en el oscuro, tarjeta, campos, enlaces y foco del tema nocturno.
+   - La lógica de autenticación no cambió.
+   - Los colores del tema oscuro son tokens nuevos `-ag-night-*`.
+5. **Personalización:** tarjeta «Tema» (Claro / Oscuro). La vista previa usa el fondo del taller de cada tema, y se guarda con «Guardar cambios».
+6. **Pruebas:**
+   - `CarTurntableTest` (2).
+   - En `LoginAppearanceStoreTest`, una prueba nueva del tema.
+
+   `mvn clean test` → **653 pruebas, 0 fallos**.
+
+**Archivos de Dev 1 tocados:** ninguno.
+
 ---
 
 ## 4. Decisiones y acuerdos
