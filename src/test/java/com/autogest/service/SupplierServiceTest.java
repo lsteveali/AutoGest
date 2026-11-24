@@ -64,7 +64,7 @@ class SupplierServiceTest {
     void updateSupplierKeepsOwnName() {
         Supplier saved = service.registerSupplier(supplier("LubriAuto", null, null));
         saved.setPhone("300 111 2222");
-        assertEquals("300 111 2222", service.updateSupplier(saved).getPhone());
+        assertEquals("+573001112222", service.updateSupplier(saved).getPhone());
     }
 
     @Test

@@ -60,7 +60,7 @@ class SettingsServiceTest {
         assertEquals("El NIT es obligatorio", errorOf(noNit));
         WorkshopProfile noEmail = profile();
         noEmail.setEmail("");
-        assertEquals("El correo electrónico es obligatorio", errorOf(noEmail));
+        assertEquals("El correo electrónico es obligatorio.", errorOf(noEmail));
     }
 
     @Test
@@ -70,10 +70,10 @@ class SettingsServiceTest {
         errorOf(badNit);
         WorkshopProfile badEmail = profile();
         badEmail.setEmail("contacto");
-        assertEquals("El correo electrónico no es válido", errorOf(badEmail));
+        assertEquals("Ingresa un correo válido, por ejemplo nombre@gmail.com.", errorOf(badEmail));
         WorkshopProfile badMain = profile();
         badMain.setMainEmail("sin-arroba");
-        assertEquals("El correo principal no es válido", errorOf(badMain));
+        assertEquals("Correo principal: Ingresa un correo válido, por ejemplo nombre@gmail.com.", errorOf(badMain));
         assertEquals(0, repository.saves());
     }
 

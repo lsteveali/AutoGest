@@ -50,7 +50,8 @@ class CustomerServiceTest {
         customer.setDocumentNumber(document);
         customer.setFirstName(firstName);
         customer.setLastName(lastName);
-        customer.setEmail(firstName.toLowerCase() + "@example.com");
+        customer.setEmail(java.text.Normalizer.normalize(firstName, java.text.Normalizer.Form.NFD)
+                .replaceAll("\\p{M}", "").toLowerCase() + "@example.com");
         return service.registerCustomer(customer);
     }
 
@@ -236,8 +237,19 @@ class CustomerServiceTest {
         Customer noLast = validCustomer();
         noLast.setLastName(null);
 
-        assertEquals("Los nombres son obligatorios", errorOf(noFirst));
-        assertEquals("Los apellidos son obligatorios", errorOf(noLast));
+        assertEquals("Los nombres son obligatorios.", errorOf(noFirst));
+        assertEquals("Los apellidos son obligatorios.", errorOf(noLast));
+    }
+
+    @Test
+    void namesOnlyAllowLetters() {
+        Customer digits = validCustomer();
+        digits.setFirstName("9765 456y7");
+        Customer symbols = validCustomer();
+        symbols.setLastName("Pérez_2");
+
+        assertEquals("Los nombres solo pueden tener letras.", errorOf(digits));
+        assertEquals("Los apellidos solo pueden tener letras.", errorOf(symbols));
     }
 
     @Test
@@ -262,8 +274,8 @@ class CustomerServiceTest {
         Customer missing = validCustomer();
         missing.setPhone(null);
 
-        assertEquals("El teléfono es obligatorio", errorOf(blank));
-        assertEquals("El teléfono es obligatorio", errorOf(missing));
+        assertEquals("El teléfono es obligatorio.", errorOf(blank));
+        assertEquals("El teléfono es obligatorio.", errorOf(missing));
     }
 
     @Test
@@ -271,7 +283,7 @@ class CustomerServiceTest {
         Customer customer = validCustomer();
         customer.setPhone("123456");
 
-        assertEquals("El teléfono debe tener entre 7 y 15 dígitos (puede iniciar con +57)", errorOf(customer));
+        assertTrue(errorOf(customer).startsWith("El teléfono de Colombia empieza por 3"));
     }
 
     @Test
@@ -281,20 +293,20 @@ class CustomerServiceTest {
         Customer withLetters = validCustomer();
         withLetters.setPhone("300abc4567");
 
-        assertEquals("El teléfono debe tener entre 7 y 15 dígitos (puede iniciar con +57)", errorOf(tooLong));
-        assertEquals("El teléfono debe tener entre 7 y 15 dígitos (puede iniciar con +57)", errorOf(withLetters));
+        assertTrue(errorOf(tooLong).startsWith("El teléfono de Colombia empieza por 3"));
+        assertEquals("El teléfono solo puede tener números.", errorOf(withLetters));
     }
 
     @Test
-    void phoneAcceptsSevenDigitsAndThePlusFiftySevenPrefix() {
+    void phoneAcceptsLandlinesOtherCountriesAndThePlusFiftySevenPrefix() {
         Customer landline = validCustomer();
-        landline.setPhone("5851234");
+        landline.setPhone("601 585 1234");
         Customer international = validCustomer();
         international.setDocumentNumber("9876543210");
         international.setPhone("+57 300 123 4567");
         international.setEmail("internacional@example.com");
 
-        assertEquals("5851234", service.registerCustomer(landline).getPhone());
+        assertEquals("+576015851234", service.registerCustomer(landline).getPhone());
         assertEquals("+573001234567", service.registerCustomer(international).getPhone());
     }
 
@@ -306,7 +318,7 @@ class CustomerServiceTest {
             Customer customer = validCustomer();
             customer.setEmail(invalid);
 
-            assertEquals("Ingresa un correo electrónico válido", errorOf(customer), invalid);
+            assertEquals("Ingresa un correo válido, por ejemplo nombre@gmail.com.", errorOf(customer), invalid);
         }
     }
 
@@ -317,8 +329,8 @@ class CustomerServiceTest {
         Customer missing = validCustomer();
         missing.setEmail(null);
 
-        assertEquals("El correo electrónico es obligatorio", errorOf(blank));
-        assertEquals("El correo electrónico es obligatorio", errorOf(missing));
+        assertEquals("El correo electrónico es obligatorio.", errorOf(blank));
+        assertEquals("El correo electrónico es obligatorio.", errorOf(missing));
     }
 
     // ---------- actualización ----------
@@ -381,7 +393,7 @@ class CustomerServiceTest {
 
         ValidationException error = assertThrows(ValidationException.class, () -> service.updateCustomer(edited));
 
-        assertEquals("Ingresa un correo electrónico válido", error.getMessage());
+        assertEquals("Ingresa un correo válido, por ejemplo nombre@gmail.com.", error.getMessage());
     }
 
     @Test

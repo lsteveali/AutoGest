@@ -6,6 +6,7 @@ import com.autogest.model.Customer;
 import com.autogest.model.Catalogs.CustomerStatus;
 import com.autogest.model.Catalogs.DocumentType;
 import com.autogest.repository.CustomerRepository;
+import com.autogest.util.ContactValidator;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -25,8 +26,6 @@ import java.util.Locale;
  */
 public class CustomerService {
 
-    private static final String EMAIL_PATTERN = "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$";
-    private static final String PHONE_PATTERN = "^(\\+57)?\\d{7,15}$";
     private static final String DIGITS_PATTERN = "\\d+";
     private static final String ALPHANUMERIC_PATTERN = "[A-Za-z0-9-]+";
     private static final int MIN_DOCUMENT_LENGTH = 5;
@@ -221,42 +220,23 @@ public class CustomerService {
         customer.setDocumentNumber(number);
     }
 
-    /** Exige nombres y apellidos no vacíos y limpia sus espacios. */
+    /** Exige nombres y apellidos solo con letras (ContactValidator) y limpia sus espacios. */
     private void validateNames(Customer customer) {
-        String firstName = normalizeSpaces(customer.getFirstName());
-        String lastName = normalizeSpaces(customer.getLastName());
-        if (isBlank(firstName)) {
-            throw new ValidationException("Los nombres son obligatorios");
-        }
-        if (isBlank(lastName)) {
-            throw new ValidationException("Los apellidos son obligatorios");
-        }
-        customer.setFirstName(firstName);
-        customer.setLastName(lastName);
+        customer.setFirstName(ContactValidator.name(customer.getFirstName(), "Los nombres"));
+        customer.setLastName(ContactValidator.name(customer.getLastName(), "Los apellidos"));
     }
 
-    /** Exige un teléfono de 7 a 15 dígitos (con prefijo +57 opcional); lo guarda sin espacios. */
+    /**
+     * Exige un teléfono con indicativo que cumpla las reglas de su país (primer
+     * dígito y longitud); lo guarda como +<indicativo><número>, sin espacios.
+     */
     private void validatePhone(Customer customer) {
-        String phone = customer.getPhone() == null ? "" : customer.getPhone().replaceAll("\\s+", "");
-        if (phone.isEmpty()) {
-            throw new ValidationException("El teléfono es obligatorio");
-        }
-        if (!phone.matches(PHONE_PATTERN)) {
-            throw new ValidationException("El teléfono debe tener entre 7 y 15 dígitos (puede iniciar con +57)");
-        }
-        customer.setPhone(phone);
+        customer.setPhone(ContactValidator.phone(customer.getPhone()));
     }
 
-    /** Exige un correo con formato válido; lo guarda recortado y en minúsculas. */
+    /** Exige un correo con formato estricto; lo guarda recortado y en minúsculas. */
     private void validateEmail(Customer customer) {
-        String email = customer.getEmail() == null ? "" : customer.getEmail().trim();
-        if (email.isEmpty()) {
-            throw new ValidationException("El correo electrónico es obligatorio");
-        }
-        if (!email.matches(EMAIL_PATTERN)) {
-            throw new ValidationException("Ingresa un correo electrónico válido");
-        }
-        customer.setEmail(email.toLowerCase(Locale.ROOT));
+        customer.setEmail(ContactValidator.email(customer.getEmail()));
     }
 
     /** Rechaza el documento si pertenece a otro cliente. */

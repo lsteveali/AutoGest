@@ -4,9 +4,9 @@ import com.autogest.exception.NotFoundException;
 import com.autogest.exception.ValidationException;
 import com.autogest.model.Supplier;
 import com.autogest.repository.SupplierRepository;
+import com.autogest.util.ContactValidator;
 
 import java.util.List;
-import java.util.regex.Pattern;
 
 /**
  * Reglas de negocio de los proveedores de repuestos: valida y normaliza los
@@ -17,7 +17,6 @@ import java.util.regex.Pattern;
  */
 public class SupplierService {
 
-    private static final Pattern EMAIL = Pattern.compile("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$");
 
     private final SupplierRepository repository;
 
@@ -87,14 +86,8 @@ public class SupplierService {
             throw new ValidationException("El nombre del proveedor es obligatorio");
         }
         supplier.setName(supplier.getName().trim());
-        supplier.setPhone(blankToNull(supplier.getPhone()));
-        supplier.setEmail(blankToNull(supplier.getEmail()));
-        if (supplier.getEmail() != null && !EMAIL.matcher(supplier.getEmail()).matches()) {
-            throw new ValidationException("El correo del proveedor no es válido");
-        }
-    }
-
-    private static String blankToNull(String text) {
-        return text == null || text.isBlank() ? null : text.trim();
+        // Teléfono y correo son opcionales; si vienen, con las reglas de ContactValidator.
+        supplier.setPhone(ContactValidator.optionalPhone(supplier.getPhone()));
+        supplier.setEmail(ContactValidator.optionalEmail(supplier.getEmail()));
     }
 }
