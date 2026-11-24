@@ -123,14 +123,14 @@
 
 .sidebar {
     -fx-background-color: -ag-navy;
-    -fx-padding: 22 14 16 14;
-    -fx-spacing: 4;
+    -fx-padding: 20 14 14 14;
+    -fx-spacing: 2;
     -fx-min-width: 232;
     -fx-pref-width: 232;
 }
 
 .sidebar-brand {
-    -fx-padding: 0 0 18 8;
+    -fx-padding: 0 0 12 8;
 }
 
 /* Barra lateral compacta (Preferencias del sistema): solo íconos. */
@@ -159,7 +159,7 @@
     -fx-text-fill: rgba(235, 237, 241, 0.38);
     -fx-font-size: 11px;
     -fx-font-weight: 700;
-    -fx-padding: 20 12 6 12;
+    -fx-padding: 14 12 4 12;
 }
 
 /* Asistente al pie, separado de los módulos por una línea tenue. */
@@ -177,7 +177,7 @@
 /* El ítem es un HBox: el color y la fuente no se heredan a sus hijos, por eso
    se aplican al Label (si no, toma el gris oscuro de modena). */
 .sidebar-item {
-    -fx-padding: 9 12;
+    -fx-padding: 7 12;
     -fx-spacing: 12;
     -fx-background-radius: 10;
     -fx-cursor: hand;
@@ -185,7 +185,7 @@
 
 .sidebar-item .label {
     -fx-text-fill: rgba(235, 237, 241, 0.72);
-    -fx-font-size: 14px;
+    -fx-font-size: 13.5px;
     -fx-font-weight: 500;
 }
 
