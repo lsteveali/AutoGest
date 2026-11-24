@@ -1,11 +1,11 @@
 package com.autogest.controller.components;
 
-import javafx.scene.control.Alert;
-
 /**
  * Diálogo para mostrar errores al usuario sin exponer trazas técnicas. Los
  * controladores lo usan en sus bloques {@code catch} con el mensaje que lanzó
  * el Service.
+ *
+ * <p>Se muestra con el diseño de AutoGest ({@link AppDialog}).</p>
  *
  * <p>Principles: Pure Fabrication, High Cohesion.</p>
  */
@@ -31,10 +31,6 @@ public final class ErrorDialog {
      * @param message mensaje del error (en español)
      */
     public static void show(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
+        AppDialog.error(title, message);
     }
 }
