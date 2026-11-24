@@ -1422,6 +1422,7 @@ Verificación: `develop` → `mvn clean test` **108 pruebas, 0 fallos**
 - [x] ~~Etiquetar `v1.0` en `main` (no se hizo al entregar).~~ — etiqueta `v1.0` sobre `cc3deae` (PR #32), subida el 23/11/2026.
 - [x] ~~Subir las ramas y abrir los PR hacia `develop`~~ — PR #36 (Notificaciones y «Ver facturas», `0f349e3`) y PR #37 (Preferencias, `9f1436b`) fusionados el 23/11/2026.
 - [x] ~~Login con fondo de taller, tema claro u oscuro y aro del color del carro~~ — PR #38 fusionado (`a39cf1b`, 23/11/2026; Sesión 38).
+- [x] ~~Recuperar contraseña por correo y correos de bienvenida a usuarios y clientes~~ — PR #39 fusionado (`d9549d0`, 23/11/2026; Sesión 39).
 
 **Pendientes nuevos (14/10/2026):**
 - [x] ~~Confirmar el estado del PR del backend de Clientes~~ — resuelto: PR **#5** (backend) y **#8** (interfaz completa) fusionados en `develop`; siguen pendientes de revisión de Sebastián los PRs del Líder.
