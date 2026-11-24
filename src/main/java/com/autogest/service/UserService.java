@@ -28,6 +28,8 @@ public class UserService {
     public static final int MIN_PASSWORD_LENGTH = 8;
 
     private final UserRepository repository;
+    /** Envía la bienvenida a los usuarios nuevos; {@code null} = no se envía. */
+    private AccountMailer mailer;
 
     /**
      * Crea el servicio con el repositorio de usuarios inyectado.
@@ -79,7 +81,51 @@ public class UserService {
         }
         user.setPasswordHash(PasswordHasher.hash(initialPassword));
         user.setStatus(UserStatus.ACTIVE);
-        return repository.create(user);
+        User saved = repository.create(user);
+        sendWelcome(saved);
+        return saved;
+    }
+
+    /**
+     * Define quién envía los correos de las cuentas (bienvenida). Sin él, no
+     * se envía nada.
+     *
+     * @param mailer remitente de correos de cuentas ({@code null} = ninguno)
+     */
+    public void setAccountMailer(AccountMailer mailer) {
+        this.mailer = mailer;
+    }
+
+    /**
+     * Envía el correo «registrado con éxito» al usuario nuevo. Si no hay
+     * correo configurado o Gmail falla, el usuario igual queda creado.
+     */
+    private void sendWelcome(User user) {
+        if (mailer == null || !mailer.isConfigured()) {
+            return;
+        }
+        try {
+            mailer.sendWelcome(user);
+        } catch (RuntimeException ignored) {
+            // La bienvenida es un aviso: nunca deshace la creación del usuario.
+        }
+    }
+
+    /**
+     * Pone una contraseña nueva sin pedir la actual («¿Olvidaste tu
+     * contraseña?», después de verificar el código enviado al correo). Aplica
+     * las mismas reglas que una clave inicial. Solo se guarda el hash.
+     *
+     * @param id          identificador del usuario
+     * @param newPassword contraseña nueva en texto plano
+     * @throws NotFoundException   si el usuario no existe
+     * @throws ValidationException si la contraseña no cumple las reglas
+     */
+    public void resetPassword(int id, String newPassword) {
+        User user = requireUser(id);
+        validatePassword(newPassword);
+        user.setPasswordHash(PasswordHasher.hash(newPassword));
+        repository.update(user);
     }
 
     /**
