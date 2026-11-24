@@ -151,13 +151,9 @@ public class OrdersController implements Initializable, NavigatorAware {
         return pagedTable;
     }
 
-    /** Vehículo arriba y placa debajo, en una sola columna. */
-    private Node vehicleCell(ServiceOrder order) {
-        Label vehicle = new Label(OrderLabels.vehicle(order));
-        vehicle.getStyleClass().add("order-cell-vehicle");
-        Label plate = new Label(OrderLabels.plate(order));
-        plate.getStyleClass().add("order-cell-plate");
-        return new VBox(2, vehicle, plate);
+    /** Vehículo y placa en una sola línea, como el resto de las tablas. */
+    private String vehicleCell(ServiceOrder order) {
+        return PagedTable.withDetail(OrderLabels.vehicle(order), OrderLabels.plate(order));
     }
 
     private Node actionsCell(ServiceOrder order) {

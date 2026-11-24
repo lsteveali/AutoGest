@@ -200,16 +200,13 @@ public class BillingController implements Initializable, NavigatorAware, Paramet
         pagedTable.addColumn("", this::actionsCell, 50);
         pagedTable.setOnSelect(invoice -> openDetail(invoice.getId()));
         // La página tiene más contenido debajo: la tabla toma el alto de sus filas (vehículo y placa).
-        pagedTable.fitHeightToRows(62);
+        pagedTable.fitHeightToRows(PagedTable.ROW_HEIGHT);
         return pagedTable;
     }
 
-    private Node vehicleCell(Invoice invoice) {
-        Label vehicle = new Label(InvoiceLabels.vehicle(invoice.getOrder()));
-        vehicle.getStyleClass().add("order-cell-vehicle");
-        Label plate = new Label(InvoiceLabels.plate(invoice.getOrder()));
-        plate.getStyleClass().add("order-cell-plate");
-        return new VBox(2, vehicle, plate);
+    /** Vehículo y placa en una sola línea, como el resto de las tablas. */
+    private String vehicleCell(Invoice invoice) {
+        return PagedTable.withDetail(InvoiceLabels.vehicle(invoice.getOrder()), InvoiceLabels.plate(invoice.getOrder()));
     }
 
     private Node actionsCell(Invoice invoice) {

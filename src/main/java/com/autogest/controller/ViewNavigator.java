@@ -34,6 +34,7 @@ public class ViewNavigator {
      * 88px abajo (botón del Asistente ~48px + su margen de 24px + 16px de aire).
      */
     private static final String SCROLL_CONTENT_PADDING = "-fx-padding: 0 12 88 0;";
+    private static final String FILL_CONTENT_PADDING = "-fx-padding: 0 12 0 0;";
 
     /** Paso del historial: la pantalla y su parámetro (id de detalle/edición o {@code null}). */
     private record Entry(View view, Integer parameter) {
@@ -152,7 +153,9 @@ public class ViewNavigator {
     private void reserveAssistantSpace(Parent root) {
         if (root instanceof ScrollPane scroll && scroll.getContent() instanceof Region content) {
             String style = content.getStyle() == null ? "" : content.getStyle();
-            content.setStyle(style + SCROLL_CONTENT_PADDING);
+            // Las listas que llenan el alto (fitToHeight) solo dejan lugar a la barra de
+            // desplazamiento: su paginación ya deja libre la esquina del botón.
+            content.setStyle(style + (scroll.isFitToHeight() ? FILL_CONTENT_PADDING : SCROLL_CONTENT_PADDING));
         }
     }
 

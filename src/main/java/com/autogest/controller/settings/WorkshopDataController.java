@@ -3,8 +3,10 @@ package com.autogest.controller.settings;
 import com.autogest.config.AppContext;
 import com.autogest.controller.NavigatorAware;
 import com.autogest.controller.ViewNavigator;
+import com.autogest.controller.components.AppDialog;
 import com.autogest.controller.components.ErrorDialog;
 import com.autogest.controller.components.FormLayout;
+import com.autogest.controller.components.PhoneField;
 import com.autogest.controller.components.PageHeader;
 import com.autogest.exception.AutoGestException;
 import com.autogest.model.WorkshopProfile;
@@ -14,7 +16,6 @@ import com.autogest.util.Background;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextArea;
@@ -48,20 +49,20 @@ public class WorkshopDataController implements Initializable, NavigatorAware {
     // («AutoGest Taller Automotriz») y en gris parecían datos ya guardados.
     private final TextField name = FormLayout.textField("Razón social del taller");
     private final TextField nit = FormLayout.textField("Con dígito de verificación");
-    private final TextField phone = FormLayout.textField("Fijo o celular");
+    private final PhoneField phone = new PhoneField();
     private final TextField email = FormLayout.textField("Correo para facturas y avisos");
     private final TextField website = FormLayout.textField("Opcional");
     private final ComboBox<String> workshopType = FormLayout.combo("Tipo de taller");
     private final TextField commercialName = FormLayout.textField("Como lo conocen los clientes (opcional)");
     private final TextArea description = FormLayout.textArea("Qué servicios ofrece el taller (opcional)", 4);
     private final TextField address = FormLayout.textField("Calle, carrera y número");
-    private final TextField whatsapp = FormLayout.textField("Opcional");
+    private final PhoneField whatsapp = new PhoneField();
     private final TextField city = FormLayout.textField("Ciudad");
     private final TextField postalCode = FormLayout.textField("Opcional");
     private final TextField department = FormLayout.textField("Departamento");
     private final ComboBox<String> country = FormLayout.combo("País");
     private final TextField mainEmail = FormLayout.textField("Si es distinto del correo general (opcional)");
-    private final TextField mainPhone = FormLayout.textField("Opcional");
+    private final PhoneField mainPhone = new PhoneField();
     private final TextArea businessHours = FormLayout.textArea("Días y horas de atención (opcional)", 3);
 
     @Override
@@ -146,20 +147,20 @@ public class WorkshopDataController implements Initializable, NavigatorAware {
     private void show(WorkshopProfile p) {
         name.setText(FormLayout.orEmpty(p.getName()));
         nit.setText(FormLayout.orEmpty(p.getNit()));
-        phone.setText(FormLayout.orEmpty(p.getPhone()));
+        phone.setPhone(p.getPhone());
         email.setText(FormLayout.orEmpty(p.getEmail()));
         website.setText(FormLayout.orEmpty(p.getWebsite()));
         workshopType.setValue(p.getWorkshopType());
         commercialName.setText(FormLayout.orEmpty(p.getCommercialName()));
         description.setText(FormLayout.orEmpty(p.getDescription()));
         address.setText(FormLayout.orEmpty(p.getAddress()));
-        whatsapp.setText(FormLayout.orEmpty(p.getWhatsapp()));
+        whatsapp.setPhone(p.getWhatsapp());
         city.setText(FormLayout.orEmpty(p.getCity()));
         postalCode.setText(FormLayout.orEmpty(p.getPostalCode()));
         department.setText(FormLayout.orEmpty(p.getDepartment()));
         country.setValue(p.getCountry());
         mainEmail.setText(FormLayout.orEmpty(p.getMainEmail()));
-        mainPhone.setText(FormLayout.orEmpty(p.getMainPhone()));
+        mainPhone.setPhone(p.getMainPhone());
         businessHours.setText(FormLayout.orEmpty(p.getBusinessHours()));
     }
 
@@ -167,20 +168,20 @@ public class WorkshopDataController implements Initializable, NavigatorAware {
         WorkshopProfile p = new WorkshopProfile();
         p.setName(FormLayout.text(name));
         p.setNit(FormLayout.text(nit));
-        p.setPhone(FormLayout.text(phone));
+        p.setPhone(phone.getPhone());
         p.setEmail(FormLayout.text(email));
         p.setWebsite(FormLayout.text(website));
         p.setWorkshopType(workshopType.getEditor().getText());
         p.setCommercialName(FormLayout.text(commercialName));
         p.setDescription(FormLayout.text(description));
         p.setAddress(FormLayout.text(address));
-        p.setWhatsapp(FormLayout.text(whatsapp));
+        p.setWhatsapp(whatsapp.getPhone());
         p.setCity(FormLayout.text(city));
         p.setPostalCode(FormLayout.text(postalCode));
         p.setDepartment(FormLayout.text(department));
         p.setCountry(country.getValue());
         p.setMainEmail(FormLayout.text(mainEmail));
-        p.setMainPhone(FormLayout.text(mainPhone));
+        p.setMainPhone(mainPhone.getPhone());
         p.setBusinessHours(FormLayout.text(businessHours));
         setBusy(true);
         Background.run(() -> service().updateWorkshopProfile(p),
@@ -189,10 +190,7 @@ public class WorkshopDataController implements Initializable, NavigatorAware {
                     if (!AppPreferences.showSaveConfirmation()) {
                         return;
                     }
-                    Alert alert = new Alert(Alert.AlertType.INFORMATION, "Los datos del taller se guardaron correctamente.");
-                    alert.setHeaderText(null);
-                    alert.setTitle("Datos del taller");
-                    alert.showAndWait();
+                    AppDialog.success("Datos del taller", "Los datos del taller se guardaron correctamente.");
                 },
                 error -> {
                     setBusy(false);

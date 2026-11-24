@@ -5,6 +5,7 @@ import com.autogest.controller.NavigatorAware;
 import com.autogest.controller.View;
 import com.autogest.controller.ViewNavigator;
 import com.autogest.controller.components.ConfirmDialog;
+import com.autogest.controller.components.AppDialog;
 import com.autogest.controller.components.ErrorDialog;
 import com.autogest.controller.components.FilterBar;
 import com.autogest.controller.components.FormLayout;
@@ -25,7 +26,6 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
@@ -168,12 +168,8 @@ public class NotificationsController implements Initializable, NavigatorAware {
         Background.run(() -> service().sendDueScheduled(),
                 sent -> {
                     busy(false);
-                    Alert info = new Alert(Alert.AlertType.INFORMATION);
-                    info.setTitle("Notificaciones programadas");
-                    info.setHeaderText(null);
-                    info.setContentText(sent == 0 ? "No hay notificaciones programadas para enviar todavía."
+                    AppDialog.info("Notificaciones programadas", sent == 0 ? "No hay notificaciones programadas para enviar todavía."
                             : "Se procesaron " + sent + " notificaciones programadas.");
-                    info.showAndWait();
                     reload();
                 },
                 error -> {

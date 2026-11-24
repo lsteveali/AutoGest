@@ -5,6 +5,7 @@ import com.autogest.controller.NavigatorAware;
 import com.autogest.controller.ViewNavigator;
 import com.autogest.controller.components.ErrorDialog;
 import com.autogest.controller.components.FormLayout;
+import com.autogest.controller.components.PhoneField;
 import com.autogest.controller.components.PageHeader;
 import com.autogest.exception.AutoGestException;
 import com.autogest.exception.ValidationException;
@@ -200,7 +201,7 @@ public abstract class PartFormController implements Initializable, NavigatorAwar
         ButtonType save = new ButtonType("Guardar proveedor", ButtonBar.ButtonData.OK_DONE);
         dialog.getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL, save);
         TextField name = FormLayout.textField("AutoPartes Colombia");
-        TextField phone = FormLayout.textField("300 123 4567");
+        PhoneField phone = new PhoneField();
         TextField email = FormLayout.textField("ventas@proveedor.com");
         GridPane grid = FormLayout.grid(1);
         grid.setPrefWidth(380);
@@ -215,7 +216,7 @@ public abstract class PartFormController implements Initializable, NavigatorAwar
         }
         Supplier supplier = new Supplier();
         supplier.setName(FormLayout.text(name));
-        supplier.setPhone(FormLayout.text(phone));
+        supplier.setPhone(phone.getPhone());
         supplier.setEmail(FormLayout.text(email));
         try {
             Supplier saved = supplierService().registerSupplier(supplier);

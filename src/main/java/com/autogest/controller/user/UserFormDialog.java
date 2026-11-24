@@ -1,5 +1,6 @@
 package com.autogest.controller.user;
 
+import com.autogest.controller.components.InputFilters;
 import com.autogest.config.AppContext;
 import com.autogest.exception.AutoGestException;
 import com.autogest.model.Catalogs.Role;
@@ -58,6 +59,8 @@ public class UserFormDialog extends Dialog<User> {
 
         firstName = field(editing ? existing.getFirstName() : "", "Ej.: Ana María");
         lastName = field(editing ? existing.getLastName() : "", "Ej.: López Pérez");
+        InputFilters.lettersOnly(firstName, 100);
+        InputFilters.lettersOnly(lastName, 100);
         email = field(editing ? existing.getEmail() : "", "nombre@autogest.com");
         specialty = field(editing && existing.getSpecialty() != null ? existing.getSpecialty() : "",
                 "Ej.: Motor, frenos, eléctrico");

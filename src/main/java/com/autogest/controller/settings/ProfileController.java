@@ -1,5 +1,6 @@
 package com.autogest.controller.settings;
 
+import com.autogest.controller.components.InputFilters;
 import com.autogest.config.AppContext;
 import com.autogest.controller.components.PageHeader;
 import com.autogest.controller.user.UserLabels;
@@ -73,6 +74,8 @@ public class ProfileController implements Initializable {
     private VBox buildProfileCard(User user) {
         firstNameField = field(user == null ? "" : user.getFirstName());
         lastNameField = field(user == null ? "" : user.getLastName());
+        InputFilters.lettersOnly(firstNameField, 100);
+        InputFilters.lettersOnly(lastNameField, 100);
         emailField = field(user == null ? "" : user.getEmail());
         TextField usernameField = field(user == null ? "" : user.getUsername());
         usernameField.setEditable(false);

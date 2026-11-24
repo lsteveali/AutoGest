@@ -6,7 +6,9 @@ import com.autogest.controller.ParameterizedController;
 import com.autogest.controller.View;
 import com.autogest.controller.ViewNavigator;
 import com.autogest.controller.components.ErrorDialog;
+import com.autogest.controller.components.InputFilters;
 import com.autogest.controller.components.PageHeader;
+import com.autogest.controller.components.PhoneField;
 import com.autogest.exception.AutoGestException;
 import com.autogest.exception.NotFoundException;
 import com.autogest.exception.ValidationException;
@@ -70,7 +72,7 @@ public class CustomerFormController implements Initializable, NavigatorAware, Pa
     private TextField documentNumber;
     private TextField firstName;
     private TextField lastName;
-    private TextField phone;
+    private PhoneField phone;
     private TextField email;
     private TextField address;
     private ComboBox<String> city;
@@ -155,7 +157,10 @@ public class CustomerFormController implements Initializable, NavigatorAware, Pa
         documentNumber = textField("Ingresar número de documento", 30);
         firstName = textField("Ingresar nombres", 100);
         lastName = textField("Ingresar apellidos", 100);
-        phone = textField("+57 300 000 0000", 30);
+        // Solo letras en nombres y apellidos; teléfono con su país (Líder, validaciones).
+        InputFilters.lettersOnly(firstName, 100);
+        InputFilters.lettersOnly(lastName, 100);
+        phone = new PhoneField();
         email = textField("correo@ejemplo.com", 150);
         address = textField("Dirección del cliente", 200);
 
@@ -232,7 +237,7 @@ public class CustomerFormController implements Initializable, NavigatorAware, Pa
         documentNumber.setText(customer.getDocumentNumber());
         firstName.setText(customer.getFirstName());
         lastName.setText(customer.getLastName());
-        phone.setText(customer.getPhone());
+        phone.setPhone(customer.getPhone());
         email.setText(customer.getEmail());
         address.setText(orEmpty(customer.getAddress()));
         city.getEditor().setText(orEmpty(customer.getCity()));
@@ -264,7 +269,7 @@ public class CustomerFormController implements Initializable, NavigatorAware, Pa
         customer.setDocumentNumber(documentNumber.getText());
         customer.setFirstName(firstName.getText());
         customer.setLastName(lastName.getText());
-        customer.setPhone(phone.getText());
+        customer.setPhone(phone.getPhone());
         customer.setEmail(email.getText());
         customer.setAddress(address.getText());
         customer.setCity(city.getEditor().getText());

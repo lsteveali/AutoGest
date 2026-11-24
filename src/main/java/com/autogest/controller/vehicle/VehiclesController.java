@@ -173,15 +173,9 @@ public class VehiclesController implements Initializable, NavigatorAware {
         return pagedTable;
     }
 
-    private Node vehicleCell(Vehicle vehicle) {
-        Label name = new Label(vehicle.getShortDescription());
-        name.getStyleClass().add("user-cell-name");
-        Label plate = new Label(VehicleLabels.typeText(vehicle.getVehicleType())
-                + " · " + vehicle.getLicensePlate());
-        plate.getStyleClass().add("user-cell-username");
-        VBox cell = new VBox(2, name, plate);
-        cell.setAlignment(Pos.CENTER_LEFT);
-        return cell;
+    /** Marca, modelo y placa en una sola línea, como el resto de las tablas. */
+    private String vehicleCell(Vehicle vehicle) {
+        return vehicle.getShortDescription();
     }
 
     private String ownerText(Vehicle vehicle) {

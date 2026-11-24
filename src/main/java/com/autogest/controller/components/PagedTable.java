@@ -47,6 +47,10 @@ public class PagedTable<T> extends VBox {
     /** Alto de la fila de títulos (13px en negrita con relleno 10). */
     private static final double HEADER_HEIGHT = 41;
     private static final int MIN_FITTED_ROWS = 3;
+    /** Alto de cada fila: compacto y de una sola línea en todas las tablas. */
+    public static final double ROW_HEIGHT = 48;
+    /** Filas que siempre se ven en una lista que llena el alto (si no caben, la pantalla se desplaza). */
+    private static final int MIN_VISIBLE_ROWS = 5;
 
     /** Alto de fila cuando la tabla se ajusta a sus filas; 0 = la tabla crece. */
     private double fitRowHeight;
@@ -77,6 +81,8 @@ public class PagedTable<T> extends VBox {
         table.getStyleClass().add("table-autogest");
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
         table.setPlaceholder(new Label("No hay registros para mostrar"));
+        table.setFixedCellSize(ROW_HEIGHT);
+        table.setMinHeight(HEADER_HEIGHT + MIN_VISIBLE_ROWS * ROW_HEIGHT + 2);
         VBox.setVgrow(table, Priority.ALWAYS);
 
         table.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
@@ -139,6 +145,19 @@ public class PagedTable<T> extends VBox {
         // para que el reparto de la política «constrained» no lo corte («Acció...»).
         column.setMinWidth(Math.max(minWidth, headerWidth(title)));
         table.getColumns().add(column);
+    }
+
+    /**
+     * Texto de una celda con un dato secundario en la misma línea, por ejemplo
+     * «Toyota TX · ISA-432». Todas las tablas usan celdas de una sola línea.
+     *
+     * @param main   dato principal
+     * @param detail dato secundario (si está vacío, solo va el principal)
+     * @return el texto de la celda
+     */
+    public static String withDetail(String main, String detail) {
+        String first = main == null || main.isBlank() ? "-" : main.trim();
+        return detail == null || detail.isBlank() || "-".equals(detail.trim()) ? first : first + " · " + detail.trim();
     }
 
     /**

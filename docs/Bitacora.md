@@ -1284,6 +1284,86 @@ Rama `feature/barrido-visual` desde `develop` (`a962d21`).
 
 **Archivos de Dev 1 tocados:** ninguno.
 
+### 24/11/2026 — Sesión 43 (Líder): validaciones de contacto, desplegables escribibles, tablas iguales y avisos nuevos
+
+**Contexto.** El Líder pidió cuatro cosas:
+- Mejores validaciones: correo válido, teléfono con código de país (y, según el país, el primer número y la longitud) y nombres y apellidos solo con letras.
+- Poder escribir en los filtros para enviar notificaciones.
+- Todas las tablas como la de Notificaciones.
+- Avisos acordes a la interfaz, con el logo.
+
+Respuestas del Líder:
+- **Correo:** formato estricto con cualquier dominio. Una lista cerrada habría rechazado los correos @autogest.com de los usuarios.
+- **Países:** Latinoamérica, EE. UU. y España.
+- **Desplegables escribibles:** los de Nueva notificación.
+- **Avisos:** ventana propia con el logo.
+
+Rama `feature/validaciones-avisos` desde `develop` (`db30e92`).
+
+**Hecho:**
+1. **Reglas compartidas** (`util/ContactValidator` + `util/PhoneCountry`):
+   - **Correo:** formato estricto, recortado y en minúsculas. Si el dominio parece mal escrito, propone el correcto («¿quisiste decir ana@gmail.com?»).
+   - **Teléfono:** se guarda como `+<indicativo><número>`. Cada país revisa con qué empieza y cuántos dígitos tiene (Colombia: 3 o 60 y 10 dígitos). Son 11 países: Colombia, Venezuela, Ecuador, Perú, Panamá, México, Chile, Argentina, Brasil, EE. UU. y España. Un número viejo sin indicativo se toma como de Colombia.
+   - **Nombres y apellidos:** solo letras (con tildes y ñ) y un espacio entre palabras.
+2. **Servicios con las reglas:**
+   - Clientes, usuarios (nombres y correo), proveedores (teléfono y correo opcionales) y datos del taller.
+   - En los datos del taller, el error dice en qué campo está («Correo principal: …»), porque hay varios correos y teléfonos.
+3. **Formularios:**
+   - **`PhoneField`:** el país al lado (cerrado muestra +57; abierto, el país completo). El número solo acepta dígitos, hasta la longitud del país, y muestra un ejemplo de ese país. Está en cliente, datos del taller y nuevo proveedor.
+   - **`InputFilters.lettersOnly`:** no deja escribir números ni símbolos en nombres y apellidos (cliente, usuario y perfil).
+4. **Nueva notificación:**
+   - Cliente y orden se pueden escribir (`SearchableCombo`). La lista se reduce mientras se escribe: el cliente por nombre o documento, la orden por número, vehículo o placa, sin importar tildes ni mayúsculas.
+   - Al salir del campo, si hay una sola coincidencia se elige; si no hay ninguna, queda vacío.
+5. **Tablas iguales:**
+   - Todas las celdas son de una sola línea y sin negrita, como Notificaciones. El dato secundario va en la misma línea («Toyota TX · ISA-432», «Alineación y balanceo · SRV-003»).
+   - Se quitó el avatar de Usuarios y roles.
+   - El texto, las insignias y «...» quedan centrados en la fila.
+6. **Avisos nuevos** (`AppDialog`):
+   - Una tarjeta con el escudo de AutoGest, el ícono del tipo de aviso (error, advertencia, información, éxito o pregunta), el título, el mensaje y los botones de la paleta: el principal en verde y en rojo cuando elimina.
+   - No lleva la barra de título de Windows, sigue el tema claro u oscuro, se arrastra, Enter acepta y Escape cancela.
+   - `ErrorDialog` y `ConfirmDialog` la usan por dentro, así que los ~40 avisos de la aplicación cambiaron sin tocar cada pantalla. Los 5 que armaban su propia ventana también pasaron al diseño nuevo.
+7. **Pruebas:**
+   - `ContactValidatorTest` (7).
+   - Se ajustaron `CustomerServiceTest`, `SupplierServiceTest` y `SettingsServiceTest` a las reglas nuevas: teléfonos de 7 dígitos ya no son válidos y los mensajes cambiaron. También se agregó el caso de un nombre con números.
+   - `mvn clean test` → **673 pruebas, 0 fallos**.
+
+**Archivos de Dev 1 tocados (a pedido del Líder):**
+- `CustomerService`, `SupplierService`, `SettingsService`: usan `ContactValidator` en vez de sus patrones propios.
+- `CustomerServiceTest`, `SupplierServiceTest`, `SettingsServiceTest`: mensajes y datos según las reglas nuevas.
+- `CustomerFormController`: `PhoneField` y nombres solo con letras.
+- `PartFormController`: `PhoneField` en «Nuevo proveedor».
+- `NotificationNewController`: cliente y orden escribibles.
+- `CustomerListController`, `OrdersController`: celdas de una sola línea.
+- `NotificationsController`, `PreferencesController`, `WorkshopDataController`: avisos nuevos (el último, además, con `PhoneField`).
+
+### 24/11/2026 — Sesión 44 (Líder): listas de clientes, vehículos y servicios, y detalle de factura simétrico
+
+**Contexto.** El Líder pidió dos cosas:
+- Arreglar las listas de clientes, vehículos y servicios.
+- Por recomendación del profesor, aprovechar mejor el espacio en el detalle de la factura: que todo sea simétrico y sin espacios en blanco (quedaba un hueco al lado de «Historial»).
+
+Misma rama `feature/validaciones-avisos`.
+
+**Causa de las listas.** Eran las únicas tres sin desplazamiento. En la ventana de 1280 × 720 con la que abre la app, los indicadores, los filtros y los 84 px libres al pie (del barrido visual) aplastaban la tabla a 2 filas. Además, la primera columna cortaba los nombres.
+
+**Hecho:**
+1. **Listas:**
+   - Clientes, Vehículos y Servicios van dentro de un `ScrollPane` que llena el alto. La tabla muestra siempre al menos 5 filas y, si la ventana es baja, la pantalla se desplaza.
+   - Todas las tablas usan filas de 48 px (`PagedTable.ROW_HEIGHT`), también Facturación y Usuarios.
+   - Cliente, Correo y Servicio tienen un ancho mínimo para no cortar los nombres.
+2. **Espacio al pie:**
+   - Se quitaron los 84 px del barrido visual. Las pantallas con desplazamiento ya dejaban ese espacio al final (`ViewNavigator`).
+   - La paginación deja libre la esquina del botón del Asistente, así «Siguiente» no queda debajo.
+3. **Detalle de factura** (`InvoiceDetailController.render`): cuadrícula de tres columnas iguales. Las tarjetas de una misma fila tienen el mismo alto:
+   - Cliente · Orden de servicio · Resumen de factura (el total se ve de entrada).
+   - Conceptos facturados (dos columnas) · Información de pago.
+   - Historial a todo el ancho.
+4. **Pruebas:** `mvn clean test` → **673 pruebas, 0 fallos**. Se revisaron capturas en 1280 × 720 en los dos temas.
+
+**Archivos de Dev 1 tocados (a pedido del Líder):**
+- `customers.fxml`: el `ScrollPane`.
+- `CustomerListController`: anchos de Cliente y Correo.
+
 ---
 
 ## 4. Decisiones y acuerdos

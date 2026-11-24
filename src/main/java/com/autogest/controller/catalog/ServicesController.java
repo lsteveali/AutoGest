@@ -22,7 +22,6 @@ import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
 import javafx.scene.layout.HBox;
@@ -133,7 +132,7 @@ public class ServicesController implements Initializable, NavigatorAware {
 
     private PagedTable<ServiceOffering> buildTable() {
         PagedTable<ServiceOffering> pagedTable = new PagedTable<>(PAGE_SIZE);
-        pagedTable.addColumn("Servicio", this::serviceCell);
+        pagedTable.addColumn("Servicio", this::serviceCell, 230);
         pagedTable.addColumn("Categoría", service -> service.getCategory() == null ? "-" : service.getCategory());
         pagedTable.addColumn("Duración", service -> ServiceLabels.duration(service.getDurationHours()));
         pagedTable.addColumn("Precio", service -> ServiceLabels.price(service.getPrice()));
@@ -144,14 +143,9 @@ public class ServicesController implements Initializable, NavigatorAware {
         return pagedTable;
     }
 
-    private Node serviceCell(ServiceOffering service) {
-        Label name = new Label(service.getName());
-        name.getStyleClass().add("user-cell-name");
-        Label code = new Label(service.getCode() == null ? "" : service.getCode());
-        code.getStyleClass().add("user-cell-username");
-        VBox cell = new VBox(2, name, code);
-        cell.setAlignment(Pos.CENTER_LEFT);
-        return cell;
+    /** Nombre y código en una sola línea, como el resto de las tablas. */
+    private String serviceCell(ServiceOffering service) {
+        return PagedTable.withDetail(service.getName(), service.getCode());
     }
 
     private Node actionsCell(ServiceOffering service) {

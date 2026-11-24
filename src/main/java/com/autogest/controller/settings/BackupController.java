@@ -2,6 +2,7 @@ package com.autogest.controller.settings;
 
 import com.autogest.config.AppContext;
 import com.autogest.controller.NavigationEvent;
+import com.autogest.controller.components.AppDialog;
 import com.autogest.controller.components.FormDialog;
 import com.autogest.controller.components.IconSet;
 import com.autogest.controller.components.PageHeader;
@@ -17,7 +18,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -205,14 +205,10 @@ public class BackupController implements Initializable {
         if (!dialog.open()) {
             return;
         }
-        Alert done = new Alert(Alert.AlertType.INFORMATION);
-        done.setTitle("Copia restaurada");
-        done.setHeaderText(null);
-        done.setContentText("Se restauró la copia del " + Formatter.timestamp(info.createdAt()) + " ("
+        AppDialog.success("Copia restaurada", "Se restauró la copia del " + Formatter.timestamp(info.createdAt()) + " ("
                 + result[0].tables() + " tablas, " + result[0].rows() + " registros).\n\n"
                 + "El estado anterior quedó guardado en " + result[0].safetyBackup().fileName() + ".\n\n"
                 + "Inicia sesión de nuevo para continuar.");
-        done.showAndWait();
         root.fireEvent(NavigationEvent.endSession());
     }
 

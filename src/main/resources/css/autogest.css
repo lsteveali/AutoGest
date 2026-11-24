@@ -587,6 +587,8 @@
     -fx-font-size: 13px;
     -fx-padding: 10 12;
     -fx-text-fill: -ag-text;
+    /* Texto, insignias y «...» centrados en la fila, todos a la misma altura. */
+    -fx-alignment: center-left;
 }
 
 /* --------------------------------------------------------------------------
@@ -2576,18 +2578,23 @@
     -fx-underline: true;
 }
 
-/* Espacio libre al pie del contenido: el botón redondo del Asistente no tapa
-   la paginación ni los botones del final del formulario. */
-.content-area {
-    -fx-padding: 24 24 84 24;
-}
-
-.dashboard-mode .content-area {
-    -fx-padding: 0;
+/* El botón redondo del Asistente queda en la esquina inferior derecha: la
+   paginación deja libre ese ancho para que «Siguiente» no quede debajo. Las
+   pantallas con desplazamiento ya agregan espacio al final (ViewNavigator). */
+.pagination-bar {
+    -fx-padding: 0 64 0 0;
 }
 
 .dashboard-body {
-    -fx-padding: 16 24 84 24;
+    -fx-padding: 16 24 72 24;
+}
+
+/* Fondo transparente de las listas con desplazamiento (Clientes, Vehículos,
+   Servicios); los demás módulos lo traen en su propia hoja. */
+.module-scroll,
+.module-scroll > .viewport {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
 }
 
 /* Texto de ayuda legible en los campos del tema oscuro (también en los
@@ -2596,9 +2603,128 @@
     -fx-prompt-text-fill: -ag-text-placeholder;
 }
 
-/* Botones de los avisos (errores y confirmaciones): el principal
-   en verde, para que se distinga bien en los dos temas; los demás, neutros. */
-.dialog-pane.alert > .button-bar > .container > .button {
+/* --------------------------------------------------------------------------
+   Teléfono con país (PhoneField)
+   -------------------------------------------------------------------------- */
+.phone-country {
+    -fx-min-width: 88;
+    -fx-pref-width: 92;
+}
+
+/* --------------------------------------------------------------------------
+   Avisos de AutoGest (AppDialog): tarjeta con el escudo, ícono del tipo de
+   aviso, título, mensaje y botones de la paleta, en los dos temas.
+   -------------------------------------------------------------------------- */
+.app-alert-root.root {
+    -fx-background-color: transparent;
+    -fx-padding: 22;
+}
+
+.app-alert {
+    -fx-background-color: -ag-card;
+    -fx-background-radius: 14;
+    -fx-border-color: -ag-border;
+    -fx-border-radius: 14;
+    -fx-padding: 18 22 18 22;
+    -fx-min-width: 380;
+    -fx-pref-width: 440;
+    -fx-max-width: 480;
+    -fx-effect: dropshadow(gaussian, rgba(17, 17, 17, 0.24), 24, 0, 0, 8);
+}
+
+.app-alert-brand {
+    -fx-text-fill: -ag-text-muted;
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+}
+
+.app-alert-title {
+    -fx-text-fill: -ag-text;
+    -fx-font-size: 16px;
+    -fx-font-weight: 700;
+}
+
+.app-alert-message {
+    -fx-text-fill: -ag-text-muted;
+    -fx-font-size: 14px;
+    -fx-line-spacing: 2;
+}
+
+.app-alert-icon {
+    -fx-min-width: 40;
+    -fx-min-height: 40;
+    -fx-max-width: 40;
+    -fx-max-height: 40;
+    -fx-background-radius: 999;
+}
+
+.app-alert-error {
+    -fx-background-color: -ag-danger-tint;
+}
+
+.app-alert-error .icon {
+    -fx-stroke: -ag-danger;
+}
+
+.app-alert-warning {
+    -fx-background-color: -ag-warning-tint;
+}
+
+.app-alert-warning .icon {
+    -fx-stroke: -ag-warning;
+}
+
+.app-alert-info {
+    -fx-background-color: rgba(47, 106, 148, 0.14);
+}
+
+.app-alert-info .icon {
+    -fx-stroke: -ag-info;
+}
+
+.app-dark .app-alert-info .icon {
+    -fx-stroke: #8EC1E6;
+}
+
+.app-alert-success {
+    -fx-background-color: -ag-success-tint;
+}
+
+.app-alert-success .icon {
+    -fx-stroke: -ag-success;
+}
+
+.app-alert-question {
+    -fx-background-color: -ag-selected;
+}
+
+.app-alert-question .icon {
+    -fx-stroke: -ag-primary;
+}
+
+/* Principal en verde (como pidió el Líder) y en rojo cuando borra. */
+.app-alert-primary {
+    -fx-background-color: -ag-success;
+    -fx-text-fill: #FFFFFF;
+    -fx-font-weight: 700;
+    -fx-background-radius: 8;
+    -fx-padding: 8 20;
+    -fx-cursor: hand;
+}
+
+.app-alert-primary:hover {
+    -fx-background-color: derive(-ag-success, -14%);
+}
+
+.app-alert-primary.app-alert-danger {
+    -fx-background-color: -ag-danger;
+}
+
+.app-alert-primary.app-alert-danger:hover {
+    -fx-background-color: derive(-ag-danger, -14%);
+}
+
+.app-alert-secondary {
     -fx-background-color: -ag-card;
     -fx-border-color: -ag-border-strong;
     -fx-background-radius: 8;
@@ -2608,22 +2734,16 @@
     -fx-cursor: hand;
 }
 
-.dialog-pane.alert > .button-bar > .container > .button:hover {
+.app-alert-secondary:hover {
     -fx-background-color: -ag-hover;
 }
 
-.dialog-pane.alert > .button-bar > .container > .button:default {
-    -fx-background-color: -ag-success;
-    -fx-border-color: -ag-success;
-    -fx-text-fill: #FFFFFF;
-    -fx-font-weight: 700;
+.app-alert-primary:focused,
+.app-alert-secondary:focused {
+    -fx-effect: dropshadow(three-pass-box, rgba(157, 86, 58, 0.45), 5, 0.6, 0, 0);
 }
 
-.dialog-pane.alert > .button-bar > .container > .button:default:hover {
-    -fx-background-color: derive(-ag-success, -14%);
-    -fx-border-color: derive(-ag-success, -14%);
-}
-
-.dialog-pane.alert > .button-bar > .container > .button:focused {
-    -fx-effect: dropshadow(three-pass-box, rgba(30, 138, 79, 0.35), 6, 0.5, 0, 0);
+/* En el tema oscuro, un rojo más profundo para que el texto blanco se lea. */
+.app-dark .app-alert-primary.app-alert-danger {
+    -fx-background-color: #C0443A;
 }

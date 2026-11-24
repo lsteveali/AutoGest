@@ -1,13 +1,13 @@
 package com.autogest.controller.components;
 
 import com.autogest.util.AppPreferences;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonBar;
-import javafx.scene.control.ButtonType;
 
 /**
  * Diálogo de confirmación para acciones destructivas (desactivar un cliente,
  * anular una factura, ...). Devuelve {@code true} solo si el usuario acepta.
+ *
+ * <p>Se muestra con el diseño de AutoGest ({@link AppDialog}); al eliminar, el
+ * botón que confirma va en rojo.</p>
  *
  * <p>Principles: Pure Fabrication, High Cohesion.</p>
  */
@@ -25,16 +25,7 @@ public final class ConfirmDialog {
      * @return {@code true} si el usuario confirma; {@code false} en caso contrario
      */
     public static boolean confirm(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-
-        ButtonType accept = new ButtonType("Aceptar", ButtonBar.ButtonData.OK_DONE);
-        ButtonType cancel = new ButtonType("Cancelar", ButtonBar.ButtonData.CANCEL_CLOSE);
-        alert.getButtonTypes().setAll(accept, cancel);
-
-        return alert.showAndWait().filter(accept::equals).isPresent();
+        return AppDialog.confirm(title, message, "Aceptar", false);
     }
 
     /**
@@ -47,6 +38,6 @@ public final class ConfirmDialog {
      * @return {@code true} si se puede eliminar
      */
     public static boolean confirmDelete(String title, String message) {
-        return !AppPreferences.confirmBeforeDelete() || confirm(title, message);
+        return !AppPreferences.confirmBeforeDelete() || AppDialog.confirm(title, message, "Eliminar", true);
     }
 }

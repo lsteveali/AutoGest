@@ -6,6 +6,7 @@ import com.autogest.model.Catalogs.Role;
 import com.autogest.model.User;
 import com.autogest.model.Catalogs.UserStatus;
 import com.autogest.repository.UserRepository;
+import com.autogest.util.ContactValidator;
 import com.autogest.util.PasswordHasher;
 
 import java.util.List;
@@ -23,7 +24,6 @@ import java.util.List;
  */
 public class UserService {
 
-    private static final String EMAIL_PATTERN = "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$";
     /** Largo mínimo de una contraseña (público: lo muestra la pantalla Seguridad). */
     public static final int MIN_PASSWORD_LENGTH = 8;
 
@@ -249,22 +249,16 @@ public class UserService {
         return user;
     }
 
-    /** Exige nombres y apellidos no vacíos. */
+    /** Exige nombres y apellidos solo con letras (ContactValidator) y limpia sus espacios. */
     private void validateNames(User user) {
-        if (isBlank(user.getFirstName()) || isBlank(user.getLastName())) {
-            throw new ValidationException("Los nombres y apellidos son obligatorios.");
-        }
-        user.setFirstName(user.getFirstName().trim());
-        user.setLastName(user.getLastName().trim());
+        user.setFirstName(ContactValidator.name(user.getFirstName(), "Los nombres"));
+        user.setLastName(ContactValidator.name(user.getLastName(), "Los apellidos"));
     }
 
-    /** Exige un correo con formato válido y sin repetir. */
+    /** Exige un correo con formato estricto (ContactValidator) y sin repetir. */
     private void validateEmail(User user, int currentId) {
-        String email = user.getEmail();
-        if (isBlank(email) || !email.trim().matches(EMAIL_PATTERN)) {
-            throw new ValidationException("Ingresa un correo electrónico válido.");
-        }
-        User existing = repository.findByEmail(email.trim());
+        String email = ContactValidator.email(user.getEmail());
+        User existing = repository.findByEmail(email);
         if (existing != null && existing.getId() != currentId) {
             throw new ValidationException("Ya existe un usuario con ese correo electrónico.");
         }

@@ -4,6 +4,7 @@ import com.autogest.exception.ValidationException;
 import com.autogest.model.SystemPreferences;
 import com.autogest.model.WorkshopProfile;
 import com.autogest.repository.SettingsRepository;
+import com.autogest.util.ContactValidator;
 
 import java.util.List;
 import java.util.regex.Pattern;
@@ -21,7 +22,6 @@ public class SettingsService {
     /** Tamaños de página permitidos en las tablas. */
     public static final List<Integer> PAGE_SIZES = List.of(10, 25, 50, 100);
 
-    private static final Pattern EMAIL = Pattern.compile("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$");
     private static final Pattern NIT = Pattern.compile("^[0-9.]+(-[0-9])?$");
     private static final int MIN_INACTIVITY = 5;
     private static final int MAX_INACTIVITY = 240;
@@ -61,13 +61,12 @@ public class SettingsService {
         if (!NIT.matcher(profile.getNit()).matches()) {
             throw new ValidationException("El NIT solo admite números, puntos y un dígito de verificación (901.456.789-1)");
         }
-        if (profile.getEmail() == null) {
-            throw new ValidationException("El correo electrónico es obligatorio");
-        }
-        requireEmail(profile.getEmail(), "El correo electrónico no es válido");
-        if (profile.getMainEmail() != null) {
-            requireEmail(profile.getMainEmail(), "El correo principal no es válido");
-        }
+        // Correos con formato estricto y teléfonos con indicativo según el país (ContactValidator).
+        profile.setEmail(ContactValidator.email(profile.getEmail()));
+        profile.setMainEmail(inField("Correo principal", () -> ContactValidator.optionalEmail(profile.getMainEmail())));
+        profile.setPhone(inField("Teléfono", () -> ContactValidator.optionalPhone(profile.getPhone())));
+        profile.setWhatsapp(inField("WhatsApp", () -> ContactValidator.optionalPhone(profile.getWhatsapp())));
+        profile.setMainPhone(inField("Teléfono principal", () -> ContactValidator.optionalPhone(profile.getMainPhone())));
         repository.saveWorkshopProfile(profile);
         return profile;
     }
@@ -132,9 +131,12 @@ public class SettingsService {
         p.setBusinessHours(clean(p.getBusinessHours()));
     }
 
-    private static void requireEmail(String email, String message) {
-        if (!EMAIL.matcher(email).matches()) {
-            throw new ValidationException(message);
+    /** Valida un campo y, si falla, dice cuál fue (hay varios correos y teléfonos). */
+    private static String inField(String field, java.util.function.Supplier<String> check) {
+        try {
+            return check.get();
+        } catch (ValidationException error) {
+            throw new ValidationException(field + ": " + error.getMessage());
         }
     }
 

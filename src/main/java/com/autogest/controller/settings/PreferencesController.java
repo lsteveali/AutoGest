@@ -4,6 +4,7 @@ import com.autogest.config.AppContext;
 import com.autogest.controller.NavigatorAware;
 import com.autogest.controller.ViewNavigator;
 import com.autogest.controller.components.ConfirmDialog;
+import com.autogest.controller.components.AppDialog;
 import com.autogest.controller.components.ErrorDialog;
 import com.autogest.controller.components.FormLayout;
 import com.autogest.controller.components.PageHeader;
@@ -15,7 +16,6 @@ import com.autogest.util.Background;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
@@ -273,10 +273,7 @@ public class PreferencesController implements Initializable, NavigatorAware {
         if (!AppPreferences.showSaveConfirmation()) {
             return;
         }
-        Alert alert = new Alert(Alert.AlertType.INFORMATION, message);
-        alert.setHeaderText(null);
-        alert.setTitle("Preferencias del sistema");
-        alert.showAndWait();
+        AppDialog.success("Preferencias del sistema", message);
     }
 
     private SettingsService service() {
