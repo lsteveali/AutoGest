@@ -1199,6 +1199,35 @@ Rama `feature/recuperar-contrasena` desde `origin/develop` (`11c8454`).
 **Archivos de Dev 1 tocados (a pedido del Líder):**
 - `CustomerService`: `setOnRegistered` y el aviso después de `registerCustomer`. Un error del aviso nunca deshace el registro.
 
+### 24/11/2026 — Sesión 40 (Líder): encabezado del Inicio con foto y paleta Brick, Ivory y Steel
+
+**Contexto.** Se mostraron tres maquetas de fondo para el Inicio: banda superior, foto difuminada y barra lateral. El Líder no eligió ninguna. Trajo su propio diseño: capturas del Inicio y del login en los dos temas, dos fotos del taller (de día y de noche) y la paleta Brick `#9D563A`, Ivory `#EBEDF1` y Steel `#22282F`. Las fotos del login que venían en el diseño eran solo de referencia y no se subieron: el login sigue con sus fondos de la Sesión 38.
+
+Rama `feature/encabezado-dashboard` desde `origin/develop` (`d342de3`).
+
+**Hecho:**
+1. **Fotos:** `dashboard-taller-dia.png` y `dashboard-taller-noche.png` (2000 × 667), convertidas desde WebP.
+2. **Paleta** (tokens `-ag-brick`, `-ag-ivory` y `-ag-steel`):
+   - El tema oscuro (`-ag-night-*`) pasó de azul noche a tonos Steel.
+   - El ítem activo de la barra lateral va en Brick. La barra sigue negra en los dos temas.
+3. **Encabezado del Inicio** (`home.fxml` + `HomeController`):
+   - La foto cubre el encabezado sin deformarse y se recorta por la izquierda, para que el carro y el elevador queden a la derecha.
+   - Un degradado horizontal de Ivory (claro) o Steel (oscuro) la deja sólida detrás del saludo y transparente hacia el carro. Un borde inferior suave la funde con las tarjetas.
+   - «+ Nueva orden» va en Brick.
+   - El encabezado queda fijo y solo las tarjetas se desplazan. Así el saludo, el botón y el carro se ven siempre. Se revisó en 1024 × 700, 1440 × 900 y 1920 × 1080.
+4. **Tema en el Inicio** (`main.fxml` + `MainController.applyDashboardLook`):
+   - En el Inicio, la columna central toma el tema elegido en Personalización: claro (fondo Ivory, texto Steel) u oscuro (fondo Steel, texto Ivory, tarjetas y tablas sólidas).
+   - La foto sube hasta el borde de la ventana. La barra superior va encima, con un fondo translúcido detrás de la campana y del usuario.
+   - Las demás pantallas no cambian.
+5. **Login:**
+   - Velo suave (Ivory o Steel) detrás del logo y el eslogan, que se vuelve transparente hacia afuera.
+   - El formulario claro va sobre Ivory, con título Steel y enlace Brick.
+   - «Iniciar sesión» y el foco de los campos van en Brick en los dos temas, también en «Recuperar contraseña».
+6. **Personalización:** la tarjeta «Tema» avisa que también se aplica al Inicio.
+7. **Pruebas:** `mvn clean test` → **663 pruebas, 0 fallos**.
+
+**Archivos de Dev 1 tocados:** ninguno.
+
 ---
 
 ## 4. Decisiones y acuerdos
@@ -1266,6 +1295,7 @@ Rama `feature/recuperar-contrasena` desde `origin/develop` (`11c8454`).
 | 22/11/2026 | **El póster de ExpoSoftware no se sube al repositorio.** | Decisión del Líder: queda fuera de Git (se ignora solo en el equipo local con `.git/info/exclude`). |
 | 23/11/2026 | **Los códigos para recuperar la contraseña viven en memoria (con su hash) y no en la base de datos.** | La recuperación ocurre en el mismo equipo y en minutos; así no hace falta una tabla nueva en Supabase. Si se cierra la app antes de usar el código, se pide otro. |
 | 23/11/2026 | **Los correos de bienvenida nunca llevan la contraseña.** | Seguridad: el usuario la recibe del administrador o la cambia con «¿Olvidaste tu contraseña?». |
+| 24/11/2026 | **El tema claro u oscuro se aplica al login y al Inicio; las demás pantallas siguen claras.** El encabezado del Inicio queda fijo y solo se desplazan las tarjetas. | Pedido del Líder: el cambio se limita al Inicio. Con el encabezado fijo, el saludo, «+ Nueva orden» y el carro se ven en cualquier tamaño de ventana. |
 | 19/11/2026 | **El formulario «Nueva notificación» propone un mensaje según el tipo** (plantillas del Líder) sin pisar lo que el usuario escribió. | Pedido del Líder. Se autorizó tocar `NotificationNewController` y `NotificationService` de Dev 1; se registra en la sección «Para Dev 1» del PR. |
 
 ---
