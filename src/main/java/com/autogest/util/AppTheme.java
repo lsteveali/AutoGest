@@ -1,15 +1,16 @@
 package com.autogest.util;
 
 /**
- * Tema visual de AutoGest en este equipo. Por ahora cambia el inicio de
- * sesión: el taller cálido con el formulario claro, o el taller azul nocturno
- * con el formulario oscuro. Se guarda con {@link LoginAppearanceStore}.
+ * Tema visual de AutoGest en este equipo: claro (fondo Ivory, texto Steel y el
+ * taller de día) u oscuro (fondo Steel, texto Ivory y el taller de noche). Se
+ * aplica a toda la aplicación, login incluido, con {@link ThemeManager} y se
+ * guarda con {@link LoginAppearanceStore}.
  */
 public enum AppTheme {
 
-    /** Taller cálido y formulario claro (el de siempre). */
+    /** Fondo Ivory, texto Steel y el taller de día. */
     LIGHT("Claro"),
-    /** Taller azul nocturno y formulario oscuro. */
+    /** Fondo Steel, texto Ivory y el taller de noche. */
     DARK("Oscuro");
 
     private final String label;
@@ -26,6 +27,11 @@ public enum AppTheme {
     /** Clase CSS que se pone en la raíz de la pantalla para este tema. */
     public String styleClass() {
         return this == DARK ? "theme-dark" : "theme-light";
+    }
+
+    /** El otro tema (lo usa el botón de la barra superior). */
+    public AppTheme toggled() {
+        return this == DARK ? LIGHT : DARK;
     }
 
     /**
